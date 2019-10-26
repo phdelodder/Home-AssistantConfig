@@ -136,4 +136,7 @@ ha-deploy:
   script:
     - echo "$SUDO_PASSWORD" | ssh -tt ansible@docker "cd /usr/share/hassio/homeassistant && sudo git checkout master && sudo git pull origin master && exit"
   only:
-    - master
+    refs:
+      - master
+    changes:
+      - "*.yaml"
