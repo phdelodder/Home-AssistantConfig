@@ -11,7 +11,7 @@ __pycache__
 home-assistant.log
 home-assistant_v2.db*
 nest.conf
-secrets.yaml
+/secrets.yaml
 known_devices.yaml
 scripts/publish-ink-level-mqtt.cfg
 
