@@ -12,6 +12,7 @@ Using a selfhosted gitlab vm and a selfhosted gitlab runner. Resource used for f
 - [Frenck's Home Assistant Configuration](https://github.com/frenck/home-assistant-config)
 
 The CI is configured to do 3 steps:
+
 - preflight, validation of the files
    - shellcheck
    - yamllint
