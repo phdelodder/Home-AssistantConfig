@@ -1,7 +1,7 @@
-
 # Home Assistant Configuration
 
 ## About
+
 Configuration files for [Home Assistant](https://home-assistant.io).
 
 ## Continuous Integration
@@ -21,10 +21,9 @@ The CI is configured to do 3 steps:
    - Current version
    - Release candidate
    - Development
-- Deployment, deploys pulls the latest updates on the remote server using SSH.
-This is only done when yaml files are changed.
+- Deployment, deploys pulls the latest updates on the remote server using SSH. This is only done when yaml files are changed.
 
-## Custom Components 
+## Custom Components
 
 - [HACS](https://hacs.xyz/)
 - [Variable](https://github.com/rogro82/hass-variables),
