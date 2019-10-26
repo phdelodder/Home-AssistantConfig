@@ -15,9 +15,6 @@ nest.conf
 known_devices.yaml
 scripts/publish-ink-level-mqtt.cfg
 
-# HACS file ignores
-python_scripts/shellies_discovery.py
-
 # Directory ignores
 www/snapshots/
 deps/
@@ -25,7 +22,3 @@ tts/
 .storage/
 .cloud/
 .vscode/
-
-# HACS directory ignores
-custom_components/
-www/community/
