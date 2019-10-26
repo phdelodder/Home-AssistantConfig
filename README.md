@@ -14,14 +14,14 @@ Using a selfhosted gitlab vm and a selfhosted gitlab runner. Resource used for f
 The CI is configured to do 3 steps:
 
 - preflight, validation of the files
-   - shellcheck
-   - yamllint
-   - jsonlint
-   - markdownlint
+  - shellcheck
+  - yamllint
+  - jsonlint
+  - markdownlint
 - Check, validating the config against HA it self
-   - Current version
-   - Release candidate
-   - Development
+  - Current version
+  - Release candidate
+  - Development
 - Deployment, deploys pulls the latest updates on the remote server using SSH. This is only done when yaml files are changed.
 
 ## Custom Components
