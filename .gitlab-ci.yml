@@ -18,7 +18,7 @@ stages:
     PYTHONPATH: "/usr/src/app:$PYTHONPATH"
   before_script:
     - python -m homeassistant --version
-    - cp ./.stubs/secrects.yaml ./
+    - cp ./.stubs/secrets.yaml ./
   script:
     - |
       python -m homeassistant \
