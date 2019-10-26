@@ -31,6 +31,7 @@ stages:
 
 # Generic SSH Deploy template
 .ssh-deploy: &ssh-deploy
+  image: ubuntu
   stage: deploy
   variables:
     PYTHONPATH: "/usr/src/app:$PYTHONPATH"
