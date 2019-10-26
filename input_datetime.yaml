@@ -1,0 +1,36 @@
+temperaturetime:
+  name: Temperature Time
+  has_date: false
+  has_time: true
+  initial: "06:00"
+
+zone_1_next_run_time:
+  has_date: true
+  has_time: true
+zone_2_next_run_time:
+  has_date: true
+  has_time: true
+zone_3_next_run_time:
+  has_date: true
+  has_time: true
+zone_4_next_run_time:
+  has_date: true
+  has_time: true
+
+zone_1_select_time:
+  has_date: false
+  has_time: true
+  initial: "07:00"
+zone_2_select_time:
+  has_date: false
+  has_time: true
+  initial: "07:00"
+zone_3_select_time:
+  has_date: false
+  has_time: true
+  initial: "07:00"
+zone_4_select_time:
+  has_date: false
+  has_time: true
+  initial: "07:00"
+

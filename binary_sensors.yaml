@@ -1,0 +1,44 @@
+- platform: template
+  sensors:
+    everybody_home:
+      value_template: "{{ is_state('input_boolean.everybody_home', 'on') }}"
+      friendly_name: "Everybody Home"
+      device_class: occupancy
+    house_presence:
+      value_template: "{{ is_state('input_boolean.house_presence','on') }}"
+      device_class: presence
+      friendly_name: "House Presence"
+    house_guests:
+      value_template: "{{ is_state('input_boolean.house_guests', 'on') }}"
+      device_class: presence
+      friendly_name: "Guests"
+    night_mode:
+      value_template: "{{ is_state('input_boolean.night_mode', 'on') }}"
+      device_class: moving
+      friendly_name: "Night Mode"
+    home_proximity:
+       value_template: >-
+               {% if (states.proximity.philippe_home.attributes.dir_of_travel == "towards" and states.proximity.philippe_home.state | int <= 2) or
+                     (states.proximity.isabel_home.attributes.dir_of_travel == "towards" and states.proximity.isabel_home.state | int <= 2) %}
+                  True
+               {%else%}
+                  False
+               {%endif%}
+
+- platform: mqtt
+  name: "Achterdeur Bewegingssensor"
+  state_topic: "hvio3/stat/POWER2"
+  availability_topic: "hvio3/tele/LWT"
+  payload_on: "ON"
+  payload_off: "OFF"
+  qos: 1
+  payload_available: "Online"
+  payload_not_available: "Offline"
+  device_class: "motion"
+
+- platform: mqtt
+  name: "Oprit Camera"
+  state_topic: "camera/1/motion"
+  payload_on: "ON"
+  payload_off: "OFF"
+  device_class: "motion"

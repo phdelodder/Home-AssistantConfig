@@ -1,0 +1,9 @@
+last_motion:
+  value: 'Not set'
+  restore: true
+  attributes:
+    icon: mdi:run
+    friendly_name: 'Laatste Beweging'
+daily_vacuum_first_run:
+  value: False
+  restore: true

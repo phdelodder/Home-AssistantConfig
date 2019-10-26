@@ -1,0 +1,89 @@
+homeassistant:
+  customize: !include customize.yaml
+
+# Configure a default setup of Home Assistant (frontend, api, etc)
+default_config:
+
+# Uncomment this if you are using SSL/TLS, running in Docker container, etc.
+# http:
+#   base_url: example.duckdns.org:8123
+
+# Text to speech
+tts:
+  - platform: google_translate
+
+frontend:
+  themes: !include_dir_merge_named themes
+
+http:
+  base_url: !secret base_url
+
+recorder:
+  db_url: !secret db_url
+
+discovery:
+
+zone: !include zones.yaml
+group: !include groups.yaml
+automation: !include automations.yaml
+script: !include scripts.yaml
+cover: !include cover.yaml
+alarm_control_panel: !include alarm.yaml
+camera: !include camera.yaml
+input_select: !include input_select.yaml
+input_boolean: !include input_boolean.yaml
+input_number: !include input_number.yaml
+input_datetime: !include input_datetime.yaml
+device_tracker: !include device_tracker.yaml
+notify: !include notify.yaml
+variable: !include variable.yaml
+sensor: !include sensors.yaml
+binary_sensor: !include binary_sensors.yaml
+media_player: !include media_players.yaml
+
+hacs:
+  token: !secret my_github_access_token
+  python_script: true
+  theme: true
+
+python_script:
+
+telegram_bot:
+  - platform: polling
+    api_key: !secret telegram_bot_api_key
+    allowed_chat_ids:
+      - !secret telegram_bot_chat_id1
+      - !secret telegram_bot_chat_id2
+
+vacuum:
+  platform: xiaomi_miio
+  host: 192.168.0.69
+  token: !secret vacuum_xiaomi_token
+
+plex:
+  host: 192.168.0.10
+  token: !secret plex_token
+
+nest:
+  client_id: !secret nest-client_id
+  client_secret: !secret nest-client_secret
+
+ifttt:
+  key: !secret ifttt-key
+
+speedtestdotnet:
+  server_id: 10986
+
+influxdb:
+  host: 192.168.0.15
+
+shell_command:
+  ha_start: 'curl http://docker.fritz.box:1880/hastart'
+
+octoprint:
+  host: octoprint.fritz.box
+  port: 5000
+  api_key: !secret octoprint-api_key
+  name: ender3
+  bed: true
+  number_of_tools: 1

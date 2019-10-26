@@ -1,0 +1,30 @@
+# Generic ignores
+*.log
+*.db
+*.db-shm
+*.db-wal
+*.pyc
+._*
+__pycache__
+
+# Specific file ignores
+home-assistant.log
+home-assistant_v2.db*
+nest.conf
+secrets.yaml
+known_devices.yaml
+scripts/publish-ink-level-mqtt.cfg
+
+# HACS file ignores
+python_scripts/shellies_discovery.py
+
+# Directory ignores
+www/snapshots/
+deps/
+tts/
+.storage/
+.cloud/
+
+# HACS directory ignores
+custom_components/
+www/community/

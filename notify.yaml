@@ -1,0 +1,11 @@
+- name: HAZilverberkenstraatBot_philippe
+  platform: telegram
+  chat_id: !secret telegram_bot_chat_id1
+- name: HAZilverberkenstraatBot_isabel
+  platform: telegram
+  chat_id: !secret telegram_bot_chat_id2
+- name: HAZilverberkenstraatBot
+  platform: group
+  services:
+    - service: hazilverberkenstraatbot_philippe
+    - service: hazilverberkenstraatbot_isabel

@@ -1,0 +1,35 @@
+Proximity:
+   name: Proximity
+   entities:
+     - proximity.philippe_home
+     - proximity.isabel_home
+
+motion_sensors:
+  name: Motion Sensors
+  entities: 
+    - binary_sensor.bureau_motion
+    - binary_sensor.motion_gang_eerste_2
+    - binary_sensor.motion_gang_eerste_1
+    - binary_sensor.presence_17
+    - binary_sensor.presence_12
+    - binary_sensor.tradfri_motion_sensor
+    - binary_sensor.achterdeur_bewegingssensor
+    - binary_sensor.presence_4
+    - binary_sensor.oprit_camera
+    - binary_sensor.presence_23
+    - binary_sensor.presence_24
+    - binary_sensor.motion_gang_zolder
+    - binary_sensor.motion_voordeur
+
+motion_gang_eerste_verdiep:
+  name: Motion Gang Eerste Verdiep
+  entities: 
+    - binary_sensor.motion_gang_eerste_1
+    - binary_sensor.motion_gang_eerste_2
+
+DoorDetection:
+  name: Door Detection
+  entities:
+    - binary_sensor.openclose_5
+    - binary_sensor.openclose_6
+

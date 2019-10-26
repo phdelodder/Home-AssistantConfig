@@ -1,0 +1,81 @@
+vacuum_room:
+  name: Choose a room to clean
+  options:
+    - Selecteer Kamer
+    - Keuken
+    - Living
+    - Eet Kamer
+    - Inkom
+    - Berging
+
+zone_1_schedule:
+  name: Schedule
+  options:
+    - Zone Off
+    - Every Day
+    - Every 3 Days
+    - Tue/Thu/Sat
+    - Mon/Wed/Fri/Sun
+    - Monday
+    - Tuesday
+    - Wednesday
+    - Thursday
+    - Friday
+    - Saturday
+    - Sunday
+  initial: Tue/Thu/Sat
+  icon: mdi:calendar  
+
+zone_2_schedule:
+  name: Schedule
+  options:
+    - Zone Off
+    - Every Day
+    - Every 3 Days
+    - Tue/Thu/Sat
+    - Mon/Wed/Fri/Sun
+    - Monday
+    - Tuesday
+    - Wednesday
+    - Thursday
+    - Friday
+    - Saturday
+    - Sunday
+  initial: Tue/Thu/Sat
+  icon: mdi:calendar
+    
+zone_3_schedule:
+  name: Schedule
+  options:
+    - Zone Off
+    - Every Day
+    - Every 3 Days
+    - Tue/Thu/Sat
+    - Mon/Wed/Fri/Sun
+    - Monday
+    - Tuesday
+    - Wednesday
+    - Thursday
+    - Friday
+    - Saturday
+    - Sunday
+  initial: Tue/Thu/Sat
+  icon: mdi:calendar
+    
+zone_4_schedule:
+  name: Schedule
+  options:
+    - Zone Off
+    - Every Day
+    - Every 3 Days
+    - Tue/Thu/Sat
+    - Mon/Wed/Fri/Sun
+    - Monday
+    - Tuesday
+    - Wednesday
+    - Thursday
+    - Friday
+    - Saturday
+    - Sunday
+  initial: Tue/Thu/Sat
+  icon: mdi:calendar

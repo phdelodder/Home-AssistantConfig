@@ -1,0 +1,79 @@
+- id: Start_Up_Home_Assistant
+  alias: Start Up Home Assistant
+  trigger:
+  - platform: homeassistant
+    event: start
+  action:
+  - service: script.turn_on
+    entity_id: script.start_up_home_assistant
+- id: shellies_announce
+  alias: Shellies Announce
+  trigger:
+  - platform: homeassistant
+    event: start
+  action:
+    service: mqtt.publish
+    data:
+      topic: shellies/command
+      payload: announce
+- id: shellies_discovery
+  alias: Shellies Discovery
+  trigger:
+  - platform: mqtt
+    topic: shellies/announce
+  action:
+    service: python_script.shellies_discovery
+    data_template:
+      id: '{{ trigger.payload_json.id }}'
+      mac: '{{ trigger.payload_json.mac }}'
+      fw_ver: '{{ trigger.payload_json.fw_ver }}'
+      shellyswitch25-00C928-relay-0: light
+      shellyswitch25-00C928-relay-1: light
+
+- alias: 'Update Last Motion'
+  id: 'Update Last Motion'
+  initial_state: 'on'
+  trigger:
+  - platform: state
+    entity_id:
+      - binary_sensor.bureau_motion
+      - binary_sensor.speelkamer_motion
+      - binary_sensor.achterdeur_bewegingssensor
+      - binary_sensor.oprit_camera
+      - binary_sensor.voor_deur
+      - binary_sensor.achter_deur
+      - binary_sensor.keuken_deur
+      - binary_sensor.garage_deur
+      - binary_sensor.motion_wc_boven
+      - binary_sensor.motion_wc_beneden
+      - binary_sensor.motion_gang_eerste_2
+      - binary_sensor.motion_gang_eerste_1
+      - binary_sensor.motion_inkom
+      - binary_sensor.motion_gang_zolder
+      - binary_sensor.motion_voordeur
+      - binary_sensor.motion_bureau
+      - binary_sensor.motion_logeerkamer
+      - binary_sensor.motion_speelkamer
+      - binary_sensor.motion_living
+    to: 'on'
+  action:
+    service: variable.set_variable
+    data:
+      variable: last_motion
+      attributes_template: >
+          {
+                "history_1": "{{ variable.state }}",
+                "history_2": "{{ variable.attributes.history_1 }}",
+                "history_3": "{{ variable.attributes.history_2 }}",
+                "history_4": "{{ variable.attributes.history_3 }}",
+                "history_5": "{{ variable.attributes.history_4 }}",
+                "history_6": "{{ variable.attributes.history_5 }}",
+                "history_7": "{{ variable.attributes.history_6 }}",
+                "history_8": "{{ variable.attributes.history_7 }}",
+                "history_9": "{{ variable.attributes.history_8 }}",
+                "history_10": "{{ variable.attributes.history_9 }}"
+          }
+    data_template:
+      value: >
+          {{ trigger.to_state.attributes.friendly_name|replace('motion sensor','') }}:
+          {{as_timestamp(states.variable.last_motion.last_changed)| timestamp_custom('%X') }}

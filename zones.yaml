@@ -1,0 +1,33 @@
+- name: Home
+  latitude: !secret home-latitude
+  longitude: !secret home-longitude
+  radius: 50
+  icon: mdi:home
+
+- name: Connective
+  latitude: !secret connective-latitude
+  longitude: !secret connective-longitude
+  radius: 100
+  icon: mdi:worker
+
+- name: Az-Sint Jan
+  latitude: !secret azsintjan-latitude
+  longitude: !secret azsintjan-longitude
+  radius: 100
+  icon: mdi:iworker
+
+- name: School
+  latitude: !secret school-latitude
+  longitude: !secret school-longitude
+  radius: 50
+  icon: mdi:school
+
+- name: patricia
+  latitude: !secret patricia-latitude
+  longitude: !secret patricia-longitude
+  radius: 50
+
+- name: Louis&Ingrid
+  latitude: !secret louisingrid-latitude
+  longitude: !secret louisingrid-longitude
+  radius: 50

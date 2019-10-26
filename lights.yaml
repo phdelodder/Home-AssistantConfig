@@ -1,0 +1,32 @@
+- platform: group
+  name: gelijkvloers
+  entities:
+    - light.wc_beneden
+    - light.inkom
+
+- platform: group
+  name: eerste verdiep 
+  entities:
+    - light.slaapkamer_margot
+    - light.slaapkamer_febe
+    - light.logeerkamer
+    - light.gang_eerste_verdiep
+    - light.wc_boven
+    - light.sfeerverlichting_slaapkamer
+
+- platform: group
+  name: buiten
+  entities: 
+    - light.voordeur
+    - light.achterdeur
+    - light.garage_buiten
+
+- platform: group
+  name: zolder
+  entities:
+    - light.gang_zolder
+    - light.speelkamer
+    - light.bureau
+    - light.led_bureau
+    - light.led_slaapkamer
+

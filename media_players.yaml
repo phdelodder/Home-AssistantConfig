@@ -1,0 +1,14 @@
+- platform: kodi
+  host: 192.168.0.38
+- platform: samsungtv
+  host: 192.168.0.67
+  #- platform: spotify
+  #client_id: !secret spotify-philippe-clientid
+  #client_secret: !secret spotify-philippe-client_secret
+  #cache_path: '.spotify_philippe'
+  #- platform: spotify
+  #client_id: !secret spotify-isabel-clientid
+  #client_secret: !secret spotify-isabel-client_secret
+  #cache_path: '.spotify_isabel'
+- platform: plex
+

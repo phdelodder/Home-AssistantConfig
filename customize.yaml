@@ -1,0 +1,312 @@
+binary_sensor.Voordeur_bewegingssensor_sensor:
+  friendly_name: Voordeur bewegingssensor
+  device_class: motion
+  icon: mdi:walk
+binary_sensor.camera_garage_motion_sensor:
+  friendly_name: Camera Garage bewegingssenor
+  hidden: true
+calendar.bestrijdingsplanning:
+  hidden: true
+calendar.contacts:
+  hidden: true
+calendar.familiedelodderbe:
+  hidden: true
+calendar.febedelodderbe:
+  hidden: true
+calendar.feestdagen_in_belgie:
+  hidden: true
+calendar.isabel_van_torre:
+  hidden: true
+calendar.kalender:
+  hidden: true
+calendar.margotdelodderbe:
+  hidden: true
+calendar.philippe_delodder:
+  hidden: true
+calendar.werk_philippe:
+  hidden: true
+calendar.werk_uren_sintjan:
+  hidden: true
+device_tracker.xgin:
+  icon: mdi:raspberrypi
+device_tracker.hp80bb6w:
+  icon: mdi:printer
+device_tracker.isabel_smartphone:
+  icon: mdi:cellphone-android
+device_tracker.philippe_smartphone:
+  icon: mdi:cellphone-android
+group.Family:
+  hidden: true
+group.PortableDevices:
+  hidden: true
+sensor.downstairs_thermostat_hvac_state:
+  friendly_name: Downstairs Thermostat hvac state
+  hidden: true
+sensor.dark_sky_icon:
+  hidden: true
+sensor.dark_sky_summary:
+  hidden: true
+sensor.downstairs_thermostat_target:
+  friendly_name: Downstairs target °C
+sensor.last_update_isabel_smartphone:
+  icon: mdi:update
+sensor.last_update_philippe_smartphone:
+  icon: mdi:update
+sensor.isabel_to_home:
+  hidden: true
+sensor.philippe_to_home:
+  hidden: true
+sensor.duration_philippe_to_home:
+  icon: mdi:google-maps
+sensor.duration_isabel_to_home:
+  icon: mdi:google-maps
+sensor.location_isabel_gm:
+  icon: mdi:google-maps
+sensor.location_philippe_gm:
+  icon: mdi:google-maps
+sensor.voordeur_bewegingssensor_alarm_level:
+  friendly_name: Voordeur bewegingssensor alarm level
+sensor.voordeur_bewegingssensor_alarm_type:
+  friendly_name: Voordeur bewegingssensor alarm type
+sensor.printer_ink_level_magenta:
+  friendly_name: Ink Level
+  entity_picture: /local/magenta.jpg
+sensor.printer_ink_level_cyan:
+  friendly_name: Ink Level
+  entity_picture: /local/cyan.jpg
+sensor.printer_ink_level_yellow:
+  friendly_name: Ink Level
+  entity_picture: /local/yellow.jpg
+sensor.printer_ink_level_black:
+  friendly_name: Ink Level
+  entity_picture: /local/black.jpg
+sensor.printer_status:
+  friendly_name: HP Officejet 6700 Status
+  entity_picture: /local/HPOJ6700.png
+sensor.serre_humidity:
+  icon: mdi:water-percent
+sensor.camera_garage_motion_zone:
+  friendly_name: Garage laatste active zone
+  hidden: true
+sensor.time_delta_1:
+  hidden: true
+sensor.zone_1_timer_reset_sensor:
+  hidden: true
+sensor.time_delta_2:
+  hidden: true
+sensor.zone_2_timer_reset_sensor:
+  hidden: true
+sensor.time_delta_3:
+  hidden: true
+sensor.zone_3_timer_reset_sensor:
+  hidden: true
+sensor.time_delta_4:
+  hidden: true
+sensor.zone_4_timer_reset_sensor:
+  hidden: true
+switch.berging_verlichting_switch:
+  friendly_name: Berging
+switch.berging_verlichting_switch_2:
+  hidden: true
+switch.berging_verlichting_switch_3:
+  hidden: true
+switch.achterdeur_verlichting_switch:
+  friendly_name: Achterdeur
+switch.achterdeur_verlichting_switch_2:
+  hidden: true
+switch.achterdeur_verlichting_switch_3:
+  hidden: true
+switch.wc_beneden_verlichting_switch:
+  friendly_name: WC beneden
+switch.wc_beneden_verlichting_switch_2:
+  hidden: true
+switch.wc_beneden_verlichting_switch_3:
+  hidden: true
+sensor.soil_moisture_zone_1:
+  icon: mdi:water-percent
+sensor.soil_moisture_zone_2:
+  icon: mdi:water-percent
+sensor.soil_moisture_zone_3:
+  icon: mdi:water-percent
+sensor.soil_moisture_zone_4:
+  icon: mdi:water-percent
+sensor.minimum_soil_moisture_1:
+  friendly_name: Minimum Soil Moisture
+  icon: mdi:water-percent
+sensor.minimum_soil_moisture_2:
+  friendly_name: Minimum Soil Moisture
+  icon: mdi:water-percent
+sensor.minimum_soil_moisture_3:
+  friendly_name: Minimum Soil Moisture
+  icon: mdi:water-percent
+sensor.minimum_soil_moisture_4:
+  friendly_name: Minimum Soil Moisture
+  icon: mdi:water-percent
+binary_sensor.include_rain_sensor_1:
+  friendly_name: Include Rainfall Sensitivity
+binary_sensor.include_rain_sensor_2:
+  friendly_name: Include Rainfall Sensitivity
+binary_sensor.include_rain_sensor_3:
+  friendly_name: Include Rainfall Sensitivity
+binary_sensor.include_rain_sensor_4:
+  friendly_name: Include Rainfall Sensitivity
+binary_sensor.greenhouse_button_1:
+  friendly_name: Greenhouse Button 1
+binary_sensor.greenhouse_button_2:
+  friendly_name: Greenhouse Button 2
+binary_sensor.greenhouse_button_3:
+  friendly_name: Greenhouse Button 3
+binary_sensor.greenhouse_button_4:
+  friendly_name: Greenhouse Button 4
+binary_sensor.greenhouse_control_1_status:
+  friendly_name: Greenhouse control 1
+binary_sensor.greenhouse_control_2_status:
+  friendly_name: Greenhouse control 2
+binary_sensor.greenhouse_control_3_status:
+  friendly_name: Greenhouse control 3
+sensor.pws_precip_today_metric_sensitivity:
+  friendly_name: Rainfall mm Sensitivity
+  icon: mdi:umbrella
+sensor.pws_precip_1d_sensitivity:
+  friendly_name: Rainfall Probability Sensitivity
+  icon: mdi:water-percent
+switch.greenhouse_zone_1:
+  icon: mdi:water-pump
+switch.greenhouse_zone_2:
+  icon: mdi:water-pump
+switch.greenhouse_zone_3:
+  icon: mdi:water-pump
+switch.greenhouse_zone_4:
+  icon: mdi:water-pump
+sensor.rain_text:
+  friendly_name: Rain Status Text
+  icon: mdi:umbrella
+binary_sensor.rain_state:
+  friendly_name: Rain
+switch.garage_buiten_verlichting:
+  friendly_name: Garage
+switch.voordeur_verlichting:
+  friendly_name: Voordeur
+switch.inkom_verlichting:
+  friendly_name: Inkom
+input_number.soil_moisture_sensitivity_1:
+  persistent: 'true'
+input_number.soil_moisture_sensitivity_2:
+  persistent: 'true'
+input_number.soil_moisture_sensitivity_3:
+  persistent: 'true'
+input_number.soil_moisture_sensitivity_4:
+  persistent: 'true'
+sensor.battery_familie_tablet_sensor:
+  battery_alert_disabled: 'true'
+  friendly_name: Familie Tablet Battery
+sensor.battery_febe_tablet_sensor:
+  friendly_name: Febe Tablet Battery
+input_number.cycle2_zone1_duration:
+  persistent: 'true'
+input_number.cycle1_zone1_duration:
+  persistent: 'true'
+input_number.cycle1_zone2_duration:
+  persistent: 'true'
+input_number.cycle2_zone2_duration:
+  persistent: 'true'
+input_number.cycle1_zone3_duration:
+  persistent: 'true'
+input_number.cycle2_zone3_duration:
+  persistent: 'true'
+input_number.cycle1_zone4_duration:
+  persistent: 'true'
+input_number.cycle2_zone4_duration:
+  persistent: 'true'
+binary_sensor.weatherstation_status:
+  friendly_name: Weatherstation
+sensor.illumination_7811dcb9c836:
+  friendly_name: Living
+input_boolean.house_guests:
+  persistent: 'true'
+zwave.slaapkamer_margot_verlichting:
+  friendly_name: Slaapkamer Margot verlichting
+  node_name: Slaapkamer Margot verlichting
+light.magichome2:
+  friendly_name: Sfeerverlichting schouw
+light.magichome1:
+  friendly_name: sfeerverlichting slaapkamer
+input_boolean.disable_greenhouse_windows:
+  persistent: 'true'
+input_boolean.daily_vacuum_first_run:
+  persistent: 'true'
+input_boolean.disable_daily_vacuum:
+  persistent: 'true'
+input_boolean.disable_dustbin_notification:
+  persistent: 'true'
+input_boolean.cycle1_enable: {}
+sensor.lightlevel_3:
+  device_class: illuminance
+sensor.lightlevel_7:
+  device_class: illuminance
+sensor.lightlevel_13:
+  device_class: illuminance
+sensor.lightlevel_15:
+  device_class: illuminance
+sensor.lightlevel_11:
+  device_class: illuminance
+sensor.afval_ophaal_dag:
+  icon: mdi:calendar-today
+input_boolean.night_mode:
+  persistent: 'true'
+input_boolean.tempsetactive:
+  persistent: 'true'
+binary_sensor.voor_deur:
+  icon: mdi:door-closed
+binary_sensor.achter_deur:
+  icon: mdi:door-closed
+binary_sensor.keuken_deur:
+  icon: mdi:door-closed
+binary_sensor.garage_deur:
+  icon: mdi:door-closed
+input_boolean.disable_motion_trigger_light_gang_eerste_verdiep:
+  persistent: 'true'
+input_boolean.disable_motion_trigger_light_gang_zolder:
+  persistent: 'true'
+input_boolean.disable_motion_trigger_light_inkom:
+  persistent: 'true'
+sensor.dining_room_nest_protect_smoke_status:
+  icon: mdi:fire
+sensor.dining_room_nest_protect_battery_health:
+  icon: mdi:battery
+sensor.dining_room_nest_protect_color_status:
+  icon: mdi:traffic-light
+binary_sensor.dining_room_nest_protect_online:
+  icon: mdi:smoke-detector
+sensor.dining_room_nest_protect_co_status:
+  icon: mdi:skull-crossbones
+sensor.attic_nest_protect_smoke_status:
+  icon: mdi:fire
+sensor.attic_nest_protect_battery_health:
+  icon: mdi:battery
+sensor.attic_nest_protect_color_status:
+  icon: mdi:traffic-light
+binary_sensor.attic_nest_protect_online:
+  icon: mdi:smoke-detector
+sensor.attic_nest_protect_co_status:
+  icon: mdi:skull-crossbones
+sensor.hallway_nest_protect_smoke_status:
+  icon: mdi:fire
+sensor.hallway_nest_protect_battery_health:
+  icon: mdi:battery
+sensor.hallway_nest_protect_color_status:
+  icon: mdi:traffic-light
+binary_sensor.hallway_nest_protect_online:
+  icon: mdi:smoke-detector
+sensor.hallway_nest_protect_co_status:
+  icon: mdi:skull-crossbones
+sensor.inkom_nest_protect_smoke_status:
+  icon: mdi:fire
+sensor.inkom_nest_protect_battery_health:
+  icon: mdi:battery
+sensor.inkom_nest_protect_color_status:
+  icon: mdi:traffic-light
+binary_sensor.inkom_nest_protect_online:
+  icon: mdi:smoke-detector
+sensor.inkom_nest_protect_co_status:
+  icon: mdi:skull-crossbones
