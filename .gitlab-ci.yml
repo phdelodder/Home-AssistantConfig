@@ -13,7 +13,7 @@ stages:
 
 # Generic Home Assistant template
 .ha: &ha
-  stage: homeassistant
+  stage: check
   variables:
     PYTHONPATH: "/usr/src/app:$PYTHONPATH"
   before_script:
