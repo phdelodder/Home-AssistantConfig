@@ -24,6 +24,7 @@ deps/
 tts/
 .storage/
 .cloud/
+.vscode/
 
 # HACS directory ignores
 custom_components/
