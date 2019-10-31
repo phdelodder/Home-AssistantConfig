@@ -12,4 +12,4 @@
   #cache_path: '.spotify_isabel'
 - platform: emby
   host: !secret emby-host
-  api-key: !secret emby-api-key
+  api_key: !secret emby-api-key
