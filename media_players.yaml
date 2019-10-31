@@ -10,5 +10,4 @@
   #client_id: !secret spotify-isabel-clientid
   #client_secret: !secret spotify-isabel-client_secret
   #cache_path: '.spotify_isabel'
-- platform: plex
 
