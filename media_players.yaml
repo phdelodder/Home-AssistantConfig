@@ -14,3 +14,4 @@
   host: !secret emby-host
   ssl: true
   api_key: !secret emby-api-key
+  port: 443
