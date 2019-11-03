@@ -40,6 +40,7 @@ variable: !include variable.yaml
 sensor: !include sensors.yaml
 binary_sensor: !include binary_sensors.yaml
 media_player: !include media_players.yaml
+light: !include lights.yaml
 
 hacs:
   token: !secret my_github_access_token
