@@ -23,7 +23,6 @@ zone_1_schedule:
     - Friday
     - Saturday
     - Sunday
-  initial: Tue/Thu/Sat
   icon: mdi:calendar  
 
 zone_2_schedule:
@@ -41,7 +40,6 @@ zone_2_schedule:
     - Friday
     - Saturday
     - Sunday
-  initial: Tue/Thu/Sat
   icon: mdi:calendar
     
 zone_3_schedule:
@@ -59,7 +57,6 @@ zone_3_schedule:
     - Friday
     - Saturday
     - Sunday
-  initial: Tue/Thu/Sat
   icon: mdi:calendar
     
 zone_4_schedule:
@@ -77,5 +74,4 @@ zone_4_schedule:
     - Friday
     - Saturday
     - Sunday
-  initial: Tue/Thu/Sat
   icon: mdi:calendar

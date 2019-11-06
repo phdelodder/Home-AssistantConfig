@@ -1,14 +1,12 @@
 temperature:
   name: Temperature
   icon: mdi:temperature-celsius
-  initial: 20
   min: 18
   max: 25
   step: 0.5
 
 soil_moisture_sensitivity_1:
   name: "Zone 1"
-  initial: 40
   min: 0
   max: 100
   step: 5
@@ -16,7 +14,6 @@ soil_moisture_sensitivity_1:
 
 soil_moisture_sensitivity_2:
   name: "Zone 2"
-  initial: 40
   min: 0
   max: 100
   step: 5
@@ -24,7 +21,6 @@ soil_moisture_sensitivity_2:
 
 soil_moisture_sensitivity_3:
   name: "Zone 3"
-  initial: 40
   min: 0
   max: 100
   step: 5
@@ -32,7 +28,6 @@ soil_moisture_sensitivity_3:
 
 soil_moisture_sensitivity_4:
   name: "Zone 4"
-  initial: 40
   min: 0
   max: 100
   step: 5
@@ -41,7 +36,6 @@ soil_moisture_sensitivity_4:
 zone_1_duration:
   name: Duration
   icon: mdi:timer-sand
-  initial: 1.00
   min: 0
   max: 60
   step: 1
@@ -49,7 +43,6 @@ zone_1_duration:
 zone_2_duration:
   name: Duration
   icon: mdi:timer-sand
-  initial: 1.00
   min: 0
   max: 60
   step: 1
@@ -57,7 +50,6 @@ zone_2_duration:
 zone_3_duration:
   name: Duration
   icon: mdi:timer-sand
-  initial: 1.00
   min: 0
   max: 60
   step: 1
@@ -65,21 +57,18 @@ zone_3_duration:
 zone_4_duration:
   name: Duration
   icon: mdi:timer-sand
-  initial: 1.00
   min: 0
   max: 60
   step: 1
 
 vacuum_number_of_runs:
   name: Number Of Runs
-  initial: 0
   step: 1
   min: 0
   max: 100
 
 vacuum_empty_bin_after_days:
   name: Empty Bin After Days
-  initial: 4
   step: 1
   min: 0
   max: 100
