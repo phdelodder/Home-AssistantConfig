@@ -1,0 +1,8 @@
+- platform: command_line
+  scan_interval: 35
+  switches:
+    motion_detection:
+      command_on: 'curl -k "http://motioneye.fritz.box:7999/1/detection/start"'
+      command_off: 'curl -k "http://motioneye.fritz.box:7999/1/detection/pause"'
+      command_state: 'curl -s "http://motioneye.fritz.box:7999/1/detection/status" | grep -q ACTIVE'
+      friendly_name: Motion detection
