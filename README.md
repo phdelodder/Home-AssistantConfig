@@ -53,3 +53,9 @@ This is all done through HACS
 - Monster Card
 - Travel Time Card
 - Vertical Stack In Card
+
+## Camera
+
+For monitoring my drive way I'm using an Dahua 'DH-IPC-HDBW4431R-ZS'. Integration is done through [Motion Eye](https://github.com/ccrisan/motioneye). 
+
+Motion detection can be enable or disable using the Motion API, you can use switches.yaml file for example config. To remove the localhost limited of Motion API see [github comment](https://github.com/ccrisan/motioneye/issues/800#issuecomment-453689160).
