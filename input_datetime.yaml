@@ -29,3 +29,7 @@ zone_4_select_time:
   has_date: false
   has_time: true
 
+philippe_phone_next_alarm:
+  name: Philippe volgende alarm
+  has_date: true
+  has_time: true
