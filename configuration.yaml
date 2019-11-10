@@ -86,3 +86,6 @@ octoprint:
   name: ender3
   bed: true
   number_of_tools: 1
+
+hpprinter:
+  host: 192.168.0.91

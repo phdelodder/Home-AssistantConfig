@@ -29,6 +29,8 @@ The CI is configured to do 3 steps:
 - [HACS](https://hacs.xyz/)
 - [Variable](https://github.com/rogro82/hass-variables),
    using to do the installation and maintance
+- [HP Printer](https://github.com/elad-bar/ha-hpprinter),
+   using to do the installation and maintance
 
 ## Themes
 
