@@ -27,10 +27,8 @@ The CI is configured to do 3 steps:
 ## Custom Components
 
 - [HACS](https://hacs.xyz/)
-- [Variable](https://github.com/rogro82/hass-variables),
-   using to do the installation and maintance
-- [HP Printer](https://github.com/elad-bar/ha-hpprinter),
-   using to do the installation and maintance
+- [Variable](https://github.com/rogro82/hass-variables)
+- [HP Printer](https://github.com/elad-bar/ha-hpprinter)
 
 ## Themes
 
