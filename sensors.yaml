@@ -1,34 +1,5 @@
 - platform: nest
 
-# Magenta ink level
-- platform: mqtt
-  state_topic: 'home/printer/magenta'
-  name: printer_ink_level_magenta
-  unit_of_measurement: '%'
-
-# Cyan ink level
-- platform: mqtt
-  state_topic: 'home/printer/cyan'
-  name: printer_ink_level_cyan
-  unit_of_measurement: '%'
-
-# Yellow ink level
-- platform: mqtt
-  state_topic: 'home/printer/yellow'
-  name: printer_ink_level_yellow
-  unit_of_measurement: '%'
-
-# black ink level
-- platform: mqtt
-  state_topic: 'home/printer/black'
-  name: printer_ink_level_black
-  unit_of_measurement: '%'
-
-# status
-- platform: mqtt
-  state_topic: 'home/printer/status'
-  name: printer_status
-
 - platform: template
   sensors:
     temperature_degrees:

@@ -68,17 +68,13 @@ sensor.voordeur_bewegingssensor_alarm_level:
   friendly_name: Voordeur bewegingssensor alarm level
 sensor.voordeur_bewegingssensor_alarm_type:
   friendly_name: Voordeur bewegingssensor alarm type
-sensor.printer_ink_level_magenta:
-  friendly_name: Ink Level
+sensor.hp_printer_magenta_ink:
   entity_picture: /local/magenta.jpg
-sensor.printer_ink_level_cyan:
-  friendly_name: Ink Level
+sensor.hp_printer_cyan_ink:
   entity_picture: /local/cyan.jpg
-sensor.printer_ink_level_yellow:
-  friendly_name: Ink Level
+sensor.hp_printer_yellow_ink:
   entity_picture: /local/yellow.jpg
-sensor.printer_ink_level_black:
-  friendly_name: Ink Level
+sensor.hp_printer_black_ink:
   entity_picture: /local/black.jpg
 sensor.printer_status:
   friendly_name: HP Officejet 6700 Status
