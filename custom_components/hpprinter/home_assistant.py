@@ -80,14 +80,16 @@ class HPPrinterHomeAssistant:
 
         entity_id = f"sensor.{slugify(sensor_name)}"
 
-        total_printed = printer_data.get("TotalImpressions", {})
-        total_printed_pages = self.clean_parameter(total_printed)
+        total_printed_pages = self.clean_parameter(printer_data, "TotalImpressions", "0")
 
-        color_printed_pages = printer_data.get("ColorImpressions", 0)
-        monochrome_printed_pages = printer_data.get("MonochromeImpressions", 0)
-        printer_jams = printer_data.get("Jams", 0)
-        cancelled_print_jobs = printer_data.get("TotalFrontPanelCancelPresses", {})
-        cancelled_print_jobs_number = self.clean_parameter(cancelled_print_jobs)
+        color_printed_pages = self.clean_parameter(printer_data, "ColorImpressions")
+        monochrome_printed_pages = self.clean_parameter(printer_data, "MonochromeImpressions")
+
+        printer_jams = self.clean_parameter(printer_data, "Jams")
+        if printer_jams == "N/A":
+            printer_jams = self.clean_parameter(printer_data, "JamEvents", "0")
+
+        cancelled_print_jobs_number = self.clean_parameter(printer_data, "TotalFrontPanelCancelPresses")
 
         state = total_printed_pages
 
@@ -107,18 +109,23 @@ class HPPrinterHomeAssistant:
 
         entity_id = f"sensor.{slugify(sensor_name)}"
 
-        scan_images = scanner_data.get("ScanImages", {})
-        scan_images_count = self.clean_parameter(scan_images)
+        scan_images_count = self.clean_parameter(scanner_data, "ScanImages")
+        adf_images_count = self.clean_parameter(scanner_data, "AdfImages")
+        duplex_sheets_count = self.clean_parameter(scanner_data, "DuplexSheets")
+        flatbed_images = self.clean_parameter(scanner_data, "FlatbedImages")
+        scanner_jams = self.clean_parameter(scanner_data, "JamEvents", "0")
+        scanner_mispick = self.clean_parameter(scanner_data, "MispickEvents", "0")
 
-        adf_images = scanner_data.get("AdfImages", {})
-        adf_images_count = self.clean_parameter(adf_images)
+        if scan_images_count == 'N/A':
+            new_scan_images_count = 0
 
-        duplex_sheets = scanner_data.get("DuplexSheets", {})
-        duplex_sheets_count = self.clean_parameter(duplex_sheets)
+            if adf_images_count != "N/A" and int(adf_images_count) > 0:
+                new_scan_images_count = int(adf_images_count)
 
-        flatbed_images = scanner_data.get("FlatbedImages", 0)
-        scanner_jams = scanner_data.get("JamEvents", 0)
-        scanner_mispick = scanner_data.get("MispickEvents", 0)
+            if flatbed_images != "N/A" and int(flatbed_images) > 0:
+                new_scan_images_count = new_scan_images_count + int(flatbed_images)
+
+            scan_images_count = new_scan_images_count
 
         state = scan_images_count
 
@@ -135,10 +142,10 @@ class HPPrinterHomeAssistant:
         self._hass.states.set(entity_id, state, attributes)
 
     def create_ink_sensor(self, printer_consumable_data):
-        color = printer_consumable_data.get("MarkerColor", "Unknown")
-        head_type = printer_consumable_data.get("ConsumableTypeEnum", "Unknown")
-        station = printer_consumable_data.get("ConsumableStation", "Unknown")
-        remaining = printer_consumable_data.get("ConsumableRawPercentageLevelRemaining", 0)
+        color = self.clean_parameter(printer_consumable_data, "MarkerColor")
+        head_type = self.clean_parameter(printer_consumable_data, "ConsumableTypeEnum")
+        station = self.clean_parameter(printer_consumable_data, "ConsumableStation")
+        remaining = self.clean_parameter(printer_consumable_data, "ConsumableRawPercentageLevelRemaining")
 
         sensor_name = f"{self._name} {color} {head_type}"
 
@@ -157,10 +164,13 @@ class HPPrinterHomeAssistant:
         self._hass.states.set(entity_id, state, attributes)
 
     @staticmethod
-    def clean_parameter(data_item):
-        if isinstance(data_item, str):
-            result = data_item
-        else:
-            result = data_item.get("#text", 0)
+    def clean_parameter(data_item, data_key, default_value="N/A"):
+        result = data_item.get(data_key, {})
+
+        if not isinstance(result, str):
+            result = result.get("#text", 0)
+
+        if not isinstance(result, str):
+            result = default_value
 
         return result

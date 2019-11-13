@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 import sys
-import logging
+# import logging
 
 import requests
 import xmltodict
@@ -42,7 +42,20 @@ ARRAY_KEYS = {
 
 ARRAY_AS_DEFAULT = ["AlertDetailsUserAction", "ConsumableStateAction"]
 
-_LOGGER = logging.getLogger(__name__)
+API_DATA_SOURCE = True
+
+
+class Logger:
+    @staticmethod
+    def debug(message):
+        print(f"DEBUG - {message}")
+
+    @staticmethod
+    def error(message):
+        print(f"ERROR - {message}")
+
+
+_LOGGER = Logger() # logging.getLogger(__name__)
 
 
 class HPPrinterData:
@@ -63,12 +76,12 @@ class HPPrinterData:
         try:
             _LOGGER.debug(f"Updating {self._data_type} from {self._host}")
 
-            printer_data = self.get_data_from_printer()
+            data = self.get_data_from_printer()
 
             result = {}
 
-            for root_key in printer_data:
-                root_item = printer_data[root_key]
+            for root_key in data:
+                root_item = data[root_key]
 
                 item = self.extract_data(root_item, root_key)
 
@@ -87,10 +100,16 @@ class HPPrinterData:
         try:
             _LOGGER.debug(f"Retrieving {self._data_type} from {self._host}")
 
-            response = requests.get(self._url, timeout=10)
-            response.raise_for_status()
+            if API_DATA_SOURCE:
+                response = requests.get(self._url, timeout=10)
+                response.raise_for_status()
 
-            content = response.text
+                content = response.text
+
+            else:
+                file = open(f'{self._data_type}.txt', 'r')
+                content = file.read()
+
             for ns in NAMESPACES_TO_REMOVE:
                 content = content.replace(f'{ns}:', '')
 
@@ -153,16 +172,16 @@ class HPPrinterData:
             for current_item in data_item:
                 next_item_key = item_key
                 item = {}
-                for key in current_item:
-                    next_item = current_item[key]
+                for current_key in current_item:
+                    next_item = current_item[current_key]
 
-                    item_data = self.extract_data(next_item, key)
+                    item_data = self.extract_data(next_item, current_key)
 
                     if item_data is not None:
-                        item[key] = item_data
+                        item[current_key] = item_data
 
-                        if key in keys:
-                            next_item_key = f'{next_item_key}_{item[key]}'
+                        if current_key in keys:
+                            next_item_key = f'{next_item_key}_{item[current_key]}'
 
                 if len(keys) == 0:
                     next_item_key = f'{next_item_key}_{index}'
@@ -177,6 +196,18 @@ class HPPrinterData:
             line_number = tb.tb_lineno
 
             _LOGGER.error(f'Failed to extract from array {item_key} of {data_item}, Error: {ex}, Line: {line_number}')
+
+    @staticmethod
+    def clean_parameter(data_item, data_key, default_value="N/A"):
+        result = data_item.get(data_key, {})
+
+        if not isinstance(result, str):
+            result = result.get("#text", 0)
+
+        if not isinstance(result, str):
+            result = default_value
+
+        return result
 
 
 class ConsumableConfigDynPrinterData(HPPrinterData):
@@ -204,8 +235,9 @@ hostname = "192.168.1.30"
 
 usage_data = ProductUsageDynPrinterData(hostname)
 usage_data.update()
-print(usage_data.data)
+_LOGGER.debug(usage_data.data)
 
+'''
 status_data = ProductStatusDynData(hostname)
 status_data.update()
 print(status_data.data)
@@ -213,22 +245,26 @@ print(status_data.data)
 consumable_data = ConsumableConfigDynPrinterData(hostname)
 consumable_data.update()
 print(consumable_data.data)
+'''
 
 root = usage_data.data.get("ProductUsageDyn", {})
 printer_data = root.get("PrinterSubunit", {})
 consumables_data = root.get("ConsumableSubunit", {})
 scanner_data = root.get("ScannerEngineSubunit", {})
 printer_consumables = consumables_data.get("Consumable", {})
-total_printed = printer_data.get("TotalImpressions", {})
-total_printed_pages = total_printed.get("#text", 0)
-color_printed_pages = printer_data.get("ColorImpressions", 0)
-monochrome_printed_pages = printer_data.get("MonochromeImpressions", 0)
-printer_jams = printer_data.get("Jams", 0)
-cancelled_print_jobs = printer_data.get("TotalFrontPanelCancelPresses", {})
-cancelled_print_jobs_number = cancelled_print_jobs.get("#text", 0)
+
+total_printed_pages = usage_data.clean_parameter(printer_data, "TotalImpressions", "0")
+color_printed_pages = usage_data.clean_parameter(printer_data, "ColorImpressions")
+monochrome_printed_pages = usage_data.clean_parameter(printer_data, "MonochromeImpressions")
+printer_jams = usage_data.clean_parameter(printer_data, "Jams")
+
+if printer_jams == "N/A":
+    printer_jams = usage_data.clean_parameter(printer_data, "JamEvents", "0")
+
+cancelled_print_jobs_number = usage_data.clean_parameter(printer_data, "TotalFrontPanelCancelPresses")
 
 state = total_printed_pages
-print(state)
+_LOGGER.debug(state)
 
 attributes = {
     "Color": color_printed_pages,
@@ -237,20 +273,29 @@ attributes = {
     "Cancelled": cancelled_print_jobs_number
 }
 
-print(attributes)
+_LOGGER.debug(attributes)
 
-scan_images = scanner_data.get("ScanImages", {})
-scan_images_count = scan_images.get("#text", 0)
-adf_images = scanner_data.get("AdfImages", {})
-adf_images_count = adf_images.get("#text", 0)
-duplex_sheets = scanner_data.get("DuplexSheets", {})
-duplex_sheets_count = duplex_sheets.get("#text", 0)
-flatbed_images = scanner_data.get("FlatbedImages", {})
-scanner_jams = scanner_data.get("JamEvents", {})
-scanner_mispick = scanner_data.get("MispickEvents", {})
+scan_images_count = usage_data.clean_parameter(scanner_data, "ScanImages")
+adf_images_count = usage_data.clean_parameter(scanner_data, "AdfImages")
+flatbed_images = usage_data.clean_parameter(scanner_data, "FlatbedImages")
+
+duplex_sheets_count = usage_data.clean_parameter(scanner_data, "DuplexSheets")
+scanner_jams = usage_data.clean_parameter(scanner_data, "JamEvents", "0")
+scanner_mispick = usage_data.clean_parameter(scanner_data, "MispickEvents", "0")
+
+if scan_images_count == 'N/A':
+    new_scan_images_count = 0
+
+    if adf_images_count != "N/A" and int(adf_images_count) > 0:
+        new_scan_images_count = int(adf_images_count)
+
+    if flatbed_images != "N/A" and int(flatbed_images) > 0:
+        new_scan_images_count = new_scan_images_count + int(flatbed_images)
+
+    scan_images_count = new_scan_images_count
 
 state = scan_images_count
-print(state)
+_LOGGER.debug(state)
 
 attributes = {
     "ADF": adf_images_count,
@@ -260,19 +305,19 @@ attributes = {
     "Mispick": scanner_mispick
 }
 
-print(attributes)
+_LOGGER.debug(attributes)
 
 for key in printer_consumables:
     printer_consumable_data = printer_consumables[key]
 
-    color = printer_consumable_data.get("MarkerColor", "Unknown")
-    head_type = printer_consumable_data.get("ConsumableTypeEnum", "Unknown")
-    station = printer_consumable_data.get("ConsumableStation", "Unknown")
-    remaining = printer_consumable_data.get("ConsumableRawPercentageLevelRemaining", 0)
+    color = usage_data.clean_parameter(printer_consumable_data, "MarkerColor")
+    head_type = usage_data.clean_parameter(printer_consumable_data, "ConsumableTypeEnum")
+    station = usage_data.clean_parameter(printer_consumable_data, "ConsumableStation")
+    remaining = usage_data.clean_parameter(printer_consumable_data, "ConsumableRawPercentageLevelRemaining")
 
     state = remaining
 
-    print(state)
+    _LOGGER.debug(state)
 
     attributes = {
         "Color": color,
@@ -280,4 +325,4 @@ for key in printer_consumables:
         "Station": station
     }
 
-    print(attributes)
+    _LOGGER.debug(attributes)
