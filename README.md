@@ -53,6 +53,7 @@ This is all done through HACS
 - Monster Card
 - Travel Time Card
 - Vertical Stack In Card
+- Text Divider Rowy
 
 ## Camera
 
