@@ -29,7 +29,7 @@
       fw_ver: '{{ trigger.payload_json.fw_ver }}'
       shellyswitch25-00C928-relay-0: light
       shellyswitch25-00C928-relay-1: light
-      shelly1_2c6e97_relay_0: light
+      shelly1-2C6E97-relay-0: light
 
 - alias: 'Update Last Motion'
   id: 'Update Last Motion'
