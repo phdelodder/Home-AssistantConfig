@@ -26,17 +26,6 @@
                {%endif%}
 
 - platform: mqtt
-  name: "Achterdeur Bewegingssensor"
-  state_topic: "hvio3/stat/POWER2"
-  availability_topic: "hvio3/tele/LWT"
-  payload_on: "ON"
-  payload_off: "OFF"
-  qos: 1
-  payload_available: "Online"
-  payload_not_available: "Offline"
-  device_class: "motion"
-
-- platform: mqtt
   name: "Oprit Camera"
   state_topic: "camera/1/motion"
   payload_on: "ON"
