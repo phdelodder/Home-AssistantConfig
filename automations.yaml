@@ -39,7 +39,7 @@
     entity_id:
       - binary_sensor.bureau_motion
       - binary_sensor.speelkamer_motion
-      - binary_sensor.achterdeur_bewegingssensor
+      - binary_sensor.motion_achterdeur
       - binary_sensor.oprit_camera
       - binary_sensor.voor_deur
       - binary_sensor.achter_deur
