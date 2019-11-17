@@ -100,24 +100,6 @@ sensor.time_delta_4:
   hidden: true
 sensor.zone_4_timer_reset_sensor:
   hidden: true
-switch.berging_verlichting_switch:
-  friendly_name: Berging
-switch.berging_verlichting_switch_2:
-  hidden: true
-switch.berging_verlichting_switch_3:
-  hidden: true
-switch.achterdeur_verlichting_switch:
-  friendly_name: Achterdeur
-switch.achterdeur_verlichting_switch_2:
-  hidden: true
-switch.achterdeur_verlichting_switch_3:
-  hidden: true
-switch.wc_beneden_verlichting_switch:
-  friendly_name: WC beneden
-switch.wc_beneden_verlichting_switch_2:
-  hidden: true
-switch.wc_beneden_verlichting_switch_3:
-  hidden: true
 sensor.soil_moisture_zone_1:
   icon: mdi:water-percent
 sensor.soil_moisture_zone_2:
@@ -179,12 +161,6 @@ sensor.rain_text:
   icon: mdi:umbrella
 binary_sensor.rain_state:
   friendly_name: Rain
-switch.garage_buiten_verlichting:
-  friendly_name: Garage
-switch.voordeur_verlichting:
-  friendly_name: Voordeur
-switch.inkom_verlichting:
-  friendly_name: Inkom
 input_number.soil_moisture_sensitivity_1:
   persistent: 'true'
 input_number.soil_moisture_sensitivity_2:
