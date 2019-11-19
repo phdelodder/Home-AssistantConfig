@@ -161,41 +161,15 @@ sensor.rain_text:
   icon: mdi:umbrella
 binary_sensor.rain_state:
   friendly_name: Rain
-input_number.soil_moisture_sensitivity_1:
-  persistent: 'true'
-input_number.soil_moisture_sensitivity_2:
-  persistent: 'true'
-input_number.soil_moisture_sensitivity_3:
-  persistent: 'true'
-input_number.soil_moisture_sensitivity_4:
-  persistent: 'true'
 sensor.battery_familie_tablet_sensor:
   battery_alert_disabled: 'true'
   friendly_name: Familie Tablet Battery
 sensor.battery_febe_tablet_sensor:
   friendly_name: Febe Tablet Battery
-input_number.cycle2_zone1_duration:
-  persistent: 'true'
-input_number.cycle1_zone1_duration:
-  persistent: 'true'
-input_number.cycle1_zone2_duration:
-  persistent: 'true'
-input_number.cycle2_zone2_duration:
-  persistent: 'true'
-input_number.cycle1_zone3_duration:
-  persistent: 'true'
-input_number.cycle2_zone3_duration:
-  persistent: 'true'
-input_number.cycle1_zone4_duration:
-  persistent: 'true'
-input_number.cycle2_zone4_duration:
-  persistent: 'true'
 binary_sensor.weatherstation_status:
   friendly_name: Weatherstation
 sensor.illumination_7811dcb9c836:
   friendly_name: Living
-input_boolean.house_guests:
-  persistent: 'true'
 zwave.slaapkamer_margot_verlichting:
   friendly_name: Slaapkamer Margot verlichting
   node_name: Slaapkamer Margot verlichting
@@ -203,14 +177,6 @@ light.magichome2:
   friendly_name: Sfeerverlichting schouw
 light.magichome1:
   friendly_name: sfeerverlichting slaapkamer
-input_boolean.disable_greenhouse_windows:
-  persistent: 'true'
-input_boolean.daily_vacuum_first_run:
-  persistent: 'true'
-input_boolean.disable_daily_vacuum:
-  persistent: 'true'
-input_boolean.disable_dustbin_notification:
-  persistent: 'true'
 input_boolean.cycle1_enable: {}
 sensor.lightlevel_3:
   device_class: illuminance
@@ -224,10 +190,6 @@ sensor.lightlevel_11:
   device_class: illuminance
 sensor.afval_ophaal_dag:
   icon: mdi:calendar-today
-input_boolean.night_mode:
-  persistent: 'true'
-input_boolean.tempsetactive:
-  persistent: 'true'
 binary_sensor.voor_deur:
   icon: mdi:door-closed
 binary_sensor.achter_deur:
@@ -236,12 +198,6 @@ binary_sensor.keuken_deur:
   icon: mdi:door-closed
 binary_sensor.garage_deur:
   icon: mdi:door-closed
-input_boolean.disable_motion_trigger_light_gang_eerste_verdiep:
-  persistent: 'true'
-input_boolean.disable_motion_trigger_light_gang_zolder:
-  persistent: 'true'
-input_boolean.disable_motion_trigger_light_inkom:
-  persistent: 'true'
 sensor.dining_room_nest_protect_smoke_status:
   icon: mdi:fire
 sensor.dining_room_nest_protect_battery_health:
