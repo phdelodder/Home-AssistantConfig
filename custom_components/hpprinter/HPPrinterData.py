@@ -10,12 +10,13 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class HPPrinterData:
-    def __init__(self, host, port=80, is_ssl=False, data_type=None):
+    def __init__(self, host, port=80, is_ssl=False, data_type=None, external_data_provider=None):
         self._host = host
         self._port = port
         self._protocol = "https" if is_ssl else "http"
         self._data_type = data_type
         self._data = None
+        self._external_data_provider = external_data_provider
 
         self._url = f'{self._protocol}://{self._host}:{self._port}/DevMgmt/{self._data_type}.xml'
 
@@ -25,26 +26,32 @@ class HPPrinterData:
 
     def get_data(self, store=None):
         try:
+            self._data = None
+
             _LOGGER.debug(f"Updating {self._data_type} from {self._host}")
 
-            printer_data = self.get_data_from_printer(store)
+            if self._external_data_provider is None:
+                printer_data = self.get_data_from_printer(store)
+            else:
+                printer_data = self._external_data_provider(self._data_type)
 
             result = {}
 
-            for root_key in printer_data:
-                root_item = printer_data[root_key]
+            if printer_data is not None:
+                for root_key in printer_data:
+                    root_item = printer_data[root_key]
 
-                item = self.extract_data(root_item, root_key)
+                    item = self.extract_data(root_item, root_key)
 
-                if item is not None:
-                    result[root_key] = item
+                    if item is not None:
+                        result[root_key] = item
 
-            self._data = result
+                self._data = result
 
-            if store is not None:
-                json_data = json.dumps(self._data)
+                if store is not None:
+                    json_data = json.dumps(self._data)
 
-                store(f"{self._data_type}.json", json_data)
+                    store(f"{self._data_type}.json", json_data)
 
         except Exception as ex:
             exc_type, exc_obj, tb = sys.exc_info()
@@ -55,6 +62,8 @@ class HPPrinterData:
         return self._data
 
     def get_data_from_printer(self, store=None):
+        result = None
+
         try:
             _LOGGER.debug(f"Retrieving {self._data_type} from {self._host}")
 
@@ -71,13 +80,15 @@ class HPPrinterData:
 
             json_data = xmltodict.parse(content)
 
-            return json_data
+            result = json_data
 
         except Exception as ex:
             exc_type, exc_obj, tb = sys.exc_info()
             line_number = tb.tb_lineno
 
             _LOGGER.error(f'Failed to retrieve data ({self._data_type}) from printer, Error: {ex}, Line: {line_number}')
+
+        return result
 
     def extract_data(self, data_item, data_item_key):
         try:
@@ -169,21 +180,21 @@ class HPPrinterData:
 
 
 class ConsumableConfigDynPrinterData(HPPrinterData):
-    def __init__(self, host, port=80, is_ssl=False):
+    def __init__(self, host, port=80, is_ssl=False, external_data_provider=None):
         data_type = "ConsumableConfigDyn"
 
-        super().__init__(host, port, is_ssl, data_type)
+        super().__init__(host, port, is_ssl, data_type, external_data_provider)
 
 
 class ProductUsageDynPrinterData(HPPrinterData):
-    def __init__(self, host, port=80, is_ssl=False):
+    def __init__(self, host, port=80, is_ssl=False, external_data_provider=None):
         data_type = "ProductUsageDyn"
 
-        super().__init__(host, port, is_ssl, data_type)
+        super().__init__(host, port, is_ssl, data_type, external_data_provider)
 
 
 class ProductStatusDynData(HPPrinterData):
-    def __init__(self, host, port=80, is_ssl=False):
+    def __init__(self, host, port=80, is_ssl=False, external_data_provider=None):
         data_type = "ProductStatusDyn"
 
-        super().__init__(host, port, is_ssl, data_type)
+        super().__init__(host, port, is_ssl, data_type, external_data_provider)

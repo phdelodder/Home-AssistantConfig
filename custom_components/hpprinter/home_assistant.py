@@ -6,7 +6,7 @@ https://home-assistant.io/components/hpprinter/
 import sys
 import logging
 
-from homeassistant.const import (EVENT_HOMEASSISTANT_START)
+from homeassistant.const import (EVENT_HOMEASSISTANT_START, STATE_ON, STATE_OFF)
 from homeassistant.helpers.event import track_time_interval
 from homeassistant.util import slugify
 
@@ -33,7 +33,7 @@ class HPPrinterHomeAssistant:
             """Call BlueIris to refresh information."""
             _LOGGER.debug(f"Saving debug data {DOMAIN} ({service})")
 
-            self._hp_data.reload_data(self.store_data)
+            self._hp_data.get_data(self.store_data)
 
         if self._hp_data is not None:
             self._hass.services.register(DOMAIN, 'save_debug_data', save_debug_data)
@@ -78,6 +78,7 @@ class HPPrinterHomeAssistant:
 
         cartridges_data = data.get(HP_DEVICE_CARTRIDGES)
 
+        self.create_status_sensor(data)
         self.create_printer_sensor(data)
         self.create_scanner_sensor(data)
 
@@ -87,6 +88,24 @@ class HPPrinterHomeAssistant:
 
                 if cartridge is not None:
                     self.create_cartridge_sensor(data, cartridge, key)
+
+    def create_status_sensor(self, data):
+        printer_status = data.get(HP_DEVICE_IS_ONLINE, False)
+
+        name = data.get("Name", DEFAULT_NAME)
+        sensor_name = f"{name} {HP_DEVICE_STATUS}"
+        entity_id = f"binary_sensor.{slugify(sensor_name)}"
+
+        state = STATE_OFF
+        if printer_status:
+            state = STATE_ON
+
+        attributes = {
+            "friendly_name": sensor_name,
+            "device_class": "connectivity"
+        }
+
+        self._hass.states.set(entity_id, state, attributes)
 
     def create_printer_sensor(self, data):
         printer_data = data.get(HP_DEVICE_PRINTER)

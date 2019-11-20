@@ -4,9 +4,9 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class HPDeviceData:
-    def __init__(self, host, name):
-        self._usage_data_manager = ProductUsageDynPrinterData(host)
-        self._consumable_data_manager = ConsumableConfigDynPrinterData(host)
+    def __init__(self, host, name, external_data_provider=None):
+        self._usage_data_manager = ProductUsageDynPrinterData(host, external_data_provider=external_data_provider)
+        self._consumable_data_manager = ConsumableConfigDynPrinterData(host, external_data_provider=external_data_provider)
 
         self._name = name
         self._host = host
@@ -15,7 +15,8 @@ class HPDeviceData:
         self._consumable_data = None
 
         self._device_data = {
-            "Name": name
+            "Name": name,
+            HP_DEVICE_IS_ONLINE: False
         }
 
     def update(self):
@@ -28,8 +29,13 @@ class HPDeviceData:
             self._usage_data = self._usage_data_manager.get_data(store)
             self._consumable_data = self._consumable_data_manager.get_data(store)
 
-            self.set_usage_data()
-            self.set_consumable_data()
+            is_online = self._usage_data is not None and self._consumable_data is not None
+
+            if is_online:
+                self.set_usage_data()
+                self.set_consumable_data()
+
+            self._device_data[HP_DEVICE_IS_ONLINE] = is_online
 
             if store is not None:
                 json_data = json.dumps(self._device_data)
