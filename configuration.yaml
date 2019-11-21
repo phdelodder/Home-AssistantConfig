@@ -43,6 +43,7 @@ media_player: !include media_players.yaml
 light: !include lights.yaml
 switch: !include switchs.yaml
 proximity: !include proximities.yaml
+scene: !include scenes.yaml
 
 hacs:
   token: !secret my_github_access_token
