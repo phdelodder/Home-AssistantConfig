@@ -1,0 +1,17 @@
+- id: '1574323818396'
+  name: Romantic
+  entities:
+    light.led_slaapkamer:
+      brightness: 255
+      effect: None
+      hs_color:
+      - 330.164
+      - 71.765
+      rgb_color:
+      - 255
+      - 71
+      - 162
+      state: 'on'
+      xy_color:
+      - 0.51
+      - 0.239
