@@ -3,6 +3,8 @@
   entities:
     - light.wc_beneden
     - light.inkom
+    - light.led_schouw
+    - light.staande_lamp_living
 
 - platform: group
   name: eerste verdiep 
@@ -12,7 +14,7 @@
     - light.logeerkamer
     - light.gang_eerste_verdiep
     - light.wc_boven
-    - light.sfeerverlichting_slaapkamer
+    - light.led_slaapkamer
 
 - platform: group
   name: buiten
@@ -26,6 +28,8 @@
   entities:
     - light.gang_zolder
     - light.speelkamer
+    - light.led_speelkamer
     - light.bureau
     - light.led_bureau
-    - light.led_slaapkamer
+    - light.geometric_lamp
+    - light.cell_structure_lamp
