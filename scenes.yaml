@@ -15,3 +15,26 @@
       xy_color:
       - 0.51
       - 0.239
+- id: '1574437900432'
+  name: Sfeer Woonkamer
+  entities:
+    light.led_mini_kerstboom_led:
+      brightness: 255
+      state: 'on'
+    light.led_schouw:
+      brightness: 138
+      effect: None
+      hs_color:
+      - 44.898
+      - 57.647
+      rgb_color:
+      - 255
+      - 218
+      - 108
+      state: 'on'
+      xy_color:
+      - 0.454
+      - 0.433
+    light.staande_lamp_living:
+      brightness: 89
+      state: 'on'
