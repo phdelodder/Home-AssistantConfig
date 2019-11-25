@@ -22,19 +22,19 @@
       brightness: 255
       state: 'on'
     light.led_schouw:
-      brightness: 138
+      brightness: 86
       effect: None
       hs_color:
-      - 44.898
-      - 57.647
+      - 44.932
+      - 85.882
       rgb_color:
       - 255
-      - 218
-      - 108
+      - 200
+      - 36
       state: 'on'
       xy_color:
-      - 0.454
-      - 0.433
+      - 0.509
+      - 0.451
     light.staande_lamp_living:
       brightness: 89
       state: 'on'
