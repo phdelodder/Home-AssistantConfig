@@ -32,6 +32,8 @@ The CI is configured to do 3 steps:
 
 ## Themes
 
+This is all done through HACS
+
 - [Clear Theme](https://community.home-assistant.io/t/clear-theme/100464)
 
 ## Python Scripts
