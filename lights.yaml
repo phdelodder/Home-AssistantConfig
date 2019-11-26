@@ -31,5 +31,5 @@
     - light.led_speelkamer
     - light.bureau
     - light.led_bureau
-    - light.geometric_lamp
+    - light.geometric_lamp_2
     - light.cell_structure_lamp
