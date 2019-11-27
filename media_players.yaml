@@ -1,5 +1,5 @@
 - platform: kodi
-  host: 192.168.0.38
+  host: 192.168.0.19
 - platform: samsungtv
   host: 192.168.0.118
   #- platform: spotify
