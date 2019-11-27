@@ -10,6 +10,8 @@ motion_sensors:
     - binary_sensor.bureau_motion
     - binary_sensor.motion_gang_eerste_2
     - binary_sensor.motion_gang_eerste_1
+    - binary_sensor.motion_inkom_2
+    - binary_sensor.motion_inkom_1
     - binary_sensor.presence_17
     - binary_sensor.presence_12
     - binary_sensor.tradfri_motion_sensor
@@ -26,6 +28,12 @@ motion_gang_eerste_verdiep:
   entities: 
     - binary_sensor.motion_gang_eerste_1
     - binary_sensor.motion_gang_eerste_2
+
+motion_inkom:
+  name: Motion Inkom
+  entities: 
+    - binary_sensor.motion_inkom_1
+    - binary_sensor.motion_inkom_2
 
 DoorDetection:
   name: Door Detection
