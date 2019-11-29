@@ -91,3 +91,10 @@ octoprint:
 hpprinter:
   devices:
     - host: 192.168.0.91
+
+zoneminder:
+  - host: !secret zoneminder-host
+    ssl: true
+    verify_ssl: false
+    username: !secret zoneminder-username
+    password: !secret zoneminder-password

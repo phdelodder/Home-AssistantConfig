@@ -1,5 +1,1 @@
-- platform: mjpeg
-  name: "Oprit"
-  mjpeg_url: !secret motioneye_100081_url
-  username: !secret motioneye_100081_username
-  password: !secret motioneye_100081_password
+- platform: zoneminder
