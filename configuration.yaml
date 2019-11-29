@@ -15,9 +15,6 @@ tts:
 frontend:
   themes: !include_dir_merge_named themes
 
-http:
-  base_url: !secret base_url
-
 recorder:
   db_url: !secret db_url
 
