@@ -31,5 +31,7 @@
   payload_on: "ON"
   payload_off: "OFF"
   device_class: "motion"
+  json_attributes_topic: "zoneminder/1"
+  json_attributes_template: "{{ value_json | tojson }}"
 
 - platform: zoneminder

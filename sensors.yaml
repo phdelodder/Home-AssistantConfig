@@ -250,7 +250,3 @@
     mode: driving
 
 - platform: zoneminder
-
-- platform: mqtt
-  state_topic: "zoneminder/1"
-  name: "oprit_events_notifications"
