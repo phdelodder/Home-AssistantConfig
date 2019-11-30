@@ -14,6 +14,7 @@ nest.conf
 /secrets.yaml
 known_devices.yaml
 scripts/publish-ink-level-mqtt.cfg
+alarm_oprit_snapshot.jpg
 
 # Directory ignores
 www/snapshots/
@@ -22,4 +23,3 @@ tts/
 .storage/
 .cloud/
 .vscode/
-downloads
