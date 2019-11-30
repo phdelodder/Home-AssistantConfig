@@ -95,3 +95,5 @@ zoneminder:
     verify_ssl: false
     username: !secret zoneminder-username
     password: !secret zoneminder-password
+
+stream:
