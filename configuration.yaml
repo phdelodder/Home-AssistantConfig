@@ -1,5 +1,7 @@
 homeassistant:
   customize: !include customize.yaml
+  whitelist_external_dirs:
+    - downloads
 
 # Configure a default setup of Home Assistant (frontend, api, etc)
 default_config:
@@ -97,3 +99,6 @@ zoneminder:
     password: !secret zoneminder-password
 
 stream:
+
+downloader:
+  download_dir: downloads
