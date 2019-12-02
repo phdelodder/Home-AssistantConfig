@@ -43,6 +43,7 @@ light: !include lights.yaml
 switch: !include switchs.yaml
 proximity: !include proximities.yaml
 scene: !include scenes.yaml
+shell_command: !include shell_command.yaml
 
 hacs:
   token: !secret my_github_access_token
@@ -75,9 +76,6 @@ speedtestdotnet:
 
 influxdb:
   host: 192.168.0.15
-
-shell_command:
-  ha_start: 'curl http://docker.fritz.box:1880/hastart'
 
 octoprint:
   host: octoprint.fritz.box
