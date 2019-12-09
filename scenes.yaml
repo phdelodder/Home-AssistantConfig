@@ -20,6 +20,7 @@
   entities:
     light.led_mini_kerstboom_led:
       brightness: 255
+      effect: None
       state: 'on'
     light.led_schouw:
       brightness: 86
@@ -37,4 +38,6 @@
       - 0.451
     light.staande_lamp_living:
       brightness: 89
+      state: 'on'
+    switch.sonoff_s20_1_relay:
       state: 'on'
