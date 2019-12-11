@@ -92,3 +92,17 @@
   condition: []
   action:
   - service: shell_command.set_oprit_profile_day
+- id: '1575904867531'
+  alias: Send a notice when 3D print is done
+  description: ''
+  trigger:
+  - entity_id: binary_sensor.ender_3_pro_printing
+    from: 'on'
+    platform: state
+    to: 'off'
+  condition: []
+  action:
+  - data:
+      message: Your 3D print is complete
+      title: Print Complete
+    service: notify.hazilverberkenstraatbot

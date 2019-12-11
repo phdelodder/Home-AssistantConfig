@@ -250,3 +250,34 @@
     mode: driving
 
 - platform: zoneminder
+
+- platform: template
+  sensors:
+    ender_3_pro_time_remaining_friendly:
+      friendly_name: "Time Remaining"
+      value_template: >-
+              {% set etime = states.sensor.ender_3_pro_time_remaining.state | int %}
+              {% set days = (etime / 86400) | int %}
+              {%- if days > 0 -%}
+                {%- if days == 1 -%}
+                  1 day
+                {%- else -%}
+                  {{ days }} days
+                {%- endif -%}
+                {{ ', ' }}
+              {%- endif -%}
+              {{ states('sensor.ender_3_pro_time_remaining') | int | timestamp_custom('%H:%M:%S', 0) }}
+    ender_3_pro_time_elapsed_friendly:
+      friendly_name: "Time Elapsed"
+      value_template: >-
+              {% set etime = states.sensor.ender_3_pro_time_elapsed.state | int %}
+              {% set days = (etime / 86400) | int %}
+              {%- if days > 0 -%}
+                {%- if days == 1 -%}
+                  1 day
+                {%- else -%}
+                  {{ days }} days
+                {%- endif -%}
+                {{ ', ' }}
+              {%- endif -%}
+              {{ states('sensor.ender_3_pro_time_elapsed') | int | timestamp_custom('%H:%M:%S', 0) }}
