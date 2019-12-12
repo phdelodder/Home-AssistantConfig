@@ -20,6 +20,8 @@ recorder:
 
 discovery:
 
+cloud:
+
 zone: !include zones.yaml
 group: !include groups.yaml
 automation: !include automations.yaml
