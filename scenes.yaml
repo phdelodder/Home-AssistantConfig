@@ -21,10 +21,30 @@
     light.led_mini_kerstboom_led:
       brightness: 255
       effect: None
+      effect_list:
+      - None
+      - Candle_Flicker
+      friendly_name: Led Mini Kerstboom LED
       state: 'on'
+      supported_features: 45
     light.led_schouw:
       brightness: 86
       effect: None
+      effect_list:
+      - None
+      - Rainbow
+      - Color Wipe
+      - Twinkle
+      - Random Twinkle
+      - Addressable Flicker
+      - Fireworks
+      - Scan
+      - Flicker
+      - Candle_Flicker
+      - Strobe
+      - Warm White
+      - Random
+      friendly_name: Led Schouw
       hs_color:
       - 44.932
       - 85.882
@@ -33,11 +53,16 @@
       - 200
       - 36
       state: 'on'
+      supported_features: 61
       xy_color:
       - 0.509
       - 0.451
     light.staande_lamp_living:
       brightness: 89
+      color_temp: 454
+      friendly_name: Staande Lamp Living
+      is_deconz_group: false
+      max_mireds: 500
+      min_mireds: 153
       state: 'on'
-    switch.sonoff_s20_1_relay:
-      state: 'on'
+      supported_features: 43
