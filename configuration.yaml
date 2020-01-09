@@ -47,8 +47,6 @@ shell_command: !include shell_command.yaml
 
 hacs:
   token: !secret my_github_access_token
-  python_script: true
-  theme: true
 
 python_script:
 
