@@ -106,3 +106,29 @@
       message: Your 3D print is complete
       title: Print Complete
     service: notify.hazilverberkenstraatbot
+- id: '1578590308661'
+  alias: 'Licht Slaapkamer Febe '
+  description: ''
+  trigger:
+  - device_id: aecf8a3bd0144f6f9fbbedf7e7c503dc
+    domain: deconz
+    platform: device
+    subtype: turn_on
+    type: remote_button_short_press
+  condition: []
+  action:
+  - entity_id: light.slaapkamer_febe
+    service: light.toggle
+- id: '1578590350074'
+  alias: Licht slaapkamer Margot
+  description: ''
+  trigger:
+  - device_id: ed641ace598140ab84eff39005e4e6d0
+    domain: deconz
+    platform: device
+    subtype: turn_on
+    type: remote_button_short_press
+  condition: []
+  action:
+  - entity_id: light.slaapkamer_margot
+    service: light.toggle
