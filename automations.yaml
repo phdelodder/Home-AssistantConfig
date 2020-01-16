@@ -30,6 +30,7 @@
       shellyswitch25-00C928-relay-0: light
       shellyswitch25-00C928-relay-1: light
       shelly1-2C6E97-relay-0: light
+      shelly1-2C72C3-relay-0: light
 - alias: Update Last Motion
   id: Update Last Motion
   initial_state: 'on'
