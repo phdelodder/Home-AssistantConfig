@@ -10,8 +10,3 @@
   #client_id: !secret spotify-isabel-clientid
   #client_secret: !secret spotify-isabel-client_secret
   #cache_path: '.spotify_isabel'
-- platform: emby
-  host: !secret emby-host
-  ssl: true
-  api_key: !secret emby-api-key
-  port: 443
