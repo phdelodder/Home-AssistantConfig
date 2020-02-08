@@ -98,3 +98,18 @@ stream:
 
 downloader:
   download_dir: www
+  
+shelly:
+  devices:
+    - id: "00C928"
+      light_switch: true
+    - id: "8A7B0C"
+      light_switch: true
+    - id: "2C6E97"
+      light_switch: true
+    - id: "98F4ABD0C169"
+      light_switch: true
+    - id: "98F4ABD0C5D0"
+      light_switch: true
+
+
