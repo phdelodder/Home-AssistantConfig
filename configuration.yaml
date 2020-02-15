@@ -101,6 +101,10 @@ downloader:
   
 shelly:
   devices:
+    - id: "2BD8B9"
+      light_switch: true
+    - id: "9F5B66"
+      light_switch: true
     - id: "00C928"
       light_switch: true
     - id: "8A7B0C"
