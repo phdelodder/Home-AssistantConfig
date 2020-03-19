@@ -38,6 +38,6 @@ motion_inkom:
 DoorDetection:
   name: Door Detection
   entities:
-    - binary_sensor.openclose_5
-    - binary_sensor.openclose_6
-
+    - binary_sensor.voor_deur
+    - binary_sensor.keuken_deur
+    - binary_sensor.achter_deur
