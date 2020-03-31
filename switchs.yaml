@@ -1,7 +1,11 @@
-- platform: command_line
-  switches:
-    octoprint_psu:
-      command_on: !secret octoprint_command_on
-      command_off: !secret octoprint_command_off
-      command_state: !secret octoprint_command_state
-      value_template: '{{ value.isPSUOn }}'
+#- platform: command_line
+#  switches:
+#    octoprint_psu:
+#      command_on: !secret octoprint_command_on
+#      command_off: !secret octoprint_command_off
+#      command_state: !secret octoprint_command_state
+#      value_template: '{{ value.isPSUOn }}'
+      
+- platform: zoneminder
+  command_on: Modect
+  command_off: Monitor
