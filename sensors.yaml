@@ -49,7 +49,7 @@
     zone4_time_today:
       friendly_name: Zone 4 total watering time today
       value_template: >
-        {{ states('sensor.zone3_time') | float * 60 | round }}
+        {{ states('sensor.zone4_time') | float * 60 | round }}
       unit_of_measurement: minutes
       icon_template: mdi:water
 
