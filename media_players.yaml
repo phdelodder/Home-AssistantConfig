@@ -1,8 +1,3 @@
-  #- platform: spotify
-  #client_id: !secret spotify-philippe-clientid
-  #client_secret: !secret spotify-philippe-client_secret
-  #cache_path: '.spotify_philippe'
-  #- platform: spotify
-  #client_id: !secret spotify-isabel-clientid
-  #client_secret: !secret spotify-isabel-client_secret
-  #cache_path: '.spotify_isabel'
+#- platform: spotify
+#  client_id: !secret spotify-clientid
+#  client_secret: !secret spotify-client_secret
