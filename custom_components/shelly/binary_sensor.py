@@ -13,8 +13,9 @@ from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.components.binary_sensor import BinarySensorDevice
 from homeassistant.helpers.restore_state import RestoreStateData
 
-from . import (CONF_OBJECT_ID_PREFIX, CONF_POWER_DECIMALS, SHELLY_CONFIG,
-               ShellyDevice, ShellyBlock)
+from . import (CONF_OBJECT_ID_PREFIX)
+from .device import ShellyDevice
+from .block import ShellyBlock
 
 from .const import *
 
@@ -34,7 +35,8 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
             async_add_entities([ShellySwitch(dev, instance)])
         elif dev.device_type == "BINARY_SENSOR":
             async_add_entities([
-                ShellyBinarySensor(dev, instance, dev.sensor_type, dev.sensor_type)
+                ShellyBinarySensor(dev, instance, dev.sensor_type,
+                                   dev.sensor_type)
             ])
 
     async_dispatcher_connect(
@@ -117,6 +119,7 @@ class ShellyBinarySensor(ShellyDevice, BinarySensorDevice):
         self._state = None
         if self._sensor_type in SENSOR_TYPES_CFG:
             self._sensor_cfg = SENSOR_TYPES_CFG[self._sensor_type]
+        self._master_unit = True
         self.update()
 
     @property
@@ -153,7 +156,7 @@ class ShellyBinaryInfoSensor(ShellyBlock, BinarySensorDevice):
 
     def __init__(self, block, instance, sensor_type, sensor_name):
         self._sensor_cfg = SENSOR_TYPES_CFG[SENSOR_TYPE_DEFAULT]
-        ShellyBlock.__init__(self, block, instance, "_" + sensor_name + "_attr")
+        ShellyBlock.__init__(self, block, instance, "_" + sensor_name)
         self.entity_id = "sensor" + self.entity_id
         self._sensor_name = sensor_name
         self._sensor_type = sensor_type

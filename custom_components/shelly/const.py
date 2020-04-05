@@ -35,11 +35,15 @@ CONF_UNAVALABLE_AFTER_SEC = 'unavailable_after_sec'
 CONF_LOCAL_PY_SHELLY = 'debug_local_py_shelly'
 CONF_ONLY_DEVICE_ID = 'debug_only_device_id'
 CONF_CLOUD_AUTH_KEY = 'cloud_auth_key'
-CONF_CLOUD_SEREVR = 'cloud_server'
+CONF_CLOUD_SERVER = 'cloud_server'
 CONF_TMPL_NAME = 'tmpl_name'
 CONF_DISCOVER_BY_IP = 'discover_by_ip'
 CONF_HOST_IP = 'host_ip'
 CONF_ATTRIBUTES = 'attributes'
+CONF_SETTINGS = 'settings'
+CONF_DECIMALS = 'decimals'
+CONF_DIV = 'div'
+CONF_UNIT = 'unit'
 
 CONF_WIFI_SENSOR = 'wifi_sensor' #deprecated
 CONF_UPTIME_SENSOR = 'uptime_sensor' #deprecated
@@ -47,11 +51,27 @@ CONF_UPTIME_SENSOR = 'uptime_sensor' #deprecated
 DEFAULT_IGMPFIX = False
 DEFAULT_DISCOVERY = True
 DEFAULT_OBJECT_ID_PREFIX = 'shelly'
-DEFAULT_SCAN_INTERVAL = timedelta(seconds=60)
+DEFAULT_SCAN_INTERVAL = 60 #timedelta(seconds=60)
 DEFAULT_SHOW_ID_IN_NAME = False
 DEFAULT_MDNS = True
 
-SHELLY_CONFIG = 'shelly_cfg'
+DEFAULT_SETTINGS = \
+{
+    'default' : {},
+    'temperature' : {CONF_UNIT:'°C'},
+    'device_temp' : {CONF_UNIT:'°C'},
+    'illuminance' : {CONF_UNIT:'lux'},
+    'humidity' : {CONF_UNIT:'%'},
+    'total_consumption' : {CONF_DECIMALS:2, CONF_DIV:1000, CONF_UNIT:'kWh'},
+    'total_returned' : {CONF_DECIMALS:2, CONF_DIV:1000, CONF_UNIT:'kWh'},
+    'current' : {CONF_DECIMALS:1},
+    'current_consumption' : {CONF_UNIT:'W'},
+    'voltage' : {CONF_UNIT:'V'},
+    'power_factor' : {CONF_DECIMALS:1},
+    'uptime': {CONF_DIV:3600, CONF_UNIT:'h'},
+    'rssi': {CONF_UNIT:'dB'},
+}
+
 SHELLY_DEVICE_ID = 'device_id'
 SHELLY_BLOCK_ID = 'block_id'
 
@@ -73,12 +93,16 @@ ATTRIBUTE_CLOUD_STATUS = 'cloud_status'
 ATTRIBUTE_SWITCH = 'switch'
 ATTRIBUTE_CONSUMPTION = 'consumption'
 ATTRIBUTE_TOTAL_CONSUMPTION = 'total_consumption'
+ATTRIBUTE_TOTAL_RETURNED = 'total_returned'
 ATTRIBUTE_CURRENT_CONSUMPTION = 'current_consumption'
 ATTRIBUTE_OVER_POWER = 'over_power'
 ATTRIBUTE_DEV_TEMP = 'device_temp'
 ATTRIBUTE_OVER_TEMP = 'over_temp'
 ATTRIBUTE_BATTERY = 'battery'
+ATTRIBUTE_VOLTAGE = 'voltage'
 ATTRIBUTE_PAYLOAD = 'payload'
+ATTRIBUTE_CURRENT = 'current'
+ATTRIBUTE_POWER_FACTOR = 'power_factor'
 
 ALL_ATTRIBUTES = {
     ATTRIBUTE_IP_ADDRESS,
@@ -94,11 +118,15 @@ ALL_ATTRIBUTES = {
     ATTRIBUTE_CLOUD_STATUS,
     ATTRIBUTE_SWITCH,
     ATTRIBUTE_TOTAL_CONSUMPTION,
+    ATTRIBUTE_TOTAL_RETURNED,
     ATTRIBUTE_CURRENT_CONSUMPTION,
+    ATTRIBUTE_VOLTAGE,
     ATTRIBUTE_OVER_POWER,
     ATTRIBUTE_DEV_TEMP,
     ATTRIBUTE_OVER_TEMP,
-    ATTRIBUTE_BATTERY
+    ATTRIBUTE_BATTERY,
+    ATTRIBUTE_CURRENT,
+    ATTRIBUTE_POWER_FACTOR
 }
 
 EXTRA_ATTRIBUTES = {
@@ -119,6 +147,8 @@ DEFAULT_ATTRIBUTES = {
     ATTRIBUTE_SWITCH,
     ATTRIBUTE_OVER_POWER,
     ATTRIBUTE_OVER_TEMP,
+    #ATTRIBUTE_TOTAL_CONSUMPTION,
+    #ATTRIBUTE_VOLTAGE,
     ATTRIBUTE_BATTERY
 }
 
@@ -128,6 +158,10 @@ SENSOR_POWER = 'power'  #depreated, same as consumption
 SENSOR_CONSUMPTION = 'consumption'
 SENSOR_CURRENT_CONSUMPTION = 'current_consumption'
 SENSOR_TOTAL_CONSUMPTION = 'total_consumption'
+SENSOR_TOTAL_RETURNED = 'total_returned'
+SENSOR_VOLTAGE = 'voltage'
+SENSOR_POWER_FACTOR = 'power_factor'
+SENSOR_CURRENT = 'current'
 SENSOR_UPTIME = 'uptime'
 SENSOR_OVER_POWER = 'over_power'
 SENSOR_DEV_TEMP = 'device_temp'
@@ -138,30 +172,37 @@ SENSOR_BATTERY = 'battery'
 SENSOR_SWITCH = 'switch'
 
 ALL_SENSORS = {
-    SENSOR_ALL: {},
     SENSOR_RSSI: {'attr':'rssi'},
     SENSOR_UPTIME: {'attr':'uptime'},
-    SENSOR_POWER: {},
     SENSOR_OVER_POWER: {'attr':'over_power'},
-    SENSOR_CONSUMPTION: {},
     SENSOR_CURRENT_CONSUMPTION: {},
-    SENSOR_TOTAL_CONSUMPTION: {},
-    SENSOR_CONSUMPTION: {},
+    SENSOR_TOTAL_CONSUMPTION: {'attr':'total_consumption'},
+    SENSOR_TOTAL_RETURNED: {'attr':'total_returned'},
     SENSOR_DEV_TEMP: {'attr':'device_temp'},
     SENSOR_OVER_TEMP: {'attr':'over_temp'},
     SENSOR_CLOUD:  {'attr':'cloud_status'},
     SENSOR_MQTT:  {'attr':'mqtt_connected'},
     SENSOR_BATTERY : {'attr':'battery'},
+    SENSOR_VOLTAGE : {'attr':'voltage'},
+    SENSOR_POWER_FACTOR : {'attr':'power_factor'},
+    SENSOR_CURRENT : {'attr':'current'},
     SENSOR_SWITCH : {},
 }
 
+EXTRA_SENSORS = {
+    SENSOR_ALL: {},
+    SENSOR_POWER: {},
+    SENSOR_CONSUMPTION: {}
+}
+
 DEFAULT_SENSORS = [
-    SENSOR_POWER
+    SENSOR_CURRENT_CONSUMPTION,
+    SENSOR_TOTAL_CONSUMPTION
 ]
 
 SENSOR_TYPE_TEMPERATURE = 'temperature'
 SENSOR_TYPE_HUMIDITY = 'humidity'
-SENSOR_TYPE_POWER = 'consumption'
+SENSOR_TYPE_POWER = 'current_consumption'
 SENSOR_TYPE_RSSI = 'rssi'
 SENSOR_TYPE_UPTIME = 'uptime'
 SENSOR_TYPE_BATTERY = 'battery'
@@ -175,6 +216,10 @@ SENSOR_TYPE_FLOOD = 'flood'
 SENSOR_TYPE_DOOR_WINDOW = 'door_window'
 SENSOR_TYPE_ILLUMINANCE = 'illuminance'
 SENSOR_TYPE_TOTAL_CONSUMPTION = 'total_consumption'
+SENSOR_TYPE_TOTAL_RETURNED = 'total_returned'
+SENSOR_TYPE_VOLTAGE = 'voltage'
+SENSOR_TYPE_POWER_FACTOR = 'power_factor'
+SENSOR_TYPE_CURRENT = 'current'
 SENSOR_TYPE_DEFAULT = 'default'
 
 SENSOR_TYPES_CFG = {
@@ -211,5 +256,14 @@ SENSOR_TYPES_CFG = {
         ['Illuminance', 'lux', None, DEVICE_CLASS_ILLUMINANCE, None],
     SENSOR_TYPE_TOTAL_CONSUMPTION:
         ['Total consumption', ENERGY_WATT_HOUR,
-         'mdi:flash-circle', DEVICE_CLASS_POWER, None]
+         'mdi:flash-circle', DEVICE_CLASS_POWER, None],
+    SENSOR_TYPE_TOTAL_RETURNED:
+        ['Total returned', ENERGY_WATT_HOUR,
+         'mdi:flash-circle', DEVICE_CLASS_POWER, None],
+    SENSOR_TYPE_VOLTAGE:
+        ['Voltage', 'V', 'mdi:flash', None, None],
+    SENSOR_TYPE_POWER_FACTOR:
+        ['Power factor', None, 'mdi:flash', None, None],
+    SENSOR_TYPE_CURRENT:
+        ['Current', 'A', 'mdi:flash', None, None]
 }

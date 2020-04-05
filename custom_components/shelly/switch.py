@@ -13,7 +13,8 @@ from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from .const import *
 
 # from .sensor import ShellySensor
-from . import (ShellyDevice, ShellyBlock)
+from .device import ShellyDevice
+from .block import ShellyBlock
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -51,6 +52,7 @@ class ShellySwitch(ShellyDevice, SwitchDevice):
         """Initialize an ShellySwitch."""
         ShellyDevice.__init__(self, dev, instance)
         self._state = None
+        self._master_unit = True
         self.update()
 
     @property
@@ -74,10 +76,11 @@ class ShellyFirmwareUpdate(ShellyBlock, SwitchDevice):
     """Representation of a script entity."""
 
     def __init__(self, block, instance):
+        block.firmware_switch = self
         self._updating = False
         ShellyBlock.__init__(self, block, instance, "_firmware_update")
         self.entity_id = "switch" + self.entity_id
-        block.firmware_switch = self
+        self._master_unit = False
 
     @property
     def should_poll(self):
@@ -89,6 +92,15 @@ class ShellyFirmwareUpdate(ShellyBlock, SwitchDevice):
         return "Upgrade firmware " + ShellyBlock.name.fget(self)
 
     @property
+    def device_state_attributes(self):
+        attrs = super().device_state_attributes
+        attrs[ATTRIBUTE_LATEST_FW] = \
+            self._block.info_values[ATTRIBUTE_LATEST_FW]
+        attrs[ATTRIBUTE_FW] = \
+            self._block.info_values[ATTRIBUTE_FW]
+        return attrs
+
+    @property
     def is_on(self):
         """Return true if is on."""
         return self._updating
@@ -96,12 +108,12 @@ class ShellyFirmwareUpdate(ShellyBlock, SwitchDevice):
     async def async_turn_on(self, **_kwargs):
         """Trig the firmware update"""
         self._updating = True
-        self.schedule_update_ha_state(False)
+        self.schedule_update_ha_state()
         self._block.update_firmware()
 
     async def async_turn_off(self, **_kwargs):
         """Do nothing"""
-        self.schedule_update_ha_state(False)
+        self.schedule_update_ha_state()
 
     def remove(self):
         self._block.firmware_switch = None

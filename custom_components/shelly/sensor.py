@@ -21,8 +21,9 @@ from homeassistant.helpers.entity import Entity
 from homeassistant.core import callback
 from homeassistant.components.binary_sensor import BinarySensorDevice
 
-from . import (CONF_OBJECT_ID_PREFIX, CONF_POWER_DECIMALS, SHELLY_CONFIG,
-               ShellyDevice, ShellyBlock)
+from . import (CONF_OBJECT_ID_PREFIX)
+from .device import ShellyDevice
+from .block import ShellyBlock
 
 from .const import *
 
@@ -35,7 +36,8 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         if isinstance(dev, dict):
             if 'version' in dev:
                 async_add_entities([ShellyVersion(
-                    instance, dev.get('version'), dev.get('pyShellyVersion'))])
+                    instance, dev.get('version'), dev.get('pyShellyVersion'),
+                    dev.get('extra'))])
             if 'sensor_type' in dev:
                 sensor_type = dev['sensor_type']
                 async_add_entities([ShellyInfoSensor(dev['itm'], instance,
@@ -43,11 +45,12 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
             return
         if dev.device_type == "POWERMETER":
             async_add_entities([ShellySensor(dev, instance, SENSOR_TYPE_POWER,
-                                'current_consumption'),
+                                'current_consumption', False),
             ])
         elif dev.device_type == "SENSOR":
             async_add_entities([
-                ShellySensor(dev, instance, dev.sensor_type, dev.sensor_type)
+                ShellySensor(dev, instance, dev.sensor_type, dev.sensor_type,
+                             True)
             ])
 
     async_dispatcher_connect(
@@ -59,7 +62,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 class ShellySensor(ShellyDevice, Entity):
     """Representation of a Shelly Sensor."""
 
-    def __init__(self, dev, instance, sensor_type, sensor_name):
+    def __init__(self, dev, instance, sensor_type, sensor_name, master_unit):
         """Initialize an ShellySensor."""
         self._sensor_cfg = SENSOR_TYPES_CFG[SENSOR_TYPE_DEFAULT]
         ShellyDevice.__init__(self, dev, instance)
@@ -72,6 +75,10 @@ class ShellySensor(ShellyDevice, Entity):
         self._state = None
         if self._sensor_type in SENSOR_TYPES_CFG:
             self._sensor_cfg = SENSOR_TYPES_CFG[self._sensor_type]
+        #settings = instance._get_setting(sensor_type, dev.id, dev.block.id)
+        self._sensor_settings = self._settings.get(sensor_type, {})
+        self._unit = self._sensor_settings.get(CONF_UNIT)
+        self._master_unit = master_unit
         self.update()
 
     @property
@@ -89,7 +96,7 @@ class ShellySensor(ShellyDevice, Entity):
     @property
     def unit_of_measurement(self):
         """Return the unit of measurement."""
-        return self._sensor_cfg[1]
+        return self._unit or self._sensor_cfg[1]
 
     @property
     def icon(self):
@@ -104,15 +111,11 @@ class ShellySensor(ShellyDevice, Entity):
     def update(self):
         """Fetch new state data for this sensor."""
         #if self._dev.sensor_values is not None:
-        self._state = self._dev.state #sensor_values.get(self._sensor_name, None)
-        power_decimals = self._config.get(CONF_POWER_DECIMALS, 0)
-        if self._state is not None \
-            and self._sensor_type == SENSOR_TYPE_POWER \
-            and power_decimals is not None:
-            if power_decimals > 0:
-                self._state = round(self._state, power_decimals)
-            elif power_decimals == 0:
-                self._state = round(self._state)
+        state = self._dev.state #sensor_values.get(self._sensor_name, None)
+        if state is not None:
+            state = self.instance.format_value(self._sensor_settings, state)
+        self._state = state
+
         if self._dev.info_values is not None:
             self._battery = self._dev.info_values.get('battery', None)
 
@@ -121,12 +124,15 @@ class ShellyInfoSensor(ShellyBlock, Entity):
 
     def __init__(self, block, instance, sensor_type, sensor_name):
         self._sensor_cfg = SENSOR_TYPES_CFG[SENSOR_TYPE_DEFAULT]
-        ShellyBlock.__init__(self, block, instance, "_" + sensor_name + "_attr")
+        ShellyBlock.__init__(self, block, instance, "_" + sensor_name)
         self.entity_id = "sensor" + self.entity_id
         self._sensor_name = sensor_name
         self._sensor_type = sensor_type
         if self._sensor_type in SENSOR_TYPES_CFG:
             self._sensor_cfg = SENSOR_TYPES_CFG[self._sensor_type]
+        #settings = instance._get_setting(sensor_type, block.id, None)
+        self._sensor_settings = self._settings.get(sensor_type, {})
+        self._unit = self._sensor_settings.get(CONF_UNIT)
         self._state = None
         self._name_ext = self.quantity_name()
         self.update()
@@ -134,7 +140,9 @@ class ShellyInfoSensor(ShellyBlock, Entity):
     def update(self):
         """Fetch new state data for this sensor."""
         if self._block.info_values is not None:
-            self._state = self._block.info_values.get(self._sensor_name, None)
+            state = self._block.info_values.get(self._sensor_name, None)
+            state = self.instance.format_value(self._sensor_settings, state)
+            self._state = state
 
     @property
     def state(self):
@@ -148,7 +156,7 @@ class ShellyInfoSensor(ShellyBlock, Entity):
     @property
     def unit_of_measurement(self):
         """Return the unit of measurement."""
-        return self._sensor_cfg[1]
+        return self._unit or self._sensor_cfg[1]
 
     @property
     def icon(self):
@@ -160,11 +168,10 @@ class ShellyInfoSensor(ShellyBlock, Entity):
         """Return the device class."""
         return self._sensor_cfg[3]
 
-
 class ShellyVersion(Entity):
     """Representation of a Shelly version sensor."""
 
-    def __init__(self, instance, version, py_shelly_version):
+    def __init__(self, instance, version, py_shelly_version, extra):
         """Initialize the Version sensor."""
         conf = instance.conf
         id_prefix = slugify(conf.get(CONF_OBJECT_ID_PREFIX))
@@ -172,6 +179,7 @@ class ShellyVersion(Entity):
         self._py_shelly_version = py_shelly_version
         self.entity_id = "sensor." + id_prefix + "_version"
         self._name = "ShellyForHass"
+        self._extra = extra
         #self.instance = instance
 
     @property
@@ -187,8 +195,12 @@ class ShellyVersion(Entity):
     @property
     def device_state_attributes(self):
         """Return attributes for the sensor."""
-        return {'shelly': self._version, 'pyShelly': self._py_shelly_version,
+        attribs = {'shelly': self._version,
+                'pyShelly': self._py_shelly_version,
                 'developed_by': "StyraHem.se"}
+        if self._extra:
+            attribs.update(self._extra)
+        return attribs
 
     @property
     def icon(self):
