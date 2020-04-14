@@ -225,3 +225,5 @@ sensor.inkom_nest_protect_co_status:
   icon: mdi:skull-crossbones
 binary_sensor.motion_achterdeur:
   device_class: motion
+person.philippe:
+  icon: /local/philippe-2.jpg?v=1
