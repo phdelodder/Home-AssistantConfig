@@ -1,5 +1,5 @@
 - platform: group
-  name: gelijkvloers
+  name: gelijkvloers group
   entities:
     - light.wc_beneden
     - light.inkom
@@ -7,7 +7,7 @@
     - light.staande_lamp_living
 
 - platform: group
-  name: eerste verdiep 
+  name: eerste verdiep group
   entities:
     - light.slaapkamer_margot
     - light.slaapkamer_febe
@@ -17,14 +17,14 @@
     - light.led_slaapkamer
 
 - platform: group
-  name: buiten
+  name: buiten group
   entities: 
     - light.voordeur
     - light.achterdeur
     - light.garage_buiten
 
 - platform: group
-  name: zolder
+  name: zolder group
   entities:
     - light.gang_zolder
     - light.speelkamer

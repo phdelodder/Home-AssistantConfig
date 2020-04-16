@@ -130,3 +130,52 @@
   action:
   - entity_id: light.slaapkamer_margot
     service: light.toggle
+- id: '1586931483975'
+  alias: Send Notification Afval Collection
+  description: ''
+  trigger:
+  - at: '18:00'
+    platform: time
+  condition:
+    condition: or
+    conditions:
+    - condition: state
+      entity_id: sensor.ophaalkalender_morgen
+      state: papier, pmd
+    - condition: state
+      entity_id: sensor.ophaalkalender_morgen
+      state: restafval
+    - condition: state
+      entity_id: sensor.ophaalkalender_morgen
+      state: groenafval
+  action:
+  - data: {}
+    service: script.notify_afval
+- id: '1586960390567'
+  alias: Moestuin Low on Water
+  description: ''
+  trigger:
+  - below: '25'
+    entity_id: sensor.moestuin_moisture
+    platform: numeric_state
+  condition: []
+  action:
+  - data:
+      data_template:
+        message: Moestuin heeft vochtigheid van {{ states('sensor.moestuin_moisture')
+          }}, dringend water geven!
+    service: notify.hazilverberkenstraatbot
+- id: '1586960390568'
+  alias: Rozemarijn Low on Water
+  description: ''
+  trigger:
+  - below: '25'
+    entity_id: sensor.rozemarijn_moisture
+    platform: numeric_state
+  condition: []
+  action:
+  - data:
+      data_template:
+        message: Rozemarijn heeft vochtigheid van {{ states('sensor.rozemarijn_moisture')
+          }}, dringend water geven!
+    service: notify.hazilverberkenstraatbot

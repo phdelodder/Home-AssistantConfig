@@ -250,3 +250,15 @@
     mode: driving
 
 - platform: zoneminder
+
+- platform: afvalbeheer
+  wastecollector: ophaalkalender
+  resources:
+    - restafval
+    - papier
+    - pmd
+    - groenafval
+  postcode: !secret ophaalkalender_postcode
+  streetname: !secret ophaalkalender_streetname
+  upcomingsensor: 1
+  builtinicons: 1

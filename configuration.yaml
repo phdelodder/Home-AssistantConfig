@@ -44,6 +44,7 @@ switch: !include switchs.yaml
 proximity: !include proximities.yaml
 scene: !include scenes.yaml
 shell_command: !include shell_command.yaml
+plant: !include plant.yaml
 
 hacs:
   token: !secret my_github_access_token

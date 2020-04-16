@@ -1,0 +1,49 @@
+zone2:
+    sensors:
+      moisture: sensor.greenhouse_zone_2_moisture
+      #battery: sensor.greenhouse_zone_2_battery_level
+      temperature: sensor.greenhouse_zone_2_temperature
+      conductivity: sensor.greenhouse_zone_2_soil_conductivity
+      brightness: sensor.greenhouse_zone_2_illuminance
+    min_moisture: 25
+    min_conductivity: 150
+    
+zone3:
+    sensors:
+      moisture: sensor.greenhouse_zone_3_moisture
+      #battery: sensor.greenhouse_zone_3_battery_level
+      temperature: sensor.greenhouse_zone_3_temperature
+      conductivity: sensor.greenhouse_zone_3_soil_conductivity
+      brightness: sensor.greenhouse_zone_3_illuminance
+    min_moisture: 25
+    min_conductivity: 150
+        
+zone4:
+    sensors:
+      moisture: sensor.greenhouse_zone_4_moisture
+      #battery: sensor.greenhouse_zone_4_battery_level
+      temperature: sensor.greenhouse_zone_4_temperature
+      conductivity: sensor.greenhouse_zone_4_soil_conductivity
+      brightness: sensor.greenhouse_zone_4_illuminance
+    min_moisture: 25
+    min_conductivity: 150
+        
+moestuin:
+    sensors:
+      moisture: sensor.moestuin_moisture
+      #battery: sensor.moestuin_battery_level
+      temperature: sensor.moestuin_temperature
+      conductivity: sensor.moestuin_soil_conductivity
+      brightness: sensor.moestuin_illuminance
+    min_moisture: 25
+    min_conductivity: 150
+    
+rozemarijn:
+    sensors:
+      moisture: sensor.rozemarijn_moisture
+      #battery: sensor.rozemarijn_battery_level
+      temperature: sensor.rozemarijn_temperature
+      conductivity: sensor.rozemarijn_soil_conductivity
+      brightness: sensor.rozemarijn_illuminance
+    min_moisture: 25
+    min_conductivity: 150

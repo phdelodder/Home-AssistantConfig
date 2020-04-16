@@ -77,7 +77,7 @@ notify_afval:
   - service: notify.hazilverberkenstraatbot
     data_template:
       message: >
-        {{ states('sensor.afval_ophaal_type') }} morgen buiten zetten!
+        {{ states('sensor.ophaalkalender_morgen') }} morgen buiten zetten!
 
 outside_motion_detection:
   sequence:
