@@ -47,3 +47,13 @@ rozemarijn:
       brightness: sensor.rozemarijn_illuminance
     min_moisture: 25
     min_conductivity: 150
+
+bloempot_voordeur:
+    sensors:
+      moisture: sensor.bloempot_voordeur_moisture
+      #battery: sensor.bloempot_voordeur_battery_level
+      temperature: sensor.bloempot_voordeur_temperature
+      conductivity: sensor.bloempot_voordeur_soil_conductivity
+      brightness: sensor.bloempot_voordeur_illuminance
+    min_moisture: 25
+    min_conductivity: 150

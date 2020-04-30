@@ -174,10 +174,9 @@
     platform: numeric_state
   condition: []
   action:
-  - data:
-      data_template:
-        message: Moestuin heeft vochtigheid van {{ states('sensor.moestuin_moisture')
-          }}, dringend water geven!
+  - data_template:
+      message: Moestuin heeft vochtigheid van {{ states('sensor.moestuin_moisture')
+        }}, dringend water geven!
     service: notify.hazilverberkenstraatbot
 - id: '1586960390568'
   alias: Rozemarijn Low on Water
@@ -188,10 +187,22 @@
     platform: numeric_state
   condition: []
   action:
-  - data:
-      data_template:
-        message: Rozemarijn heeft vochtigheid van {{ states('sensor.rozemarijn_moisture')
-          }}, dringend water geven!
+  - data_template:
+      message: Rozemarijn heeft vochtigheid van {{ states('sensor.rozemarijn_moisture')
+        }}, dringend water geven!
+    service: notify.hazilverberkenstraatbot
+- id: '1586960390569'
+  alias: Bloempot Voordeur Low on Water
+  description: ''
+  trigger:
+  - below: '25'
+    entity_id: sensor.bloempot_voordeur_moisture
+    platform: numeric_state
+  condition: []
+  action:
+  - data_template:
+      message: Bloempot voordeur heeft vochtigheid van {{ states('sensor.bloempot_voordeur_moisture')
+        }}, dringend water geven!
     service: notify.hazilverberkenstraatbot
 - id: '1587360682923'
   alias: Alarm Clock Philippe
@@ -325,3 +336,101 @@
         entity_id: light.nachttafel_margot
     entity_id: script.wakeup_margot_sunrise
     service: script.turn_on
+- id: '1588246366774'
+  alias: Aandacht Planten
+  description: Planten die laag gehalte van water of meststof hebben
+  trigger:
+  - at: '18:30'
+    platform: time
+  condition:
+  - condition: or
+    conditions:
+    - below: '25'
+      condition: numeric_state
+      entity_id: sensor.greenhouse_zone_1_moisture
+    - below: '100'
+      condition: numeric_state
+      entity_id: sensor.greenhouse_zone_1_soil_conductivity
+    - below: '25'
+      condition: numeric_state
+      entity_id: sensor.greenhouse_zone_2_moisture
+    - below: '100'
+      condition: numeric_state
+      entity_id: sensor.greenhouse_zone_2_soil_conductivity
+    - below: '25'
+      condition: numeric_state
+      entity_id: sensor.greenhouse_zone_3_moisture
+    - below: '100'
+      condition: numeric_state
+      entity_id: sensor.greenhouse_zone_3_soil_conductivity
+    - below: '25'
+      condition: numeric_state
+      entity_id: sensor.greenhouse_zone_4_moisture
+    - below: '100'
+      condition: numeric_state
+      entity_id: sensor.greenhouse_zone_4_soil_conductivity
+    - below: '25'
+      condition: numeric_state
+      entity_id: sensor.moestuin_moisture
+    - below: '100'
+      condition: numeric_state
+      entity_id: sensor.moestuin_soil_conductivity
+    - below: '25'
+      condition: numeric_state
+      entity_id: sensor.rozemarijn_moisture
+    - below: '100'
+      condition: numeric_state
+      entity_id: sensor.rozemarijn_soil_conductivity
+    - below: '25'
+      condition: numeric_state
+      entity_id: sensor.bloempot_voordeur_moisture
+    - below: '100'
+      condition: numeric_state
+      entity_id: sensor.bloempot_voordeur_soil_conductivity
+  action:
+  - data_template:
+      message: >-
+        Deze planten vragen vandaag je aandacht:
+        {%if states('sensor.greenhouse_zone_1_moisture') | int < 25 %}
+          - Serre Zone 1 heeft water nodig, {{ states('sensor.greenhouse_zone_1_moisture') }} %
+        {%- endif %}
+        {%- if states('sensor.greenhouse_zone_1_soil_conductivity') | int < 100 %}
+          - Serre Zone 1 heeft meststof nodig, {{ states('sensor.greenhouse_zone_1_soil_conductivity') }} µS/cm
+        {%- endif %}
+        {%- if states('sensor.greenhouse_zone_2_moisture') | int < 25 %}
+          - Serre Zone 2 heeft water nodig, {{ states('sensor.greenhouse_zone_2_moisture') }} %
+        {%- endif %}
+        {%- if states('sensor.greenhouse_zone_2_soil_conductivity') | int < 100 %}
+          - Serre Zone 2 heeft meststof nodig, {{ states('sensor.greenhouse_zone_2_soil_conductivity') }} µS/cm
+        {%- endif %}
+        {%- if states('sensor.greenhouse_zone_3_moisture') | int < 25 %}
+          - Serre Zone 3 heeft water nodig, {{ states('sensor.greenhouse_zone_3_moisture') }} %
+        {%- endif %}
+        {%- if states('sensor.greenhouse_zone_3_soil_conductivity') | int < 100 %}
+          - Serre Zone 3 heeft meststof nodig, {{ states('sensor.greenhouse_zone_3_soil_conductivity') }} µS/cm
+        {%- endif %}
+        {%- if states('sensor.greenhouse_zone_4_moisture') | int < 25 %}
+          - Serre Zone 4 heeft water nodig, {{ states('sensor.greenhouse_zone_4_moisture') }} %
+        {%- endif %}
+        {%- if states('sensor.greenhouse_zone_4_soil_conductivity') | int < 100 %}
+          - Serre Zone 4 heeft meststof nodig, {{ states('sensor.greenhouse_zone_4_soil_conductivity') }} µS/cm
+        {%- endif %}
+        {%- if states('sensor.moestuin_moisture') | int < 25 %}
+          - Moestuin heeft water nodig, {{ states('sensor.moestuin_moisture') }} %
+        {%- endif %}
+        {%- if states('sensor.moestuin_soil_conductivity') | int < 100 %}
+          - Moestuin heeft meststof nodig, {{ states('sensor.moestuin_soil_conductivity') }} µS/cm
+        {%- endif %}
+        {%- if states('sensor.rozemarijn_moisture') | int < 25 %}
+          - Rozemarijn heeft water nodig, {{ states('sensor.rozemarijn_moisture') }} %
+        {%- endif %}
+        {%- if states('sensor.rozemarijn_soil_conductivity') | int < 100 %}
+          - Rozemarijn heeft meststof nodig, {{ states('sensor.rozemarijn_soil_conductivity') }} µS/cm
+        {%- endif %}
+        {%- if states('sensor.bloempot_voordeur_moisture') | int < 25 %}
+          - Bloempot voordeur heeft water nodig, {{ states('sensor.bloempot_voordeur_moisture') }} %
+        {%- endif %}
+        {%- if states('sensor.bloempot_voordeur_soil_conductivity') | int < 100 %}
+          - Bloempot voordeur heeft meststof nodig, {{ states('sensor.bloempot_voordeur_soil_conductivity') }} µS/cm
+        {%- endif %}
+    service: notify.hazilverberkenstraatbot
