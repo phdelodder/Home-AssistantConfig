@@ -33,3 +33,13 @@ philippe_phone_next_alarm:
   name: Philippe volgende alarm
   has_date: true
   has_time: true
+
+febe_next_alarm:
+  name: Febe volgende alarm
+  has_date: false
+  has_time: true
+  
+margot_next_alarm:
+  name: Margot volgende alarm
+  has_date: false
+  has_time: true

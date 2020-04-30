@@ -3,14 +3,16 @@
   entities:
     - light.wc_beneden
     - light.inkom
-    - light.led_schouw
+    - light.schouw
     - light.staande_lamp_living
 
 - platform: group
   name: eerste verdiep group
   entities:
     - light.slaapkamer_margot
+    - light.nachttafel_margot
     - light.slaapkamer_febe
+    - light.nachttafel_febe
     - light.logeerkamer
     - light.gang_eerste_verdiep
     - light.wc_boven
@@ -30,6 +32,5 @@
     - light.speelkamer
     - light.led_speelkamer
     - light.bureau
-    - light.led_bureau
     - light.geometric_lamp_2
     - light.cell_structure_lamp

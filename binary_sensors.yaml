@@ -34,5 +34,12 @@
   json_attributes_topic: "zoneminder/1"
   json_attributes_template: "{{ value_json | tojson }}"
   value_template: "{{ value_json.eventtype}}"
+  
+- platform: mqtt
+  name: "Weather Station Rain"
+  state_topic: "stat/weather_station/RAIN"
+  payload_on: "ON"
+  payload_off: "OFF"
+  device_class: "moisture"
 
 - platform: zoneminder

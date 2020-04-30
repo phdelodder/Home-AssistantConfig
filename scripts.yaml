@@ -17,7 +17,7 @@ set_temperature:
 set_nest_away:
   sequence:
   - data:
-      preset_mode: 'away'
+      preset_mode: away
       entity_id: climate.downstairs
     service: climate.set_preset_mode
   - data_template:
@@ -26,7 +26,7 @@ set_nest_away:
 set_nest_home:
   sequence:
   - data:
-      present_mode: 'none'
+      present_mode: none
       entity_id: climate.downstairs
     service: climate.set_present_mode
   - data_template:
@@ -37,19 +37,18 @@ nest_motion_detection:
   - service: camera.snapshot
     data_template:
       entity_id: camera.oprit
-      filename: "/config/www/snapshots/camera.oprit.jpg"
+      filename: /config/www/snapshots/camera.oprit.jpg
   - service: notify.hazilverberkenstraatbot
-    data_template: 
-      message: "Nest has detected motion"
+    data_template:
+      message: Nest has detected motion
       data:
         photo:
-          - file: "/config/www/snapshots/camera.oprit.jpg"
-            caption: "Nest has detected motion"
+        - file: /config/www/snapshots/camera.oprit.jpg
+          caption: Nest has detected motion
 start_up_home_assistant:
   alias: Start Up Home Assistant
   sequence:
   - service: shell_command.ha_start
-
 activate_guest_mode:
   sequence:
   - service: input_boolean.turn_on
@@ -57,9 +56,9 @@ activate_guest_mode:
       entity_id: input_boolean.house_guests
   - service: notify.hazilverberkenstraatbot
     data_template:
-      message: >
-        Guest mode activated
+      message: 'Guest mode activated
 
+        '
 deactivate_guest_mode:
   sequence:
   - service: input_boolean.turn_off
@@ -67,91 +66,289 @@ deactivate_guest_mode:
       entity_id: input_boolean.house_guests
   - service: notify.hazilverberkenstraatbot
     data_template:
-      message: >
-        Guest mode deactivated
+      message: 'Guest mode deactivated
 
-
+        '
 notify_afval:
   alias: Notify Afval
   sequence:
   - service: notify.hazilverberkenstraatbot
     data_template:
-      message: >
-        {{ states('sensor.ophaalkalender_morgen') }} morgen buiten zetten!
+      message: '{{ states(''sensor.ophaalkalender_morgen'') }} morgen buiten zetten!
 
+        '
 outside_motion_detection:
   sequence:
   - service: camera.snapshot
     data_template:
       entity_id: camera.oprit
-      filename: "/config/www/snapshots/camera.oprit.jpg"
+      filename: /config/www/snapshots/camera.oprit.jpg
   - service: notify.hazilverberkenstraatbot
-    data_template: 
-      message: "Buiten beweging gedetecteerd, {{ sensor }}"
+    data_template:
+      message: Buiten beweging gedetecteerd, {{ sensor }}
       data:
         photo:
-          - file: "/config/www/snapshots/camera.oprit.jpg"
-            caption: "Buiten beweging gedetecteerd, {{ sensor }}"
-
+        - file: /config/www/snapshots/camera.oprit.jpg
+          caption: Buiten beweging gedetecteerd, {{ sensor }}
 vacuum_keuken:
-  alias: "Vacuum Keuken"
+  alias: Vacuum Keuken
   sequence:
   - service: vacuum.send_command
     data:
       entity_id: vacuum.xiaomi_vacuum_cleaner
       command: app_zoned_clean
-      params: [[23386,23366,25286,28216,1]]
+      params:
+      - - 23386
+        - 23366
+        - 25286
+        - 28216
+        - 1
 vacuum_eet_kamer:
-  alias: "Vacuum Eet Kamer"
+  alias: Vacuum Eet Kamer
   sequence:
   - service: vacuum.send_command
     data:
       entity_id: vacuum.xiaomi_vacuum_cleaner
       command: app_zoned_clean
-      params: [[25244,21493,30594,26593,1]]
+      params:
+      - - 25244
+        - 21493
+        - 30594
+        - 26593
+        - 1
 vacuum_living:
-  alias: "Vacuum Living"
+  alias: Vacuum Living
   sequence:
   - service: vacuum.send_command
     data:
       entity_id: vacuum.xiaomi_vacuum_cleaner
       command: app_zoned_clean
-      params: [[24260,16982,30710,21882,1]]
+      params:
+      - - 24260
+        - 16982
+        - 30710
+        - 21882
+        - 1
 vacuum_inkom:
-  alias: "Vacuum Inkom"
+  alias: Vacuum Inkom
   sequence:
   - service: vacuum.send_command
     data:
       entity_id: vacuum.xiaomi_vacuum_cleaner
       command: app_zoned_clean
-      params: [[23110,14614,25410,18664,1]]
+      params:
+      - - 23110
+        - 14614
+        - 25410
+        - 18664
+        - 1
 vacuum_berging:
-  alias: "Vacuum Berging"
+  alias: Vacuum Berging
   sequence:
   - service: vacuum.send_command
     data:
       entity_id: vacuum.xiaomi_vacuum_cleaner
       command: app_zoned_clean
-      params: [[23508,21814,25408,23314,1]]
+      params:
+      - - 23508
+        - 21814
+        - 25408
+        - 23314
+        - 1
 vacuum_is_done:
   sequence:
   - data_template:
-      message: "Stofzuiger is klaar"
+      message: Stofzuiger is klaar
     service: notify.hazilverberkenstraatbot
 vacuum_is_done_room:
   sequence:
   - data_template:
-      message: "Stofzuiger is klaar met {{room}}"
+      message: Stofzuiger is klaar met {{room}}
     service: notify.hazilverberkenstraatbot
 low_battery_notification:
-  sequence: 
-  - service: persistent_notification.create 
+  sequence:
+  - service: persistent_notification.create
     data_template:
-      title: "Low Battery Device"
-      message: "{{name}} has only {{battery}}% left!"
-      notification_id: "lowbatterydevice{{entity_id}}"
+      title: Low Battery Device
+      message: '{{name}} has only {{battery}}% left!'
+      notification_id: lowbatterydevice{{entity_id}}
 dismiss_low_battery_notification:
-  sequence: 
+  sequence:
   - service: persistent_notification.dismiss
     data_template:
-      notification_id: "lowbatterydevice{{entity_id}}"
+      notification_id: lowbatterydevice{{entity_id}}
+wakeup_light_sunrise:
+  alias: Wakeup Light Sunrise
+  sequence:
+  - data_template:
+      brightness: 1
+      white_value: 0
+      entity_id: "{{entity_id}}"
+      xy_color:
+      - 0.67
+      - 0.39
+    service: light.turn_on
+  - delay:
+      seconds: 1
+  - data_template:
+      brightness: 85
+      transition: 12
+      white_value: 0
+      entity_id: "{{entity_id}}"
+      xy_color:
+      - 0.65
+      - 0.41
+    service: light.turn_on
+  - delay: 
+      seconds: 15
+  - data_template:
+      brightness: 170
+      transition: 12
+      white_value: 0
+      entity_id: "{{entity_id}}"
+      xy_color:
+      - 0.6
+      - 0.4
+    service: light.turn_on
+  - delay: 
+      seconds: 15
+  - data_template:
+      brightness: 255
+      transition: 12
+      white_value: 0
+      entity_id: "{{entity_id}}"
+      xy_color:
+      - 0.48
+      - 0.4
+    service: light.turn_on
+  - delay: 
+      seconds: 15
+  - data_template:
+      brightness: 255
+      color_name: white
+      transition: 12
+      white_value: 255
+      entity_id: "{{entity_id}}"
+    service: light.turn_on
+  - delay: 
+      seconds: 15
+wakeup_margot_sunrise:
+  alias: Wakeup Margot Sunrise
+  sequence:
+  - data_template:
+      brightness: 1
+      white_value: 0
+      entity_id: "{{entity_id}}"
+      effect: Solid
+      xy_color:
+      - 0.67
+      - 0.39
+    service: light.turn_on
+  - delay:
+      seconds: 1
+  - data_template:
+      brightness: 85
+      transition: 12
+      white_value: 0
+      entity_id: "{{entity_id}}"
+      effect: Solid
+      xy_color:
+      - 0.65
+      - 0.41
+    service: light.turn_on
+  - delay: 
+      seconds: 15
+  - data_template:
+      brightness: 170
+      transition: 12
+      white_value: 0
+      entity_id: "{{entity_id}}"
+      effect: Solid
+      xy_color:
+      - 0.6
+      - 0.4
+    service: light.turn_on
+  - delay: 
+      seconds: 15
+  - data_template:
+      brightness: 255
+      transition: 12
+      white_value: 0
+      entity_id: "{{entity_id}}"
+      effect: Solid
+      xy_color:
+      - 0.48
+      - 0.4
+    service: light.turn_on
+  - delay: 
+      seconds: 15
+  - data_template:
+      brightness: 255
+      color_name: white
+      transition: 12
+      white_value: 255
+      entity_id: "{{entity_id}}"
+      effect: Solid
+    service: light.turn_on
+  - delay: 
+      seconds: 15
+wakeup_febe_sunrise:
+  alias: Wakeup Febe Sunrise
+  sequence:
+  - data_template:
+      brightness: 1
+      white_value: 0
+      entity_id: "{{entity_id}}"
+      effect: Solid
+      xy_color:
+      - 0.67
+      - 0.39
+    service: light.turn_on
+  - delay:
+      seconds: 1
+  - data_template:
+      brightness: 85
+      transition: 12
+      white_value: 0
+      entity_id: "{{entity_id}}"
+      effect: Solid
+      xy_color:
+      - 0.65
+      - 0.41
+    service: light.turn_on
+  - delay: 
+      seconds: 15
+  - data_template:
+      brightness: 170
+      transition: 12
+      white_value: 0
+      entity_id: "{{entity_id}}"
+      effect: Solid
+      xy_color:
+      - 0.6
+      - 0.4
+    service: light.turn_on
+  - delay: 
+      seconds: 15
+  - data_template:
+      brightness: 255
+      transition: 12
+      white_value: 0
+      entity_id: "{{entity_id}}"
+      effect: Solid
+      xy_color:
+      - 0.48
+      - 0.4
+    service: light.turn_on
+  - delay: 
+      seconds: 15
+  - data_template:
+      brightness: 255
+      color_name: white
+      transition: 12
+      white_value: 255
+      entity_id: "{{entity_id}}"
+      effect: Solid
+    service: light.turn_on
+  - delay: 
+      seconds: 15

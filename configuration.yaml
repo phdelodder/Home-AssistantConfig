@@ -46,9 +46,6 @@ scene: !include scenes.yaml
 shell_command: !include shell_command.yaml
 plant: !include plant.yaml
 
-hacs:
-  token: !secret my_github_access_token
-
 python_script:
 
 telegram_bot:
@@ -118,4 +115,8 @@ shelly:
 spotify:
   client_id: !secret spotify-clientid
   client_secret: !secret spotify-client_secret
+  
+cast:
+  media_player:
+    - host: 192.168.0.154
 

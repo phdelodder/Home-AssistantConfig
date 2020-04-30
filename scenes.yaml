@@ -19,50 +19,753 @@
   name: Sfeer Woonkamer
   entities:
     light.led_mini_kerstboom_led:
-      brightness: 255
-      effect: None
       effect_list:
       - None
       - Candle_Flicker
       friendly_name: Led Mini Kerstboom LED
-      state: 'on'
+      state: unavailable
       supported_features: 45
-    light.led_schouw:
-      brightness: 86
-      effect: None
+    light.schouw:
+      brightness: 84
+      effect: Solid
       effect_list:
-      - None
-      - Rainbow
-      - Color Wipe
-      - Twinkle
-      - Random Twinkle
-      - Addressable Flicker
+      - Android
+      - Blink
+      - Blink Rainbow
+      - Bouncing Balls
+      - Bpm
+      - Breathe
+      - Candle
+      - Chase
+      - Chase Flash
+      - Chase Flash Rnd
+      - Chase Rainbow
+      - Chase Random
+      - Circus
+      - Colorful
+      - Colorloop
+      - Colortwinkles
+      - Colorwaves
+      - Dissolve
+      - Dissolve Rnd
+      - Drip
+      - Dynamic
+      - Fade
+      - Fill Noise
+      - Fire 2012
+      - Fire Flicker
       - Fireworks
+      - Fireworks 1D
+      - Fireworks Starburst
+      - Glitter
+      - Gradient
+      - Halloween
+      - Halloween Eyes
+      - Heartbeat
+      - ICU
+      - Juggle
+      - Lake
+      - Lighthouse
+      - Lightning
+      - Loading
+      - Merry Christmas
+      - Meteor
+      - Meteor Smooth
+      - Multi Comet
+      - Noise 1
+      - Noise 2
+      - Noise 3
+      - Noise 4
+      - Oscillate
+      - Palette
+      - Percent
+      - Plasma
+      - Police
+      - Police All
+      - Popcorn
+      - Pride 2015
+      - Railway
+      - Rain
+      - Rainbow
+      - Rainbow Runner
+      - Random Colors
+      - Red & Blue
+      - Ripple
+      - Ripple Rainbow
+      - Running
+      - Running 2
+      - Saw
       - Scan
-      - Flicker
-      - Candle_Flicker
+      - Scan Dual
+      - Scanner
+      - Scanner Dual
+      - Sinelon
+      - Sinelon Dual
+      - Sinelon Rainbow
+      - Solid
+      - Solid Pattern
+      - Solid Pattern Tri
+      - Sparkle
+      - Sparkle Dark
+      - Sparkle+
+      - Spots
+      - Spots Fade
+      - Stream
+      - Stream 2
       - Strobe
-      - Warm White
-      - Random
-      friendly_name: Led Schouw
+      - Strobe Mega
+      - Strobe Rainbow
+      - Sweep
+      - Sweep Random
+      - Theater
+      - Theater Rainbow
+      - Traffic Light
+      - Tri Chase
+      - Tri Fade
+      - Tri Wipe
+      - Twinkle
+      - Twinklecat
+      - Twinklefox
+      - Two Areas
+      - Two Dots
+      - Wipe
+      - Wipe Random
+      friendly_name: Schouw
       hs_color:
-      - 44.932
-      - 85.882
+      - 46.475
+      - 95.686
+      icon: mdi:led-strip-variant
+      intensity: 128
+      max_mireds: 500
+      min_mireds: 153
+      palette: Default
+      playlist:
+      preset:
+      reverse: false
       rgb_color:
       - 255
-      - 200
-      - 36
+      - 199
+      - 11
+      speed: 128
       state: 'on'
-      supported_features: 61
+      supported_features: 55
       xy_color:
-      - 0.509
-      - 0.451
+      - 0.515
+      - 0.455
     light.staande_lamp_living:
       brightness: 89
-      color_temp: 454
       friendly_name: Staande Lamp Living
       is_deconz_group: false
       max_mireds: 500
       min_mireds: 153
       state: 'on'
       supported_features: 43
+- id: '1587621898182'
+  name: Default Nachttafel Febe
+  entities:
+    light.nachttafel_febe:
+      brightness: 255
+      effect: Solid
+      effect_list:
+      - Android
+      - Blink
+      - Blink Rainbow
+      - Bouncing Balls
+      - Bpm
+      - Breathe
+      - Candle
+      - Chase
+      - Chase Flash
+      - Chase Flash Rnd
+      - Chase Rainbow
+      - Chase Random
+      - Circus
+      - Colorful
+      - Colorloop
+      - Colortwinkles
+      - Colorwaves
+      - Dissolve
+      - Dissolve Rnd
+      - Drip
+      - Dynamic
+      - Fade
+      - Fill Noise
+      - Fire 2012
+      - Fire Flicker
+      - Fireworks
+      - Fireworks 1D
+      - Fireworks Starburst
+      - Glitter
+      - Gradient
+      - Halloween
+      - Halloween Eyes
+      - Heartbeat
+      - ICU
+      - Juggle
+      - Lake
+      - Lighthouse
+      - Lightning
+      - Loading
+      - Merry Christmas
+      - Meteor
+      - Meteor Smooth
+      - Multi Comet
+      - Noise 1
+      - Noise 2
+      - Noise 3
+      - Noise 4
+      - Oscillate
+      - Palette
+      - Percent
+      - Plasma
+      - Police
+      - Police All
+      - Popcorn
+      - Pride 2015
+      - Railway
+      - Rain
+      - Rainbow
+      - Rainbow Runner
+      - Random Colors
+      - Red & Blue
+      - Ripple
+      - Ripple Rainbow
+      - Running
+      - Running 2
+      - Saw
+      - Scan
+      - Scan Dual
+      - Scanner
+      - Scanner Dual
+      - Sinelon
+      - Sinelon Dual
+      - Sinelon Rainbow
+      - Solid
+      - Solid Pattern
+      - Solid Pattern Tri
+      - Sparkle
+      - Sparkle Dark
+      - Sparkle+
+      - Spots
+      - Spots Fade
+      - Stream
+      - Stream 2
+      - Strobe
+      - Strobe Mega
+      - Strobe Rainbow
+      - Sweep
+      - Sweep Random
+      - Theater
+      - Theater Rainbow
+      - Traffic Light
+      - Tri Chase
+      - Tri Fade
+      - Tri Wipe
+      - Twinkle
+      - Twinklecat
+      - Twinklefox
+      - Two Areas
+      - Two Dots
+      - Wipe
+      - Wipe Random
+      friendly_name: Nachttafel Febe
+      hs_color:
+      - 300
+      - 100
+      icon: mdi:led-strip-variant
+      intensity: 128
+      max_mireds: 500
+      min_mireds: 153
+      palette: Default
+      playlist:
+      preset:
+      reverse: false
+      rgb_color:
+      - 255
+      - 0
+      - 255
+      speed: 128
+      state: 'on'
+      supported_features: 183
+      white_value: 0
+      xy_color:
+      - 0.385
+      - 0.155
+    switch.nachttafel_febe_nightlight:
+      duration: 60
+      fade: true
+      friendly_name: Nachttafel Febe Nightlight
+      icon: mdi:weather-night
+      state: 'off'
+      target_brightness: 0
+    switch.nachttafel_febe_sync_receive:
+      friendly_name: Nachttafel Febe Sync Receive
+      icon: mdi:download-network-outline
+      state: 'off'
+      udp_port: 21324
+    switch.nachttafel_febe_sync_send:
+      friendly_name: Nachttafel Febe Sync Send
+      icon: mdi:upload-network-outline
+      state: 'off'
+      udp_port: 21324
+- id: '1587625958183'
+  name: Default Nachttafel Margot
+  entities:
+    light.nachttafel_margot:
+      brightness: 255
+      effect: Solid
+      effect_list:
+      - Android
+      - Blink
+      - Blink Rainbow
+      - Bouncing Balls
+      - Bpm
+      - Breathe
+      - Candle
+      - Chase
+      - Chase Flash
+      - Chase Flash Rnd
+      - Chase Rainbow
+      - Chase Random
+      - Circus
+      - Colorful
+      - Colorloop
+      - Colortwinkles
+      - Colorwaves
+      - Dissolve
+      - Dissolve Rnd
+      - Drip
+      - Dynamic
+      - Fade
+      - Fill Noise
+      - Fire 2012
+      - Fire Flicker
+      - Fireworks
+      - Fireworks 1D
+      - Fireworks Starburst
+      - Glitter
+      - Gradient
+      - Halloween
+      - Halloween Eyes
+      - Heartbeat
+      - ICU
+      - Juggle
+      - Lake
+      - Lighthouse
+      - Lightning
+      - Loading
+      - Merry Christmas
+      - Meteor
+      - Meteor Smooth
+      - Multi Comet
+      - Noise 1
+      - Noise 2
+      - Noise 3
+      - Noise 4
+      - Oscillate
+      - Palette
+      - Percent
+      - Plasma
+      - Police
+      - Police All
+      - Popcorn
+      - Pride 2015
+      - Railway
+      - Rain
+      - Rainbow
+      - Rainbow Runner
+      - Random Colors
+      - Red & Blue
+      - Ripple
+      - Ripple Rainbow
+      - Running
+      - Running 2
+      - Saw
+      - Scan
+      - Scan Dual
+      - Scanner
+      - Scanner Dual
+      - Sinelon
+      - Sinelon Dual
+      - Sinelon Rainbow
+      - Solid
+      - Solid Pattern
+      - Solid Pattern Tri
+      - Sparkle
+      - Sparkle Dark
+      - Sparkle+
+      - Spots
+      - Spots Fade
+      - Stream
+      - Stream 2
+      - Strobe
+      - Strobe Mega
+      - Strobe Rainbow
+      - Sweep
+      - Sweep Random
+      - Theater
+      - Theater Rainbow
+      - Traffic Light
+      - Tri Chase
+      - Tri Fade
+      - Tri Wipe
+      - Twinkle
+      - Twinklecat
+      - Twinklefox
+      - Two Areas
+      - Two Dots
+      - Wipe
+      - Wipe Random
+      friendly_name: Nachttafel Margot
+      hs_color:
+      - 300
+      - 100
+      icon: mdi:led-strip-variant
+      intensity: 128
+      max_mireds: 500
+      min_mireds: 153
+      palette: Default
+      playlist:
+      preset:
+      reverse: false
+      rgb_color:
+      - 255
+      - 0
+      - 255
+      speed: 128
+      state: 'on'
+      supported_features: 183
+      white_value: 0
+      xy_color:
+      - 0.385
+      - 0.155
+    switch.nachttafel_margot_nightlight:
+      duration: 60
+      fade: true
+      friendly_name: Nachttafel Margot Nightlight
+      icon: mdi:weather-night
+      state: 'off'
+      target_brightness: 0
+    switch.nachttafel_margot_sync_receive:
+      friendly_name: Nachttafel Margot Sync Receive
+      icon: mdi:download-network-outline
+      state: 'off'
+      udp_port: 21324
+    switch.nachttafel_margot_sync_send:
+      friendly_name: Nachttafel Margot Sync Send
+      icon: mdi:upload-network-outline
+      state: 'off'
+      udp_port: 21324
+- id: '1588064326445'
+  name: Default Speelkamer
+  entities:
+    light.geometric_lamp:
+      brightness: 255
+      effect: Colorloop
+      effect_list:
+      - Android
+      - Blink
+      - Blink Rainbow
+      - Bouncing Balls
+      - Bpm
+      - Breathe
+      - Candle
+      - Chase
+      - Chase Flash
+      - Chase Flash Rnd
+      - Chase Rainbow
+      - Chase Random
+      - Circus
+      - Colorful
+      - Colorloop
+      - Colortwinkles
+      - Colorwaves
+      - Dissolve
+      - Dissolve Rnd
+      - Drip
+      - Dynamic
+      - Fade
+      - Fill Noise
+      - Fire 2012
+      - Fire Flicker
+      - Fireworks
+      - Fireworks 1D
+      - Fireworks Starburst
+      - Glitter
+      - Gradient
+      - Halloween
+      - Halloween Eyes
+      - Heartbeat
+      - ICU
+      - Juggle
+      - Lake
+      - Lighthouse
+      - Lightning
+      - Loading
+      - Merry Christmas
+      - Meteor
+      - Meteor Smooth
+      - Multi Comet
+      - Noise 1
+      - Noise 2
+      - Noise 3
+      - Noise 4
+      - Oscillate
+      - Palette
+      - Percent
+      - Plasma
+      - Police
+      - Police All
+      - Popcorn
+      - Pride 2015
+      - Railway
+      - Rain
+      - Rainbow
+      - Rainbow Runner
+      - Random Colors
+      - Red & Blue
+      - Ripple
+      - Ripple Rainbow
+      - Running
+      - Running 2
+      - Saw
+      - Scan
+      - Scan Dual
+      - Scanner
+      - Scanner Dual
+      - Sinelon
+      - Sinelon Dual
+      - Sinelon Rainbow
+      - Solid
+      - Solid Pattern
+      - Solid Pattern Tri
+      - Sparkle
+      - Sparkle Dark
+      - Sparkle+
+      - Spots
+      - Spots Fade
+      - Stream
+      - Stream 2
+      - Strobe
+      - Strobe Mega
+      - Strobe Rainbow
+      - Sweep
+      - Sweep Random
+      - Theater
+      - Theater Rainbow
+      - Traffic Light
+      - Tri Chase
+      - Tri Fade
+      - Tri Wipe
+      - Twinkle
+      - Twinklecat
+      - Twinklefox
+      - Two Areas
+      - Two Dots
+      - Wipe
+      - Wipe Random
+      friendly_name: Geometric Lamp
+      hs_color:
+      - 300
+      - 100
+      icon: mdi:led-strip-variant
+      intensity: 128
+      max_mireds: 500
+      min_mireds: 153
+      palette: Default
+      playlist:
+      preset:
+      reverse: false
+      rgb_color:
+      - 255
+      - 0
+      - 255
+      speed: 128
+      state: 'on'
+      supported_features: 55
+      xy_color:
+      - 0.385
+      - 0.155
+    light.led_speelkamer:
+      brightness: 255
+      effect: '2'
+      effect_list:
+      - '0'
+      - '1'
+      - '2'
+      - '3'
+      - '4'
+      friendly_name: led speelkamer
+      hs_color:
+      - 300
+      - 100
+      rgb_color:
+      - 255
+      - 0
+      - 255
+      state: 'on'
+      supported_features: 21
+      xy_color:
+      - 0.385
+      - 0.155
+    light.plank:
+      brightness: 255
+      effect: Colorloop
+      effect_list:
+      - Android
+      - Blink
+      - Blink Rainbow
+      - Bouncing Balls
+      - Bpm
+      - Breathe
+      - Candle
+      - Chase
+      - Chase Flash
+      - Chase Flash Rnd
+      - Chase Rainbow
+      - Chase Random
+      - Circus
+      - Colorful
+      - Colorloop
+      - Colortwinkles
+      - Colorwaves
+      - Dissolve
+      - Dissolve Rnd
+      - Drip
+      - Dynamic
+      - Fade
+      - Fill Noise
+      - Fire 2012
+      - Fire Flicker
+      - Fireworks
+      - Fireworks 1D
+      - Fireworks Starburst
+      - Glitter
+      - Gradient
+      - Halloween
+      - Halloween Eyes
+      - Heartbeat
+      - ICU
+      - Juggle
+      - Lake
+      - Lighthouse
+      - Lightning
+      - Loading
+      - Merry Christmas
+      - Meteor
+      - Meteor Smooth
+      - Multi Comet
+      - Noise 1
+      - Noise 2
+      - Noise 3
+      - Noise 4
+      - Oscillate
+      - Palette
+      - Percent
+      - Plasma
+      - Police
+      - Police All
+      - Popcorn
+      - Pride 2015
+      - Railway
+      - Rain
+      - Rainbow
+      - Rainbow Runner
+      - Random Colors
+      - Red & Blue
+      - Ripple
+      - Ripple Rainbow
+      - Running
+      - Running 2
+      - Saw
+      - Scan
+      - Scan Dual
+      - Scanner
+      - Scanner Dual
+      - Sinelon
+      - Sinelon Dual
+      - Sinelon Rainbow
+      - Solid
+      - Solid Pattern
+      - Solid Pattern Tri
+      - Sparkle
+      - Sparkle Dark
+      - Sparkle+
+      - Spots
+      - Spots Fade
+      - Stream
+      - Stream 2
+      - Strobe
+      - Strobe Mega
+      - Strobe Rainbow
+      - Sweep
+      - Sweep Random
+      - Theater
+      - Theater Rainbow
+      - Traffic Light
+      - Tri Chase
+      - Tri Fade
+      - Tri Wipe
+      - Twinkle
+      - Twinklecat
+      - Twinklefox
+      - Two Areas
+      - Two Dots
+      - Wipe
+      - Wipe Random
+      friendly_name: Plank
+      hs_color:
+      - 300
+      - 100
+      icon: mdi:led-strip-variant
+      intensity: 128
+      max_mireds: 500
+      min_mireds: 153
+      palette: Default
+      playlist:
+      preset:
+      reverse: false
+      rgb_color:
+      - 255
+      - 0
+      - 255
+      speed: 128
+      state: 'on'
+      supported_features: 55
+      xy_color:
+      - 0.385
+      - 0.155
+    switch.geometric_lamp_nightlight:
+      duration: 60
+      fade: true
+      friendly_name: Geometric Lamp Nightlight
+      icon: mdi:weather-night
+      state: 'off'
+      target_brightness: 0
+    switch.geometric_lamp_sync_receive:
+      friendly_name: Geometric Lamp Sync Receive
+      icon: mdi:download-network-outline
+      state: 'off'
+      udp_port: 21324
+    switch.geometric_lamp_sync_send:
+      friendly_name: Geometric Lamp Sync Send
+      icon: mdi:upload-network-outline
+      state: 'off'
+      udp_port: 21324
+    switch.plank_nightlight:
+      duration: 60
+      fade: true
+      friendly_name: Plank Nightlight
+      icon: mdi:weather-night
+      state: 'off'
+      target_brightness: 0
+    switch.plank_sync_receive:
+      friendly_name: Plank Sync Receive
+      icon: mdi:download-network-outline
+      state: 'off'
+      udp_port: 21324
+    switch.plank_sync_send:
+      friendly_name: Plank Sync Send
+      icon: mdi:upload-network-outline
+      state: 'off'
+      udp_port: 21324

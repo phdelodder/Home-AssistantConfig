@@ -47,3 +47,11 @@ disable_motion_trigger_light_gang_zolder:
 philippe_phone_alarm_set:
   name: Philippe Phone Alarm
   icon: mdi:alarm
+
+febe_alarm_set:
+  name: Febe Alarm
+  icon: mdi:alarm
+  
+margot_alarm_set:
+  name: Margot Alarm
+  icon: mdi:alarm

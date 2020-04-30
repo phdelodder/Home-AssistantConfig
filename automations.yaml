@@ -90,22 +90,8 @@
   condition: []
   action:
   - service: shell_command.set_oprit_profile_day
-- id: '1575904867531'
-  alias: Send a notice when 3D print is done
-  description: ''
-  trigger:
-  - entity_id: binary_sensor.ender_3_pro_printing
-    from: 'on'
-    platform: state
-    to: 'off'
-  condition: []
-  action:
-  - data:
-      message: Your 3D print is complete
-      title: Print Complete
-    service: notify.hazilverberkenstraatbot
 - id: '1578590308661'
-  alias: 'Licht Slaapkamer Febe '
+  alias: NachtTafel Licht Febe Aan
   description: ''
   trigger:
   - device_id: aecf8a3bd0144f6f9fbbedf7e7c503dc
@@ -113,12 +99,35 @@
     platform: device
     subtype: turn_on
     type: remote_button_short_press
-  condition: []
+  condition:
+  - condition: device
+    device_id: 9d61839836424735bb9de4c9ad91230a
+    domain: light
+    entity_id: light.nachttafel_febe
+    type: is_off
   action:
-  - entity_id: light.slaapkamer_febe
-    service: light.toggle
+  - entity_id: scene.default_nachttafel_febe
+    service: scene.turn_on
+- id: NachtTafel Licht Febe Uit
+  alias: NachtTafel Licht Febe Uit
+  description: ''
+  trigger:
+  - device_id: aecf8a3bd0144f6f9fbbedf7e7c503dc
+    domain: deconz
+    platform: device
+    subtype: turn_on
+    type: remote_button_short_press
+  condition:
+  - condition: device
+    device_id: 9d61839836424735bb9de4c9ad91230a
+    domain: light
+    entity_id: light.nachttafel_febe
+    type: is_on
+  action:
+  - entity_id: light.nachttafel_febe
+    service: light.turn_off
 - id: '1578590350074'
-  alias: Licht slaapkamer Margot
+  alias: NachtTafel Licht Margot Aan
   description: ''
   trigger:
   - device_id: ed641ace598140ab84eff39005e4e6d0
@@ -126,10 +135,15 @@
     platform: device
     subtype: turn_on
     type: remote_button_short_press
-  condition: []
+  condition:
+  - condition: device
+    device_id: 5a5791e30bae435f93fc82b4bbb5dfb8
+    domain: light
+    entity_id: light.nachttafel_margot
+    type: is_off
   action:
-  - entity_id: light.slaapkamer_margot
-    service: light.toggle
+  - entity_id: scene.default_nachttafel_margot
+    service: scene.turn_on
 - id: '1586931483975'
   alias: Send Notification Afval Collection
   description: ''
@@ -179,3 +193,135 @@
         message: Rozemarijn heeft vochtigheid van {{ states('sensor.rozemarijn_moisture')
           }}, dringend water geven!
     service: notify.hazilverberkenstraatbot
+- id: '1587360682923'
+  alias: Alarm Clock Philippe
+  description: https://flemmingss.com/wake-up-light-based-on-android-alarm-with-home-assistant-and-tasker/
+  trigger:
+  - platform: template
+    value_template: '{% set alarm_time = as_timestamp(states(''input_datetime.philippe_phone_next_alarm''))
+      %}
+
+      {% set time_now = as_timestamp(states(''sensor.date_time'').replace('','',''''))
+      %}
+
+      {{ time_now >= ( alarm_time - 300) }}'
+  condition:
+  - condition: state
+    entity_id: input_boolean.philippe_phone_alarm_set
+    state: 'on'
+  - condition: state
+    entity_id: person.philippe
+    state: home
+  action:
+  - service: script.turn_on
+    entity_id: script.wakeup_light_sunrise
+    data:
+      variables:
+        entity_id: light.led_slaapkamer
+- id: Sync Tasmota states
+  alias: Sync Tasmota states
+  initial_state: true
+  trigger:
+    platform: homeassistant
+    event: start
+  action:
+  - service: mqtt.publish
+    data:
+      topic: cmnd/tasmotas/state
+      payload: ''
+  - service: mqtt.publish
+    data:
+      topic: tasmotas/cmnd/state
+      payload: ''
+- id: '1587624008968'
+  alias: Switch Febe Shaken
+  description: ''
+  trigger:
+  - device_id: aecf8a3bd0144f6f9fbbedf7e7c503dc
+    domain: deconz
+    platform: device
+    subtype: ''
+    type: remote_gyro_activated
+  condition: []
+  action:
+  - data_template:
+      effect: '{{ state_attr("light.nachttafel_febe", "effect_list") | random }}'
+      rgb_color:
+      - '{{ (range(0, 255)|random) }}'
+      - '{{ (range(0, 255)|random) }}'
+      - '{{ (range(0, 255)|random) }}'
+      transition: '{{ (range(1, 3)|random) }}'
+      entity_id: light.nachttafel_febe
+    entity_id: light.nachttafel_febe
+    service: light.turn_on
+- id: '1587626119060'
+  alias: NachtTafel Licht Margot Uit
+  description: ''
+  trigger:
+  - device_id: ed641ace598140ab84eff39005e4e6d0
+    domain: deconz
+    platform: device
+    subtype: turn_on
+    type: remote_button_short_press
+  condition:
+  - condition: device
+    device_id: 5a5791e30bae435f93fc82b4bbb5dfb8
+    domain: light
+    entity_id: light.nachttafel_margot
+    type: is_on
+  action:
+  - data: {}
+    entity_id: light.nachttafel_margot
+    service: light.turn_off
+- id: '1587626206992'
+  alias: Switch Margot Shaken
+  description: ''
+  trigger:
+  - device_id: ed641ace598140ab84eff39005e4e6d0
+    domain: deconz
+    platform: device
+    subtype: ''
+    type: remote_gyro_activated
+  condition: []
+  action:
+  - data_template:
+      effect: '{{ state_attr("light.nachttafel_margot", "effect_list") | random }}'
+      rgb_color:
+      - '{{ (range(0, 255)|random) }}'
+      - '{{ (range(0, 255)|random) }}'
+      - '{{ (range(0, 255)|random) }}'
+      transition: '{{ (range(1, 3)|random) }}'
+    entity_id: light.nachttafel_margot
+    service: light.turn_on
+- id: Alarm Clock Febe
+  alias: Alarm Clock Febe
+  trigger:
+  - platform: template
+    value_template: "{{ states('sensor.time') == \n    (state_attr('input_datetime.febe_next_alarm',\
+      \ 'timestamp') - 300)\n         |timestamp_custom('%H:%M', false) }}"
+  condition:
+  - condition: state
+    entity_id: input_boolean.febe_alarm_set
+    state: 'on'
+  action:
+  - service: script.turn_on
+    entity_id: script.wakeup_febe_sunrise
+    data:
+      variables:
+        entity_id: light.nachttafel_febe
+- id: Alarm Clock Margot
+  alias: Alarm Clock Margot
+  trigger:
+  - platform: template
+    value_template: "{{ states('sensor.time') == \n    (state_attr('input_datetime.margot_next_alarm',\
+      \ 'timestamp') - 300)\n         |timestamp_custom('%H:%M', false) }}"
+  condition:
+  - condition: state
+    entity_id: input_boolean.margot_alarm_set
+    state: 'on'
+  action:
+  - data:
+      variables:
+        entity_id: light.nachttafel_margot
+    entity_id: script.wakeup_margot_sunrise
+    service: script.turn_on

@@ -190,21 +190,6 @@
     vacuum_accessories:
       value_template: 'Maintenance'
 
-- platform: synologydsm
-  host: 192.168.0.10
-  username: !secret synology_username
-  password: !secret synology_password
-  port: 5000
-  ssl: false
-  monitored_conditions:
-    - 'cpu_total_load'
-    - 'memory_real_usage'
-    - 'network_up'
-    - 'network_down'
-    - 'disk_status'
-    - 'disk_temp'
-    - 'volume_percentage_used'
-
 - platform: template
   sensors:
     next_run_zone_1:
