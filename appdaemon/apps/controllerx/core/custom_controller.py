@@ -1,59 +1,76 @@
+import abc
+from typing import Dict, List, Tuple, Union
+
+from const import TypeAction, TypeActionsMapping
 from core.controller import Controller, action
+from core.type.cover_controller import CoverController
 from core.type.light_controller import LightController
 from core.type.media_player_controller import MediaPlayerController
-from const import Light, MediaPlayer
-import abc
+from core.type.switch_controller import SwitchController
 
 
 class CustomController(Controller, abc.ABC):
-    def get_custom_mapping(self):
-        custom_mapping = self.args["mapping"]
-        custom_mapping = {
+    def get_custom_mapping(self) -> TypeActionsMapping:
+        custom_mapping: Dict[Union[str, int], str] = self.args["mapping"]
+        return {
             event: self.parse_action(action) for event, action in custom_mapping.items()
         }
-        return custom_mapping
 
     @abc.abstractmethod
-    def parse_action(self, action):
+    def parse_action(self, action) -> TypeAction:
         """
         This function parse the value of the each action from the 'mapping'.
         It should eiter return a value parsed by 'get_type_actions_mapping' or
         a tuple with (function, arg1, arg2, ...).
         """
-        pass
+        raise NotImplementedError
 
-    def get_z2m_actions_mapping(self):
+    def get_z2m_actions_mapping(self) -> TypeActionsMapping:
         return self.get_custom_mapping()
 
-    def get_deconz_actions_mapping(self):
+    def get_deconz_actions_mapping(self) -> TypeActionsMapping:
         return self.get_custom_mapping()
 
-    def get_zha_actions_mapping(self):
+    def get_zha_actions_mapping(self) -> TypeActionsMapping:
         return self.get_custom_mapping()
 
 
 class CustomLightController(CustomController, LightController):
-    def parse_action(self, action):
+    def parse_action(self, action) -> TypeAction:
         return action
 
 
 class CustomMediaPlayerController(CustomController, MediaPlayerController):
-    def parse_action(self, action):
+    def parse_action(self, action) -> TypeAction:
         return action
 
 
+class CustomSwitchController(CustomController, SwitchController):
+    def parse_action(self, action) -> TypeAction:
+        return action
+
+
+class CustomCoverController(CustomController, CoverController):
+    def parse_action(self, action) -> TypeAction:
+        return action
+
+
+Service = Tuple[str, Dict]
+Services = List[Service]
+
+
 class CallServiceController(CustomController):
-    def parse_action(self, actions):
-        services = []
-        if type(actions) == dict:
-            actions = [actions]
-        for action in actions:
-            service = action["service"].replace(".", "/")
-            data = action.get("data", {})
+    def parse_action(self, action) -> TypeAction:
+        services: Services = []
+        if isinstance(action, dict):
+            action = [action]
+        for act in action:
+            service = act["service"].replace(".", "/")
+            data = act.get("data", {})
             services.append((service, data))
-        return (self.call_service, services)
+        return (self.call_services, services)
 
     @action
-    async def call_service(self, services):
+    async def call_services(self, services: Services) -> None:
         for service, data in services:
             await super().call_service(service, **data)

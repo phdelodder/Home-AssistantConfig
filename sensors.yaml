@@ -89,16 +89,6 @@
 
 - platform: template
   sensors:
-    afval_ophaal_dag:
-      friendly_name: Afval Ophaal Dag
-      value_template: "{{ strptime(states('sensor.ophaal_kalender_datum'), '%Y-%m-%d').strftime('%A, %d/%m/%Y') }}"
-    afval_ophaal_type:
-      friendly_name: Afval Ophaal Type
-      value_template: "{{states('sensor.ophaal_kalender_titel') }}"
-      icon_template: "{%- if is_state('sensor.ophaal_kalender_titel', 'Restafval') %}mdi:recycle{%- elif is_state('sensor.ophaal_kalender_titel', 'Groenafval') %}mdi:leaf{%- elif is_state('sensor.ophaal_kalender_titel', 'PMD') %}mdi:delete-variant{% else%}mdi:cancel{%- endif %}"
-
-- platform: template
-  sensors:
     vacuum_status:
       friendly_name: Status
       entity_id:
@@ -247,3 +237,194 @@
   streetname: !secret ophaalkalender_streetname
   upcomingsensor: 1
   builtinicons: 1
+  
+- platform: mqtt
+  name: garage_temperature
+  unit_of_measurement: "°C"
+  state_topic: "home/OMG_Garage/OneWiretoMQTT/ds1820"
+  value_template: "{{ value_json.temp | is_defined}}"
+  device_class: "temperature"
+  
+- platform: mqtt
+  name: "Greenhouse Zone 1 Temperature"
+  unit_of_measurement: "°C"
+  state_topic: "home/OMG_Garage/BTtoMQTT/80EACA890274"
+  value_template: "{{ value_json.tem | is_defined }}"
+  device_class: "temperature"
+- platform: mqtt
+  unit_of_measurement: "%"
+  name: "Greenhouse Zone 1 Moisture"
+  state_topic: "home/OMG_Garage/BTtoMQTT/80EACA890274"
+  value_template: "{{ value_json.moi | is_defined }}"
+- platform: mqtt
+  name: "Greenhouse Zone 1 Illuminance"
+  unit_of_measurement: "lx"
+  state_topic: "home/OMG_Garage/BTtoMQTT/80EACA890274"
+  value_template: "{{ value_json.lux | is_defined }}"
+  device_class: "illuminance"
+- platform: mqtt
+  name: "Greenhouse Zone 1 Soil Conductivity"
+  state_topic: "home/OMG_Garage/BTtoMQTT/80EACA890274"
+  value_template: "{{ value_json.fer | is_defined }}"
+  unit_of_measurement: "µS/cm"
+  
+- platform: mqtt
+  name: "Greenhouse Zone 2 Temperature"
+  unit_of_measurement: "°C"
+  state_topic: "home/OMG_Garage/BTtoMQTT/80EACA890E95"
+  value_template: "{{ value_json.tem| is_defined }}"
+  device_class: "temperature"
+- platform: mqtt
+  name: "Greenhouse Zone 2 Moisture"
+  unit_of_measurement: "%"
+  state_topic: "home/OMG_Garage/BTtoMQTT/80EACA890E95"
+  value_template: "{{ value_json.moi | is_defined }}"
+- platform: mqtt
+  name: "Greenhouse Zone 2 Illuminance"
+  unit_of_measurement: "lx"
+  state_topic: "home/OMG_Garage/BTtoMQTT/80EACA890E95"
+  value_template: "{{ value_json.lux | is_defined }}"
+  device_class: "illuminance"
+- platform: mqtt
+  name: "greenhouse Zone 2 Soil Conductivity"
+  state_topic: "home/OMG_Garage/BTtoMQTT/80EACA890E95"
+  value_template: "{{ value_json.fer | is_defined }}"
+  unit_of_measurement: "µS/cm"
+  
+- platform: mqtt
+  name: "Greenhouse Zone 3 temperature"
+  unit_of_measurement: "°C"
+  state_topic: "home/OMG_Garage/BTtoMQTT/80EACA890EA2"
+  value_template: "{{ value_json.tem | is_defined }}"
+  device_class: "temperature"
+- platform: mqtt
+  name: "Greenhouse Zone 3 Moisture"
+  unit_of_measurement: "%"
+  state_topic: "home/OMG_Garage/BTtoMQTT/80EACA890EA2"
+  value_template: "{{ value_json.moi | is_defined }}"
+- platform: mqtt
+  name: "Greenhouse Zone 3 Illuminance"
+  unit_of_measurement: "lx"
+  state_topic: "home/OMG_Garage/BTtoMQTT/80EACA890EA2"
+  value_template: "{{ value_json.lux | is_defined }}"
+  device_class: "illuminance"
+- platform: mqtt
+  name: "Greenhouse Zone 3 Soil Conductivity"
+  state_topic: "home/OMG_Garage/BTtoMQTT/80EACA890EA2"
+  value_template: "{{ value_json.fer | is_defined }}"
+  unit_of_measurement: "µS/cm"
+
+- platform: mqtt
+  name: "Greenhouse Zone 4 temperature"
+  unit_of_measurement: "°C"
+  state_topic: "home/OMG_Garage/BTtoMQTT/80EACA8909DC"
+  value_template: "{{ value_json.tem | is_defined }}"
+  device_class: "temperature"
+- platform: mqtt
+  name: "Greenhouse Zone 4 Moisture"
+  unit_of_measurement: "%"
+  state_topic: "home/OMG_Garage/BTtoMQTT/80EACA8909DC"
+  value_template: "{{ value_json.moi | is_defined }}"
+- platform: mqtt
+  name: "Greenhouse Zone 4 Illuminance"
+  unit_of_measurement: "lx"
+  state_topic: "home/OMG_Garage/BTtoMQTT/80EACA8909DC"
+  value_template: "{{ value_json.lux | is_defined }}"
+  device_class: "illuminance"
+- platform: mqtt
+  name: "Greenhouse Zone 4 Soil Conductivity"
+  state_topic: "home/OMG_Garage/BTtoMQTT/80EACA8909DC"
+  value_template: "{{ value_json.fer | is_defined }}"
+  unit_of_measurement: "µS/cm"
+
+- platform: mqtt
+  name: "Olijfboom Temperature"
+  unit_of_measurement: "°C"
+  state_topic: "home/OMG_Garage/BTtoMQTT/80EACA890C56"
+  value_template: "{{ value_json.tem | is_defined }}"
+  device_class: "temperature"
+- platform: mqtt
+  name: "Olijfboom Moisture"
+  unit_of_measurement: "%"
+  state_topic: "home/OMG_Garage/BTtoMQTT/80EACA890C56"
+  value_template: "{{ value_json.moi | is_defined }}"
+- platform: mqtt
+  name: "Olijfboom Illuminance"
+  unit_of_measurement: "lx"
+  state_topic: "home/OMG_Garage/BTtoMQTT/80EACA890C56"
+  value_template: "{{ value_json.lux | is_defined }}"
+  device_class: "illuminance"
+- platform: mqtt
+  name: "Olijfboom Soil Conductivity"
+  state_topic: "home/OMG_Garage/BTtoMQTT/80EACA890C56"
+  value_template: "{{ value_json.fer | is_defined }}"
+  unit_of_measurement: "µS/cm"
+
+- platform: mqtt
+  name: "Moestuin Temperature"
+  unit_of_measurement: "°C"
+  state_topic: "home/OMG_Inkom/BTtoMQTT/80EACA890BFA"
+  value_template: "{{ value_json.tem | is_defined }}"
+  device_class: "temperature"
+- platform: mqtt
+  name: "Moestuin Moisture"
+  unit_of_measurement: "%"
+  state_topic: "home/OMG_Inkom/BTtoMQTT/80EACA890BFA"
+  value_template: "{{ value_json.moi | is_defined }}"
+- platform: mqtt
+  name: "Moestuin Illuminance"
+  unit_of_measurement: "lx"
+  state_topic: "home/OMG_Inkom/BTtoMQTT/80EACA890BFA"
+  value_template: "{{ value_json.lux | is_defined }}"
+  device_class: "illuminance"
+- platform: mqtt
+  name: "Moestuin Soil Conductivity"
+  state_topic: "home/OMG_Inkom/BTtoMQTT/80EACA890BFA"
+  value_template: "{{ value_json.fer | is_defined }}"
+  unit_of_measurement: "µS/cm"
+
+- platform: mqtt
+  name: "Rozemarijn Temperature"
+  unit_of_measurement: "°C"
+  state_topic: "home/OMG_Inkom/BTtoMQTT/80EACA890AB3"
+  value_template: "{{ value_json.tem | is_defined }}"
+  device_class: "temperature"
+- platform: mqtt
+  name: "Rozemarijn Moisture"
+  unit_of_measurement: "%"
+  state_topic: "home/OMG_Inkom/BTtoMQTT/80EACA890AB3"
+  value_template: "{{ value_json.moi | is_defined }}"
+- platform: mqtt
+  name: "Rozemarijn Illuminance"
+  unit_of_measurement: "lx"
+  state_topic: "home/OMG_Inkom/BTtoMQTT/80EACA890AB3"
+  value_template: "{{ value_json.lux | is_defined }}"
+  device_class: "illuminance"
+- platform: mqtt
+  name: "Rozemarijn Soil Conductivity"
+  state_topic: "home/OMG_Inkom/BTtoMQTT/80EACA890AB3"
+  value_template: "{{ value_json.fer | is_defined }}"
+  unit_of_measurement: "µS/cm"
+
+- platform: mqtt
+  name: "Bloempot Voordeur Temperature"
+  unit_of_measurement: "°C"
+  state_topic: "home/OMG_Inkom/BTtoMQTT/80EACA890CBD"
+  value_template: "{{ value_json.tem | is_defined }}"
+  device_class: "temperature"
+- platform: mqtt
+  name: "Bloempot Voordeur Moisture"
+  unit_of_measurement: "%"
+  state_topic: "home/OMG_Inkom/BTtoMQTT/80EACA890CBD"
+  value_template: "{{ value_json.moi | is_defined }}"
+- platform: mqtt
+  name: "Bloempot Voordeur Illuminance"
+  unit_of_measurement: "lx"
+  state_topic: "home/OMG_Inkom/BTtoMQTT/80EACA890CBD"
+  value_template: "{{ value_json.lux | is_defined }}"
+  device_class: "illuminance"
+- platform: mqtt
+  name: "Bloempot Voordeur Soil Conductivity"
+  state_topic: "home/OMG_Inkom/BTtoMQTT/80EACA890CBD"
+  value_template: "{{ value_json.fer | is_defined }}"
+  unit_of_measurement: "µS/cm"

@@ -1,3 +1,11 @@
+from typing import Any, Awaitable, Callable, Dict, Tuple, Union
+
+
+ActionFunction = Callable[..., Awaitable[Any]]
+TypeAction = Union[ActionFunction, Tuple, str]
+TypeActionsMapping = Dict[Union[str, int], TypeAction]
+
+
 class Light:
     ON = "on"
     OFF = "off"
@@ -43,3 +51,17 @@ class MediaPlayer:
     PREVIOUS_TRACK = "previous_track"
     NEXT_SOURCE = "next_source"
     PREVIOUS_SOURCE = "previous_source"
+
+
+class Switch:
+    ON = "on"
+    OFF = "off"
+    TOGGLE = "toggle"
+
+
+class Cover:
+    OPEN = "open"
+    CLOSE = "close"
+    STOP = "stop"
+    TOGGLE_OPEN = "toggle_open"
+    TOGGLE_CLOSE = "toggle_close"

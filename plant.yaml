@@ -1,4 +1,14 @@
-zone2:
+greenhouse_zone_1:
+    sensors:
+      moisture: sensor.greenhouse_zone_1_moisture
+      #battery: sensor.greenhouse_zone_1_battery_level
+      temperature: sensor.greenhouse_zone_1_temperature
+      conductivity: sensor.greenhouse_zone_1_soil_conductivity
+      brightness: sensor.greenhouse_zone_1_illuminance
+    min_moisture: 25
+    min_conductivity: 150
+
+greenhouse_zone_2:
     sensors:
       moisture: sensor.greenhouse_zone_2_moisture
       #battery: sensor.greenhouse_zone_2_battery_level
@@ -8,7 +18,7 @@ zone2:
     min_moisture: 25
     min_conductivity: 150
     
-zone3:
+greenhouse_zone_3:
     sensors:
       moisture: sensor.greenhouse_zone_3_moisture
       #battery: sensor.greenhouse_zone_3_battery_level
@@ -18,7 +28,7 @@ zone3:
     min_moisture: 25
     min_conductivity: 150
         
-zone4:
+greenhouse_zone_4:
     sensors:
       moisture: sensor.greenhouse_zone_4_moisture
       #battery: sensor.greenhouse_zone_4_battery_level
@@ -55,5 +65,15 @@ bloempot_voordeur:
       temperature: sensor.bloempot_voordeur_temperature
       conductivity: sensor.bloempot_voordeur_soil_conductivity
       brightness: sensor.bloempot_voordeur_illuminance
+    min_moisture: 25
+    min_conductivity: 150
+
+olijfboom:
+    sensors:
+      moisture: sensor.olijfboom_moisture
+      #battery: sensor.olijfboom_battery_level
+      temperature: sensor.olijfboom_temperature
+      conductivity: sensor.olijfboom_soil_conductivity
+      brightness: sensor.olijfboom_illuminance
     min_moisture: 25
     min_conductivity: 150

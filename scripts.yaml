@@ -183,7 +183,7 @@ wakeup_light_sunrise:
   - data_template:
       brightness: 1
       white_value: 0
-      entity_id: "{{entity_id}}"
+      entity_id: '{{entity_id}}'
       xy_color:
       - 0.67
       - 0.39
@@ -194,43 +194,43 @@ wakeup_light_sunrise:
       brightness: 85
       transition: 12
       white_value: 0
-      entity_id: "{{entity_id}}"
+      entity_id: '{{entity_id}}'
       xy_color:
       - 0.65
       - 0.41
     service: light.turn_on
-  - delay: 
+  - delay:
       seconds: 15
   - data_template:
       brightness: 170
       transition: 12
       white_value: 0
-      entity_id: "{{entity_id}}"
+      entity_id: '{{entity_id}}'
       xy_color:
       - 0.6
       - 0.4
     service: light.turn_on
-  - delay: 
+  - delay:
       seconds: 15
   - data_template:
       brightness: 255
       transition: 12
       white_value: 0
-      entity_id: "{{entity_id}}"
+      entity_id: '{{entity_id}}'
       xy_color:
       - 0.48
       - 0.4
     service: light.turn_on
-  - delay: 
+  - delay:
       seconds: 15
   - data_template:
       brightness: 255
       color_name: white
       transition: 12
       white_value: 255
-      entity_id: "{{entity_id}}"
+      entity_id: '{{entity_id}}'
     service: light.turn_on
-  - delay: 
+  - delay:
       seconds: 15
 wakeup_margot_sunrise:
   alias: Wakeup Margot Sunrise
@@ -238,7 +238,7 @@ wakeup_margot_sunrise:
   - data_template:
       brightness: 1
       white_value: 0
-      entity_id: "{{entity_id}}"
+      entity_id: '{{entity_id}}'
       effect: Solid
       xy_color:
       - 0.67
@@ -250,47 +250,47 @@ wakeup_margot_sunrise:
       brightness: 85
       transition: 12
       white_value: 0
-      entity_id: "{{entity_id}}"
+      entity_id: '{{entity_id}}'
       effect: Solid
       xy_color:
       - 0.65
       - 0.41
     service: light.turn_on
-  - delay: 
+  - delay:
       seconds: 15
   - data_template:
       brightness: 170
       transition: 12
       white_value: 0
-      entity_id: "{{entity_id}}"
+      entity_id: '{{entity_id}}'
       effect: Solid
       xy_color:
       - 0.6
       - 0.4
     service: light.turn_on
-  - delay: 
+  - delay:
       seconds: 15
   - data_template:
       brightness: 255
       transition: 12
       white_value: 0
-      entity_id: "{{entity_id}}"
+      entity_id: '{{entity_id}}'
       effect: Solid
       xy_color:
       - 0.48
       - 0.4
     service: light.turn_on
-  - delay: 
+  - delay:
       seconds: 15
   - data_template:
       brightness: 255
       color_name: white
       transition: 12
       white_value: 255
-      entity_id: "{{entity_id}}"
+      entity_id: '{{entity_id}}'
       effect: Solid
     service: light.turn_on
-  - delay: 
+  - delay:
       seconds: 15
 wakeup_febe_sunrise:
   alias: Wakeup Febe Sunrise
@@ -298,7 +298,7 @@ wakeup_febe_sunrise:
   - data_template:
       brightness: 1
       white_value: 0
-      entity_id: "{{entity_id}}"
+      entity_id: '{{entity_id}}'
       effect: Solid
       xy_color:
       - 0.67
@@ -310,45 +310,264 @@ wakeup_febe_sunrise:
       brightness: 85
       transition: 12
       white_value: 0
-      entity_id: "{{entity_id}}"
+      entity_id: '{{entity_id}}'
       effect: Solid
       xy_color:
       - 0.65
       - 0.41
     service: light.turn_on
-  - delay: 
+  - delay:
       seconds: 15
   - data_template:
       brightness: 170
       transition: 12
       white_value: 0
-      entity_id: "{{entity_id}}"
+      entity_id: '{{entity_id}}'
       effect: Solid
       xy_color:
       - 0.6
       - 0.4
     service: light.turn_on
-  - delay: 
+  - delay:
       seconds: 15
   - data_template:
       brightness: 255
       transition: 12
       white_value: 0
-      entity_id: "{{entity_id}}"
+      entity_id: '{{entity_id}}'
       effect: Solid
       xy_color:
       - 0.48
       - 0.4
     service: light.turn_on
-  - delay: 
+  - delay:
       seconds: 15
   - data_template:
       brightness: 255
       color_name: white
       transition: 12
       white_value: 255
-      entity_id: "{{entity_id}}"
+      entity_id: '{{entity_id}}'
       effect: Solid
     service: light.turn_on
-  - delay: 
+  - delay:
       seconds: 15
+ui_tts:
+  sequence:
+  - service: script.turn_on
+    entity_id: script.play_tts
+    data_template:
+      variables:
+        message: '{{states.input_text.tts.state}}'
+        
+snapshot_spotify:
+  sequence:
+  - service: variable.set_variable
+    data:
+      variable: spotify_phdelodder
+      value_template: >
+          {% if is_state('media_player.spotify_phdelodder', 'playing') and (
+             is_state_attr('media_player.spotify_phdelodder', 'source', 'Huis') or
+             is_state_attr('media_player.spotify_phdelodder', 'source', 'Bureau') or
+             is_state_attr('media_player.spotify_phdelodder', 'source', 'Woonkamer')) %}
+          True
+          {% else %}
+          False
+          {% endif %}
+  - service: variable.set_variable
+    data:
+      variable: spotify_febe
+      value_template: >
+          {% if is_state('media_player.spotify_febe', 'playing') and (
+             is_state_attr('media_player.spotify_febe', 'source', 'Huis') or
+             is_state_attr('media_player.spotify_febe', 'source', 'Bureau') or
+             is_state_attr('media_player.spotify_febe', 'source', 'Woonkamer')) %}
+          True
+          {% else %}
+          False
+          {% endif %}
+  - service: variable.set_variable
+    data:
+      variable: spotify_margot
+      value_template: >
+          {% if is_state('media_player.spotify_margot', 'playing') and (
+             is_state_attr('media_player.spotify_margot', 'source', 'Huis') or
+             is_state_attr('media_player.spotify_margot', 'source', 'Bureau') or
+             is_state_attr('media_player.spotify_margot', 'source', 'Woonkamer')) %}
+          True
+          {% else %}
+          False
+          {% endif %}
+  - service: variable.set_variable
+    data:
+      variable: spotify_isabel
+      value_template: >
+          {% if is_state('media_player.spotify_isabel', 'playing') and (
+             is_state_attr('media_player.spotify_isabel', 'source', 'Huis') or
+             is_state_attr('media_player.spotify_isabel', 'source', 'Bureau') or
+             is_state_attr('media_player.spotify_isabel', 'source', 'Woonkamer')) %}
+          True
+          {% else %}
+          False
+          {% endif %}
+  - condition: template
+    value_template: >-
+        {{ is_state('variable.spotify_isabel', "True") 
+           or is_state('variable.spotify_febe', "True") 
+           or is_state('variable.spotify_margot', "True") 
+           or is_state('variable.spotify_phdelodder', "True") }}
+  - service: media_player.media_pause
+    data_template: 
+      entity_id: >-
+        {% if is_state('variable.spotify_isabel', "True") %}
+         media_player.spotify_isabel
+        {% endif %}
+        {% if is_state('variable.spotify_febe', "True") %}
+         media_player.spotify_febe
+        {% endif %}
+        {% if is_state('variable.spotify_margot', "True") %}
+         media_player.spotify_margot
+        {% endif %}
+        {% if is_state('variable.spotify_phdelodder', "True") %}
+         media_player.spotify_phdelodder
+        {% endif %}
+
+restore_spotify_user: 
+  sequence: 
+  - condition: template
+    value_template: >- 
+      {{ is_state( var , "True") }}
+  - service: media_player.media_play
+    data_template: 
+      entity_id: "{{ media_player }}"
+  - service: variable.set_variable
+    data_template:
+      variable: "{{ var }}"
+      value: False
+
+restore_spotify:
+  sequence:
+  - service: script.turn_on
+    entity_id: script.restore_spotify_user
+    data:
+      variables:
+        media_player: media_player.spotify_isabel
+        var: variable.spotify_isabel
+  - service: script.turn_on
+    entity_id: script.restore_spotify_user
+    data:
+      variables:
+        media_player: media_player.spotify_febe
+        var: variable.spotify_febe
+  - service: script.turn_on
+    entity_id: script.restore_spotify_user
+    data:
+      variables:
+        media_player: media_player.spotify_margot
+        var: variable.spotify_margot
+  - service: script.turn_on
+    entity_id: script.restore_spotify_user
+    data:
+      variables:
+        media_player: media_player.spotify_phdelodder
+        var: variable.spotify_phdelodder
+    
+snapshot_mopidy: 
+  sequence:
+  - service: variable.set_variable
+    data: 
+      variable: mpd_huis
+      value_template: >
+         {% if is_state('media_player.huis', 'playing') %}
+           True
+         {% else %}
+           False
+         {% endif%}
+  - service: variable.set_variable
+    data: 
+      variable: mpd_huis_stream
+      value_template: >
+         {% if is_state('media_player.huis', 'playing') %}
+           {{ states.media_player.huis.attributes.media_content_id }}
+         {% else %}
+            
+         {% endif%}
+
+restore_mopidy: 
+  sequence:
+  - condition: template
+    value_template: >-
+        {{ is_state('variable.mpd_huis', "True") }}
+  - data_template:
+      entity_id: media_player.huis
+      media_content_id: > 
+        {{ states('variable.mpd_huis_stream') }}
+      media_content_type: "music"
+    service: media_player.play_media
+  - service: variable.set_variable
+    data:
+      variable: mpd_huis
+      value: False
+         
+play_tts:
+  sequence:
+  - service: snapcast.snapshot
+    data:
+      entity_id:
+      - media_player.snapcast_client_hentho
+      - media_player.snapcast_client_xgin
+  - service: script.turn_on
+    entity_id: script.snapshot_spotify
+  - service: script.turn_on
+    entity_id: script.snapshot_mopidy
+  - service: media_player.media_pause
+    entity_id: media_player.huis
+  - service: media_player.select_source
+    data:
+      entity_id:
+      - media_player.snapcast_client_hentho
+      - media_player.snapcast_client_xgin
+      source: Mopidy
+  - service: media_player.volume_set
+    data:
+      entity_id:
+      - media_player.snapcast_client_hentho
+      - media_player.snapcast_client_xgin
+      volume_level: 1.0
+  - service_template: tts.google_translate_say
+    data_template:
+      entity_id: media_player.huis
+      message: '{{message}}'
+  - wait_template: '{{states.media_player.huis.state == ''off''}}'
+    timeout: 120
+  - delay: "00:00:02"
+  - service: media_player.media_pause
+    data_template: 
+      entity_id: media_player.huis
+  - service: snapcast.restore
+    data:
+      entity_id:
+      - media_player.snapcast_client_hentho
+      - media_player.snapcast_client_xgin
+  - service: script.turn_on
+    entity_id: script.restore_spotify
+  - service: script.turn_on
+    entity_id: script.restore_mopidy
+    
+play_studiobrussel_home:
+  sequence:
+  - service: variable.set_variable
+    data:
+      variable: radio_playing
+      value: "StuBru"
+  - data:
+      entity_id:
+      - media_player.snapcast_client_hentho
+      - media_player.snapcast_client_xgin
+      volume_level: 1
+    service: media_player.volume_set
+  - data:
+      entity_id: media_player.huis
+      media_content_id: http://icecast.vrtcdn.be/stubru.aac
+      media_content_type: music
+    service: media_player.play_media

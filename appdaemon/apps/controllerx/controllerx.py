@@ -7,6 +7,8 @@ https://github.com/xaviml/controllerx
 from core import CallServiceController
 from core import CustomLightController
 from core import CustomMediaPlayerController
+from core import CustomSwitchController
+from core import CustomCoverController
 from devices.aqara import *
 from devices.ikea import *
 from devices.lutron import *

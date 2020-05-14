@@ -7,3 +7,17 @@ last_motion:
 daily_vacuum_first_run:
   value: False
   restore: true
+spotify_phdelodder:
+  value: False
+spotify_febe:
+  value: False
+spotify_margot:
+  value: False
+spotify_isabel:
+  value: False
+mpd_huis:
+  value: False
+mpd_huis_stream:
+  value: ""
+radio_playing:
+  value: ""

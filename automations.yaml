@@ -165,45 +165,6 @@
   action:
   - data: {}
     service: script.notify_afval
-- id: '1586960390567'
-  alias: Moestuin Low on Water
-  description: ''
-  trigger:
-  - below: '25'
-    entity_id: sensor.moestuin_moisture
-    platform: numeric_state
-  condition: []
-  action:
-  - data_template:
-      message: Moestuin heeft vochtigheid van {{ states('sensor.moestuin_moisture')
-        }}, dringend water geven!
-    service: notify.hazilverberkenstraatbot
-- id: '1586960390568'
-  alias: Rozemarijn Low on Water
-  description: ''
-  trigger:
-  - below: '25'
-    entity_id: sensor.rozemarijn_moisture
-    platform: numeric_state
-  condition: []
-  action:
-  - data_template:
-      message: Rozemarijn heeft vochtigheid van {{ states('sensor.rozemarijn_moisture')
-        }}, dringend water geven!
-    service: notify.hazilverberkenstraatbot
-- id: '1586960390569'
-  alias: Bloempot Voordeur Low on Water
-  description: ''
-  trigger:
-  - below: '25'
-    entity_id: sensor.bloempot_voordeur_moisture
-    platform: numeric_state
-  condition: []
-  action:
-  - data_template:
-      message: Bloempot voordeur heeft vochtigheid van {{ states('sensor.bloempot_voordeur_moisture')
-        }}, dringend water geven!
-    service: notify.hazilverberkenstraatbot
 - id: '1587360682923'
   alias: Alarm Clock Philippe
   description: https://flemmingss.com/wake-up-light-based-on-android-alarm-with-home-assistant-and-tasker/
@@ -231,19 +192,27 @@
         entity_id: light.led_slaapkamer
 - id: Sync Tasmota states
   alias: Sync Tasmota states
-  initial_state: true
   trigger:
+  - event: start
     platform: homeassistant
-    event: start
   action:
-  - service: mqtt.publish
-    data:
+  - data:
+      payload: ''
       topic: cmnd/tasmotas/state
+    service: mqtt.publish
+  - data:
       payload: ''
-  - service: mqtt.publish
-    data:
+      topic: cmnd/tasmotas/shutterposition
+    service: mqtt.publish
+  - data:
+      payload: ''
       topic: tasmotas/cmnd/state
-      payload: ''
+    service: mqtt.publish
+  - data:
+      payload: 0
+      topic: cmnd/tasmotas/status
+    service: mqtt.publish
+  initial_state: true
 - id: '1587624008968'
   alias: Switch Febe Shaken
   description: ''
@@ -315,11 +284,14 @@
     entity_id: input_boolean.febe_alarm_set
     state: 'on'
   action:
-  - service: script.turn_on
-    entity_id: script.wakeup_febe_sunrise
-    data:
+  - data:
       variables:
         entity_id: light.nachttafel_febe
+    entity_id: script.wakeup_febe_sunrise
+    service: script.turn_on
+  - data: {}
+    entity_id: input_boolean.febe_alarm_set
+    service: input_boolean.turn_off
 - id: Alarm Clock Margot
   alias: Alarm Clock Margot
   trigger:
@@ -336,6 +308,9 @@
         entity_id: light.nachttafel_margot
     entity_id: script.wakeup_margot_sunrise
     service: script.turn_on
+  - data: {}
+    entity_id: input_boolean.margot_alarm_set
+    service: input_boolean.turn_off
 - id: '1588246366774'
   alias: Aandacht Planten
   description: Planten die laag gehalte van water of meststof hebben
@@ -387,50 +362,296 @@
     - below: '100'
       condition: numeric_state
       entity_id: sensor.bloempot_voordeur_soil_conductivity
+    - below: '25'
+      condition: numeric_state
+      entity_id: sensor.olijfboom_moisture
+    - below: '100'
+      condition: numeric_state
+      entity_id: sensor.olijfboom_soil_conductivity
   action:
   - data_template:
-      message: >-
-        Deze planten vragen vandaag je aandacht:
-        {%if states('sensor.greenhouse_zone_1_moisture') | int < 25 %}
-          - Serre Zone 1 heeft water nodig, {{ states('sensor.greenhouse_zone_1_moisture') }} %
-        {%- endif %}
-        {%- if states('sensor.greenhouse_zone_1_soil_conductivity') | int < 100 %}
-          - Serre Zone 1 heeft meststof nodig, {{ states('sensor.greenhouse_zone_1_soil_conductivity') }} µS/cm
-        {%- endif %}
-        {%- if states('sensor.greenhouse_zone_2_moisture') | int < 25 %}
-          - Serre Zone 2 heeft water nodig, {{ states('sensor.greenhouse_zone_2_moisture') }} %
-        {%- endif %}
-        {%- if states('sensor.greenhouse_zone_2_soil_conductivity') | int < 100 %}
-          - Serre Zone 2 heeft meststof nodig, {{ states('sensor.greenhouse_zone_2_soil_conductivity') }} µS/cm
-        {%- endif %}
-        {%- if states('sensor.greenhouse_zone_3_moisture') | int < 25 %}
-          - Serre Zone 3 heeft water nodig, {{ states('sensor.greenhouse_zone_3_moisture') }} %
-        {%- endif %}
-        {%- if states('sensor.greenhouse_zone_3_soil_conductivity') | int < 100 %}
-          - Serre Zone 3 heeft meststof nodig, {{ states('sensor.greenhouse_zone_3_soil_conductivity') }} µS/cm
-        {%- endif %}
-        {%- if states('sensor.greenhouse_zone_4_moisture') | int < 25 %}
-          - Serre Zone 4 heeft water nodig, {{ states('sensor.greenhouse_zone_4_moisture') }} %
-        {%- endif %}
-        {%- if states('sensor.greenhouse_zone_4_soil_conductivity') | int < 100 %}
-          - Serre Zone 4 heeft meststof nodig, {{ states('sensor.greenhouse_zone_4_soil_conductivity') }} µS/cm
-        {%- endif %}
-        {%- if states('sensor.moestuin_moisture') | int < 25 %}
-          - Moestuin heeft water nodig, {{ states('sensor.moestuin_moisture') }} %
-        {%- endif %}
-        {%- if states('sensor.moestuin_soil_conductivity') | int < 100 %}
-          - Moestuin heeft meststof nodig, {{ states('sensor.moestuin_soil_conductivity') }} µS/cm
-        {%- endif %}
-        {%- if states('sensor.rozemarijn_moisture') | int < 25 %}
-          - Rozemarijn heeft water nodig, {{ states('sensor.rozemarijn_moisture') }} %
-        {%- endif %}
-        {%- if states('sensor.rozemarijn_soil_conductivity') | int < 100 %}
-          - Rozemarijn heeft meststof nodig, {{ states('sensor.rozemarijn_soil_conductivity') }} µS/cm
-        {%- endif %}
-        {%- if states('sensor.bloempot_voordeur_moisture') | int < 25 %}
-          - Bloempot voordeur heeft water nodig, {{ states('sensor.bloempot_voordeur_moisture') }} %
-        {%- endif %}
-        {%- if states('sensor.bloempot_voordeur_soil_conductivity') | int < 100 %}
-          - Bloempot voordeur heeft meststof nodig, {{ states('sensor.bloempot_voordeur_soil_conductivity') }} µS/cm
-        {%- endif %}
+      message: "Deze planten vragen vandaag je aandacht: {%if states('sensor.greenhouse_zone_1_moisture')\
+        \ | int < 25 %}\n  - Serre Zone 1 heeft water nodig, {{ states('sensor.greenhouse_zone_1_moisture')\
+        \ }} %\n{%- endif %} {%- if states('sensor.greenhouse_zone_1_soil_conductivity')\
+        \ | int < 100 %}\n  - Serre Zone 1 heeft meststof nodig, {{ states('sensor.greenhouse_zone_1_soil_conductivity')\
+        \ }} µS/cm\n{%- endif %} {%- if states('sensor.greenhouse_zone_2_moisture')\
+        \ | int < 25 %}\n  - Serre Zone 2 heeft water nodig, {{ states('sensor.greenhouse_zone_2_moisture')\
+        \ }} %\n{%- endif %} {%- if states('sensor.greenhouse_zone_2_soil_conductivity')\
+        \ | int < 100 %}\n  - Serre Zone 2 heeft meststof nodig, {{ states('sensor.greenhouse_zone_2_soil_conductivity')\
+        \ }} µS/cm\n{%- endif %} {%- if states('sensor.greenhouse_zone_3_moisture')\
+        \ | int < 25 %}\n  - Serre Zone 3 heeft water nodig, {{ states('sensor.greenhouse_zone_3_moisture')\
+        \ }} %\n{%- endif %} {%- if states('sensor.greenhouse_zone_3_soil_conductivity')\
+        \ | int < 100 %}\n  - Serre Zone 3 heeft meststof nodig, {{ states('sensor.greenhouse_zone_3_soil_conductivity')\
+        \ }} µS/cm\n{%- endif %} {%- if states('sensor.greenhouse_zone_4_moisture')\
+        \ | int < 25 %}\n  - Serre Zone 4 heeft water nodig, {{ states('sensor.greenhouse_zone_4_moisture')\
+        \ }} %\n{%- endif %} {%- if states('sensor.greenhouse_zone_4_soil_conductivity')\
+        \ | int < 100 %}\n  - Serre Zone 4 heeft meststof nodig, {{ states('sensor.greenhouse_zone_4_soil_conductivity')\
+        \ }} µS/cm\n{%- endif %} {%- if states('sensor.moestuin_moisture') | int <\
+        \ 25 %}\n  - Moestuin heeft water nodig, {{ states('sensor.moestuin_moisture')\
+        \ }} %\n{%- endif %} {%- if states('sensor.moestuin_soil_conductivity') |\
+        \ int < 100 %}\n  - Moestuin heeft meststof nodig, {{ states('sensor.moestuin_soil_conductivity')\
+        \ }} µS/cm\n{%- endif %} {%- if states('sensor.rozemarijn_moisture') | int\
+        \ < 25 %}\n  - Rozemarijn heeft water nodig, {{ states('sensor.rozemarijn_moisture')\
+        \ }} %\n{%- endif %} {%- if states('sensor.rozemarijn_soil_conductivity')\
+        \ | int < 100 %}\n  - Rozemarijn heeft meststof nodig, {{ states('sensor.rozemarijn_soil_conductivity')\
+        \ }} µS/cm\n{%- endif %} {%- if states('sensor.bloempot_voordeur_moisture')\
+        \ | int < 25 %}\n  - Bloempot voordeur heeft water nodig, {{ states('sensor.bloempot_voordeur_moisture')\
+        \ }} %\n{%- endif %} {%- if states('sensor.bloempot_voordeur_soil_conductivity')\
+        \ | int < 100 %}\n  - Bloempot voordeur heeft meststof nodig, {{ states('sensor.bloempot_voordeur_soil_conductivity')\
+        \ }} µS/cm\n{%- endif %} {%- if states('sensor.olijfboom_moisture') | int\
+        \ < 25 %}\n  - Olijfboom voordeur heeft water nodig, {{ states('sensor.olijfboom_moisture')\
+        \ }} %\n{%- endif %} {%- if states('sensor.olijfboom_soil_conductivity') |\
+        \ int < 100 %}\n  - Olijfboom voordeur heeft meststof nodig, {{ states('sensor.olijfboom_soil_conductivity')\
+        \ }} µS/cm\n{%- endif %}"
     service: notify.hazilverberkenstraatbot
+- id: '1588439093079'
+  alias: Enable Alarm Margot
+  description: ''
+  trigger:
+  - at: '18:00'
+    platform: time
+  condition: []
+  action:
+  - data: {}
+    entity_id: input_boolean.margot_alarm_set
+    service: input_boolean.turn_on
+- id: '1588439142845'
+  alias: Enable Alarm Febe
+  description: ''
+  trigger:
+  - at: '18:00'
+    platform: time
+  condition: []
+  action:
+  - data: {}
+    entity_id: input_boolean.febe_alarm_set
+    service: input_boolean.turn_on
+- id: Autoswitch to Spotify source For Huis
+  alias: Autoswitch to Spotify source For Huis
+  trigger:
+  - entity_id: media_player.spotify_phdelodder
+    platform: state
+    to: playing
+  - entity_id: media_player.spotify_isabel
+    platform: state
+    to: playing
+  - entity_id: media_player.spotify_febe
+    platform: state
+    to: playing
+  - entity_id: media_player.spotify_margot
+    platform: state
+    to: playing
+  condition:
+  - condition: template
+    value_template: '{{trigger.to_state.attributes.source==''Huis''}}'
+  action:
+  - data:
+      entity_id:
+      - media_player.snapcast_client_hentho
+      - media_player.snapcast_client_xgin
+      source: Spotify-Huis
+    service: media_player.select_source
+- id: Autoswitch to Spotify source For Bureau
+  alias: Autoswitch to Spotify source For Bureau
+  trigger:
+  - entity_id: media_player.spotify_phdelodder
+    platform: state
+    to: playing
+  - entity_id: media_player.spotify_isabel
+    platform: state
+    to: playing
+  - entity_id: media_player.spotify_febe
+    platform: state
+    to: playing
+  - entity_id: media_player.spotify_margot
+    platform: state
+    to: playing
+  condition:
+  - condition: template
+    value_template: '{{trigger.to_state.attributes.source==''Bureau''}}'
+  action:
+  - data:
+      entity_id:
+      - media_player.snapcast_client_xgin
+      source: Spotify-Bureau
+    service: media_player.select_source
+  - service: input_select.select_option
+    data:
+      entity_id: input_select.source_bureau
+      option: "Spotify"
+- id: Autoswitch to Spotify source For Woonkamer
+  alias: Autoswitch to Spotify source For Woonkamer
+  trigger:
+  - entity_id: media_player.spotify_phdelodder
+    platform: state
+    to: playing
+  - entity_id: media_player.spotify_isabel
+    platform: state
+    to: playing
+  - entity_id: media_player.spotify_febe
+    platform: state
+    to: playing
+  - entity_id: media_player.spotify_margot
+    platform: state
+    to: playing
+  condition:
+  - condition: template
+    value_template: '{{trigger.to_state.attributes.source==''Woonkamer''}}'
+  action:
+  - data:
+      entity_id:
+      - media_player.snapcast_client_hentho
+      source: Spotify-Woonkamer
+    service: media_player.select_source
+  - service: input_select.select_option
+    data:
+      entity_id: input_select.source_woonkamer
+      option: "Spotify"
+- id: Autoswitch to Spotify source For Tablet
+  alias: Autoswitch to Spotify source For Tablet
+  trigger:
+  - entity_id: media_player.spotify_phdelodder
+    platform: state
+    to: playing
+  - entity_id: media_player.spotify_isabel
+    platform: state
+    to: playing
+  - entity_id: media_player.spotify_febe
+    platform: state
+    to: playing
+  - entity_id: media_player.spotify_margot
+    platform: state
+    to: playing
+  condition:
+  - condition: template
+    value_template: '{{trigger.to_state.attributes.source==''Tablet''}}'
+  action:
+  - data:
+      entity_id:
+      - media_player.snapcast_client_hentho
+      source: Spotify-Tablet
+    service: media_player.select_source
+  - service: input_select.select_option
+    data:
+      entity_id: input_select.source_tablet
+      option: "Spotify"
+- id: Change Source For Snapcast based on input
+  alias: Change Source For Snapcast based on input
+  trigger: 
+    - entity_id: input_select.source_bureau
+      platform: state
+    - entity_id: input_select.source_woonkamer
+      platform: state
+    - entity_id: input_select.source_tablet
+      platform: state
+  action:
+    - service: media_player.select_source
+      data_template:
+        source: >-
+          {% if (trigger.entity_id == "input_select.source_bureau" and is_state('input_select.source_bureau', "Radio")) %}
+          Mopidy
+          {% elif (trigger.entity_id == "input_select.source_bureau" and is_state('input_select.source_bureau', "Spotify")) %}
+          Spotify-Bureau
+          {% elif (trigger.entity_id == "input_select.source_bureau" and is_state('input_select.source_bureau', "Mute")) %}
+          Mute
+          {% elif (trigger.entity_id == "input_select.source_woonkamer" and is_state('input_select.source_woonkamer', "Radio")) %}
+          Mopidy
+          {% elif (trigger.entity_id == "input_select.source_woonkamer" and is_state('input_select.source_woonkamer', "Spotify")) %}
+          Spotify-Woonkamer
+          {% elif (trigger.entity_id == "input_select.source_woonkamer" and is_state('input_select.source_woonkamer', "Mute")) %}
+          Mute
+          {% elif (trigger.entity_id == "input_select.source_tablet" and is_state('input_select.source_tablet', "Radio")) %}
+          Mopidy
+          {% elif (trigger.entity_id == "input_select.source_tablet" and is_state('input_select.source_tablet', "Spotify")) %}
+          Spotify-tablet
+          {% elif (trigger.entity_id == "input_select.source_tablet" and is_state('input_select.source_tablet', "Mute")) %}
+          Mute
+          {% endif %}
+        entity_id: >-
+          {% if (trigger.entity_id == "input_select.source_bureau") %}
+              media_player.snapcast_client_xgin
+          {% elif (trigger.entity_id == "input_select.source_woonkamer") %}
+              media_player.snapcast_client_hentho
+          {% elif (trigger.entity_id == "input_select.source_tablet") %}
+              media_player.snapcast_client_tablet
+          {% endif %}
+    - service: media_player.volume_set
+      data_template:
+        entity_id: >-
+          {% if (trigger.entity_id == "input_select.source_bureau") %}
+              media_player.snapcast_client_xgin
+          {% elif (trigger.entity_id == "input_select.source_woonkamer") %}
+              media_player.snapcast_client_hentho
+          {% elif (trigger.entity_id == "input_select.source_tablet") %}
+              media_player.snapcast_client_tablet
+          {% endif %}
+        volume_level: >-
+           {% if (trigger.entity_id == "input_select.source_bureau" and is_state('input_select.source_bureau', "Mute")) %}
+             0
+           {% elif (trigger.entity_id == "input_select.source_woonkamer" and is_state('input_select.source_woonkamer', "Mute")) %}
+             0
+           {% elif (trigger.entity_id == "input_select.source_tablet" and is_state('input_select.source_tablet', "Mute")) %}
+             0
+           {% else %}
+             1
+           {% endif %}
+    - condition: template
+      value_template: >-
+          {{ states('input_select.source_woonkamer') != "Radio" and states('input_select.source_bureau') != "Radio" and states('input_select.source_tablet') != "Radio" }}
+    - service: media_player.media_stop
+      data:
+        entity_id: media_player.huis
+    - service: variable.set_variable
+      data: 
+        variable: radio_playing
+        value: ""
+- id: Sync Snapcast Volumes
+  alias: Sync Snapcast Volumes
+  trigger:
+  - event: start
+    platform: homeassistant
+  action:
+    - service: input_number.set_value
+      data_template:
+        entity_id: input_number.volume_bureau
+        value: >-
+          {{ state_attr('media_player.snapcast_client_xgin', 'volume_level') }}
+    - service: input_number.set_value
+      data_template:
+        entity_id: input_number.volume_woonkamer
+        value: >-
+          {{ state_attr('media_player.snapcast_client_hentho', 'volume_level') }}
+    - service: input_number.set_value
+      data_template:
+        entity_id: input_number.volume_tablet
+        value: >-
+          {{ state_attr('media_player.snapcast_client_tablet', 'volume_level') }}
+- id: Change Volume For Snapcast based on input
+  alias: Change Volume For Snapcast based on input
+  trigger: 
+    - entity_id: input_number.volume_bureau
+      platform: state
+    - entity_id: input_number.volume_woonkamer
+      platform: state
+    - entity_id: input_number.volume_tablet
+      platform: state
+  action:
+    - service: media_player.volume_set
+      data_template:
+        entity_id: >-
+          {% if (trigger.entity_id == "input_number.volume_bureau") %}
+              media_player.snapcast_client_xgin
+          {% elif (trigger.entity_id == "input_number.volume_woonkamer") %}
+              media_player.snapcast_client_hentho
+          {% elif (trigger.entity_id == "input_number.volume_tablet") %}
+              media_player.snapcast_client_tablet
+          {% endif %}
+        volume_level: >-
+           {% if (trigger.entity_id == "input_number.volume_bureau") %}
+             {{ states('input_number.volume_bureau') }}
+           {% elif (trigger.entity_id == "input_number.volume_woonkamer") %}
+             {{ states('input_number.volume_woonkamer') }}
+           {% elif (trigger.entity_id == "input_number.volume_tablet") %}
+             {{ states('input_number.volume_tablet') }}
+           {% endif %}
+     

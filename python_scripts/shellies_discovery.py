@@ -25,7 +25,6 @@ ATTR_MODEL_SHELLY_EM = "Shelly EM"
 
 ATTR_BATTERY = "battery"
 ATTR_CHARGER = "charger"
-ATTR_COVER = "cover"
 ATTR_CURRENT = "current"
 ATTR_ENERGY = "energy"
 ATTR_FAN = "fan"
@@ -52,8 +51,10 @@ ATTR_POWER = "power"
 ATTR_POWER_FACTOR = "pf"
 ATTR_PROBLEM = "problem"
 ATTR_REACTIVE_POWER = "reactive_power"
+ATTR_RELAY = "relay"
 ATTR_RETURNED_ENERGY = "returned_energy"
 ATTR_RGBW = "rgbw"
+ATTR_ROLLER = "roller"
 ATTR_SMOKE = "smoke"
 ATTR_SWITCH = "switch"
 ATTR_TEMPERATURE = "temperature"
@@ -62,24 +63,52 @@ ATTR_TOTAL_RETURNED = "total_returned"
 ATTR_VOLTAGE = "voltage"
 ATTR_WHITE = "white"
 
-ATTR_AC_POWER = "ac_power"
+ATTR_POWER_AC = "ac"
 
 CONF_DEVELOP = "develop"
 CONF_DISCOVERY_PREFIX = "discovery_prefix"
+CONF_FORCE_UPDATE_SENSORS = "force_update_sensors"
 CONF_FW_VER = "fw_ver"
 CONF_ID = "id"
 CONF_IGNORED_DEVICES = "ignored_devices"
+CONF_LONGPUSH_OFF_DELAY = "longpush_off_delay"
 CONF_MAC = "mac"
+CONF_MODE = "mode"
+CONF_POWERED = "powered"
 CONF_QOS = "qos"
 
 DEFAULT_DISC_PREFIX = "homeassistant"
 
-STATE_OFF = "off"
-STATE_ON = "on"
-
-PL_1_0 = {STATE_ON: "1", STATE_OFF: "0"}
-PL_OPEN_CLOSE = {STATE_ON: "open", STATE_OFF: "close"}
-PL_TRUE_FALSE = {STATE_ON: "true", STATE_OFF: "false"}
+KEY_AVAILABILITY_TOPIC = "avty_t"
+KEY_COMMAND_TOPIC = "cmd_t"
+KEY_DEVICE = "dev"
+KEY_DEVICE_CLASS = "dev_cla"
+KEY_EXPIRE_AFTER = "exp_aft"
+KEY_FORCE_UPDATE = "frc_upd"
+KEY_IDENTIFIERS = "ids"
+KEY_MANUFACTURER = "mf"
+KEY_MODEL = "mdl"
+KEY_NAME = "name"
+KEY_OFF_DELAY = "off_delay"
+KEY_OPTIMISTIC = "opt"
+KEY_PAYLOAD = "payload"
+KEY_PAYLOAD_AVAILABLE = "pl_avail"
+KEY_PAYLOAD_CLOSE = "pl_cls"
+KEY_PAYLOAD_NOT_AVAILABLE = "pl_not_avail"
+KEY_PAYLOAD_OFF = "pl_off"
+KEY_PAYLOAD_ON = "pl_on"
+KEY_PAYLOAD_OPEN = "pl_open"
+KEY_PAYLOAD_STOP = "pl_stop"
+KEY_POSITION_TOPIC = "pos_t"
+KEY_QOS = "qos"
+KEY_RETAIN = "retain"
+KEY_SET_POSITION_TOPIC = "set_pos_t"
+KEY_STATE_TOPIC = "stat_t"
+KEY_SW_VERSION = "sw"
+KEY_TOPIC = "topic"
+KEY_UNIQUE_ID = "uniq_id"
+KEY_UNIT = "unit_of_meas"
+KEY_VALUE_TEMPLATE = "val_tpl"
 
 TPL_BATTERY = "{{value|float|round}}"
 TPL_CURRENT = "{{value|float|round(2)}}"
@@ -103,8 +132,48 @@ UNIT_VAR = "VAR"
 UNIT_VOLT = "V"
 UNIT_WATT = "W"
 
+VALUE_CLOSE = "close"
+VALUE_FALSE = "false"
+VALUE_OFF = "off"
+VALUE_ON = "on"
+VALUE_OPEN = "open"
+VALUE_STOP = "stop"
+VALUE_TRUE = "true"
+
+PL_1_0 = {VALUE_ON: "1", VALUE_OFF: "0"}
+PL_OPEN_CLOSE = {VALUE_ON: "open", VALUE_OFF: "close"}
+PL_TRUE_FALSE = {VALUE_ON: "true", VALUE_OFF: "false"}
+
 expire_after = 43200
 off_delay = 3
+
+
+def get_device_config(id):
+    result = data.get(id, data.get(id.lower(), {}))
+    if not result:
+        result = {}
+    try:
+        if isinstance(result, list):
+            raise TypeError
+        if len(result) > 0:
+            result[0]
+    except TypeError:
+        logger.error("Wrong configuration for %s", id)
+        result = {}
+    finally:
+        return result
+
+
+def mqtt_publish(topic, payload, retain, qos):
+    service_data = {
+        KEY_TOPIC: topic,
+        KEY_PAYLOAD: payload,
+        KEY_RETAIN: retain,
+        KEY_QOS: qos,
+    }
+    logger.debug("Send to MQTT broker: %s %s", topic, payload)
+    hass.services.call("mqtt", "publish", service_data, False)
+
 
 retain = True
 qos = 0
@@ -113,7 +182,7 @@ roller_mode = False
 no_battery_sensor = False
 
 id = data.get(CONF_ID)
-mac = data.get(CONF_MAC)
+mac = data.get(CONF_MAC).lower()
 fw_ver = data.get(CONF_FW_VER)
 ignored = [element.lower() for element in data.get(CONF_IGNORED_DEVICES, [])]
 
@@ -337,7 +406,7 @@ if id.rsplit("-", 1)[0] == "shellybulb":
     model = ATTR_MODEL_SHELLYBULB
     rgbw_lights = 1
 
-if id.rsplit("-", 1)[0] == "ShellyBulbDuo":
+if id.rsplit("-", 1)[0].lower() == "shellybulbduo":
     model = ATTR_MODEL_SHELLYDUO
     white_lights = 1
     lights_sensors = [ATTR_ENERGY, ATTR_POWER]
@@ -448,6 +517,10 @@ if id.rsplit("-", 1)[0] == "shellyflood":
 
 # rollers
 for roller_id in range(0, rollers):
+    device_config = get_device_config(id)
+    config_mode = ATTR_RELAY
+    if device_config.get(CONF_MODE):
+        config_mode = device_config[CONF_MODE]
     device_name = f"{model} {id.split('-')[-1]}"
     roller_name = f"{device_name} Roller {roller_id}"
     default_topic = f"shellies/{id}/"
@@ -456,45 +529,38 @@ for roller_id in range(0, rollers):
     position_topic = f"{state_topic}/pos"
     set_position_topic = f"{state_topic}/command/pos"
     availability_topic = "~online"
-    unique_id = f"{id}-roller-{roller_id}"
-    config_component = data.get(id, data.get(id.lower()))
-    component = ATTR_COVER
-    config_topic = f"{disc_prefix}/{component}/{id}-roller-{roller_id}/config"
-    if config_component == component:
+    unique_id = f"{id}-roller-{roller_id}".lower()
+    config_topic = f"{disc_prefix}/cover/{id}-roller-{roller_id}/config"
+    if config_mode == ATTR_ROLLER:
         roller_mode = True
-        payload = (
-            '{"name":"' + roller_name + '",'
-            '"cmd_t":"' + command_topic + '",'
-            '"pos_t":"' + position_topic + '",'
-            '"set_pos_t":"' + set_position_topic + '",'
-            '"pl_open":"open",'
-            '"pl_cls":"close",'
-            '"pl_stop":"stop",'
-            '"opt":"false",'
-            '"avty_t":"' + availability_topic + '",'
-            '"pl_avail":"true",'
-            '"pl_not_avail":"false",'
-            '"uniq_id":"' + unique_id + '",'
-            '"qos":"' + str(qos) + '",'
-            '"dev": {"ids": ["' + mac + '"],'
-            '"name":"' + device_name + '",'
-            '"mdl":"' + model + '",'
-            '"sw":"' + fw_ver + '",'
-            '"mf":"' + ATTR_MANUFACTURER + '"},'
-            '"~":"' + default_topic + '"}'
-        )
+        payload = {
+            KEY_NAME: roller_name,
+            KEY_COMMAND_TOPIC: command_topic,
+            KEY_POSITION_TOPIC: position_topic,
+            KEY_SET_POSITION_TOPIC: set_position_topic,
+            KEY_PAYLOAD_OPEN: VALUE_OPEN,
+            KEY_PAYLOAD_CLOSE: VALUE_CLOSE,
+            KEY_PAYLOAD_STOP: VALUE_STOP,
+            KEY_OPTIMISTIC: VALUE_FALSE,
+            KEY_AVAILABILITY_TOPIC: availability_topic,
+            KEY_PAYLOAD_AVAILABLE: VALUE_TRUE,
+            KEY_PAYLOAD_NOT_AVAILABLE: VALUE_FALSE,
+            KEY_UNIQUE_ID: unique_id,
+            KEY_QOS: qos,
+            KEY_DEVICE: {
+                KEY_IDENTIFIERS: [mac],
+                KEY_NAME: device_name,
+                KEY_MODEL: model,
+                KEY_SW_VERSION: fw_ver,
+                KEY_MANUFACTURER: ATTR_MANUFACTURER,
+            },
+            "~": default_topic,
+        }
     else:
         payload = ""
     if id.lower() in ignored:
         payload = ""
-    service_data = {
-        "topic": config_topic,
-        "payload": payload,
-        "retain": retain,
-        "qos": qos,
-    }
-    logger.debug("Send to MQTT broker: %s %s", config_topic, payload)
-    hass.services.call("mqtt", "publish", service_data, False)
+    mqtt_publish(config_topic, str(payload).replace("'", '"'), retain, qos)
 
 # relays
 for relay_id in range(0, relays):
@@ -504,86 +570,88 @@ for relay_id in range(0, relays):
     state_topic = f"~relay/{relay_id}"
     command_topic = f"{state_topic}/command"
     availability_topic = "~online"
-    unique_id = f"{id}-relay-{relay_id}"
-    config_component = data.get(unique_id, data.get(unique_id.lower(), ATTR_SWITCH))
+    unique_id = f"{id}-relay-{relay_id}".lower()
+    device_config = get_device_config(id)
+    config_component = ATTR_SWITCH
+    if device_config.get(f"relay-{relay_id}"):
+        config_component = device_config[f"relay-{relay_id}"]
     for component in relay_components:
         config_topic = f"{disc_prefix}/{component}/{id}-relay-{relay_id}/config"
         if component == config_component and not roller_mode:
-            payload = (
-                '{"name":"' + relay_name + '",'
-                '"cmd_t":"' + command_topic + '",'
-                '"stat_t":"' + state_topic + '",'
-                '"pl_off":"off",'
-                '"pl_on":"on",'
-                '"avty_t":"' + availability_topic + '",'
-                '"pl_avail":"true",'
-                '"pl_not_avail":"false",'
-                '"uniq_id":"' + unique_id + '",'
-                '"qos":"' + str(qos) + '",'
-                '"dev": {"ids": ["' + mac + '"],'
-                '"name":"' + device_name + '",'
-                '"mdl":"' + model + '",'
-                '"sw":"' + fw_ver + '",'
-                '"mf":"' + ATTR_MANUFACTURER + '"},'
-                '"~":"' + default_topic + '"}'
-            )
+            payload = {
+                KEY_NAME: relay_name,
+                KEY_COMMAND_TOPIC: command_topic,
+                KEY_STATE_TOPIC: state_topic,
+                KEY_PAYLOAD_OFF: VALUE_OFF,
+                KEY_PAYLOAD_ON: VALUE_ON,
+                KEY_AVAILABILITY_TOPIC: availability_topic,
+                KEY_PAYLOAD_AVAILABLE: VALUE_TRUE,
+                KEY_PAYLOAD_NOT_AVAILABLE: VALUE_FALSE,
+                KEY_UNIQUE_ID: unique_id,
+                KEY_QOS: qos,
+                KEY_DEVICE: {
+                    KEY_IDENTIFIERS: [mac],
+                    KEY_NAME: device_name,
+                    KEY_MODEL: model,
+                    KEY_SW_VERSION: fw_ver,
+                    KEY_MANUFACTURER: ATTR_MANUFACTURER,
+                },
+                "~": default_topic,
+            }
         else:
             payload = ""
         if id.lower() in ignored:
             payload = ""
-        service_data = {
-            "topic": config_topic,
-            "payload": payload,
-            "retain": retain,
-            "qos": qos,
-        }
-        logger.debug("Send to MQTT broker: %s %s", config_topic, payload)
-        hass.services.call("mqtt", "publish", service_data, False)
+        mqtt_publish(config_topic, str(payload).replace("'", '"'), retain, qos)
 
     # relay's sensors
     if relay_id == relays - 1:
         for sensor_id in range(0, len(relays_sensors)):
-            unique_id = f"{id}-relay-{relays_sensors[sensor_id]}"
+            device_config = get_device_config(id)
+            force_update = False
+            if isinstance(device_config.get(CONF_FORCE_UPDATE_SENSORS), bool):
+                force_update = device_config.get(CONF_FORCE_UPDATE_SENSORS)
+            unique_id = f"{id}-relay-{relays_sensors[sensor_id]}".lower()
             config_topic = (
                 f"{disc_prefix}/sensor/{id}-{relays_sensors[sensor_id]}/config"
             )
             sensor_name = f"{device_name} {relays_sensors[sensor_id].capitalize()}"
             state_topic = f"~relay/{relays_sensors[sensor_id]}"
             if model == ATTR_MODEL_SHELLY2 or roller_mode:
-                payload = (
-                    '{"name":"' + sensor_name + '",'
-                    '"stat_t":"' + state_topic + '",'
-                    '"unit_of_meas":"' + relays_sensors_units[sensor_id] + '",'
-                    '"dev_cla":"' + relays_sensors_classes[sensor_id] + '",'
-                    '"val_tpl":"' + relays_sensors_tpls[sensor_id] + '",'
-                    '"avty_t":"' + availability_topic + '",'
-                    '"pl_avail":"true",'
-                    '"pl_not_avail":"false",'
-                    '"uniq_id":"' + unique_id + '",'
-                    '"qos":"' + str(qos) + '",'
-                    '"dev": {"ids": ["' + mac + '"],'
-                    '"name":"' + device_name + '",'
-                    '"mdl":"' + model + '",'
-                    '"sw":"' + fw_ver + '",'
-                    '"mf":"' + ATTR_MANUFACTURER + '"},'
-                    '"~":"' + default_topic + '"}'
-                )
+                payload = {
+                    KEY_NAME: sensor_name,
+                    KEY_STATE_TOPIC: state_topic,
+                    KEY_UNIT: relays_sensors_units[sensor_id],
+                    KEY_VALUE_TEMPLATE: relays_sensors_tpls[sensor_id],
+                    KEY_DEVICE_CLASS: relays_sensors_classes[sensor_id],
+                    KEY_AVAILABILITY_TOPIC: availability_topic,
+                    KEY_PAYLOAD_AVAILABLE: VALUE_TRUE,
+                    KEY_PAYLOAD_NOT_AVAILABLE: VALUE_FALSE,
+                    KEY_FORCE_UPDATE: str(force_update),
+                    KEY_UNIQUE_ID: unique_id,
+                    KEY_QOS: qos,
+                    KEY_DEVICE: {
+                        KEY_IDENTIFIERS: [mac],
+                        KEY_NAME: device_name,
+                        KEY_MODEL: model,
+                        KEY_SW_VERSION: fw_ver,
+                        KEY_MANUFACTURER: ATTR_MANUFACTURER,
+                    },
+                    "~": default_topic,
+                }
             else:
                 payload = ""
             if id.lower() in ignored:
                 payload = ""
-            service_data = {
-                "topic": config_topic,
-                "payload": payload,
-                "retain": retain,
-                "qos": qos,
-            }
-            logger.debug("Send to MQTT broker: %s %s", config_topic, payload)
-            hass.services.call("mqtt", "publish", service_data, False)
+            mqtt_publish(config_topic, str(payload).replace("'", '"'), retain, qos)
 
     # relay's sensors
     for sensor_id in range(0, len(relays_sensors)):
-        unique_id = f"{id}-relay-{relays_sensors[sensor_id]}-{relay_id}"
+        device_config = get_device_config(id)
+        force_update = False
+        if isinstance(device_config.get(CONF_FORCE_UPDATE_SENSORS), bool):
+            force_update = device_config.get(CONF_FORCE_UPDATE_SENSORS)
+        unique_id = f"{id}-relay-{relays_sensors[sensor_id]}-{relay_id}".lower()
         config_topic = (
             f"{disc_prefix}/sensor/{id}-{relays_sensors[sensor_id]}-{relay_id}/config"
         )
@@ -592,104 +660,84 @@ for relay_id in range(0, relays):
         )
         state_topic = f"~relay/{relay_id}/{relays_sensors[sensor_id]}"
         if model != ATTR_MODEL_SHELLY2 and not roller_mode:
-            payload = (
-                '{"name":"' + sensor_name + '",'
-                '"stat_t":"' + state_topic + '",'
-                '"unit_of_meas":"' + relays_sensors_units[sensor_id] + '",'
-                '"dev_cla":"' + relays_sensors_classes[sensor_id] + '",'
-                '"val_tpl":"' + relays_sensors_tpls[sensor_id] + '",'
-                '"avty_t":"' + availability_topic + '",'
-                '"pl_avail":"true",'
-                '"pl_not_avail":"false",'
-                '"uniq_id":"' + unique_id + '",'
-                '"qos":"' + str(qos) + '",'
-                '"dev": {"ids": ["' + mac + '"],'
-                '"name":"' + device_name + '",'
-                '"mdl":"' + model + '",'
-                '"sw":"' + fw_ver + '",'
-                '"mf":"' + ATTR_MANUFACTURER + '"},'
-                '"~":"' + default_topic + '"}'
-            )
+            payload = {
+                KEY_NAME: sensor_name,
+                KEY_STATE_TOPIC: state_topic,
+                KEY_UNIT: relays_sensors_units[sensor_id],
+                KEY_VALUE_TEMPLATE: relays_sensors_tpls[sensor_id],
+                KEY_DEVICE_CLASS: relays_sensors_classes[sensor_id],
+                KEY_AVAILABILITY_TOPIC: availability_topic,
+                KEY_PAYLOAD_AVAILABLE: VALUE_TRUE,
+                KEY_PAYLOAD_NOT_AVAILABLE: VALUE_FALSE,
+                KEY_FORCE_UPDATE: str(force_update),
+                KEY_UNIQUE_ID: unique_id,
+                KEY_QOS: qos,
+                KEY_DEVICE: {
+                    KEY_IDENTIFIERS: [mac],
+                    KEY_NAME: device_name,
+                    KEY_MODEL: model,
+                    KEY_SW_VERSION: fw_ver,
+                    KEY_MANUFACTURER: ATTR_MANUFACTURER,
+                },
+                "~": default_topic,
+            }
         else:
             payload = ""
         if id.lower() in ignored:
             payload = ""
-        service_data = {
-            "topic": config_topic,
-            "payload": payload,
-            "retain": retain,
-            "qos": qos,
-        }
-        logger.debug("Send to MQTT broker: %s %s", config_topic, payload)
-        hass.services.call("mqtt", "publish", service_data, False)
+        mqtt_publish(config_topic, str(payload).replace("'", '"'), retain, qos)
 
     # relay's binary sensors
     for bin_sensor_id in range(0, len(relays_bin_sensors)):
-        unique_id = f"{id}-{relays_bin_sensors[bin_sensor_id]}-{relay_id}"
+        device_config = get_device_config(id)
+        longpush_off_delay = True
+        if isinstance(device_config.get(CONF_LONGPUSH_OFF_DELAY), bool):
+            longpush_off_delay = device_config.get(CONF_LONGPUSH_OFF_DELAY)
+        unique_id = f"{id}-{relays_bin_sensors[bin_sensor_id]}-{relay_id}".lower()
         config_topic = f"{disc_prefix}/binary_sensor/{id}-{relays_bin_sensors[bin_sensor_id]}-{relay_id}/config"
         sensor_name = (
             f"{device_name} {relays_bin_sensors[bin_sensor_id].capitalize()} {relay_id}"
         )
         state_topic = f"~{relays_bin_sensors[bin_sensor_id]}/{relay_id}"
         if not roller_mode:
-            if relays_bin_sensors[bin_sensor_id] == ATTR_LONGPUSH:
-                payload = (
-                    '{"name":"' + sensor_name + '",'
-                    '"stat_t":"' + state_topic + '",'
-                    '"pl_on":"' + relays_bin_sensors_pl[bin_sensor_id][STATE_ON] + '",'
-                    '"pl_off":"'
-                    + relays_bin_sensors_pl[bin_sensor_id][STATE_OFF]
-                    + '",'
-                    '"avty_t":"' + availability_topic + '",'
-                    '"off_delay":"' + str(off_delay) + '",'
-                    '"pl_avail":"true",'
-                    '"pl_not_avail":"false",'
-                    '"uniq_id":"' + unique_id + '",'
-                    '"qos":"' + str(qos) + '",'
-                    '"dev": {"ids": ["' + mac + '"],'
-                    '"name":"' + device_name + '",'
-                    '"mdl":"' + model + '",'
-                    '"sw":"' + fw_ver + '",'
-                    '"mf":"' + ATTR_MANUFACTURER + '"},'
-                    '"~":"' + default_topic + '"}'
-                )
-            else:
-                payload = (
-                    '{"name":"' + sensor_name + '",'
-                    '"stat_t":"' + state_topic + '",'
-                    '"pl_on":"' + relays_bin_sensors_pl[bin_sensor_id][STATE_ON] + '",'
-                    '"pl_off":"'
-                    + relays_bin_sensors_pl[bin_sensor_id][STATE_OFF]
-                    + '",'
-                    '"avty_t":"' + availability_topic + '",'
-                    '"pl_avail":"true",'
-                    '"pl_not_avail":"false",'
-                    '"uniq_id":"' + unique_id + '",'
-                    '"qos":"' + str(qos) + '",'
-                    '"dev": {"ids": ["' + mac + '"],'
-                    '"name":"' + device_name + '",'
-                    '"mdl":"' + model + '",'
-                    '"sw":"' + fw_ver + '",'
-                    '"mf":"' + ATTR_MANUFACTURER + '"},'
-                    '"~":"' + default_topic + '"}'
-                )
+            payload = {
+                KEY_NAME: sensor_name,
+                KEY_STATE_TOPIC: state_topic,
+                KEY_PAYLOAD_ON: relays_bin_sensors_pl[bin_sensor_id][VALUE_ON],
+                KEY_PAYLOAD_OFF: relays_bin_sensors_pl[bin_sensor_id][VALUE_OFF],
+                KEY_AVAILABILITY_TOPIC: availability_topic,
+                KEY_PAYLOAD_AVAILABLE: VALUE_TRUE,
+                KEY_PAYLOAD_NOT_AVAILABLE: VALUE_FALSE,
+                KEY_UNIQUE_ID: unique_id,
+                KEY_QOS: qos,
+                KEY_DEVICE: {
+                    KEY_IDENTIFIERS: [mac],
+                    KEY_NAME: device_name,
+                    KEY_MODEL: model,
+                    KEY_SW_VERSION: fw_ver,
+                    KEY_MANUFACTURER: ATTR_MANUFACTURER,
+                },
+                "~": default_topic,
+            }
+            if (
+                relays_bin_sensors[bin_sensor_id] == ATTR_LONGPUSH
+                and longpush_off_delay
+            ):
+                payload[KEY_OFF_DELAY] = off_delay
         else:
             payload = ""
         if id.lower() in ignored:
             payload = ""
-        service_data = {
-            "topic": config_topic,
-            "payload": payload,
-            "retain": retain,
-            "qos": qos,
-        }
-        logger.debug("Send to MQTT broker: %s %s", config_topic, payload)
-        hass.services.call("mqtt", "publish", service_data, False)
+        mqtt_publish(config_topic, str(payload).replace("'", '"'), retain, qos)
 
 # sensors
 for sensor_id in range(0, len(sensors)):
+    device_config = get_device_config(id)
+    force_update = False
+    if isinstance(device_config.get(CONF_FORCE_UPDATE_SENSORS), bool):
+        force_update = device_config.get(CONF_FORCE_UPDATE_SENSORS)
     device_name = f"{model} {id.split('-')[-1]}"
-    unique_id = f"{id}-{sensors[sensor_id]}"
+    unique_id = f"{id}-{sensors[sensor_id]}".lower()
     config_topic = f"{disc_prefix}/sensor/{id}-{sensors[sensor_id]}/config"
     default_topic = f"shellies/{id}/"
     availability_topic = "~online"
@@ -698,63 +746,49 @@ for sensor_id in range(0, len(sensors)):
         state_topic = f"~{sensors[sensor_id]}"
     else:
         state_topic = f"~sensor/{sensors[sensor_id]}"
-    if data.get(id, data.get(id.lower())) == ATTR_AC_POWER:
+
+    config_component = ATTR_SWITCH
+    if device_config.get(CONF_POWERED) == ATTR_POWER_AC:
         no_battery_sensor = True
         expire_after = 7200
+    payload = {
+        KEY_NAME: sensor_name,
+        KEY_STATE_TOPIC: state_topic,
+        KEY_UNIT: sensors_units[sensor_id],
+        KEY_DEVICE_CLASS: sensors_classes[sensor_id],
+        KEY_VALUE_TEMPLATE: sensors_tpls[sensor_id],
+        KEY_EXPIRE_AFTER: expire_after,
+        KEY_FORCE_UPDATE: str(force_update),
+        KEY_UNIQUE_ID: unique_id,
+        KEY_QOS: qos,
+        KEY_DEVICE: {
+            KEY_IDENTIFIERS: [mac],
+            KEY_NAME: device_name,
+            KEY_MODEL: model,
+            KEY_SW_VERSION: fw_ver,
+            KEY_MANUFACTURER: ATTR_MANUFACTURER,
+        },
+        "~": default_topic,
+    }
+    if not battery_powered:
+        payload[KEY_AVAILABILITY_TOPIC] = availability_topic
+        payload[KEY_PAYLOAD_AVAILABLE] = VALUE_TRUE
+        payload[KEY_PAYLOAD_NOT_AVAILABLE] = VALUE_FALSE
     if no_battery_sensor and sensors[sensor_id] == ATTR_BATTERY:
         payload = ""
-    elif battery_powered:
-        payload = (
-            '{"name":"' + sensor_name + '",'
-            '"stat_t":"' + state_topic + '",'
-            '"unit_of_meas":"' + sensors_units[sensor_id] + '",'
-            '"dev_cla":"' + sensors_classes[sensor_id] + '",'
-            '"val_tpl":"' + sensors_tpls[sensor_id] + '",'
-            '"exp_aft":"' + str(expire_after) + '",'
-            '"uniq_id":"' + unique_id + '",'
-            '"qos":"' + str(qos) + '",'
-            '"dev": {"ids": ["' + mac + '"],'
-            '"name":"' + device_name + '",'
-            '"mdl":"' + model + '",'
-            '"sw":"' + fw_ver + '",'
-            '"mf":"' + ATTR_MANUFACTURER + '"},'
-            '"~":"' + default_topic + '"}'
-        )
-    else:
-        payload = (
-            '{"name":"' + sensor_name + '",'
-            '"stat_t":"' + state_topic + '",'
-            '"unit_of_meas":"' + sensors_units[sensor_id] + '",'
-            '"dev_cla":"' + sensors_classes[sensor_id] + '",'
-            '"val_tpl":"' + sensors_tpls[sensor_id] + '",'
-            '"avty_t":"' + availability_topic + '",'
-            '"pl_avail":"true",'
-            '"pl_not_avail":"false",'
-            '"uniq_id":"' + unique_id + '",'
-            '"qos":"' + str(qos) + '",'
-            '"dev": {"ids": ["' + mac + '"],'
-            '"name":"' + device_name + '",'
-            '"mdl":"' + model + '",'
-            '"sw":"' + fw_ver + '",'
-            '"mf":"' + ATTR_MANUFACTURER + '"},'
-            '"~":"' + default_topic + '"}'
-        )
     if id.lower() in ignored:
         payload = ""
-    service_data = {
-        "topic": config_topic,
-        "payload": payload,
-        "retain": retain,
-        "qos": qos,
-    }
-    logger.debug("Send to MQTT broker: %s %s", config_topic, payload)
-    hass.services.call("mqtt", "publish", service_data, False)
+    mqtt_publish(config_topic, str(payload).replace("'", '"'), retain, qos)
 
 # external sensors
 for sensor_id in range(0, ext_sensors):
+    device_config = get_device_config(id)
+    force_update = False
+    if isinstance(device_config.get(CONF_FORCE_UPDATE_SENSORS), bool):
+        force_update = device_config.get(CONF_FORCE_UPDATE_SENSORS)
     device_name = f"{model} {id.split('-')[-1]}"
-    unique_id = f"{id}-ext-{sensor_id}"
-    ext_sensor_type = data.get(unique_id, data.get(unique_id.lower()))
+    unique_id = f"{id}-ext-{sensor_id}".lower()
+    ext_sensor_type = device_config.get(f"ext-{sensor_id}")
     if ext_sensor_type:
         config_topic = f"{disc_prefix}/sensor/{id}-ext-{sensor_id}/config"
         default_topic = f"shellies/{id}/"
@@ -770,6 +804,7 @@ for sensor_id in range(0, ext_sensors):
                 '"unit_of_meas":"' + UNIT_CELSIUS + '",'
                 '"dev_cla":"' + ATTR_TEMPERATURE + '",'
                 '"val_tpl":"' + TPL_TEMPERATURE_EXT + '",'
+                '"frc_upd":"' + str(force_update) + '",'
                 '"avty_t":"' + availability_topic + '",'
                 '"pl_avail":"true",'
                 '"pl_not_avail":"false",'
@@ -786,19 +821,16 @@ for sensor_id in range(0, ext_sensors):
             payload = ""
         if id.lower() in ignored:
             payload = ""
-        service_data = {
-            "topic": config_topic,
-            "payload": payload,
-            "retain": retain,
-            "qos": qos,
-        }
-        logger.debug("Send to MQTT broker: %s %s", config_topic, payload)
-        hass.services.call("mqtt", "publish", service_data, False)
+        mqtt_publish(config_topic, payload, retain, qos)
 
 # binary sensors
 for bin_sensor_id in range(0, len(bin_sensors)):
+    device_config = get_device_config(id)
+    longpush_off_delay = True
+    if isinstance(device_config.get(CONF_LONGPUSH_OFF_DELAY), bool):
+        longpush_off_delay = device_config.get(CONF_LONGPUSH_OFF_DELAY)
     device_name = f"{model} {id.split('-')[-1]}"
-    unique_id = f"{id}-{bin_sensors[bin_sensor_id].replace('/', '-')}"
+    unique_id = f"{id}-{bin_sensors[bin_sensor_id].replace('/', '-')}".lower()
     config_topic = f"{disc_prefix}/binary_sensor/{id}-{bin_sensors[bin_sensor_id].replace('/', '-')}/config"
     default_topic = f"shellies/{id}/"
     availability_topic = "~online"
@@ -811,70 +843,38 @@ for bin_sensor_id in range(0, len(bin_sensors)):
         state_topic = "~sensor/state"
     else:
         state_topic = f"~sensor/{bin_sensors[bin_sensor_id]}"
+    payload = {
+        KEY_NAME: sensor_name,
+        KEY_STATE_TOPIC: state_topic,
+        KEY_PAYLOAD_ON: bin_sensors_pl[bin_sensor_id][VALUE_ON],
+        KEY_PAYLOAD_OFF: bin_sensors_pl[bin_sensor_id][VALUE_OFF],
+        KEY_UNIQUE_ID: unique_id,
+        KEY_QOS: qos,
+        KEY_DEVICE: {
+            KEY_IDENTIFIERS: [mac],
+            KEY_NAME: device_name,
+            KEY_MODEL: model,
+            KEY_SW_VERSION: fw_ver,
+            KEY_MANUFACTURER: ATTR_MANUFACTURER,
+        },
+        "~": default_topic,
+    }
     if battery_powered:
-        payload = (
-            '{"name":"' + sensor_name + '",'
-            '"stat_t":"' + state_topic + '",'
-            '"pl_on":"' + bin_sensors_pl[bin_sensor_id][STATE_ON] + '",'
-            '"pl_off":"' + bin_sensors_pl[bin_sensor_id][STATE_OFF] + '",'
-            '"dev_cla":"' + bin_sensors_classes[bin_sensor_id] + '",'
-            '"exp_aft":"' + str(expire_after) + '",'
-            '"uniq_id":"' + unique_id + '",'
-            '"qos":"' + str(qos) + '",'
-            '"dev": {"ids": ["' + mac + '"],'
-            '"name":"' + device_name + '",'
-            '"mdl":"' + model + '",'
-            '"sw":"' + fw_ver + '",'
-            '"mf":"' + ATTR_MANUFACTURER + '"},'
-            '"~":"' + default_topic + '"}'
-        )
-    elif not bin_sensors_classes[bin_sensor_id]:
-        payload = (
-            '{"name":"' + sensor_name + '",'
-            '"stat_t":"' + state_topic + '",'
-            '"pl_on":"' + bin_sensors_pl[bin_sensor_id][STATE_ON] + '",'
-            '"pl_off":"' + bin_sensors_pl[bin_sensor_id][STATE_OFF] + '",'
-            '"avty_t":"' + availability_topic + '",'
-            '"pl_avail":"true",'
-            '"pl_not_avail":"false",'
-            '"uniq_id":"' + unique_id + '",'
-            '"qos":"' + str(qos) + '",'
-            '"dev": {"ids": ["' + mac + '"],'
-            '"name":"' + device_name + '",'
-            '"mdl":"' + model + '",'
-            '"sw":"' + fw_ver + '",'
-            '"mf":"' + ATTR_MANUFACTURER + '"},'
-            '"~":"' + default_topic + '"}'
-        )
+        payload[KEY_EXPIRE_AFTER] = expire_after
     else:
-        payload = (
-            '{"name":"' + sensor_name + '",'
-            '"stat_t":"' + state_topic + '",'
-            '"pl_on":"' + bin_sensors_pl[bin_sensor_id][STATE_ON] + '",'
-            '"pl_off":"' + bin_sensors_pl[bin_sensor_id][STATE_OFF] + '",'
-            '"avty_t":"' + availability_topic + '",'
-            '"pl_avail":"true",'
-            '"pl_not_avail":"false",'
-            '"dev_cla":"' + bin_sensors_classes[bin_sensor_id] + '",'
-            '"uniq_id":"' + unique_id + '",'
-            '"qos":"' + str(qos) + '",'
-            '"dev": {"ids": ["' + mac + '"],'
-            '"name":"' + device_name + '",'
-            '"mdl":"' + model + '",'
-            '"sw":"' + fw_ver + '",'
-            '"mf":"' + ATTR_MANUFACTURER + '"},'
-            '"~":"' + default_topic + '"}'
-        )
+        payload[KEY_AVAILABILITY_TOPIC] = availability_topic
+        payload[KEY_PAYLOAD_AVAILABLE] = VALUE_TRUE
+        payload[KEY_PAYLOAD_NOT_AVAILABLE] = VALUE_FALSE
+    if bin_sensors_classes[bin_sensor_id]:
+        payload[KEY_DEVICE_CLASS] = bin_sensors_classes[bin_sensor_id]
+    if (
+        bin_sensors[bin_sensor_id] in [ATTR_LONGPUSH_0, ATTR_LONGPUSH_1]
+        and longpush_off_delay
+    ):
+        payload[KEY_OFF_DELAY] = off_delay
     if id.lower() in ignored:
         payload = ""
-    service_data = {
-        "topic": config_topic,
-        "payload": payload,
-        "retain": retain,
-        "qos": qos,
-    }
-    logger.debug("Send to MQTT broker: %s %s", config_topic, payload)
-    hass.services.call("mqtt", "publish", service_data, False)
+    mqtt_publish(config_topic, str(payload).replace("'", '"'), retain, qos)
 
 # color lights
 for light_id in range(0, rgbw_lights):
@@ -884,10 +884,13 @@ for light_id in range(0, rgbw_lights):
     state_topic = f"~color/{light_id}/status"
     command_topic = f"~color/{light_id}/set"
     availability_topic = "~online"
-    unique_id = f"{id}-light-{light_id}"
+    unique_id = f"{id}-light-{light_id}".lower()
     config_topic = f"{disc_prefix}/light/{id}-{light_id}/config"
-    config_light = data.get(id, data.get(id.lower(), ATTR_RGBW))
-    if config_light == ATTR_RGBW and model == ATTR_MODEL_SHELLYRGBW2:
+    device_config = get_device_config(id)
+    config_mode = ATTR_RGBW
+    if device_config.get(CONF_MODE):
+        config_mode = device_config[CONF_MODE]
+    if config_mode == ATTR_RGBW and model == ATTR_MODEL_SHELLYRGBW2:
         payload = (
             '{"schema":"template",'
             '"name":"' + light_name + '",'
@@ -915,7 +918,7 @@ for light_id in range(0, rgbw_lights):
             '"mf":"' + ATTR_MANUFACTURER + '"},'
             '"~":"' + default_topic + '"}'
         )
-    elif config_light == ATTR_RGBW and model == ATTR_MODEL_SHELLYBULB:
+    elif config_mode == ATTR_RGBW and model == ATTR_MODEL_SHELLYBULB:
         payload = (
             '{"schema":"template",'
             '"name":"' + light_name + '",'
@@ -947,176 +950,91 @@ for light_id in range(0, rgbw_lights):
         payload = ""
     if id.lower() in ignored:
         payload = ""
-    service_data = {
-        "topic": config_topic,
-        "payload": payload,
-        "retain": retain,
-        "qos": qos,
-    }
-    logger.debug("Send to MQTT broker: %s %s", config_topic, payload)
-    hass.services.call("mqtt", "publish", service_data, False)
+    mqtt_publish(config_topic, payload, retain, qos)
 
     # color light's binary sensors
     for bin_sensor_id in range(0, len(lights_bin_sensors)):
-
-        # fix for RGBW2 input binary sensor issue
-        if lights_bin_sensors[bin_sensor_id] == ATTR_INPUT and light_id == 0:
-            unique_id = f"{id}-{lights_bin_sensors[bin_sensor_id]}-{light_id}"
-            config_topic = f"{disc_prefix}/binary_sensor/{id}-{lights_bin_sensors[bin_sensor_id]}-{light_id}/config"
-            state_topic = f"~{lights_bin_sensors[bin_sensor_id]}/{light_id}"
-            sensor_name = f"{device_name} {lights_bin_sensors[bin_sensor_id].capitalize()} {light_id}"
-            payload = ""
-            service_data = {
-                "topic": config_topic,
-                "payload": payload,
-                "retain": retain,
-                "qos": qos,
-            }
-            logger.debug("Send to MQTT broker: %s %s", config_topic, payload)
-            hass.services.call("mqtt", "publish", service_data, False)
-        # end of fix
-
         sensor_name = (
             f"{device_name} {lights_bin_sensors[bin_sensor_id].capitalize()} {light_id}"
         )
         config_topic = f"{disc_prefix}/binary_sensor/{id}-color-{lights_bin_sensors[bin_sensor_id]}-{light_id}/config"
-        unique_id = f"{id}-color-{lights_bin_sensors[bin_sensor_id]}-{light_id}"
+        unique_id = f"{id}-color-{lights_bin_sensors[bin_sensor_id]}-{light_id}".lower()
         if lights_bin_sensors[bin_sensor_id] == ATTR_INPUT:
             state_topic = f"~{lights_bin_sensors[bin_sensor_id]}/{light_id}"
         else:
             state_topic = f"~color/{light_id}/status"
-        if config_light == ATTR_RGBW:
-            if (
-                lights_bin_sensors_tpls[bin_sensor_id]
-                and lights_bin_sensors_classes[bin_sensor_id]
-            ):
-                payload = (
-                    '{"name":"' + sensor_name + '",'
-                    '"stat_t":"' + state_topic + '",'
-                    '"val_tpl":"' + lights_bin_sensors_tpls[bin_sensor_id] + '",'
-                    '"avty_t":"' + availability_topic + '",'
-                    '"dev_cla":"' + lights_bin_sensors_classes[bin_sensor_id] + '",'
-                    '"pl_avail":"true",'
-                    '"pl_not_avail":"false",'
-                    '"uniq_id":"' + unique_id + '",'
-                    '"qos":"' + str(qos) + '",'
-                    '"dev": {"ids": ["' + mac + '"],'
-                    '"name":"' + device_name + '",'
-                    '"mdl":"' + model + '",'
-                    '"sw":"' + fw_ver + '",'
-                    '"mf":"' + ATTR_MANUFACTURER + '"},'
-                    '"~":"' + default_topic + '"}'
-                )
-            elif lights_bin_sensors_tpls[bin_sensor_id]:
-                payload = (
-                    '{"name":"' + sensor_name + '",'
-                    '"stat_t":"' + state_topic + '",'
-                    '"val_tpl":"' + lights_bin_sensors_tpls[bin_sensor_id] + '",'
-                    '"avty_t":"' + availability_topic + '",'
-                    '"pl_avail":"true",'
-                    '"pl_not_avail":"false",'
-                    '"uniq_id":"' + unique_id + '",'
-                    '"qos":"' + str(qos) + '",'
-                    '"dev": {"ids": ["' + mac + '"],'
-                    '"name":"' + device_name + '",'
-                    '"mdl":"' + model + '",'
-                    '"sw":"' + fw_ver + '",'
-                    '"mf":"' + ATTR_MANUFACTURER + '"},'
-                    '"~":"' + default_topic + '"}'
-                )
-            elif lights_bin_sensors_classes[bin_sensor_id]:
-                payload = (
-                    '{"name":"' + sensor_name + '",'
-                    '"stat_t":"' + state_topic + '",'
-                    '"pl_on":"' + lights_bin_sensors_pl[bin_sensor_id][STATE_ON] + '",'
-                    '"pl_off":"'
-                    + lights_bin_sensors_pl[bin_sensor_id][STATE_OFF]
-                    + '",'
-                    '"avty_t":"' + availability_topic + '",'
-                    '"dev_cla":"' + lights_bin_sensors_classes[bin_sensor_id] + '",'
-                    '"pl_avail":"true",'
-                    '"pl_not_avail":"false",'
-                    '"uniq_id":"' + unique_id + '",'
-                    '"qos":"' + str(qos) + '",'
-                    '"dev": {"ids": ["' + mac + '"],'
-                    '"name":"' + device_name + '",'
-                    '"mdl":"' + model + '",'
-                    '"sw":"' + fw_ver + '",'
-                    '"mf":"' + ATTR_MANUFACTURER + '"},'
-                    '"~":"' + default_topic + '"}'
-                )
+        if config_mode == ATTR_RGBW:
+            payload = {
+                KEY_NAME: sensor_name,
+                KEY_STATE_TOPIC: state_topic,
+                KEY_AVAILABILITY_TOPIC: availability_topic,
+                KEY_PAYLOAD_AVAILABLE: VALUE_TRUE,
+                KEY_PAYLOAD_NOT_AVAILABLE: VALUE_FALSE,
+                KEY_UNIQUE_ID: unique_id,
+                KEY_QOS: qos,
+                KEY_DEVICE: {
+                    KEY_IDENTIFIERS: [mac],
+                    KEY_NAME: device_name,
+                    KEY_MODEL: model,
+                    KEY_SW_VERSION: fw_ver,
+                    KEY_MANUFACTURER: ATTR_MANUFACTURER,
+                },
+                "~": default_topic,
+            }
+            if lights_bin_sensors_classes[bin_sensor_id]:
+                payload[KEY_DEVICE_CLASS] = lights_bin_sensors_classes[bin_sensor_id]
+            if lights_bin_sensors_tpls[bin_sensor_id]:
+                payload[KEY_VALUE_TEMPLATE] = lights_bin_sensors_tpls[bin_sensor_id]
             else:
-                payload = (
-                    '{"name":"' + sensor_name + '",'
-                    '"stat_t":"' + state_topic + '",'
-                    '"pl_on":"' + lights_bin_sensors_pl[bin_sensor_id][STATE_ON] + '",'
-                    '"pl_off":"'
-                    + lights_bin_sensors_pl[bin_sensor_id][STATE_OFF]
-                    + '",'
-                    '"avty_t":"' + availability_topic + '",'
-                    '"pl_avail":"true",'
-                    '"pl_not_avail":"false",'
-                    '"uniq_id":"' + unique_id + '",'
-                    '"qos":"' + str(qos) + '",'
-                    '"dev": {"ids": ["' + mac + '"],'
-                    '"name":"' + device_name + '",'
-                    '"mdl":"' + model + '",'
-                    '"sw":"' + fw_ver + '",'
-                    '"mf":"' + ATTR_MANUFACTURER + '"},'
-                    '"~":"' + default_topic + '"}'
-                )
+                payload[KEY_PAYLOAD_ON] = lights_bin_sensors_pl[bin_sensor_id][VALUE_ON]
+                payload[KEY_PAYLOAD_OFF] = lights_bin_sensors_pl[bin_sensor_id][
+                    VALUE_OFF
+                ]
         else:
             payload = ""
         if id.lower() in ignored:
             payload = ""
-        service_data = {
-            "topic": config_topic,
-            "payload": payload,
-            "retain": retain,
-            "qos": qos,
-        }
-        logger.debug("Send to MQTT broker: %s %s", config_topic, payload)
-        hass.services.call("mqtt", "publish", service_data, False)
+        mqtt_publish(config_topic, str(payload).replace("'", '"'), retain, qos)
 
     # color light's sensors
     for sensor_id in range(0, len(lights_sensors)):
-        unique_id = f"{id}-color-{lights_sensors[sensor_id]}-{light_id}"
+        device_config = get_device_config(id)
+        force_update = False
+        if isinstance(device_config.get(CONF_FORCE_UPDATE_SENSORS), bool):
+            force_update = device_config.get(CONF_FORCE_UPDATE_SENSORS)
+        unique_id = f"{id}-color-{lights_sensors[sensor_id]}-{light_id}".lower()
         config_topic = f"{disc_prefix}/sensor/{id}-color-{lights_sensors[sensor_id]}-{light_id}/config"
         sensor_name = (
             f"{device_name} {lights_sensors[sensor_id].capitalize()} {light_id}"
         )
         state_topic = f"~color/{light_id}/status"
-        if config_light == ATTR_RGBW:
-            payload = (
-                '{"name":"' + sensor_name + '",'
-                '"stat_t":"' + state_topic + '",'
-                '"unit_of_meas":"' + lights_sensors_units[sensor_id] + '",'
-                '"dev_cla":"' + lights_sensors_classes[sensor_id] + '",'
-                '"val_tpl":"' + lights_sensors_tpls[sensor_id] + '",'
-                '"avty_t":"' + availability_topic + '",'
-                '"pl_avail":"true",'
-                '"pl_not_avail":"false",'
-                '"uniq_id":"' + unique_id + '",'
-                '"qos":"' + str(qos) + '",'
-                '"dev": {"ids": ["' + mac + '"],'
-                '"name":"' + device_name + '",'
-                '"mdl":"' + model + '",'
-                '"sw":"' + fw_ver + '",'
-                '"mf":"' + ATTR_MANUFACTURER + '"},'
-                '"~":"' + default_topic + '"}'
-            )
+        if config_mode == ATTR_RGBW:
+            payload = {
+                KEY_NAME: sensor_name,
+                KEY_STATE_TOPIC: state_topic,
+                KEY_UNIT: lights_sensors_units[sensor_id],
+                KEY_VALUE_TEMPLATE: lights_sensors_tpls[sensor_id],
+                KEY_DEVICE_CLASS: lights_sensors_classes[sensor_id],
+                KEY_AVAILABILITY_TOPIC: availability_topic,
+                KEY_PAYLOAD_AVAILABLE: VALUE_TRUE,
+                KEY_PAYLOAD_NOT_AVAILABLE: VALUE_FALSE,
+                KEY_FORCE_UPDATE: str(force_update),
+                KEY_UNIQUE_ID: unique_id,
+                KEY_QOS: qos,
+                KEY_DEVICE: {
+                    KEY_IDENTIFIERS: [mac],
+                    KEY_NAME: device_name,
+                    KEY_MODEL: model,
+                    KEY_SW_VERSION: fw_ver,
+                    KEY_MANUFACTURER: ATTR_MANUFACTURER,
+                },
+                "~": default_topic,
+            }
         else:
             payload = ""
         if id.lower() in ignored:
             payload = ""
-        service_data = {
-            "topic": config_topic,
-            "payload": payload,
-            "retain": retain,
-            "qos": qos,
-        }
-        logger.debug("Send to MQTT broker: %s %s", config_topic, payload)
-        hass.services.call("mqtt", "publish", service_data, False)
+        mqtt_publish(config_topic, str(payload).replace("'", '"'), retain, qos)
 
 # white lights
 for light_id in range(0, white_lights):
@@ -1126,16 +1044,19 @@ for light_id in range(0, white_lights):
     if model == ATTR_MODEL_SHELLYDIMMER or model == ATTR_MODEL_SHELLYDUO:
         state_topic = f"~light/{light_id}/status"
         command_topic = f"~light/{light_id}/set"
-        unique_id = f"{id}-light-{light_id}"
+        unique_id = f"{id}-light-{light_id}".lower()
         config_topic = f"{disc_prefix}/light/{id}-{light_id}/config"
     else:
         state_topic = f"~white/{light_id}/status"
         command_topic = f"~white/{light_id}/set"
-        unique_id = f"{id}-light-white-{light_id}"
+        unique_id = f"{id}-light-white-{light_id}".lower()
         config_topic = f"{disc_prefix}/light/{id}-white-{light_id}/config"
     availability_topic = "~online"
-    config_light = data.get(id, data.get(id.lower(), ATTR_RGBW))
-    if config_light == ATTR_WHITE and model == ATTR_MODEL_SHELLYRGBW2:
+    device_config = get_device_config(id)
+    config_mode = ATTR_RGBW
+    if device_config.get(CONF_MODE):
+        config_mode = device_config[CONF_MODE]
+    if config_mode == ATTR_WHITE and model == ATTR_MODEL_SHELLYRGBW2:
         payload = (
             '{"schema":"template",'
             '"name":"' + light_name + '",'
@@ -1206,39 +1127,16 @@ for light_id in range(0, white_lights):
         payload = ""
     if id.lower() in ignored:
         payload = ""
-    service_data = {
-        "topic": config_topic,
-        "payload": payload,
-        "retain": retain,
-        "qos": qos,
-    }
-    logger.debug("Send to MQTT broker: %s %s", config_topic, payload)
-    hass.services.call("mqtt", "publish", service_data, False)
+    mqtt_publish(config_topic, payload, retain, qos)
 
     # white light's binary sensors
     for bin_sensor_id in range(0, len(lights_bin_sensors)):
-
-        # fix for RGBW2 input binary sensor issue
-        if lights_bin_sensors[bin_sensor_id] == ATTR_INPUT and light_id == 0:
-            unique_id = f"{id}-{lights_bin_sensors[bin_sensor_id]}-{light_id}"
-            config_topic = f"{disc_prefix}/binary_sensor/{id}-{lights_bin_sensors[bin_sensor_id]}-{light_id}/config"
-            state_topic = f"~{lights_bin_sensors[bin_sensor_id]}/{light_id}"
-            sensor_name = f"{device_name} {lights_bin_sensors[bin_sensor_id].capitalize()} {light_id}"
-            payload = ""
-            service_data = {
-                "topic": config_topic,
-                "payload": payload,
-                "retain": retain,
-                "qos": qos,
-            }
-            logger.debug("Send to MQTT broker: %s %s", config_topic, payload)
-            hass.services.call("mqtt", "publish", service_data, False)
-        # end of fix
-
         if (
             lights_bin_sensors[bin_sensor_id] == ATTR_INPUT and light_id == 0
         ) or lights_bin_sensors[bin_sensor_id] != ATTR_INPUT:
-            unique_id = f"{id}-white-{lights_bin_sensors[bin_sensor_id]}-{light_id}"
+            unique_id = (
+                f"{id}-white-{lights_bin_sensors[bin_sensor_id]}-{light_id}".lower()
+            )
             config_topic = f"{disc_prefix}/binary_sensor/{id}-white-{lights_bin_sensors[bin_sensor_id]}-{light_id}/config"
             if lights_bin_sensors[bin_sensor_id] == ATTR_INPUT:
                 state_topic = f"~{lights_bin_sensors[bin_sensor_id]}/{light_id}"
@@ -1246,106 +1144,51 @@ for light_id in range(0, white_lights):
                 state_topic = f"~white/{light_id}/status"
             sensor_name = f"{device_name} {lights_bin_sensors[bin_sensor_id].capitalize()} {light_id}"
 
-            if config_light != ATTR_RGBW:
-                if (
-                    lights_bin_sensors_tpls[bin_sensor_id]
-                    and lights_bin_sensors_classes[bin_sensor_id]
-                ):
-                    payload = (
-                        '{"name":"' + sensor_name + '",'
-                        '"stat_t":"' + state_topic + '",'
-                        '"val_tpl":"' + lights_bin_sensors_tpls[bin_sensor_id] + '",'
-                        '"dev_cla":"' + lights_bin_sensors_classes[bin_sensor_id] + '",'
-                        '"avty_t":"' + availability_topic + '",'
-                        '"pl_avail":"true",'
-                        '"pl_not_avail":"false",'
-                        '"uniq_id":"' + unique_id + '",'
-                        '"qos":"' + str(qos) + '",'
-                        '"dev": {"ids": ["' + mac + '"],'
-                        '"name":"' + device_name + '",'
-                        '"mdl":"' + model + '",'
-                        '"sw":"' + fw_ver + '",'
-                        '"mf":"' + ATTR_MANUFACTURER + '"},'
-                        '"~":"' + default_topic + '"}'
-                    )
-                elif lights_bin_sensors_tpls[bin_sensor_id]:
-                    payload = (
-                        '{"name":"' + sensor_name + '",'
-                        '"stat_t":"' + state_topic + '",'
-                        '"val_tpl":"' + lights_bin_sensors_tpls[bin_sensor_id] + '",'
-                        '"avty_t":"' + availability_topic + '",'
-                        '"pl_avail":"true",'
-                        '"pl_not_avail":"false",'
-                        '"uniq_id":"' + unique_id + '",'
-                        '"qos":"' + str(qos) + '",'
-                        '"dev": {"ids": ["' + mac + '"],'
-                        '"name":"' + device_name + '",'
-                        '"mdl":"' + model + '",'
-                        '"sw":"' + fw_ver + '",'
-                        '"mf":"' + ATTR_MANUFACTURER + '"},'
-                        '"~":"' + default_topic + '"}'
-                    )
-                elif lights_bin_sensors_classes[bin_sensor_id]:
-                    payload = (
-                        '{"name":"' + sensor_name + '",'
-                        '"stat_t":"' + state_topic + '",'
-                        '"pl_on":"'
-                        + lights_bin_sensors_pl[bin_sensor_id][STATE_ON]
-                        + '",'
-                        '"pl_off":"'
-                        + lights_bin_sensors_pl[bin_sensor_id][STATE_OFF]
-                        + '",'
-                        '"dev_cla":"' + lights_bin_sensors_classes[bin_sensor_id] + '",'
-                        '"avty_t":"' + availability_topic + '",'
-                        '"pl_avail":"true",'
-                        '"pl_not_avail":"false",'
-                        '"uniq_id":"' + unique_id + '",'
-                        '"qos":"' + str(qos) + '",'
-                        '"dev": {"ids": ["' + mac + '"],'
-                        '"name":"' + device_name + '",'
-                        '"mdl":"' + model + '",'
-                        '"sw":"' + fw_ver + '",'
-                        '"mf":"' + ATTR_MANUFACTURER + '"},'
-                        '"~":"' + default_topic + '"}'
-                    )
+            if config_mode != ATTR_RGBW:
+                payload = {
+                    KEY_NAME: sensor_name,
+                    KEY_STATE_TOPIC: state_topic,
+                    KEY_AVAILABILITY_TOPIC: availability_topic,
+                    KEY_PAYLOAD_AVAILABLE: VALUE_TRUE,
+                    KEY_PAYLOAD_NOT_AVAILABLE: VALUE_FALSE,
+                    KEY_UNIQUE_ID: unique_id,
+                    KEY_QOS: qos,
+                    KEY_DEVICE: {
+                        KEY_IDENTIFIERS: [mac],
+                        KEY_NAME: device_name,
+                        KEY_MODEL: model,
+                        KEY_SW_VERSION: fw_ver,
+                        KEY_MANUFACTURER: ATTR_MANUFACTURER,
+                    },
+                    "~": default_topic,
+                }
+                if lights_bin_sensors_classes[bin_sensor_id]:
+                    payload[KEY_DEVICE_CLASS] = lights_bin_sensors_classes[
+                        bin_sensor_id
+                    ]
+                if lights_bin_sensors_tpls[bin_sensor_id]:
+                    payload[KEY_VALUE_TEMPLATE] = lights_bin_sensors_tpls[bin_sensor_id]
                 else:
-                    payload = (
-                        '{"name":"' + sensor_name + '",'
-                        '"stat_t":"' + state_topic + '",'
-                        '"pl_on":"'
-                        + lights_bin_sensors_pl[bin_sensor_id][STATE_ON]
-                        + '",'
-                        '"pl_off":"'
-                        + lights_bin_sensors_pl[bin_sensor_id][STATE_OFF]
-                        + '",'
-                        '"avty_t":"' + availability_topic + '",'
-                        '"pl_avail":"true",'
-                        '"pl_not_avail":"false",'
-                        '"uniq_id":"' + unique_id + '",'
-                        '"qos":"' + str(qos) + '",'
-                        '"dev": {"ids": ["' + mac + '"],'
-                        '"name":"' + device_name + '",'
-                        '"mdl":"' + model + '",'
-                        '"sw":"' + fw_ver + '",'
-                        '"mf":"' + ATTR_MANUFACTURER + '"},'
-                        '"~":"' + default_topic + '"}'
-                    )
+                    payload[KEY_PAYLOAD_ON] = lights_bin_sensors_pl[bin_sensor_id][
+                        VALUE_ON
+                    ]
+                    payload[KEY_PAYLOAD_OFF] = lights_bin_sensors_pl[bin_sensor_id][
+                        VALUE_OFF
+                    ]
+
             else:
                 payload = ""
             if id.lower() in ignored:
                 payload = ""
-            service_data = {
-                "topic": config_topic,
-                "payload": payload,
-                "retain": retain,
-                "qos": qos,
-            }
-            logger.debug("Send to MQTT broker: %s %s", config_topic, payload)
-            hass.services.call("mqtt", "publish", service_data, False)
+            mqtt_publish(config_topic, str(payload).replace("'", '"'), retain, qos)
 
     # white light's sensors
     for sensor_id in range(0, len(lights_sensors)):
-        unique_id = f"{id}-white-{lights_sensors[sensor_id]}-{light_id}"
+        device_config = get_device_config(id)
+        force_update = False
+        if isinstance(device_config.get(CONF_FORCE_UPDATE_SENSORS), bool):
+            force_update = device_config.get(CONF_FORCE_UPDATE_SENSORS)
+        unique_id = f"{id}-white-{lights_sensors[sensor_id]}-{light_id}".lower()
         config_topic = f"{disc_prefix}/sensor/{id}-white-{lights_sensors[sensor_id]}-{light_id}/config"
         sensor_name = (
             f"{device_name} {lights_sensors[sensor_id].capitalize()} {light_id}"
@@ -1355,97 +1198,75 @@ for light_id in range(0, white_lights):
         else:
             state_topic = f"~white/{light_id}/status"
         if (
-            config_light != ATTR_RGBW
+            config_mode != ATTR_RGBW
             or model == ATTR_MODEL_SHELLYDIMMER
             or model == ATTR_MODEL_SHELLYDUO
         ):
-            payload = (
-                '{"name":"' + sensor_name + '",'
-                '"stat_t":"' + state_topic + '",'
-                '"unit_of_meas":"' + lights_sensors_units[sensor_id] + '",'
-                '"dev_cla":"' + lights_sensors_classes[sensor_id] + '",'
-                '"val_tpl":"' + lights_sensors_tpls[sensor_id] + '",'
-                '"avty_t":"' + availability_topic + '",'
-                '"pl_avail":"true",'
-                '"pl_not_avail":"false",'
-                '"uniq_id":"' + unique_id + '",'
-                '"qos":"' + str(qos) + '",'
-                '"dev": {"ids": ["' + mac + '"],'
-                '"name":"' + device_name + '",'
-                '"mdl":"' + model + '",'
-                '"sw":"' + fw_ver + '",'
-                '"mf":"' + ATTR_MANUFACTURER + '"},'
-                '"~":"' + default_topic + '"}'
-            )
+            payload = {
+                KEY_NAME: sensor_name,
+                KEY_STATE_TOPIC: state_topic,
+                KEY_UNIT: lights_sensors_units[sensor_id],
+                KEY_VALUE_TEMPLATE: lights_sensors_tpls[sensor_id],
+                KEY_DEVICE_CLASS: lights_sensors_classes[sensor_id],
+                KEY_AVAILABILITY_TOPIC: availability_topic,
+                KEY_PAYLOAD_AVAILABLE: VALUE_TRUE,
+                KEY_PAYLOAD_NOT_AVAILABLE: VALUE_FALSE,
+                KEY_FORCE_UPDATE: str(force_update),
+                KEY_UNIQUE_ID: unique_id,
+                KEY_QOS: qos,
+                KEY_DEVICE: {
+                    KEY_IDENTIFIERS: [mac],
+                    KEY_NAME: device_name,
+                    KEY_MODEL: model,
+                    KEY_SW_VERSION: fw_ver,
+                    KEY_MANUFACTURER: ATTR_MANUFACTURER,
+                },
+                "~": default_topic,
+            }
         else:
             payload = ""
         if id.lower() in ignored:
             payload = ""
-        service_data = {
-            "topic": config_topic,
-            "payload": payload,
-            "retain": retain,
-            "qos": qos,
-        }
-        logger.debug("Send to MQTT broker: %s %s", config_topic, payload)
-        hass.services.call("mqtt", "publish", service_data, False)
+        mqtt_publish(config_topic, str(payload).replace("'", '"'), retain, qos)
 
 # meters
 for meter_id in range(0, meters):
+    device_config = get_device_config(id)
+    force_update = False
+    if isinstance(device_config.get(CONF_FORCE_UPDATE_SENSORS), bool):
+        force_update = device_config.get(CONF_FORCE_UPDATE_SENSORS)
     device_name = f"{model} {id.split('-')[-1]}"
     default_topic = f"shellies/{id}/"
     availability_topic = "~online"
     for sensor_id in range(0, len(meters_sensors)):
-        unique_id = f"{id}-emeter-{meters_sensors[sensor_id]}-{meter_id}"
+        unique_id = f"{id}-emeter-{meters_sensors[sensor_id]}-{meter_id}".lower()
         config_topic = f"{disc_prefix}/sensor/{id}-emeter-{meters_sensors[sensor_id]}-{meter_id}/config"
         sensor_name = (
             f"{device_name} Meter {meters_sensors[sensor_id].capitalize()} {meter_id}"
         )
         state_topic = f"~emeter/{meter_id}/{meters_sensors[sensor_id]}"
+        payload = {
+            KEY_NAME: sensor_name,
+            KEY_STATE_TOPIC: state_topic,
+            KEY_UNIT: meters_sensors_units[sensor_id],
+            KEY_VALUE_TEMPLATE: meters_sensors_tpls[sensor_id],
+            KEY_AVAILABILITY_TOPIC: availability_topic,
+            KEY_PAYLOAD_AVAILABLE: VALUE_TRUE,
+            KEY_PAYLOAD_NOT_AVAILABLE: VALUE_FALSE,
+            KEY_FORCE_UPDATE: str(force_update),
+            KEY_UNIQUE_ID: unique_id,
+            KEY_QOS: qos,
+            KEY_DEVICE: {
+                KEY_IDENTIFIERS: [mac],
+                KEY_NAME: device_name,
+                KEY_MODEL: model,
+                KEY_SW_VERSION: fw_ver,
+                KEY_MANUFACTURER: ATTR_MANUFACTURER,
+            },
+            "~": default_topic,
+        }
         if meters_sensors_classes[sensor_id]:
-            payload = (
-                '{"name":"' + sensor_name + '",'
-                '"stat_t":"' + state_topic + '",'
-                '"unit_of_meas":"' + meters_sensors_units[sensor_id] + '",'
-                '"val_tpl":"' + meters_sensors_tpls[sensor_id] + '",'
-                '"dev_cla":"' + meters_sensors_classes[sensor_id] + '",'
-                '"avty_t":"' + availability_topic + '",'
-                '"pl_avail":"true",'
-                '"pl_not_avail":"false",'
-                '"uniq_id":"' + unique_id + '",'
-                '"qos":"' + str(qos) + '",'
-                '"dev": {"ids": ["' + mac + '"],'
-                '"name":"' + device_name + '",'
-                '"mdl":"' + model + '",'
-                '"sw":"' + fw_ver + '",'
-                '"mf":"' + ATTR_MANUFACTURER + '"},'
-                '"~":"' + default_topic + '"}'
-            )
-        else:
-            payload = (
-                '{"name":"' + sensor_name + '",'
-                '"stat_t":"' + state_topic + '",'
-                '"unit_of_meas":"' + meters_sensors_units[sensor_id] + '",'
-                '"val_tpl":"' + meters_sensors_tpls[sensor_id] + '",'
-                '"avty_t":"' + availability_topic + '",'
-                '"pl_avail":"true",'
-                '"pl_not_avail":"false",'
-                '"uniq_id":"' + unique_id + '",'
-                '"qos":"' + str(qos) + '",'
-                '"dev": {"ids": ["' + mac + '"],'
-                '"name":"' + device_name + '",'
-                '"mdl":"' + model + '",'
-                '"sw":"' + fw_ver + '",'
-                '"mf":"' + ATTR_MANUFACTURER + '"},'
-                '"~":"' + default_topic + '"}'
-            )
+            payload[KEY_DEVICE_CLASS] = meters_sensors_classes[sensor_id]
         if id.lower() in ignored:
             payload = ""
-        service_data = {
-            "topic": config_topic,
-            "payload": payload,
-            "retain": retain,
-            "qos": qos,
-        }
-        logger.debug("Send to MQTT broker: %s %s", config_topic, payload)
-        hass.services.call("mqtt", "publish", service_data, False)
+        mqtt_publish(config_topic, str(payload).replace("'", '"'), retain, qos)
