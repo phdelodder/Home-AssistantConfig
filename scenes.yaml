@@ -36,6 +36,7 @@
       - Bpm
       - Breathe
       - Candle
+      - Candle Multi
       - Chase
       - Chase Flash
       - Chase Flash Rnd
@@ -77,6 +78,7 @@
       - Noise 3
       - Noise 4
       - Oscillate
+      - Pacifica
       - Palette
       - Percent
       - Plasma
@@ -132,10 +134,10 @@
       - Wipe Random
       friendly_name: Schouw
       hs_color:
-      - 46.475
+      - 46.23
       - 95.686
       icon: mdi:led-strip-variant
-      intensity: 128
+      intensity: 255
       max_mireds: 500
       min_mireds: 153
       palette: Default
@@ -146,7 +148,7 @@
       - 255
       - 199
       - 11
-      speed: 128
+      speed: 132
       state: 'on'
       supported_features: 55
       xy_color:
@@ -154,6 +156,7 @@
       - 0.455
     light.staande_lamp_living:
       brightness: 89
+      color_temp: 425
       friendly_name: Staande Lamp Living
       is_deconz_group: false
       max_mireds: 500
@@ -766,6 +769,164 @@
       udp_port: 21324
     switch.plank_sync_send:
       friendly_name: Plank Sync Send
+      icon: mdi:upload-network-outline
+      state: 'off'
+      udp_port: 21324
+- id: '1592226328848'
+  name: Testing
+  entities:
+    light.schouw:
+      brightness: 255
+      effect: Candle Multi
+      effect_list:
+      - Android
+      - Blink
+      - Blink Rainbow
+      - Bouncing Balls
+      - Bpm
+      - Breathe
+      - Candle
+      - Candle Multi
+      - Chase
+      - Chase Flash
+      - Chase Flash Rnd
+      - Chase Rainbow
+      - Chase Random
+      - Circus
+      - Colorful
+      - Colorloop
+      - Colortwinkles
+      - Colorwaves
+      - Dissolve
+      - Dissolve Rnd
+      - Drip
+      - Dynamic
+      - Fade
+      - Fill Noise
+      - Fire 2012
+      - Fire Flicker
+      - Fireworks
+      - Fireworks 1D
+      - Fireworks Starburst
+      - Glitter
+      - Gradient
+      - Halloween
+      - Halloween Eyes
+      - Heartbeat
+      - ICU
+      - Juggle
+      - Lake
+      - Lighthouse
+      - Lightning
+      - Loading
+      - Merry Christmas
+      - Meteor
+      - Meteor Smooth
+      - Multi Comet
+      - Noise 1
+      - Noise 2
+      - Noise 3
+      - Noise 4
+      - Oscillate
+      - Pacifica
+      - Palette
+      - Percent
+      - Plasma
+      - Police
+      - Police All
+      - Popcorn
+      - Pride 2015
+      - Railway
+      - Rain
+      - Rainbow
+      - Rainbow Runner
+      - Random Colors
+      - Red & Blue
+      - Ripple
+      - Ripple Rainbow
+      - Running
+      - Running 2
+      - Saw
+      - Scan
+      - Scan Dual
+      - Scanner
+      - Scanner Dual
+      - Sinelon
+      - Sinelon Dual
+      - Sinelon Rainbow
+      - Solid
+      - Solid Pattern
+      - Solid Pattern Tri
+      - Sparkle
+      - Sparkle Dark
+      - Sparkle+
+      - Spots
+      - Spots Fade
+      - Stream
+      - Stream 2
+      - Strobe
+      - Strobe Mega
+      - Strobe Rainbow
+      - Sweep
+      - Sweep Random
+      - Theater
+      - Theater Rainbow
+      - Traffic Light
+      - Tri Chase
+      - Tri Fade
+      - Tri Wipe
+      - Twinkle
+      - Twinklecat
+      - Twinklefox
+      - Two Areas
+      - Two Dots
+      - Wipe
+      - Wipe Random
+      friendly_name: Schouw
+      hs_color:
+      - 355.955
+      - 34.902
+      icon: mdi:led-strip-variant
+      intensity: 255
+      max_mireds: 500
+      min_mireds: 153
+      palette: Default
+      playlist:
+      preset:
+      reverse: false
+      rgb_color:
+      - 255
+      - 165
+      - 171
+      speed: 124
+      state: 'on'
+      supported_features: 55
+      xy_color:
+      - 0.445
+      - 0.313
+    light.staande_lamp_living:
+      brightness: 34
+      color_temp: 425
+      friendly_name: Staande Lamp Living
+      is_deconz_group: false
+      max_mireds: 65535
+      min_mireds: 153
+      state: 'on'
+      supported_features: 43
+    switch.schouw_nightlight:
+      duration: 60
+      fade: true
+      friendly_name: Schouw Nightlight
+      icon: mdi:weather-night
+      state: 'off'
+      target_brightness: 0
+    switch.schouw_sync_receive:
+      friendly_name: Schouw Sync Receive
+      icon: mdi:download-network-outline
+      state: 'off'
+      udp_port: 21324
+    switch.schouw_sync_send:
+      friendly_name: Schouw Sync Send
       icon: mdi:upload-network-outline
       state: 'off'
       udp_port: 21324

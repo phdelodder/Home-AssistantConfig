@@ -6,12 +6,12 @@ default_config:
 
 # Uncomment this if you are using SSL/TLS, running in Docker container, etc.
 http:
-  base_url: !secret base_url
 
 # Text to speech
 tts:
   - platform: google_translate
     language: nl
+    base_url: https://ha.delodder.be
 
 frontend:
   themes: !include_dir_merge_named themes
@@ -28,7 +28,7 @@ group: !include groups.yaml
 automation: !include automations.yaml
 script: !include scripts.yaml
 cover: !include cover.yaml
-alarm_control_panel: !include alarm.yaml
+#alarm_control_panel: !include alarm.yaml
 camera: !include camera.yaml
 input_select: !include input_select.yaml
 input_boolean: !include input_boolean.yaml
@@ -46,6 +46,8 @@ proximity: !include proximities.yaml
 scene: !include scenes.yaml
 shell_command: !include shell_command.yaml
 plant: !include plant.yaml
+rest_command: !include rest_command.yaml
+utility_meter: !include utility_meter.yaml
 
 python_script:
 
@@ -58,7 +60,7 @@ telegram_bot:
 
 vacuum:
   platform: xiaomi_miio
-  host: 192.168.0.69
+  host: 192.168.0.140
   token: !secret vacuum_xiaomi_token
 
 nest:
@@ -66,13 +68,16 @@ nest:
   client_secret: !secret nest-client_secret
 
 ifttt:
-  key: !secret ifttt-key
-
-speedtestdotnet:
-  server_id: 10986
+  key: !secret ifttt-key  
 
 influxdb:
-  host: 192.168.0.15
+  host: a0d7b954-influxdb
+  port: 8086
+  username: !secret influxdb-user
+  password: !secret influxdb-password
+  database: !secret influxdb-database
+  max_retries: 3
+  default_measurement: state
 
 hpprinter:
   devices:
@@ -122,3 +127,8 @@ cast:
   media_player:
     - host: 192.168.0.154
 
+browser_mod:
+
+google:
+  client_id: !secret google-client_id
+  client_secret: !secret google-client_secret

@@ -11,9 +11,10 @@
   entities:
     - light.slaapkamer_margot
     - light.nachttafel_margot
-    - light.slaapkamer_febe
+    - light.febe_slaapkamer
     - light.nachttafel_febe
-    - light.logeerkamer
+    - light.dressing_spots
+    - light.dressing_led_strip
     - light.gang_eerste_verdiep
     - light.wc_boven
     - light.led_slaapkamer

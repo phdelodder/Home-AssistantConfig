@@ -6,28 +6,6 @@
   action:
   - service: script.turn_on
     entity_id: script.start_up_home_assistant
-- id: shellies_announce
-  alias: Shellies Announce
-  trigger:
-  - platform: homeassistant
-    event: start
-  action:
-    service: mqtt.publish
-    data:
-      topic: shellies/command
-      payload: announce
-- id: shellies_discovery
-  alias: Shellies Discovery
-  trigger:
-  - platform: mqtt
-    topic: shellies/announce
-  action:
-    service: python_script.shellies_discovery
-    data_template:
-      id: '{{ trigger.payload_json.id }}'
-      mac: '{{ trigger.payload_json.mac }}'
-      fw_ver: '{{ trigger.payload_json.fw_ver }}'
-      shelly1-2C6E97-relay-0: light
 - alias: Update Last Motion
   id: Update Last Motion
   initial_state: 'on'
@@ -154,13 +132,13 @@
     condition: or
     conditions:
     - condition: state
-      entity_id: sensor.ophaalkalender_morgen
+      entity_id: sensor.recycleapp_morgen
       state: papier, pmd
     - condition: state
-      entity_id: sensor.ophaalkalender_morgen
+      entity_id: sensor.recycleapp_morgen
       state: restafval
     - condition: state
-      entity_id: sensor.ophaalkalender_morgen
+      entity_id: sensor.recycleapp_morgen
       state: groenafval
   action:
   - data: {}
@@ -371,19 +349,19 @@
   action:
   - data_template:
       message: "Deze planten vragen vandaag je aandacht: {%if states('sensor.greenhouse_zone_1_moisture')\
-        \ | int < 25 %}\n  - Serre Zone 1 heeft water nodig, {{ states('sensor.greenhouse_zone_1_moisture')\
+        \ | int < 20 %}\n  - Serre Zone 1 heeft water nodig, {{ states('sensor.greenhouse_zone_1_moisture')\
         \ }} %\n{%- endif %} {%- if states('sensor.greenhouse_zone_1_soil_conductivity')\
         \ | int < 100 %}\n  - Serre Zone 1 heeft meststof nodig, {{ states('sensor.greenhouse_zone_1_soil_conductivity')\
         \ }} µS/cm\n{%- endif %} {%- if states('sensor.greenhouse_zone_2_moisture')\
-        \ | int < 25 %}\n  - Serre Zone 2 heeft water nodig, {{ states('sensor.greenhouse_zone_2_moisture')\
+        \ | int < 20 %}\n  - Serre Zone 2 heeft water nodig, {{ states('sensor.greenhouse_zone_2_moisture')\
         \ }} %\n{%- endif %} {%- if states('sensor.greenhouse_zone_2_soil_conductivity')\
         \ | int < 100 %}\n  - Serre Zone 2 heeft meststof nodig, {{ states('sensor.greenhouse_zone_2_soil_conductivity')\
         \ }} µS/cm\n{%- endif %} {%- if states('sensor.greenhouse_zone_3_moisture')\
-        \ | int < 25 %}\n  - Serre Zone 3 heeft water nodig, {{ states('sensor.greenhouse_zone_3_moisture')\
+        \ | int < 20 %}\n  - Serre Zone 3 heeft water nodig, {{ states('sensor.greenhouse_zone_3_moisture')\
         \ }} %\n{%- endif %} {%- if states('sensor.greenhouse_zone_3_soil_conductivity')\
         \ | int < 100 %}\n  - Serre Zone 3 heeft meststof nodig, {{ states('sensor.greenhouse_zone_3_soil_conductivity')\
         \ }} µS/cm\n{%- endif %} {%- if states('sensor.greenhouse_zone_4_moisture')\
-        \ | int < 25 %}\n  - Serre Zone 4 heeft water nodig, {{ states('sensor.greenhouse_zone_4_moisture')\
+        \ | int < 20 %}\n  - Serre Zone 4 heeft water nodig, {{ states('sensor.greenhouse_zone_4_moisture')\
         \ }} %\n{%- endif %} {%- if states('sensor.greenhouse_zone_4_soil_conductivity')\
         \ | int < 100 %}\n  - Serre Zone 4 heeft meststof nodig, {{ states('sensor.greenhouse_zone_4_soil_conductivity')\
         \ }} µS/cm\n{%- endif %} {%- if states('sensor.moestuin_moisture') | int <\
@@ -391,15 +369,15 @@
         \ }} %\n{%- endif %} {%- if states('sensor.moestuin_soil_conductivity') |\
         \ int < 100 %}\n  - Moestuin heeft meststof nodig, {{ states('sensor.moestuin_soil_conductivity')\
         \ }} µS/cm\n{%- endif %} {%- if states('sensor.rozemarijn_moisture') | int\
-        \ < 25 %}\n  - Rozemarijn heeft water nodig, {{ states('sensor.rozemarijn_moisture')\
+        \ < 20 %}\n  - Rozemarijn heeft water nodig, {{ states('sensor.rozemarijn_moisture')\
         \ }} %\n{%- endif %} {%- if states('sensor.rozemarijn_soil_conductivity')\
         \ | int < 100 %}\n  - Rozemarijn heeft meststof nodig, {{ states('sensor.rozemarijn_soil_conductivity')\
         \ }} µS/cm\n{%- endif %} {%- if states('sensor.bloempot_voordeur_moisture')\
-        \ | int < 25 %}\n  - Bloempot voordeur heeft water nodig, {{ states('sensor.bloempot_voordeur_moisture')\
+        \ | int < 20 %}\n  - Bloempot voordeur heeft water nodig, {{ states('sensor.bloempot_voordeur_moisture')\
         \ }} %\n{%- endif %} {%- if states('sensor.bloempot_voordeur_soil_conductivity')\
         \ | int < 100 %}\n  - Bloempot voordeur heeft meststof nodig, {{ states('sensor.bloempot_voordeur_soil_conductivity')\
         \ }} µS/cm\n{%- endif %} {%- if states('sensor.olijfboom_moisture') | int\
-        \ < 25 %}\n  - Olijfboom voordeur heeft water nodig, {{ states('sensor.olijfboom_moisture')\
+        \ < 20 %}\n  - Olijfboom voordeur heeft water nodig, {{ states('sensor.olijfboom_moisture')\
         \ }} %\n{%- endif %} {%- if states('sensor.olijfboom_soil_conductivity') |\
         \ int < 100 %}\n  - Olijfboom voordeur heeft meststof nodig, {{ states('sensor.olijfboom_soil_conductivity')\
         \ }} µS/cm\n{%- endif %}"
@@ -478,7 +456,7 @@
   - service: input_select.select_option
     data:
       entity_id: input_select.source_bureau
-      option: "Spotify"
+      option: Spotify
 - id: Autoswitch to Spotify source For Woonkamer
   alias: Autoswitch to Spotify source For Woonkamer
   trigger:
@@ -506,7 +484,7 @@
   - service: input_select.select_option
     data:
       entity_id: input_select.source_woonkamer
-      option: "Spotify"
+      option: Spotify
 - id: Autoswitch to Spotify source For Tablet
   alias: Autoswitch to Spotify source For Tablet
   trigger:
@@ -528,130 +506,205 @@
   action:
   - data:
       entity_id:
-      - media_player.snapcast_client_hentho
+      - media_player.snapcast_client_tablet
       source: Spotify-Tablet
     service: media_player.select_source
   - service: input_select.select_option
     data:
       entity_id: input_select.source_tablet
-      option: "Spotify"
+      option: Spotify
 - id: Change Source For Snapcast based on input
   alias: Change Source For Snapcast based on input
-  trigger: 
-    - entity_id: input_select.source_bureau
-      platform: state
-    - entity_id: input_select.source_woonkamer
-      platform: state
-    - entity_id: input_select.source_tablet
-      platform: state
+  trigger:
+  - entity_id: input_select.source_bureau
+    platform: state
+  - entity_id: input_select.source_woonkamer
+    platform: state
+  - entity_id: input_select.source_tablet
+    platform: state
   action:
-    - service: media_player.select_source
-      data_template:
-        source: >-
-          {% if (trigger.entity_id == "input_select.source_bureau" and is_state('input_select.source_bureau', "Radio")) %}
-          Mopidy
-          {% elif (trigger.entity_id == "input_select.source_bureau" and is_state('input_select.source_bureau', "Spotify")) %}
-          Spotify-Bureau
-          {% elif (trigger.entity_id == "input_select.source_bureau" and is_state('input_select.source_bureau', "Mute")) %}
-          Mute
-          {% elif (trigger.entity_id == "input_select.source_woonkamer" and is_state('input_select.source_woonkamer', "Radio")) %}
-          Mopidy
-          {% elif (trigger.entity_id == "input_select.source_woonkamer" and is_state('input_select.source_woonkamer', "Spotify")) %}
-          Spotify-Woonkamer
-          {% elif (trigger.entity_id == "input_select.source_woonkamer" and is_state('input_select.source_woonkamer', "Mute")) %}
-          Mute
-          {% elif (trigger.entity_id == "input_select.source_tablet" and is_state('input_select.source_tablet', "Radio")) %}
-          Mopidy
-          {% elif (trigger.entity_id == "input_select.source_tablet" and is_state('input_select.source_tablet', "Spotify")) %}
-          Spotify-tablet
-          {% elif (trigger.entity_id == "input_select.source_tablet" and is_state('input_select.source_tablet', "Mute")) %}
-          Mute
-          {% endif %}
-        entity_id: >-
-          {% if (trigger.entity_id == "input_select.source_bureau") %}
-              media_player.snapcast_client_xgin
-          {% elif (trigger.entity_id == "input_select.source_woonkamer") %}
-              media_player.snapcast_client_hentho
-          {% elif (trigger.entity_id == "input_select.source_tablet") %}
-              media_player.snapcast_client_tablet
-          {% endif %}
-    - service: media_player.volume_set
-      data_template:
-        entity_id: >-
-          {% if (trigger.entity_id == "input_select.source_bureau") %}
-              media_player.snapcast_client_xgin
-          {% elif (trigger.entity_id == "input_select.source_woonkamer") %}
-              media_player.snapcast_client_hentho
-          {% elif (trigger.entity_id == "input_select.source_tablet") %}
-              media_player.snapcast_client_tablet
-          {% endif %}
-        volume_level: >-
-           {% if (trigger.entity_id == "input_select.source_bureau" and is_state('input_select.source_bureau', "Mute")) %}
-             0
-           {% elif (trigger.entity_id == "input_select.source_woonkamer" and is_state('input_select.source_woonkamer', "Mute")) %}
-             0
-           {% elif (trigger.entity_id == "input_select.source_tablet" and is_state('input_select.source_tablet', "Mute")) %}
-             0
-           {% else %}
-             1
-           {% endif %}
-    - condition: template
-      value_template: >-
-          {{ states('input_select.source_woonkamer') != "Radio" and states('input_select.source_bureau') != "Radio" and states('input_select.source_tablet') != "Radio" }}
-    - service: media_player.media_stop
-      data:
-        entity_id: media_player.huis
-    - service: variable.set_variable
-      data: 
-        variable: radio_playing
-        value: ""
-- id: Sync Snapcast Volumes
-  alias: Sync Snapcast Volumes
+  - service: media_player.select_source
+    data_template:
+      source: '{% if (trigger.entity_id == "input_select.source_bureau" and is_state(''input_select.source_bureau'',
+        "Radio")) %} Mopidy {% elif (trigger.entity_id == "input_select.source_bureau"
+        and is_state(''input_select.source_bureau'', "Spotify")) %} Spotify-Bureau
+        {% elif (trigger.entity_id == "input_select.source_bureau" and is_state(''input_select.source_bureau'',
+        "Mute")) %} Mute {% elif (trigger.entity_id == "input_select.source_woonkamer"
+        and is_state(''input_select.source_woonkamer'', "Radio")) %} Mopidy {% elif
+        (trigger.entity_id == "input_select.source_woonkamer" and is_state(''input_select.source_woonkamer'',
+        "Spotify")) %} Spotify-Woonkamer {% elif (trigger.entity_id == "input_select.source_woonkamer"
+        and is_state(''input_select.source_woonkamer'', "Mute")) %} Mute {% elif (trigger.entity_id
+        == "input_select.source_tablet" and is_state(''input_select.source_tablet'',
+        "Radio")) %} Mopidy {% elif (trigger.entity_id == "input_select.source_tablet"
+        and is_state(''input_select.source_tablet'', "Spotify")) %} Spotify-tablet
+        {% elif (trigger.entity_id == "input_select.source_tablet" and is_state(''input_select.source_tablet'',
+        "Mute")) %} Mute {% endif %}'
+      entity_id: "{% if (trigger.entity_id == \"input_select.source_bureau\") %}\n\
+        \    media_player.snapcast_client_xgin\n{% elif (trigger.entity_id == \"input_select.source_woonkamer\"\
+        ) %}\n    media_player.snapcast_client_hentho\n{% elif (trigger.entity_id\
+        \ == \"input_select.source_tablet\") %}\n    media_player.snapcast_client_tablet\n\
+        {% endif %}"
+  - service: media_player.volume_set
+    data_template:
+      entity_id: "{% if (trigger.entity_id == \"input_select.source_bureau\") %}\n\
+        \    media_player.snapcast_client_xgin\n{% elif (trigger.entity_id == \"input_select.source_woonkamer\"\
+        ) %}\n    media_player.snapcast_client_hentho\n{% elif (trigger.entity_id\
+        \ == \"input_select.source_tablet\") %}\n    media_player.snapcast_client_tablet\n\
+        {% endif %}"
+      volume_level: "{% if (trigger.entity_id == \"input_select.source_bureau\" and\
+        \ is_state('input_select.source_bureau', \"Mute\")) %}\n  0\n{% elif (trigger.entity_id\
+        \ == \"input_select.source_woonkamer\" and is_state('input_select.source_woonkamer',\
+        \ \"Mute\")) %}\n  0\n{% elif (trigger.entity_id == \"input_select.source_tablet\"\
+        \ and is_state('input_select.source_tablet', \"Mute\")) %}\n  0\n{% else %}\n\
+        \  {% if (trigger.entity_id == \"input_select.source_bureau\") %}\n    {%\
+        \ if (states('input_number.volume_bureau') | float) > 0  %}\n       states('input_number.volume_bureau')\
+        \ | float\n    {% else %}\n       0.4\n    {% endif %}\n  {% elif (trigger.entity_id\
+        \ == \"input_select.source_woonkamer\") %}\n    {% if (states('input_number.volume_woonkamer')\
+        \ | float) > 0  %}\n       states('input_number.volume_woonkamer') | float\n\
+        \    {% else %}\n       0.3\n    {% endif %}\n  {% elif (trigger.entity_id\
+        \ == \"input_select.source_tablet\") %}\n    {% if (states('input_number.source_tablet')\
+        \ | float) > 0  %}\n       states('input_number.volume_tablet') | float\n\
+        \    {% else %}\n       0.4\n    {% endif %}\n  {% endif %}\n{% endif %}"
+  - service: input_number.set_value
+    data_template:
+      entity_id: "{% if (trigger.entity_id == \"input_select.source_bureau\") %}\n\
+        \    input_number.volume_bureau\n{% elif (trigger.entity_id == \"input_select.source_woonkamer\"\
+        ) %}\n    input_number.volume_woonkamer\n{% elif (trigger.entity_id == \"\
+        input_select.source_tablet\") %}\n    input_number.volume_tablet\n{% endif\
+        \ %}"
+      value: "{% if (trigger.entity_id == \"input_select.source_bureau\" and is_state('input_select.source_bureau',\
+        \ \"Mute\")) %}\n  0\n{% elif (trigger.entity_id == \"input_select.source_woonkamer\"\
+        \ and is_state('input_select.source_woonkamer', \"Mute\")) %}\n  0\n{% elif\
+        \ (trigger.entity_id == \"input_select.source_tablet\" and is_state('input_select.source_tablet',\
+        \ \"Mute\")) %}\n  0\n{% endif %}"
+  - condition: template
+    value_template: '{{ states(''input_select.source_woonkamer'') != "Radio" and states(''input_select.source_bureau'')
+      != "Radio" and states(''input_select.source_tablet'') != "Radio" }}'
+  - service: media_player.media_pauze
+    data:
+      entity_id: media_player.huis
+  - service: variable.set_variable
+    data:
+      variable: radio_playing
+      value: ''
+- id: Sync Snapcast
+  alias: Sync Snapcast
   trigger:
   - event: start
     platform: homeassistant
+  - entity_id: media_player.snapcast_client_hentho
+    platform: state
+  - entity_id: media_player.snapcast_client_tablet
+    platform: state
+  - entity_id: media_player.snapcast_client_xgin
+    platform: state
   action:
-    - service: input_number.set_value
-      data_template:
-        entity_id: input_number.volume_bureau
-        value: >-
-          {{ state_attr('media_player.snapcast_client_xgin', 'volume_level') }}
-    - service: input_number.set_value
-      data_template:
-        entity_id: input_number.volume_woonkamer
-        value: >-
-          {{ state_attr('media_player.snapcast_client_hentho', 'volume_level') }}
-    - service: input_number.set_value
-      data_template:
-        entity_id: input_number.volume_tablet
-        value: >-
-          {{ state_attr('media_player.snapcast_client_tablet', 'volume_level') }}
+  - service: input_number.set_value
+    data_template:
+      entity_id: input_number.volume_bureau
+      value: '{{ state_attr(''media_player.snapcast_client_xgin'', ''volume_level'')
+        }}'
+  - service: input_number.set_value
+    data_template:
+      entity_id: input_number.volume_woonkamer
+      value: '{{ state_attr(''media_player.snapcast_client_hentho'', ''volume_level'')
+        }}'
+  - service: input_number.set_value
+    data_template:
+      entity_id: input_number.volume_tablet
+      value: '{{ state_attr(''media_player.snapcast_client_tablet'', ''volume_level'')
+        }}'
+  - service: input_select.select_option
+    data_template:
+      entity_id: input_select.source_bureau
+      option: "{% if state_attr('media_player.snapcast_client_xgin', 'volume_level')\
+        \ == 0 %}\n  Mute\n{% else %}\n    {% if state_attr('media_player.snapcast_client_xgin',\
+        \ 'source').startswith('Spotify') %}\n      Spotify\n    {% elif state_attr('media_player.snapcast_client_xgin',\
+        \ 'source') == 'Mopidy' %}\n      Radio\n    {% endif %}\n{% endif %}"
+  - service: input_select.select_option
+    data_template:
+      entity_id: input_select.source_woonkamer
+      option: "{% if state_attr('media_player.snapcast_client_hentho', 'volume_level')\
+        \ == 0 %}\n  Mute\n{% else %}\n    {% if state_attr('media_player.snapcast_client_hentho',\
+        \ 'source').startswith('Spotify') %}\n      Spotify\n    {% elif state_attr('media_player.snapcast_client_hentho',\
+        \ 'source') == 'Mopidy' %}\n      Radio\n    {% endif %}\n{% endif %}"
+  - service: input_select.select_option
+    data_template:
+      entity_id: input_select.source_tablet
+      option: "{% if state_attr('media_player.snapcast_client_tablet', 'volume_level')\
+        \ == 0 %}\n  Mute\n{% else %}\n    {% if state_attr('media_player.snapcast_client_tablet',\
+        \ 'source').startswith('Spotify') %}\n      Spotify\n    {% elif state_attr('media_player.snapcast_client_tablet',\
+        \ 'source') == 'Mopidy' %}\n      Radio\n    {% endif %}\n{% endif %}"
 - id: Change Volume For Snapcast based on input
   alias: Change Volume For Snapcast based on input
-  trigger: 
-    - entity_id: input_number.volume_bureau
-      platform: state
-    - entity_id: input_number.volume_woonkamer
-      platform: state
-    - entity_id: input_number.volume_tablet
-      platform: state
+  trigger:
+  - entity_id: input_number.volume_bureau
+    platform: state
+  - entity_id: input_number.volume_woonkamer
+    platform: state
+  - entity_id: input_number.volume_tablet
+    platform: state
   action:
-    - service: media_player.volume_set
-      data_template:
-        entity_id: >-
-          {% if (trigger.entity_id == "input_number.volume_bureau") %}
-              media_player.snapcast_client_xgin
-          {% elif (trigger.entity_id == "input_number.volume_woonkamer") %}
-              media_player.snapcast_client_hentho
-          {% elif (trigger.entity_id == "input_number.volume_tablet") %}
-              media_player.snapcast_client_tablet
-          {% endif %}
-        volume_level: >-
-           {% if (trigger.entity_id == "input_number.volume_bureau") %}
-             {{ states('input_number.volume_bureau') }}
-           {% elif (trigger.entity_id == "input_number.volume_woonkamer") %}
-             {{ states('input_number.volume_woonkamer') }}
-           {% elif (trigger.entity_id == "input_number.volume_tablet") %}
-             {{ states('input_number.volume_tablet') }}
-           {% endif %}
-     
+  - service: media_player.volume_set
+    data_template:
+      entity_id: "{% if (trigger.entity_id == \"input_number.volume_bureau\") %}\n\
+        \    media_player.snapcast_client_xgin\n{% elif (trigger.entity_id == \"input_number.volume_woonkamer\"\
+        ) %}\n    media_player.snapcast_client_hentho\n{% elif (trigger.entity_id\
+        \ == \"input_number.volume_tablet\") %}\n    media_player.snapcast_client_tablet\n\
+        {% endif %}"
+      volume_level: "{% if (trigger.entity_id == \"input_number.volume_bureau\") %}\n\
+        \   {{ states('input_number.volume_bureau') | float }}\n{% elif (trigger.entity_id\
+        \ == \"input_number.volume_woonkamer\") %}\n   {{ states('input_number.volume_woonkamer')\
+        \ | float }}\n{% elif (trigger.entity_id == \"input_number.volume_tablet\"\
+        ) %}\n   {{ states('input_number.volume_tablet') | float }}\n{% endif %}"
+- id: '1589881124105'
+  alias: Mute Snapcast Woonkamer, when tv is on
+  description: ''
+  trigger:
+  - entity_id: media_player.samsung_samsung_dtv_rcr
+    for: 5s
+    platform: state
+    to: 'On'
+  condition: []
+  action:
+  - service: input_select.select_option
+    data:
+      option: Mute
+      entity_id: input_select.source_woonkamer
+- id: '1591101305128'
+  alias: Turn On StuBru in Bureau
+  description: ''
+  trigger:
+  - entity_id: binary_sensor.motion_bureau
+    platform: state
+    to: 'on'
+  condition:
+  - condition: template
+    value_template: '{{ is_state_attr(''media_player.snapcast_client_tablet'', ''is_volume_muted'',
+      true) }}'
+  action:
+  - data:
+      is_volume_muted: false
+    entity_id: media_player.snapcast_client_tablet
+    service: media_player.volume_mute
+  - wait_template: '{{ is_state(''script.play_tts'', ''off'') }}'
+  - data: {}
+    service: script.turn_on
+    entity_id: script.play_studiobrussel_home
+- id: '1591102593255'
+  alias: Turn Off StuBru in Bureau
+  description: ''
+  trigger:
+  - entity_id: binary_sensor.motion_bureau
+    for: 00:20:00
+    platform: state
+    to: 'off'
+  condition:
+  - condition: template
+    value_template: '{{ is_state_attr(''media_player.snapcast_client_tablet'', ''is_volume_muted'',
+      false) }}'
+  action:
+  - data:
+      is_volume_muted: true
+    entity_id: media_player.snapcast_client_tablet
+    service: media_player.volume_mute

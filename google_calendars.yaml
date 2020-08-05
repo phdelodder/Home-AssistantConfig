@@ -1,0 +1,49 @@
+
+- cal_id: delodder.be_0n8otjlagcbong8cjq2er6stds@group.calendar.google.com
+  entities:
+  - device_id: werk_uren_sint_jan
+    ignore_availability: true
+    name: Werk Uren Sint-Jan
+    track: true
+
+- cal_id: isabel_van_torre@delodder.be
+  entities:
+  - device_id: isabel_van_torre_delodder_be
+    ignore_availability: true
+    name: isabel_van_torre@delodder.be
+    track: true
+
+- cal_id: familie@delodder.be
+  entities:
+  - device_id: familie_delodder_be
+    ignore_availability: true
+    name: familie@delodder.be
+    track: true
+
+- cal_id: febe@delodder.be
+  entities:
+  - device_id: febe_delodder_be
+    ignore_availability: true
+    name: febe@delodder.be
+    track: true
+
+- cal_id: margot@delodder.be
+  entities:
+  - device_id: margot_delodder_be
+    ignore_availability: true
+    name: margot@delodder.be
+    track: true
+
+- cal_id: j08915tugfeor90a8fbca92384@group.calendar.google.com
+  entities:
+  - device_id: bestrijdingsplanning
+    ignore_availability: true
+    name: Bestrijdingsplanning
+    track: true
+
+- cal_id: philippe@delodder.be
+  entities:
+  - device_id: philippe_delodder_be
+    ignore_availability: true
+    name: philippe@delodder.be
+    track: true

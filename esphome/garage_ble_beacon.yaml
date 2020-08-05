@@ -1,0 +1,40 @@
+substitutions:
+  device: garage_ble_beacon
+  name: Garage BLE Beacon
+  update_interval: 10min
+esphome:
+  name: ${device}
+  platform: ESP32
+  board: esp32doit-devkit-v1
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  domain: !secret lan_domain
+
+logger:
+
+<<: !include common/api.yaml
+<<: !include common/ota.yaml
+<<: !include common/web_server.yaml
+<<: !include common/text_sensors.yaml
+<<: !include common/binary_sensor.yaml
+<<: !include common/switch.yaml
+
+esp32_ble_tracker:
+
+sensor:
+  - !include common/sensor/wifi-signal.yaml
+  - !include common/sensor/uptime.yaml
+  - platform: xiaomi_hhccjcy01
+    mac_address: 80:EA:CA:89:0C:56
+    temperature:
+      name: "Olijfboom Temperature"
+    moisture:
+      name: "Olijfboom Moisture"
+    illuminance:
+      name: "Olijfboom Illuminance"
+    conductivity:
+      name: "Olijfboom Soil Conductivity"
+    #battery_level:
+    #  name: "Olijfboom Battery Level" 

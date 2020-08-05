@@ -1,0 +1,28 @@
+waterpump_water_usage_hourly:
+  source: sensor.water_pump_usage
+  cycle: hourly
+waterpump_water_usage_daily:
+  source: sensor.water_pump_usage
+  cycle: daily
+waterpump_water_usage_weekly:
+  source: sensor.water_pump_usage
+  cycle: weekly
+waterpump_water_usage_monthly:
+  source: sensor.water_pump_usage
+  cycle: monthly
+waterpump_water_usage_yearly:
+  source: sensor.water_pump_usage
+  cycle: yearly
+
+waterpump_current_usage_daily:
+  source: sensor.waterpump_consumption
+  cycle: daily
+waterpump_current_usage_weekly:
+  source: sensor.waterpump_consumption
+  cycle: weekly
+waterpump_current_usage_monthly:
+  source: sensor.waterpump_consumption
+  cycle: monthly
+waterpump_current_usage_yearly:
+  source: sensor.waterpump_consumption
+  cycle: yearly

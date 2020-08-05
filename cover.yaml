@@ -1,9 +1,9 @@
 - platform: mqtt
   name: "Greenhouse Window 1"
-  availability_topic: "tele/greenhouse/LWT"
+  availability_topic: "tele/greenhouse_windows/LWT"
   payload_available: "Online"
   payload_not_available: "Offline"
-  position_topic: "stat/greenhouse/RESULT"
+  position_topic: "stat/greenhouse_windows/RESULT"
   value_template: >
       {% if ('Shutter1' in value_json) and ('Position' in value_json.Shutter1) %}
         {{ value_json.Shutter1.Position }}
@@ -16,8 +16,8 @@
       {% endif %}    
   position_open: 100
   position_closed: 0
-  set_position_topic: "cmnd/greenhouse/ShutterPosition1"
-  command_topic: "cmnd/greenhouse/Backlog"
+  set_position_topic: "cmnd/greenhouse_windows/ShutterPosition1"
+  command_topic: "cmnd/greenhouse_windows/Backlog"
   payload_open: "ShutterOpen1"
   payload_close: "ShutterClose1"
   payload_stop: "ShutterStop1"
@@ -27,10 +27,10 @@
   
 - platform: mqtt
   name: "Greenhouse Window 2"
-  availability_topic: "tele/greenhouse/LWT"
+  availability_topic: "tele/greenhouse_windows/LWT"
   payload_available: "Online"
   payload_not_available: "Offline"
-  position_topic: "stat/greenhouse/RESULT"
+  position_topic: "stat/greenhouse_windows/RESULT"
   value_template: >
       {% if ('Shutter2' in value_json) and ('Position' in value_json.Shutter2) %}
         {{ value_json.Shutter2.Position }}
@@ -43,8 +43,8 @@
       {% endif %}    
   position_open: 100
   position_closed: 0
-  set_position_topic: "cmnd/greenhouse/ShutterPosition2"
-  command_topic: "cmnd/greenhouse/Backlog"
+  set_position_topic: "cmnd/greenhouse_windows/ShutterPosition2"
+  command_topic: "cmnd/greenhouse_windows/Backlog"
   payload_open: "ShutterOpen2"
   payload_close: "ShutterClose2"
   payload_stop: "ShutterStop2"

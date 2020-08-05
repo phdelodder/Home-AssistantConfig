@@ -2,3 +2,152 @@
 hello_world:
   module: hello
   class: HelloWorld
+
+staande_lamp_controller:
+  module: controllerx
+  class: E1810Controller
+  controller: remote_staande_lamp_living
+  integration: deconz
+  light: light.staande_lamp_living
+
+Livingroom_part1_controller:
+  module: controllerx
+  class: CallServiceController
+  controller: schouw
+  integration: deconz
+  mapping:
+    1001:
+      service: light.turn_off
+      data:
+        entity_id: 
+          - light.schouw
+          - light.staande_lamp_living
+    1002:
+      service: scene.turn_on
+      data:
+        entity_id: scene.sfeer_woonkamer 
+    1004:
+      service: scene.turn_on
+      data:
+        entity_id: scene.testing  
+
+slaapkamer_controller:
+  module: controllerx
+  class: HueDimmerController
+  controller: dimmer_switch
+  integration: deconz
+  light: light.led_slaapkamer
+
+# Top and bottom press for turn on/off lights, then when holding top one will change brightness (changing directions everytime you hold) 
+# and the bottom one for the color (changing directions everytime you hold). 
+# If you want to check the events that it fires, you can check here: https://xaviml.github.io/controllerx/controllers/Niko91004 and if you want to check which predefined actions you want to use, you can do it in here: https://xaviml.github.io/controllerx/others/custom-controllers#custom-light-controller
+dressing_strips_controller:
+    module: controllerx
+    class: CustomLightController
+    controller: dressing_dimmer_switch
+    integration: deconz
+    light: light.dressing_led_strip
+    mapping:
+        3000: "on"
+        3001: hold_brightness_toggle
+        3003: release
+        4000: "off"
+        4001: hold_color_toggle
+        4003: release
+
+dressing_spots_controller_day1:
+  module: controllerx
+  class: CustomLightController
+  controller: dressing_dimmer_switch
+  integration: deconz
+  light: light.dressing_spots
+  constrain_start_time: "07:00:00"
+  constrain_end_time: "20:00:00"
+  mapping:
+    1001: hold_brightness_toggle
+    1003: release
+    2001: hold_color_toggle
+    2002: "off"
+    2003: release
+dressing_spots_controller_day2:
+  module: controllerx
+  class: CallServiceController
+  controller: dressing_dimmer_switch
+  integration: deconz
+  light: light.dressing_spots
+  constrain_start_time: "07:00:00"
+  constrain_end_time: "20:00:00"
+  mapping:
+    1002:
+      service: light.turn_on
+      data:
+        entity_id: light.dressing_spots
+        brightness_pct: 100 
+dressing_spots_controller_night1:
+  module: controllerx
+  class: CustomLightController
+  controller: dressing_dimmer_switch
+  integration: deconz
+  light: light.dressing_spots
+  constrain_start_time: "20:00:00"
+  constrain_end_time: "07:00:00"
+  mapping:
+    1001: hold_brightness_toggle
+    1003: release
+    2001: hold_color_toggle
+    2002: "off"
+    2003: release
+dressing_spots_controller_night2:
+  module: controllerx
+  class: CallServiceController
+  controller: dressing_dimmer_switch
+  integration: deconz
+  light: light.dressing_spots
+  constrain_start_time: "20:00:00"
+  constrain_end_time: "07:00:00"
+  mapping:
+    1002:
+      service: light.turn_on
+      data:
+        entity_id: light.dressing_spots
+        brightness_pct: 20 
+
+dressing_spots_controller_button:
+  module: controllerx
+  class: WXKG12LMLightController
+  controller: unused_switch
+  integration: deconz
+  light: light.dressing_spots
+
+febe_slaapkamer_controller_b1:
+  module: controllerx
+  class: CustomLightController
+  controller: slaapkamer_febe_dimmer_switch
+  integration: deconz
+  light: light.febe_slaapkamer
+  mapping:
+    1001: hold_brightness_toggle
+    1002: toggle
+    1003: release
+
+febe_slaapkamer_controller_b2:
+  module: controllerx
+  class: CustomLightController
+  controller: slaapkamer_febe_dimmer_switch
+  integration: deconz
+  light: light.slaapkamer_febe_bureau
+  mapping:
+    2001: hold_brightness_toggle
+    2002: toggle
+    2003: release
+
+febe_slaapkamer_controller_b4:
+  module: controllerx
+  class: CustomLightController
+  controller: slaapkamer_febe_dimmer_switch
+  integration: deconz
+  light: light.slaapkamer_febe_kleerkast
+  mapping:
+    4001: hold_brightness_toggle
+    4002: toggle
+    4003: release

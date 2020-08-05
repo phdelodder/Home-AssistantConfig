@@ -28,64 +28,312 @@
     zone1_time_today:
       friendly_name: Zone 1 total watering time today
       value_template: >
-        {{ states('sensor.zone1_time') | float * 60 | round }}
+        {{ states('sensor.greenhouse_valve_1_history_today') | float * 60 | round }}
       unit_of_measurement: minutes
       icon_template: mdi:water
 
     zone2_time_today:
       friendly_name: Zone 2 total watering time today
       value_template: >
-        {{ states('sensor.zone2_time') | float * 60 | round }}
+        {{ states('sensor.greenhouse_valve_2_history_today') | float * 60 | round }}
       unit_of_measurement: minutes
       icon_template: mdi:water
         
     zone3_time_today:
       friendly_name: Zone 3 total watering time today
       value_template: >
-        {{ states('sensor.zone3_time') | float * 60 | round }}
+        {{ states('sensor.greenhouse_valve_3_history_today') | float * 60 | round }}
       unit_of_measurement: minutes
       icon_template: mdi:water
         
     zone4_time_today:
       friendly_name: Zone 4 total watering time today
       value_template: >
-        {{ states('sensor.zone4_time') | float * 60 | round }}
+        {{ states('sensor.greenhouse_valve_4_history_today') | float * 60 | round }}
       unit_of_measurement: minutes
       icon_template: mdi:water
 
 # History sensors
 # Zone Times
 - platform: history_stats
-  name: zone1_time
+  name: greenhouse_valve_1_history_today
   entity_id: switch.greenhouse_valve_1
   state: 'on'
   type: time
   start: '{{ now().replace(hour=0).replace(minute=0).replace(second=0) }}'
   end: '{{ now() }}'
+- platform: history_stats
+  name: greenhouse_valve_1_history_yesterday
+  entity_id: switch.greenhouse_valve_1
+  state: 'on'
+  type: time
+  end: '{{ now().replace(hour=0, minute=0, second=0) }}'
+  duration:
+    hours: 24
+- platform: history_stats
+  name: greenhouse_valve_1_history_week
+  entity_id: switch.greenhouse_valve_1
+  state: 'on'
+  type: time
+  end: '{{ now().replace(hour=0, minute=0, second=0) }}'
+  duration:
+    days: 7
+- platform: history_stats
+  name: greenhouse_valve_1_history_month
+  entity_id: switch.greenhouse_valve_1
+  state: 'on'
+  type: time
+  end: '{{ now().replace(hour=0, minute=0, second=0) }}'
+  duration:
+    days: 30
+- platform: history_stats
+  name: greenhouse_valve_1_history_year
+  entity_id: switch.greenhouse_valve_1
+  state: 'on'
+  type: time
+  start: '{{ now().replace(month=1).replace(day=1).replace(hour=0).replace(minute=0).replace(second=0) }}'
+  end: '{{ now() }}'
+- platform: history_stats
+  name: greenhouse_valve_1_history_alltime
+  entity_id: switch.greenhouse_valve_1
+  state: 'on'
+  type: time
+  start: '{{ 0 }}'
+  end: '{{ now() }}'
+- platform: template
+  sensors:
+    greenhouse_valve_1_stats:
+      icon_template: >-
+        {% if is_state('switch.greenhouse_valve_1', 'on') %}
+          mdi:chart-line-stacked
+        {% else %}
+          mdi:chart-line
+        {% endif %}
+      value_template: >-
+        {{ state_attr('sensor.greenhouse_valve_1_history_today', 'value') }}
+      attribute_templates:
+        today: >-
+          {{ state_attr('sensor.greenhouse_valve_1_history_today', 'value') }}
+        yesterday: >-
+          {{ state_attr('sensor.greenhouse_valve_1_history_yesterday', 'value') }}
+        week: >-
+          {{ state_attr('sensor.greenhouse_valve_1_history_week', 'value') }}
+        month: >-
+          {{ state_attr('sensor.greenhouse_valve_1_history_month', 'value') }}
+        year: >-
+          {{ states('sensor.greenhouse_valve_1_history_year') + state_attr('sensor.greenhouse_valve_1_history_year', 'unit_of_measurement') }}
+        all: >-
+          {{ states('sensor.greenhouse_valve_1_history_alltime') + state_attr('sensor.greenhouse_valve_1_history_year', 'unit_of_measurement') }}
 
 - platform: history_stats
-  name: zone2_time
+  name: greenhouse_valve_2_history_today
   entity_id: switch.greenhouse_valve_2
   state: 'on'
   type: time
   start: '{{ now().replace(hour=0).replace(minute=0).replace(second=0) }}'
   end: '{{ now() }}'
+- platform: history_stats
+  name: greenhouse_valve_2_history_yesterday
+  entity_id: switch.greenhouse_valve_2
+  state: 'on'
+  type: time
+  end: '{{ now().replace(hour=0, minute=0, second=0) }}'
+  duration:
+    hours: 24
+- platform: history_stats
+  name: greenhouse_valve_2_history_week
+  entity_id: switch.greenhouse_valve_2
+  state: 'on'
+  type: time
+  end: '{{ now().replace(hour=0, minute=0, second=0) }}'
+  duration:
+    days: 7
+- platform: history_stats
+  name: greenhouse_valve_2_history_month
+  entity_id: switch.greenhouse_valve_2
+  state: 'on'
+  type: time
+  end: '{{ now().replace(hour=0, minute=0, second=0) }}'
+  duration:
+    days: 30
+- platform: history_stats
+  name: greenhouse_valve_2_history_year
+  entity_id: switch.greenhouse_valve_2
+  state: 'on'
+  type: time
+  start: '{{ now().replace(month=1).replace(day=1).replace(hour=0).replace(minute=0).replace(second=0) }}'
+  end: '{{ now() }}'
+- platform: history_stats
+  name: greenhouse_valve_2_history_alltime
+  entity_id: switch.greenhouse_valve_2
+  state: 'on'
+  type: time
+  start: '{{ 0 }}'
+  end: '{{ now() }}'
+- platform: template
+  sensors:
+    greenhouse_valve_2_stats:
+      icon_template: >-
+        {% if is_state('switch.greenhouse_valve_2', 'on') %}
+          mdi:chart-line-stacked
+        {% else %}
+          mdi:chart-line
+        {% endif %}
+      value_template: >-
+        {{ state_attr('sensor.greenhouse_valve_2_history_today', 'value') }}
+      attribute_templates:
+        today: >-
+          {{ state_attr('sensor.greenhouse_valve_2_history_today', 'value') }}
+        yesterday: >-
+          {{ state_attr('sensor.greenhouse_valve_2_history_yesterday', 'value') }}
+        week: >-
+          {{ state_attr('sensor.greenhouse_valve_2_history_week', 'value') }}
+        month: >-
+          {{ state_attr('sensor.greenhouse_valve_2_history_month', 'value') }}
+        year: >-
+          {{ states('sensor.greenhouse_valve_2_history_year') + state_attr('sensor.greenhouse_valve_2_history_year', 'unit_of_measurement') }}
+        all: >-
+          {{ states('sensor.greenhouse_valve_2_history_alltime') + state_attr('sensor.greenhouse_valve_2_history_year', 'unit_of_measurement') }}
 
 - platform: history_stats
-  name: zone3_time
+  name: greenhouse_valve_3_history_today
   entity_id: switch.greenhouse_valve_3
   state: 'on'
   type: time
   start: '{{ now().replace(hour=0).replace(minute=0).replace(second=0) }}'
   end: '{{ now() }}'
+- platform: history_stats
+  name: greenhouse_valve_3_history_yesterday
+  entity_id: switch.greenhouse_valve_3
+  state: 'on'
+  type: time
+  end: '{{ now().replace(hour=0, minute=0, second=0) }}'
+  duration:
+    hours: 24
+- platform: history_stats
+  name: greenhouse_valve_3_history_week
+  entity_id: switch.greenhouse_valve_3
+  state: 'on'
+  type: time
+  end: '{{ now().replace(hour=0, minute=0, second=0) }}'
+  duration:
+    days: 7
+- platform: history_stats
+  name: greenhouse_valve_3_history_month
+  entity_id: switch.greenhouse_valve_3
+  state: 'on'
+  type: time
+  end: '{{ now().replace(hour=0, minute=0, second=0) }}'
+  duration:
+    days: 30
+- platform: history_stats
+  name: greenhouse_valve_3_history_year
+  entity_id: switch.greenhouse_valve_3
+  state: 'on'
+  type: time
+  start: '{{ now().replace(month=1).replace(day=1).replace(hour=0).replace(minute=0).replace(second=0) }}'
+  end: '{{ now() }}'
+- platform: history_stats
+  name: greenhouse_valve_3_history_alltime
+  entity_id: switch.greenhouse_valve_3
+  state: 'on'
+  type: time
+  start: '{{ 0 }}'
+  end: '{{ now() }}'
+- platform: template
+  sensors:
+    greenhouse_valve_3_stats:
+      icon_template: >-
+        {% if is_state('switch.greenhouse_valve_3', 'on') %}
+          mdi:chart-line-stacked
+        {% else %}
+          mdi:chart-line
+        {% endif %}
+      value_template: >-
+        {{ state_attr('sensor.greenhouse_valve_3_history_today', 'value') }}
+      attribute_templates:
+        today: >-
+          {{ state_attr('sensor.greenhouse_valve_3_history_today', 'value') }}
+        yesterday: >-
+          {{ state_attr('sensor.greenhouse_valve_3_history_yesterday', 'value') }}
+        week: >-
+          {{ state_attr('sensor.greenhouse_valve_3_history_week', 'value') }}
+        month: >-
+          {{ state_attr('sensor.greenhouse_valve_3_history_month', 'value') }}
+        year: >-
+          {{ states('sensor.greenhouse_valve_3_history_year') + state_attr('sensor.greenhouse_valve_3_history_year', 'unit_of_measurement') }}
+        all: >-
+          {{ states('sensor.greenhouse_valve_3_history_alltime') + state_attr('sensor.greenhouse_valve_3_history_year', 'unit_of_measurement') }}
 
 - platform: history_stats
-  name: zone4_time
+  name: greenhouse_valve_4_history_today
   entity_id: switch.greenhouse_valve_4
   state: 'on'
   type: time
   start: '{{ now().replace(hour=0).replace(minute=0).replace(second=0) }}'
   end: '{{ now() }}'
+- platform: history_stats
+  name: greenhouse_valve_4_history_yesterday
+  entity_id: switch.greenhouse_valve_4
+  state: 'on'
+  type: time
+  end: '{{ now().replace(hour=0, minute=0, second=0) }}'
+  duration:
+    hours: 24
+- platform: history_stats
+  name: greenhouse_valve_4_history_week
+  entity_id: switch.greenhouse_valve_4
+  state: 'on'
+  type: time
+  end: '{{ now().replace(hour=0, minute=0, second=0) }}'
+  duration:
+    days: 7
+- platform: history_stats
+  name: greenhouse_valve_4_history_month
+  entity_id: switch.greenhouse_valve_4
+  state: 'on'
+  type: time
+  end: '{{ now().replace(hour=0, minute=0, second=0) }}'
+  duration:
+    days: 30
+- platform: history_stats
+  name: greenhouse_valve_4_history_year
+  entity_id: switch.greenhouse_valve_4
+  state: 'on'
+  type: time
+  start: '{{ now().replace(month=1).replace(day=1).replace(hour=0).replace(minute=0).replace(second=0) }}'
+  end: '{{ now() }}'
+- platform: history_stats
+  name: greenhouse_valve_4_history_alltime
+  entity_id: switch.greenhouse_valve_4
+  state: 'on'
+  type: time
+  start: '{{ 0 }}'
+  end: '{{ now() }}'
+- platform: template
+  sensors:
+    greenhouse_valve_4_stats:
+      icon_template: >-
+        {% if is_state('switch.greenhouse_valve_4', 'on') %}
+          mdi:chart-line-stacked
+        {% else %}
+          mdi:chart-line
+        {% endif %}
+      value_template: >-
+        {{ state_attr('sensor.greenhouse_valve_4_history_today', 'value') }}
+      attribute_templates:
+        today: >-
+          {{ state_attr('sensor.greenhouse_valve_4_history_today', 'value') }}
+        yesterday: >-
+          {{ state_attr('sensor.greenhouse_valve_4_history_yesterday', 'value') }}
+        week: >-
+          {{ state_attr('sensor.greenhouse_valve_4_history_week', 'value') }}
+        month: >-
+          {{ state_attr('sensor.greenhouse_valve_4_history_month', 'value') }}
+        year: >-
+          {{ states('sensor.greenhouse_valve_4_history_year') + state_attr('sensor.greenhouse_valve_4_history_year', 'unit_of_measurement') }}
+        all: >-
+          {{ states('sensor.greenhouse_valve_4_history_alltime') + state_attr('sensor.greenhouse_valve_4_history_year', 'unit_of_measurement') }}
 
 - platform: template
   sensors:
@@ -227,7 +475,7 @@
 - platform: zoneminder
 
 - platform: afvalbeheer
-  wastecollector: ophaalkalender
+  wastecollector: RecycleApp
   resources:
     - restafval
     - papier
@@ -238,193 +486,231 @@
   upcomingsensor: 1
   builtinicons: 1
   
-- platform: mqtt
-  name: garage_temperature
-  unit_of_measurement: "°C"
-  state_topic: "home/OMG_Garage/OneWiretoMQTT/ds1820"
-  value_template: "{{ value_json.temp | is_defined}}"
-  device_class: "temperature"
+# - platform: mqtt
+#   name: garage_temperature
+#   unit_of_measurement: "°C"
+#   state_topic: "home/OMG_Garage/OneWiretoMQTT/ds1820"
+#   value_template: "{{ value_json.temp | is_defined}}"
+#   device_class: "temperature"
+  
+# - platform: mqtt
+#   name: "Greenhouse Zone 1 Temperature"
+#   unit_of_measurement: "°C"
+#   state_topic: "home/OMG_Serre/BTtoMQTT/80EACA890274"
+#   value_template: "{{ value_json.tem | is_defined }}"
+#   device_class: "temperature"
+# - platform: mqtt
+#   unit_of_measurement: "%"
+#   name: "Greenhouse Zone 1 Moisture"
+#   state_topic: "home/OMG_Serre/BTtoMQTT/80EACA890274"
+#   value_template: "{{ value_json.moi | is_defined }}"
+#   device_class: "humidity"
+# - platform: mqtt
+#   name: "Greenhouse Zone 1 Illuminance"
+#   unit_of_measurement: "lx"
+#   state_topic: "home/OMG_Serre/BTtoMQTT/80EACA890274"
+#   value_template: "{{ value_json.lux | is_defined }}"
+#   device_class: "illuminance"
+# - platform: mqtt
+#   name: "Greenhouse Zone 1 Soil Conductivity"
+#   state_topic: "home/OMG_Serre/BTtoMQTT/80EACA890274"
+#   value_template: "{{ value_json.fer | is_defined }}"
+#   unit_of_measurement: "µS/cm"
+#   icon: mdi:flower
+  
+# - platform: mqtt
+#   name: "Greenhouse Zone 2 Temperature"
+#   unit_of_measurement: "°C"
+#   state_topic: "home/OMG_Serre/BTtoMQTT/80EACA890E95"
+#   value_template: "{{ value_json.tem| is_defined }}"
+#   device_class: "temperature"
+# - platform: mqtt
+#   name: "Greenhouse Zone 2 Moisture"
+#   unit_of_measurement: "%"
+#   state_topic: "home/OMG_Serre/BTtoMQTT/80EACA890E95"
+#   value_template: "{{ value_json.moi | is_defined }}"
+#   device_class: "humidity"
+# - platform: mqtt
+#   name: "Greenhouse Zone 2 Illuminance"
+#   unit_of_measurement: "lx"
+#   state_topic: "home/OMG_Serre/BTtoMQTT/80EACA890E95"
+#   value_template: "{{ value_json.lux | is_defined }}"
+#   device_class: "illuminance"
+# - platform: mqtt
+#   name: "greenhouse Zone 2 Soil Conductivity"
+#   state_topic: "home/OMG_Serre/BTtoMQTT/80EACA890E95"
+#   value_template: "{{ value_json.fer | is_defined }}"
+#   unit_of_measurement: "µS/cm"
+#   icon: mdi:flower
+  
+# - platform: mqtt
+#   name: "Greenhouse Zone 3 temperature"
+#   unit_of_measurement: "°C"
+#   state_topic: "home/OMG_Serre/BTtoMQTT/80EACA890EA2"
+#   value_template: "{{ value_json.tem | is_defined }}"
+#   device_class: "temperature"
+# - platform: mqtt
+#   name: "Greenhouse Zone 3 Moisture"
+#   unit_of_measurement: "%"
+#   state_topic: "home/OMG_Serre/BTtoMQTT/80EACA890EA2"
+#   value_template: "{{ value_json.moi | is_defined }}"
+#   device_class: "humidity"
+# - platform: mqtt
+#   name: "Greenhouse Zone 3 Illuminance"
+#   unit_of_measurement: "lx"
+#   state_topic: "home/OMG_Serre/BTtoMQTT/80EACA890EA2"
+#   value_template: "{{ value_json.lux | is_defined }}"
+#   device_class: "illuminance"
+# - platform: mqtt
+#   name: "Greenhouse Zone 3 Soil Conductivity"
+#   state_topic: "home/OMG_Serre/BTtoMQTT/80EACA890EA2"
+#   value_template: "{{ value_json.fer | is_defined }}"
+#   unit_of_measurement: "µS/cm"
+#   icon: mdi:flower
+
+# - platform: mqtt
+#   name: "Greenhouse Zone 4 temperature"
+#   unit_of_measurement: "°C"
+#   state_topic: "home/OMG_Serre/BTtoMQTT/80EACA8909DC"
+#   value_template: "{{ value_json.tem | is_defined }}"
+#   device_class: "temperature"
+# - platform: mqtt
+#   name: "Greenhouse Zone 4 Moisture"
+#   unit_of_measurement: "%"
+#   state_topic: "home/OMG_Serre/BTtoMQTT/80EACA8909DC"
+#   value_template: "{{ value_json.moi | is_defined }}"
+#   device_class: "humidity"
+# - platform: mqtt
+#   name: "Greenhouse Zone 4 Illuminance"
+#   unit_of_measurement: "lx"
+#   state_topic: "home/OMG_Serre/BTtoMQTT/80EACA8909DC"
+#   value_template: "{{ value_json.lux | is_defined }}"
+#   device_class: "illuminance"
+# - platform: mqtt
+#   name: "Greenhouse Zone 4 Soil Conductivity"
+#   state_topic: "home/OMG_Serre/BTtoMQTT/80EACA8909DC"
+#   value_template: "{{ value_json.fer | is_defined }}"
+#   unit_of_measurement: "µS/cm"
+#   icon: mdi:flower
+
+# - platform: mqtt
+#   name: "Olijfboom Temperature"
+#   unit_of_measurement: "°C"
+#   state_topic: "home/OMG_Garage/BTtoMQTT/80EACA890C56"
+#   value_template: "{{ value_json.tem | is_defined }}"
+#   device_class: "temperature"
+# - platform: mqtt
+#   name: "Olijfboom Moisture"
+#   unit_of_measurement: "%"
+#   state_topic: "home/OMG_Garage/BTtoMQTT/80EACA890C56"
+#   value_template: "{{ value_json.moi | is_defined }}"
+#   device_class: "humidity"
+# - platform: mqtt
+#   name: "Olijfboom Illuminance"
+#   unit_of_measurement: "lx"
+#   state_topic: "home/OMG_Garage/BTtoMQTT/80EACA890C56"
+#   value_template: "{{ value_json.lux | is_defined }}"
+#   device_class: "illuminance"
+# - platform: mqtt
+#   name: "Olijfboom Soil Conductivity"
+#   state_topic: "home/OMG_Garage/BTtoMQTT/80EACA890C56"
+#   value_template: "{{ value_json.fer | is_defined }}"
+#   unit_of_measurement: "µS/cm"
+#   icon: mdi:flower
+
+# - platform: mqtt
+#   name: "Moestuin Temperature"
+#   unit_of_measurement: "°C"
+#   state_topic: "home/OMG_Inkom/BTtoMQTT/80EACA890BFA"
+#   value_template: "{{ value_json.tem | is_defined }}"
+#   device_class: "temperature"
+# - platform: mqtt
+#   name: "Moestuin Moisture"
+#   unit_of_measurement: "%"
+#   state_topic: "home/OMG_Inkom/BTtoMQTT/80EACA890BFA"
+#   value_template: "{{ value_json.moi | is_defined }}"
+#   device_class: "humidity"
+# - platform: mqtt
+#   name: "Moestuin Illuminance"
+#   unit_of_measurement: "lx"
+#   state_topic: "home/OMG_Inkom/BTtoMQTT/80EACA890BFA"
+#   value_template: "{{ value_json.lux | is_defined }}"
+#   device_class: "illuminance"
+# - platform: mqtt
+#   name: "Moestuin Soil Conductivity"
+#   state_topic: "home/OMG_Inkom/BTtoMQTT/80EACA890BFA"
+#   value_template: "{{ value_json.fer | is_defined }}"
+#   unit_of_measurement: "µS/cm"
+#   icon: mdi:flower
+
+# - platform: mqtt
+#   name: "Rozemarijn Temperature"
+#   unit_of_measurement: "°C"
+#   state_topic: "home/OMG_Inkom/BTtoMQTT/80EACA890AB3"
+#   value_template: "{{ value_json.tem | is_defined }}"
+#   device_class: "temperature"
+# - platform: mqtt
+#   name: "Rozemarijn Moisture"
+#   unit_of_measurement: "%"
+#   state_topic: "home/OMG_Inkom/BTtoMQTT/80EACA890AB3"
+#   value_template: "{{ value_json.moi | is_defined }}"
+#   device_class: "humidity"
+# - platform: mqtt
+#   name: "Rozemarijn Illuminance"
+#   unit_of_measurement: "lx"
+#   state_topic: "home/OMG_Inkom/BTtoMQTT/80EACA890AB3"
+#   value_template: "{{ value_json.lux | is_defined }}"
+#   device_class: "illuminance"
+# - platform: mqtt
+#   name: "Rozemarijn Soil Conductivity"
+#   state_topic: "home/OMG_Inkom/BTtoMQTT/80EACA890AB3"
+#   value_template: "{{ value_json.fer | is_defined }}"
+#   unit_of_measurement: "µS/cm"
+#   icon: mdi:flower
+
+# - platform: mqtt
+#   name: "Bloempot Voordeur Temperature"
+#   unit_of_measurement: "°C"
+#   state_topic: "home/OMG_Inkom/BTtoMQTT/80EACA890CBD"
+#   value_template: "{{ value_json.tem | is_defined }}"
+#   device_class: "temperature"
+# - platform: mqtt
+#   name: "Bloempot Voordeur Moisture"
+#   unit_of_measurement: "%"
+#   state_topic: "home/OMG_Inkom/BTtoMQTT/80EACA890CBD"
+#   value_template: "{{ value_json.moi | is_defined }}"
+#   device_class: "humidity"
+# - platform: mqtt
+#   name: "Bloempot Voordeur Illuminance"
+#   unit_of_measurement: "lx"
+#   state_topic: "home/OMG_Inkom/BTtoMQTT/80EACA890CBD"
+#   value_template: "{{ value_json.lux | is_defined }}"
+#   device_class: "illuminance"
+# - platform: mqtt
+#   name: "Bloempot Voordeur Soil Conductivity"
+#   state_topic: "home/OMG_Inkom/BTtoMQTT/80EACA890CBD"
+#   value_template: "{{ value_json.fer | is_defined }}"
+#   unit_of_measurement: "µS/cm"
   
 - platform: mqtt
-  name: "Greenhouse Zone 1 Temperature"
-  unit_of_measurement: "°C"
-  state_topic: "home/OMG_Garage/BTtoMQTT/80EACA890274"
-  value_template: "{{ value_json.tem | is_defined }}"
-  device_class: "temperature"
-- platform: mqtt
-  unit_of_measurement: "%"
-  name: "Greenhouse Zone 1 Moisture"
-  state_topic: "home/OMG_Garage/BTtoMQTT/80EACA890274"
-  value_template: "{{ value_json.moi | is_defined }}"
-- platform: mqtt
-  name: "Greenhouse Zone 1 Illuminance"
-  unit_of_measurement: "lx"
-  state_topic: "home/OMG_Garage/BTtoMQTT/80EACA890274"
-  value_template: "{{ value_json.lux | is_defined }}"
-  device_class: "illuminance"
-- platform: mqtt
-  name: "Greenhouse Zone 1 Soil Conductivity"
-  state_topic: "home/OMG_Garage/BTtoMQTT/80EACA890274"
-  value_template: "{{ value_json.fer | is_defined }}"
-  unit_of_measurement: "µS/cm"
+  name: "Water Pump Flow Rate"
+  unit_of_measurement: "L/h"
+  state_topic: "smarthouse/water/flow-meter/1"
+  value_template: "{{ value_json.mL_per_min * 0.06 }}"
+  icon: mdi:water-pump
   
-- platform: mqtt
-  name: "Greenhouse Zone 2 Temperature"
-  unit_of_measurement: "°C"
-  state_topic: "home/OMG_Garage/BTtoMQTT/80EACA890E95"
-  value_template: "{{ value_json.tem| is_defined }}"
-  device_class: "temperature"
-- platform: mqtt
-  name: "Greenhouse Zone 2 Moisture"
-  unit_of_measurement: "%"
-  state_topic: "home/OMG_Garage/BTtoMQTT/80EACA890E95"
-  value_template: "{{ value_json.moi | is_defined }}"
-- platform: mqtt
-  name: "Greenhouse Zone 2 Illuminance"
-  unit_of_measurement: "lx"
-  state_topic: "home/OMG_Garage/BTtoMQTT/80EACA890E95"
-  value_template: "{{ value_json.lux | is_defined }}"
-  device_class: "illuminance"
-- platform: mqtt
-  name: "greenhouse Zone 2 Soil Conductivity"
-  state_topic: "home/OMG_Garage/BTtoMQTT/80EACA890E95"
-  value_template: "{{ value_json.fer | is_defined }}"
-  unit_of_measurement: "µS/cm"
-  
-- platform: mqtt
-  name: "Greenhouse Zone 3 temperature"
-  unit_of_measurement: "°C"
-  state_topic: "home/OMG_Garage/BTtoMQTT/80EACA890EA2"
-  value_template: "{{ value_json.tem | is_defined }}"
-  device_class: "temperature"
-- platform: mqtt
-  name: "Greenhouse Zone 3 Moisture"
-  unit_of_measurement: "%"
-  state_topic: "home/OMG_Garage/BTtoMQTT/80EACA890EA2"
-  value_template: "{{ value_json.moi | is_defined }}"
-- platform: mqtt
-  name: "Greenhouse Zone 3 Illuminance"
-  unit_of_measurement: "lx"
-  state_topic: "home/OMG_Garage/BTtoMQTT/80EACA890EA2"
-  value_template: "{{ value_json.lux | is_defined }}"
-  device_class: "illuminance"
-- platform: mqtt
-  name: "Greenhouse Zone 3 Soil Conductivity"
-  state_topic: "home/OMG_Garage/BTtoMQTT/80EACA890EA2"
-  value_template: "{{ value_json.fer | is_defined }}"
-  unit_of_measurement: "µS/cm"
+- platform: integration
+  source: sensor.water_pump_flow_rate
+  name: "Water Pump Usage"
+  unit_time: "h"
+  method: "left"
 
-- platform: mqtt
-  name: "Greenhouse Zone 4 temperature"
-  unit_of_measurement: "°C"
-  state_topic: "home/OMG_Garage/BTtoMQTT/80EACA8909DC"
-  value_template: "{{ value_json.tem | is_defined }}"
-  device_class: "temperature"
-- platform: mqtt
-  name: "Greenhouse Zone 4 Moisture"
-  unit_of_measurement: "%"
-  state_topic: "home/OMG_Garage/BTtoMQTT/80EACA8909DC"
-  value_template: "{{ value_json.moi | is_defined }}"
-- platform: mqtt
-  name: "Greenhouse Zone 4 Illuminance"
-  unit_of_measurement: "lx"
-  state_topic: "home/OMG_Garage/BTtoMQTT/80EACA8909DC"
-  value_template: "{{ value_json.lux | is_defined }}"
-  device_class: "illuminance"
-- platform: mqtt
-  name: "Greenhouse Zone 4 Soil Conductivity"
-  state_topic: "home/OMG_Garage/BTtoMQTT/80EACA8909DC"
-  value_template: "{{ value_json.fer | is_defined }}"
-  unit_of_measurement: "µS/cm"
-
-- platform: mqtt
-  name: "Olijfboom Temperature"
-  unit_of_measurement: "°C"
-  state_topic: "home/OMG_Garage/BTtoMQTT/80EACA890C56"
-  value_template: "{{ value_json.tem | is_defined }}"
-  device_class: "temperature"
-- platform: mqtt
-  name: "Olijfboom Moisture"
-  unit_of_measurement: "%"
-  state_topic: "home/OMG_Garage/BTtoMQTT/80EACA890C56"
-  value_template: "{{ value_json.moi | is_defined }}"
-- platform: mqtt
-  name: "Olijfboom Illuminance"
-  unit_of_measurement: "lx"
-  state_topic: "home/OMG_Garage/BTtoMQTT/80EACA890C56"
-  value_template: "{{ value_json.lux | is_defined }}"
-  device_class: "illuminance"
-- platform: mqtt
-  name: "Olijfboom Soil Conductivity"
-  state_topic: "home/OMG_Garage/BTtoMQTT/80EACA890C56"
-  value_template: "{{ value_json.fer | is_defined }}"
-  unit_of_measurement: "µS/cm"
-
-- platform: mqtt
-  name: "Moestuin Temperature"
-  unit_of_measurement: "°C"
-  state_topic: "home/OMG_Inkom/BTtoMQTT/80EACA890BFA"
-  value_template: "{{ value_json.tem | is_defined }}"
-  device_class: "temperature"
-- platform: mqtt
-  name: "Moestuin Moisture"
-  unit_of_measurement: "%"
-  state_topic: "home/OMG_Inkom/BTtoMQTT/80EACA890BFA"
-  value_template: "{{ value_json.moi | is_defined }}"
-- platform: mqtt
-  name: "Moestuin Illuminance"
-  unit_of_measurement: "lx"
-  state_topic: "home/OMG_Inkom/BTtoMQTT/80EACA890BFA"
-  value_template: "{{ value_json.lux | is_defined }}"
-  device_class: "illuminance"
-- platform: mqtt
-  name: "Moestuin Soil Conductivity"
-  state_topic: "home/OMG_Inkom/BTtoMQTT/80EACA890BFA"
-  value_template: "{{ value_json.fer | is_defined }}"
-  unit_of_measurement: "µS/cm"
-
-- platform: mqtt
-  name: "Rozemarijn Temperature"
-  unit_of_measurement: "°C"
-  state_topic: "home/OMG_Inkom/BTtoMQTT/80EACA890AB3"
-  value_template: "{{ value_json.tem | is_defined }}"
-  device_class: "temperature"
-- platform: mqtt
-  name: "Rozemarijn Moisture"
-  unit_of_measurement: "%"
-  state_topic: "home/OMG_Inkom/BTtoMQTT/80EACA890AB3"
-  value_template: "{{ value_json.moi | is_defined }}"
-- platform: mqtt
-  name: "Rozemarijn Illuminance"
-  unit_of_measurement: "lx"
-  state_topic: "home/OMG_Inkom/BTtoMQTT/80EACA890AB3"
-  value_template: "{{ value_json.lux | is_defined }}"
-  device_class: "illuminance"
-- platform: mqtt
-  name: "Rozemarijn Soil Conductivity"
-  state_topic: "home/OMG_Inkom/BTtoMQTT/80EACA890AB3"
-  value_template: "{{ value_json.fer | is_defined }}"
-  unit_of_measurement: "µS/cm"
-
-- platform: mqtt
-  name: "Bloempot Voordeur Temperature"
-  unit_of_measurement: "°C"
-  state_topic: "home/OMG_Inkom/BTtoMQTT/80EACA890CBD"
-  value_template: "{{ value_json.tem | is_defined }}"
-  device_class: "temperature"
-- platform: mqtt
-  name: "Bloempot Voordeur Moisture"
-  unit_of_measurement: "%"
-  state_topic: "home/OMG_Inkom/BTtoMQTT/80EACA890CBD"
-  value_template: "{{ value_json.moi | is_defined }}"
-- platform: mqtt
-  name: "Bloempot Voordeur Illuminance"
-  unit_of_measurement: "lx"
-  state_topic: "home/OMG_Inkom/BTtoMQTT/80EACA890CBD"
-  value_template: "{{ value_json.lux | is_defined }}"
-  device_class: "illuminance"
-- platform: mqtt
-  name: "Bloempot Voordeur Soil Conductivity"
-  state_topic: "home/OMG_Inkom/BTtoMQTT/80EACA890CBD"
-  value_template: "{{ value_json.fer | is_defined }}"
-  unit_of_measurement: "µS/cm"
+- platform: template
+  sensors:
+    waterpump_cost:
+      friendly_name: 'Waterpump Cost Yearly'
+      entity_id:
+        - sensor.waterpump_current_usage_yearly
+      #value_template: "{{ (states('sensor.energy_t31_light_and_power_total')|float * states('input_number.t31_energy_cost')|float + states('input_number.t31_daily_cost')|float)|round(2) }}"
+      value_template: "{{ (states('sensor.waterpump_current_usage_yearly') | float * states('input_number.energy_cost') | float / 100) | round (2) }}"
+      unit_of_measurement: "€"

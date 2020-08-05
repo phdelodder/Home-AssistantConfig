@@ -1,0 +1,69 @@
+---
+substitutions:
+  device: inkom_ble_beacon
+  name: Inkom BLE Beacon
+  update_interval: 10min
+esphome:
+  name: ${device}
+  platform: ESP32
+  board: esp-wrover-kit
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  domain: !secret lan_domain
+  
+  ap:
+    ssid: "Inkom Ble Beacon"
+    password: "J7VriMtEqIPz"
+
+logger:
+
+<<: !include common/api.yaml
+<<: !include common/ota.yaml
+<<: !include common/web_server.yaml
+<<: !include common/text_sensors.yaml
+<<: !include common/binary_sensor.yaml
+<<: !include common/switch.yaml
+
+esp32_ble_tracker:
+
+sensor:
+  - !include common/sensor/wifi-signal.yaml
+  - !include common/sensor/uptime.yaml
+  - platform: xiaomi_hhccjcy01
+    mac_address: 80:EA:CA:89:0B:FA
+    temperature:
+      name: "Moestuin Temperature"
+    moisture:
+      name: "Moestuin Moisture"
+    illuminance:
+      name: "Moestuin Illuminance"
+    conductivity:
+      name: "Moestuin Soil Conductivity"
+    #battery_level:
+    #  name: "Moestuin Battery Level"
+  - platform: xiaomi_hhccjcy01
+    mac_address: 80:EA:CA:89:0A:B3
+    temperature:
+      name: "Rozemarijn Temperature"
+    moisture:
+      name: "Rozemarijn Moisture"
+    illuminance:
+      name: "Rozemarijn Illuminance"
+    conductivity:
+      name: "Rozemarijn Soil Conductivity"
+    #battery_level:
+    #  name: "Rozemarijn Battery Level"
+  - platform: xiaomi_hhccjcy01
+    mac_address: 80:EA:CA:89:0C:BD
+    temperature:
+      name: "Bloempot Voordeur Temperature"
+    moisture:
+      name: "Bloempot Voordeur Moisture"
+    illuminance:
+      name: "Bloempot Voordeur Illuminance"
+    conductivity:
+      name: "Bloempot Voordeur Soil Conductivity"
+    #battery_level:
+    #  name: "Bloempot Voordeur Battery Level"

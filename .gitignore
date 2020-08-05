@@ -15,6 +15,7 @@ nest.conf
 known_devices.yaml
 scripts/publish-ink-level-mqtt.cfg
 alarm_oprit_snapshot.jpg
+.google.token
 
 # Directory ignores
 www/snapshots/
