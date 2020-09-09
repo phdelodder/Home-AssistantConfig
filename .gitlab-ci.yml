@@ -84,6 +84,7 @@ markdownlint:
   image: pipelinecomponents/markdownlint:latest
   script:
     - mdl --style all --warnings .
+  allow_failure: true
 
 # Home Assistant test jobs
 ha-latest:
