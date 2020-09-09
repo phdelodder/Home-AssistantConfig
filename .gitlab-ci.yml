@@ -4,7 +4,6 @@ image: docker:latest
 stages:
   - preflight
   - check
-  - deploy
 
 # Generic preflight template
 .preflight: &preflight
@@ -28,24 +27,6 @@ stages:
         --info all
   tags:
     - config
-
-# Generic SSH Deploy template
-.ssh-deploy: &ssh-deploy
-  image: ubuntu
-  stage: deploy
-  variables:
-    PYTHONPATH: "/usr/src/app:$PYTHONPATH"
-  before_script:
-    - apt-get update -qq
-    - apt-get install -qq git
-    # Setup SSH deploy keys
-    - 'which ssh-agent || ( apt-get install -qq openssh-client )'
-    - eval $(ssh-agent -s)
-    - ssh-add <(echo "$SSH_PRIVATE_KEY")
-    - mkdir -p ~/.ssh
-    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
-  tags: 
-    - deploy
 
 # Preflight jobs
 shellcheck:
@@ -129,14 +110,3 @@ ha-dev:
     name: homeassistant/home-assistant:dev
     entrypoint: [""]
   allow_failure: true
-
-# Home Assistant Config Deploy
-ha-deploy:
-  <<: *ssh-deploy
-  script:
-    - echo "$SUDO_PASSWORD" | ssh -tt ansible@192.168.0.15 "cd /usr/share/hassio/homeassistant && sudo git checkout master && sudo git pull origin master && sudo docker restart homeassistant && exit"
-  only:
-    refs:
-      - master
-    changes:
-      - "*.yaml"
