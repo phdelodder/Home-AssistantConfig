@@ -81,12 +81,7 @@ jsonlint:
 
 markdownlint:
   <<: *preflight
-  image:
-    name: ruby:alpine
-    entrypoint: [""]
-  before_script:
-    - gem install mdl
-    - mdl --version
+  image: pipelinecomponents/markdownlint:latest
   script:
     - mdl --style all --warnings .
 
