@@ -13,11 +13,19 @@
     - light.nachttafel_margot
     - light.febe_slaapkamer
     - light.nachttafel_febe
+    - light.febe_led_bed
     - light.dressing_spots
     - light.dressing_led_strip
     - light.gang_eerste_verdiep
+    - light.shelly_dimmer_d0f117_light_0
     - light.wc_boven
     - light.led_slaapkamer
+
+- platform: group
+  name: Febe LEDs
+  entities:
+    - light.nachttafel_febe
+    - light.febe_led_bed
 
 - platform: group
   name: buiten group

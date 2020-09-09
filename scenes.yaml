@@ -166,151 +166,132 @@
 - id: '1587621898182'
   name: Default Nachttafel Febe
   entities:
-    light.nachttafel_febe:
-      brightness: 255
+    light.febe_leds:
+      brightness: 191
       effect: Solid
       effect_list:
-      - Android
-      - Blink
-      - Blink Rainbow
-      - Bouncing Balls
-      - Bpm
-      - Breathe
-      - Candle
-      - Chase
-      - Chase Flash
-      - Chase Flash Rnd
-      - Chase Rainbow
-      - Chase Random
-      - Circus
-      - Colorful
-      - Colorloop
-      - Colortwinkles
-      - Colorwaves
-      - Dissolve
-      - Dissolve Rnd
-      - Drip
-      - Dynamic
-      - Fade
-      - Fill Noise
-      - Fire 2012
-      - Fire Flicker
-      - Fireworks
-      - Fireworks 1D
-      - Fireworks Starburst
-      - Glitter
-      - Gradient
-      - Halloween
-      - Halloween Eyes
-      - Heartbeat
-      - ICU
-      - Juggle
-      - Lake
-      - Lighthouse
-      - Lightning
-      - Loading
-      - Merry Christmas
-      - Meteor
-      - Meteor Smooth
-      - Multi Comet
-      - Noise 1
-      - Noise 2
-      - Noise 3
-      - Noise 4
       - Oscillate
-      - Palette
+      - Rainbow Runner
+      - Fade
+      - Halloween Eyes
+      - Lightning
+      - Ripple
+      - Breathe
+      - Chase Flash Rnd
+      - Meteor Smooth
       - Percent
+      - Solid Pattern
+      - Pacifica
+      - Dissolve Rnd
+      - Fireworks
+      - Theater Rainbow
+      - Colorful
+      - Fill Noise
+      - Two Areas
+      - Heartbeat
+      - Android
+      - Ripple Rainbow
+      - Stream 2
+      - Juggle
+      - Dynamic
       - Plasma
-      - Police
+      - Drip
+      - Halloween
+      - Gradient
+      - Sweep Random
+      - Fireworks Starburst
+      - Noise 1
       - Police All
       - Popcorn
-      - Pride 2015
-      - Railway
-      - Rain
-      - Rainbow
-      - Rainbow Runner
-      - Random Colors
-      - Red & Blue
-      - Ripple
-      - Ripple Rainbow
-      - Running
-      - Running 2
-      - Saw
-      - Scan
-      - Scan Dual
-      - Scanner
-      - Scanner Dual
-      - Sinelon
-      - Sinelon Dual
-      - Sinelon Rainbow
       - Solid
-      - Solid Pattern
-      - Solid Pattern Tri
-      - Sparkle
-      - Sparkle Dark
-      - Sparkle+
-      - Spots
-      - Spots Fade
-      - Stream
-      - Stream 2
-      - Strobe
-      - Strobe Mega
-      - Strobe Rainbow
-      - Sweep
-      - Sweep Random
-      - Theater
-      - Theater Rainbow
-      - Traffic Light
-      - Tri Chase
-      - Tri Fade
       - Tri Wipe
-      - Twinkle
+      - Colorwaves
+      - Railway
+      - Fire Flicker
+      - Sinelon Dual
+      - Rain
+      - Tri Chase
+      - Strobe
+      - Pride 2015
       - Twinklecat
-      - Twinklefox
-      - Two Areas
-      - Two Dots
-      - Wipe
+      - Sparkle
+      - Sweep
+      - Noise 2
+      - Scan Dual
+      - Scan
       - Wipe Random
-      friendly_name: Nachttafel Febe
+      - Running 2
+      - Meteor
+      - Circus
+      - Scanner
+      - Multi Comet
+      - Theater
+      - Palette
+      - Red & Blue
+      - Fire 2012
+      - Spots
+      - Rainbow
+      - Random Colors
+      - Candle
+      - Solid Pattern Tri
+      - Strobe Rainbow
+      - Sparkle+
+      - Wipe
+      - Police
+      - Noise 4
+      - Strobe Mega
+      - Chase Random
+      - Fireworks 1D
+      - Bouncing Balls
+      - Two Dots
+      - Chase
+      - ICU
+      - Running
+      - Twinklefox
+      - Blink
+      - Colorloop
+      - Chase Rainbow
+      - Noise 3
+      - Blink Rainbow
+      - Candle Multi
+      - Stream
+      - Sinelon
+      - Chase Flash
+      - Spots Fade
+      - Merry Christmas
+      - Saw
+      - Sinelon Rainbow
+      - Sparkle Dark
+      - Traffic Light
+      - Tri Fade
+      - Dissolve
+      - Bpm
+      - Lake
+      - Glitter
+      - Twinkle
+      - Colortwinkles
+      - Loading
+      - Scanner Dual
+      - Lighthouse
+      entity_id:
+      - light.nachttafel_febe
+      - light.febe_led_bed
+      friendly_name: Febe LEDs
       hs_color:
-      - 300
-      - 100
-      icon: mdi:led-strip-variant
-      intensity: 128
+      - 307.621
+      - 98.627
       max_mireds: 500
       min_mireds: 153
-      palette: Default
-      playlist:
-      preset:
-      reverse: false
       rgb_color:
       - 255
-      - 0
-      - 255
-      speed: 128
+      - 3
+      - 223
       state: 'on'
       supported_features: 183
       white_value: 0
       xy_color:
-      - 0.385
-      - 0.155
-    switch.nachttafel_febe_nightlight:
-      duration: 60
-      fade: true
-      friendly_name: Nachttafel Febe Nightlight
-      icon: mdi:weather-night
-      state: 'off'
-      target_brightness: 0
-    switch.nachttafel_febe_sync_receive:
-      friendly_name: Nachttafel Febe Sync Receive
-      icon: mdi:download-network-outline
-      state: 'off'
-      udp_port: 21324
-    switch.nachttafel_febe_sync_send:
-      friendly_name: Nachttafel Febe Sync Send
-      icon: mdi:upload-network-outline
-      state: 'off'
-      udp_port: 21324
+      - 0.428
+      - 0.175
 - id: '1587625958183'
   name: Default Nachttafel Margot
   entities:

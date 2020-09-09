@@ -710,7 +710,128 @@
     waterpump_cost:
       friendly_name: 'Waterpump Cost Yearly'
       entity_id:
-        - sensor.waterpump_current_usage_yearly
+        - input_number.energy_cost
+        - sensor.waterpump_current_usage_yearly_normaal
       #value_template: "{{ (states('sensor.energy_t31_light_and_power_total')|float * states('input_number.t31_energy_cost')|float + states('input_number.t31_daily_cost')|float)|round(2) }}"
-      value_template: "{{ (states('sensor.waterpump_current_usage_yearly') | float * states('input_number.energy_cost') | float / 100) | round (2) }}"
+      value_template: "{{ (states('sensor.waterpump_current_usage_yearly_normaal') | float * states('input_number.energy_cost') | float / 100) | round (2) }}"
       unit_of_measurement: "€"
+    energy_cost_yearly:
+      friendly_name: 'Energy Cost Yearly'
+      entity_id:
+        - input_number.energy_cost
+        - sensor.total_current_yearly
+      #value_template: "{{ (states('sensor.energy_t31_light_and_power_total')|float * states('input_number.t31_energy_cost')|float + states('input_number.t31_daily_cost')|float)|round(2) }}"
+      value_template: "{{ (states('sensor.total_current_yearly') | float * states('input_number.energy_cost') | float / 100) | round (2) }}"
+      unit_of_measurement: "€"
+
+- platform: template
+  sensors:
+    total_current_daily:
+      friendly_name: "Total Current Daily"
+      entity_id: 
+        - sensor.waterpump_current_usage_daily_normaal
+        - sensor.shelly_shdm_1_d0f117_current_usage_daily_normaal
+        - sensor.shelly_shsw_25_00c928_1_current_usage_daily_normaal
+        - sensor.shelly_shsw_25_00c928_2_current_usage_daily_normaal
+        - sensor.koelkast_vriezer_berging_current_usage_daily_normaal
+        - sensor.koelkast_keuken_current_usage_daily_normaal
+        - sensor.vriezer_garage_current_usage_daily_normaal
+      value_template: "{{ (states('sensor.waterpump_current_usage_daily_normaal') | float + states('sensor.shelly_shdm_1_d0f117_current_usage_daily_normaal') | float + states('sensor.shelly_shsw_25_00c928_1_current_usage_daily_normaal') | float + states('sensor.shelly_shsw_25_00c928_2_current_usage_daily_normaal') | float + states('sensor.koelkast_vriezer_berging_current_usage_daily_normaal') | float + states('sensor.koelkast_keuken_current_usage_daily_normaal') | float + states('sensor.vriezer_garage_current_usage_daily_normaal') | float) | round(2) }}"
+      unit_of_measurement: "kwh"
+    total_current_yearly:
+      friendly_name: "Total Current yearly"
+      entity_id: 
+        - sensor.waterpump_current_usage_yearly_normaal
+        - sensor.shelly_shdm_1_d0f117_current_usage_yearly_normaal
+        - sensor.shelly_shsw_25_00c928_1_current_usage_yearly_normaal
+        - sensor.shelly_shsw_25_00c928_2_current_usage_yearly_normaal
+        - sensor.koelkast_vriezer_berging_current_usage_yearly_normaal
+        - sensor.koelkast_keuken_current_usage_yearly_normaal
+        - sensor.vriezer_garage_current_usage_yearly_normaal
+      value_template: "{{ (states('sensor.waterpump_current_usage_yearly_normaal') | float + states('sensor.shelly_shdm_1_d0f117_current_usage_yearly_normaal') | float + states('sensor.shelly_shsw_25_00c928_1_current_usage_yearly_normaal') | float + states('sensor.shelly_shsw_25_00c928_2_current_usage_yearly_normaal') | float + states('sensor.koelkast_vriezer_berging_current_usage_yearly_normaal') | float + states('sensor.koelkast_keuken_current_usage_yearly_normaal') | float  + states('sensor.garage_vriezer_current_usage_yearly_normaal') | float) | round(2) }}"
+      unit_of_measurement: "kwh"  
+
+- platform: template
+  sensors:
+    refrigeration_current_daily:
+      entity_id: 
+        - sensor.koelkast_vriezer_berging_current_usage_daily_normaal
+        - sensor.koelkast_keuken_current_usage_daily_normaal
+        - sensor.vriezer_garage_current_usage_daily_normaal
+      value_template: "{{ (states('sensor.koelkast_vriezer_berging_current_usage_daily_normaal') | float + states('sensor.koelkast_keuken_current_usage_daily_normaal') | float + states('sensor.vriezer_garage_current_usage_daily_normaal') | float) | round(2) }}"
+      unit_of_measurement: "kwh"
+    refrigeration_current_weekly:
+      entity_id: 
+        - sensor.koelkast_vriezer_berging_current_usage_weekly_normaal
+        - sensor.koelkast_keuken_current_usage_weekly_normaal
+        - sensor.vriezer_garage_current_usage_weekly_normaal
+      value_template: "{{ (states('sensor.koelkast_vriezer_berging_current_usage_weekly_normaal') | float + states('sensor.koelkast_keuken_current_usage_weekly_normaal') | float + states('sensor.vriezer_garage_current_usage_weekly_normaal') | float) | round(2) }}"
+      unit_of_measurement: "kwh"
+    refrigeration_current_monthly:
+      entity_id: 
+        - sensor.koelkast_vriezer_berging_current_usage_monthly_normaal
+        - sensor.koelkast_keuken_current_usage_monthly_normaal
+        - sensor.vriezer_garage_current_usage_monthly_normaal
+      value_template: "{{ (states('sensor.koelkast_vriezer_berging_current_usage_monthly_normaal') | float + states('sensor.koelkast_keuken_current_usage_monthly_normaal') | float + states('sensor.vriezer_garage_current_usage_monthly_normaal') | float) | round(2) }}"
+      unit_of_measurement: "kwh"
+    refrigeration_current_yearly:
+      entity_id: 
+        - sensor.koelkast_vriezer_berging_current_usage_yearly_normaal
+        - sensor.koelkast_keuken_current_usage_yearly_normaal
+        - sensor.vriezer_garage_current_usage_yearly_normaal
+      value_template: "{{ (states('sensor.koelkast_vriezer_berging_current_usage_yearly_normaal') | float + states('sensor.koelkast_keuken_current_usage_yearly_normaal') | float + states('sensor.vriezer_garage_current_usage_yearly_normaal') | float) | round(2) }}"
+      unit_of_measurement: "kwh"
+
+- platform: template
+  sensors:
+    lights_current_daily:
+      entity_id: 
+        - sensor.shelly_shdm_1_d0f117_current_usage_daily_normaal
+        - sensor.shelly_shsw_25_00c928_1_current_usage_daily_normaal
+        - sensor.shelly_shsw_25_00c928_2_current_usage_daily_normaal
+      value_template: "{{ (states('sensor.shelly_shdm_1_d0f117_current_usage_daily_normaal') | float + states('sensor.shelly_shsw_25_00c928_1_current_usage_daily_normaal') | float + states('sensor.shelly_shsw_25_00c928_2_current_usage_daily_normaal') | float) | round(2) }}"
+      unit_of_measurement: "kwh"
+    lights_current_weekly:
+      entity_id: 
+        - sensor.shelly_shdm_1_d0f117_current_usage_weekly_normaal
+        - sensor.shelly_shsw_25_00c928_1_current_usage_weekly_normaal
+        - sensor.shelly_shsw_25_00c928_2_current_usage_weekly_normaal
+      value_template: "{{ (states('sensor.shelly_shdm_1_d0f117_current_usage_weekly_normaal') | float + states('sensor.shelly_shsw_25_00c928_1_current_usage_weekly_normaal') | float + states('sensor.shelly_shsw_25_00c928_2_current_usage_weekly_normaal') | float) | round(2) }}"
+      unit_of_measurement: "kwh"
+    lights_current_monthly:
+      entity_id: 
+        - sensor.shelly_shdm_1_d0f117_current_usage_monthly_normaal
+        - sensor.shelly_shsw_25_00c928_1_current_usage_monthly_normaal
+        - sensor.shelly_shsw_25_00c928_2_current_usage_monthly_normaal
+      value_template: "{{ (states('sensor.shelly_shdm_1_d0f117_current_usage_monthly_normaal') | float + states('sensor.shelly_shsw_25_00c928_1_current_usage_monthly_normaal') | float + states('sensor.shelly_shsw_25_00c928_2_current_usage_monthly_normaal') | float) | round(2) }}"
+      unit_of_measurement: "kwh"
+    lights_current_yearly:
+      entity_id: 
+        - sensor.shelly_shdm_1_d0f117_current_usage_yearly_normaal
+        - sensor.shelly_shsw_25_00c928_1_current_usage_yearly_normaal
+        - sensor.shelly_shsw_25_00c928_2_current_usage_yearly_normaal
+      value_template: "{{ (states('sensor.shelly_shdm_1_d0f117_current_usage_yearly_normaal') | float + states('sensor.shelly_shsw_25_00c928_1_current_usage_yearly_normaal') | float + states('sensor.shelly_shsw_25_00c928_2_current_usage_yearly_normaal') | float) | round(2) }}"
+      unit_of_measurement: "kwh"
+
+- platform: template
+  sensors:
+    current_consumption:
+      entity_id: 
+        - sensor.waterpomp
+        - sensor.shelly_shdm_1_d0f117_current_consumption
+        - sensor.shelly_shsw_25_00c928_1_current_consumption
+        - sensor.shelly_shsw_25_00c928_2_current_consumption
+        - sensor.koelkast_vriezer_berging
+        - sensor.koelkast_keuken
+        - sensor.vriezer_garage
+      value_template: >
+        {{
+          (states('sensor.waterpomp') | float +
+          states('sensor.shelly_shdm_1_d0f117_current_consumption') | float +
+          states('sensor.shelly_shsw_25_00c928_1_current_consumption') | float +
+          states('sensor.shelly_shsw_25_00c928_2_current_consumption') | float +
+          states('sensor.koelkast_vriezer_berging') | float +
+          states('sensor.koelkast_keuken') | float +
+          states('sensor.vriezer_garage') | float)
+        }}
+      unit_of_measurement: "w"

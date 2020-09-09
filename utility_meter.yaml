@@ -17,12 +17,146 @@ waterpump_water_usage_yearly:
 waterpump_current_usage_daily:
   source: sensor.waterpump_consumption
   cycle: daily
+  tariffs:
+    - normaal
 waterpump_current_usage_weekly:
   source: sensor.waterpump_consumption
   cycle: weekly
+  tariffs:
+    - normaal
 waterpump_current_usage_monthly:
   source: sensor.waterpump_consumption
   cycle: monthly
+  tariffs:
+    - normaal
 waterpump_current_usage_yearly:
   source: sensor.waterpump_consumption
   cycle: yearly
+  tariffs:
+    - normaal
+
+shelly_shdm_1_d0f117_current_usage_daily:
+  source: sensor.shelly_shdm_1_d0f117_total_consumption
+  cycle: daily
+  tariffs:
+    - normaal
+shelly_shdm_1_d0f117_current_usage_weekly:
+  source: sensor.shelly_shdm_1_d0f117_total_consumption
+  cycle: weekly
+  tariffs:
+    - normaal
+shelly_shdm_1_d0f117_current_usage_monthly:
+  source: sensor.shelly_shdm_1_d0f117_total_consumption
+  cycle: monthly
+  tariffs:
+    - normaal
+shelly_shdm_1_d0f117_current_usage_yearly:
+  source: sensor.shelly_shdm_1_d0f117_total_consumption
+  cycle: yearly
+  tariffs:
+    - normaal
+
+shelly_shsw_25_00c928_1_current_usage_daily:
+  source: sensor.shelly_shsw_25_00c928_1_total_consumption
+  cycle: daily
+  tariffs:
+    - normaal
+shelly_shsw_25_00c928_1_current_usage_weekly:
+  source: sensor.shelly_shsw_25_00c928_1_total_consumption
+  cycle: weekly
+  tariffs:
+    - normaal
+shelly_shsw_25_00c928_1_current_usage_monthly:
+  source: sensor.shelly_shsw_25_00c928_1_total_consumption
+  cycle: monthly
+  tariffs:
+    - normaal
+shelly_shsw_25_00c928_1_current_usage_yearly:
+  source: sensor.shelly_shsw_25_00c928_1_total_consumption
+  cycle: yearly
+  tariffs:
+    - normaal
+
+shelly_shsw_25_00c928_2_current_usage_daily:
+  source: sensor.shelly_shsw_25_00c928_2_total_consumption
+  cycle: daily
+  tariffs:
+    - normaal
+shelly_shsw_25_00c928_2_current_usage_weekly:
+  source: sensor.shelly_shsw_25_00c928_2_total_consumption
+  cycle: weekly
+  tariffs:
+    - normaal
+shelly_shsw_25_00c928_2_current_usage_monthly:
+  source: sensor.shelly_shsw_25_00c928_2_total_consumption
+  cycle: monthly
+  tariffs:
+    - normaal
+shelly_shsw_25_00c928_2_current_usage_yearly:
+  source: sensor.shelly_shsw_25_00c928_2_total_consumption
+  cycle: yearly
+  tariffs:
+    - normaal
+
+koelkast_vriezer_berging_current_usage_daily:
+  source: sensor.koelkast_vriezer_berging_consumption
+  cycle: daily
+  tariffs:
+    - normaal
+koelkast_vriezer_berging_current_usage_weekly:
+  source: sensor.koelkast_vriezer_berging_consumption
+  cycle: weekly
+  tariffs:
+    - normaal
+koelkast_vriezer_berging_current_usage_monthly:
+  source: sensor.koelkast_vriezer_berging_consumption
+  cycle: monthly
+  tariffs:
+    - normaal
+koelkast_vriezer_berging_current_usage_yearly:
+  source: sensor.koelkast_vriezer_berging_consumption
+  cycle: yearly
+  tariffs:
+    - normaal
+
+koelkast_keuken_current_usage_daily:
+  source: sensor.koelkast_keuken_consumption
+  cycle: daily
+  tariffs:
+    - normaal
+koelkast_keuken_current_usage_weekly:
+  source: sensor.koelkast_keuken_consumption
+  cycle: weekly
+  tariffs:
+    - normaal
+koelkast_keuken_current_usage_monthly:
+  source: sensor.koelkast_keuken_consumption
+  cycle: monthly
+  tariffs:
+    - normaal
+koelkast_keuken_current_usage_yearly:
+  source: sensor.koelkast_keuken_consumption
+  cycle: yearly
+  tariffs:
+    - normaal
+
+vriezer_garage_current_usage_daily:
+  source: sensor.vriezer_garage_consumption
+  cycle: daily
+  tariffs:
+    - normaal
+vriezer_garage_current_usage_weekly:
+  source: sensor.vriezer_garage_consumption
+  cycle: weekly
+  tariffs:
+    - normaal
+vriezer_garage_current_usage_monthly:
+  source: sensor.vriezer_garage_consumption
+  cycle: monthly
+  tariffs:
+    - normaal
+vriezer_garage_current_usage_yearly:
+  source: sensor.vriezer_garage_consumption
+  cycle: yearly
+  tariffs:
+    - normaal

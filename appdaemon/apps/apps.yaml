@@ -112,12 +112,18 @@ dressing_spots_controller_night2:
         entity_id: light.dressing_spots
         brightness_pct: 20 
 
-dressing_spots_controller_button:
+febe_slaapkamer_controller_button:
   module: controllerx
-  class: WXKG12LMLightController
-  controller: unused_switch
+  class: CallServiceController
+  controller: slaapkamer_febe
   integration: deconz
-  light: light.dressing_spots
+  light: light.febe_slaapkamer
+  mapping:
+    1002:
+      service: light.toggle
+      data:
+        entity_id: light.febe_slaapkamer
+        brightness_pct: 20 
 
 febe_slaapkamer_controller_b1:
   module: controllerx
@@ -127,18 +133,26 @@ febe_slaapkamer_controller_b1:
   light: light.febe_slaapkamer
   mapping:
     1001: hold_brightness_toggle
-    1002: toggle
+    1002: 
+      service: light.toggle
+      data:
+        entity_id: light.febe_slaapkamer
+        brightness_pct: 100
     1003: release
 
 febe_slaapkamer_controller_b2:
   module: controllerx
-  class: CustomLightController
+  class: LightController
   controller: slaapkamer_febe_dimmer_switch
   integration: deconz
   light: light.slaapkamer_febe_bureau
   mapping:
     2001: hold_brightness_toggle
-    2002: toggle
+    2002:
+      service: light.toggle
+      data:
+        entity_id: light.slaapkamer_febe_bureau
+        brightness_pct: 100
     2003: release
 
 febe_slaapkamer_controller_b4:
@@ -149,5 +163,9 @@ febe_slaapkamer_controller_b4:
   light: light.slaapkamer_febe_kleerkast
   mapping:
     4001: hold_brightness_toggle
-    4002: toggle
+    4002:
+      service: light.toggle
+      data:
+        entity_id: light.slaapkamer_febe_kleerkast
+        brightness_pct: 100
     4003: release

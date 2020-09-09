@@ -102,8 +102,9 @@
     entity_id: light.nachttafel_febe
     type: is_on
   action:
-  - entity_id: light.nachttafel_febe
+  - entity_id: light.febe_leds
     service: light.turn_off
+  mode: single
 - id: '1578590350074'
   alias: NachtTafel Licht Margot Aan
   description: ''
@@ -204,14 +205,15 @@
   action:
   - data_template:
       effect: '{{ state_attr("light.nachttafel_febe", "effect_list") | random }}'
+      entity_id: light.nachttafel_febe
       rgb_color:
       - '{{ (range(0, 255)|random) }}'
       - '{{ (range(0, 255)|random) }}'
       - '{{ (range(0, 255)|random) }}'
       transition: '{{ (range(1, 3)|random) }}'
-      entity_id: light.nachttafel_febe
-    entity_id: light.nachttafel_febe
+    entity_id: light.febe_leds
     service: light.turn_on
+  mode: single
 - id: '1587626119060'
   alias: NachtTafel Licht Margot Uit
   description: ''
@@ -264,12 +266,13 @@
   action:
   - data:
       variables:
-        entity_id: light.nachttafel_febe
+        entity_id: light.febe_leds
     entity_id: script.wakeup_febe_sunrise
     service: script.turn_on
   - data: {}
     entity_id: input_boolean.febe_alarm_set
     service: input_boolean.turn_off
+  mode: single
 - id: Alarm Clock Margot
   alias: Alarm Clock Margot
   trigger:
@@ -708,3 +711,65 @@
       is_volume_muted: true
     entity_id: media_player.snapcast_client_tablet
     service: media_player.volume_mute
+- id: shellies_announce
+  alias: Shellies Announce
+  trigger:
+  - platform: homeassistant
+    event: start
+  - platform: time_pattern
+    hours: /1
+  action:
+    service: mqtt.publish
+    data:
+      topic: shellies/command
+      payload: announce
+- id: shellies_discovery
+  alias: Shellies Discovery
+  mode: queued
+  max: 999
+  trigger:
+    platform: mqtt
+    topic: shellies/announce
+  action:
+    service: python_script.shellies_discovery
+    data_template:
+      id: '{{ trigger.payload_json.id }}'
+      mac: '{{ trigger.payload_json.mac }}'
+      fw_ver: '{{ trigger.payload_json.fw_ver }}'
+      shelly1-8A7B0C:
+        relay-0-name: Schakelaar Dressing
+      shelly1-2C6E97:
+        relay-0: light
+        relay-0-name: Achterdeur
+      shellydimmer-D0F117:
+        light-0-name: Gang Eerste Verdiep
+- id: '1598594585829'
+  alias: Disable Motion Sensor Bureau
+  description: ''
+  trigger:
+  - device_id: a23a7754f95b4a88ad347941e45bfd6b
+    domain: deconz
+    platform: device
+    subtype: turn_on
+    type: remote_button_short_press
+  condition: []
+  action:
+  - data: {}
+    entity_id: input_boolean.disable_motion_trigger_light_bureau
+    service: input_boolean.turn_on
+  mode: single
+- id: '1598594636282'
+  alias: Enable Motion Sensor Bureau
+  description: ''
+  trigger:
+  - device_id: a23a7754f95b4a88ad347941e45bfd6b
+    domain: deconz
+    platform: device
+    subtype: turn_off
+    type: remote_button_short_press
+  condition: []
+  action:
+  - data: {}
+    entity_id: input_boolean.disable_motion_trigger_light_bureau
+    service: input_boolean.turn_off
+  mode: single

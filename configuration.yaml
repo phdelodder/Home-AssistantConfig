@@ -6,6 +6,9 @@ default_config:
 
 # Uncomment this if you are using SSL/TLS, running in Docker container, etc.
 http:
+  use_x_forwarded_for: true
+  trusted_proxies:
+    - 192.168.0.15
 
 # Text to speech
 tts:
@@ -60,7 +63,7 @@ telegram_bot:
 
 vacuum:
   platform: xiaomi_miio
-  host: 192.168.0.140
+  host: dalek.fritz.box
   token: !secret vacuum_xiaomi_token
 
 nest:
@@ -78,10 +81,6 @@ influxdb:
   database: !secret influxdb-database
   max_retries: 3
   default_measurement: state
-
-hpprinter:
-  devices:
-    - host: 192.168.0.91
 
 zoneminder:
   - host: !secret zoneminder-host
@@ -109,13 +108,9 @@ shelly:
       light_switch: true
     - id: "00C928"
       light_switch: true
-    - id: "8A7B0C"
-      light_switch: true
     - id: "2C6E97"
       light_switch: true
       sensors: [ switch ]
-    - id: "98F4ABD0C169"
-      light_switch: true
     - id: "98F4ABD0C5D0"
       light_switch: true
 
@@ -125,7 +120,6 @@ spotify:
   
 cast:
   media_player:
-    - host: 192.168.0.154
 
 browser_mod:
 
