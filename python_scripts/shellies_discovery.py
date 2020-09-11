@@ -431,7 +431,7 @@ ignored = [
 mac = data.get(CONF_MAC).lower()  # noqa: F821
 
 if not dev_id:
-    raise ValueError(f"{dev_id} is wrong dev_id argument")
+    raise ValueError(f"{dev_id} is wrong id argument")
 if not mac:
     raise ValueError(f"{mac} is wrong mac argument")
 if not fw_ver:
@@ -466,7 +466,7 @@ if (
     )
 
 logger.debug(
-    "dev_id: %s, mac: %s, fw_ver: %s, model_id: %s", dev_id, mac, fw_ver, model_id
+    "id: %s, mac: %s, fw_ver: %s, model: %s", dev_id, mac, fw_ver, model_id
 )  # noqa: F821
 
 try:
