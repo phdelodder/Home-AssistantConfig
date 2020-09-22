@@ -48,7 +48,6 @@ nest_motion_detection:
 start_up_home_assistant:
   alias: Start Up Home Assistant
   sequence: []
-  
 activate_guest_mode:
   sequence:
   - service: input_boolean.turn_on
@@ -232,126 +231,6 @@ wakeup_light_sunrise:
     service: light.turn_on
   - delay:
       seconds: 15
-wakeup_margot_sunrise:
-  alias: Wakeup Margot Sunrise
-  sequence:
-  - data_template:
-      brightness: 1
-      white_value: 0
-      entity_id: '{{entity_id}}'
-      effect: Solid
-      xy_color:
-      - 0.67
-      - 0.39
-    service: light.turn_on
-  - delay:
-      seconds: 1
-  - data_template:
-      brightness: 85
-      transition: 12
-      white_value: 0
-      entity_id: '{{entity_id}}'
-      effect: Solid
-      xy_color:
-      - 0.65
-      - 0.41
-    service: light.turn_on
-  - delay:
-      seconds: 15
-  - data_template:
-      brightness: 170
-      transition: 12
-      white_value: 0
-      entity_id: '{{entity_id}}'
-      effect: Solid
-      xy_color:
-      - 0.6
-      - 0.4
-    service: light.turn_on
-  - delay:
-      seconds: 15
-  - data_template:
-      brightness: 255
-      transition: 12
-      white_value: 0
-      entity_id: '{{entity_id}}'
-      effect: Solid
-      xy_color:
-      - 0.48
-      - 0.4
-    service: light.turn_on
-  - delay:
-      seconds: 15
-  - data_template:
-      brightness: 255
-      color_name: white
-      transition: 12
-      white_value: 255
-      entity_id: '{{entity_id}}'
-      effect: Solid
-    service: light.turn_on
-  - delay:
-      seconds: 15
-wakeup_febe_sunrise:
-  alias: Wakeup Febe Sunrise
-  sequence:
-  - data_template:
-      brightness: 1
-      white_value: 0
-      entity_id: '{{entity_id}}'
-      effect: Solid
-      xy_color:
-      - 0.67
-      - 0.39
-    service: light.turn_on
-  - delay:
-      seconds: 1
-  - data_template:
-      brightness: 85
-      transition: 12
-      white_value: 0
-      entity_id: '{{entity_id}}'
-      effect: Solid
-      xy_color:
-      - 0.65
-      - 0.41
-    service: light.turn_on
-  - delay:
-      seconds: 15
-  - data_template:
-      brightness: 170
-      transition: 12
-      white_value: 0
-      entity_id: '{{entity_id}}'
-      effect: Solid
-      xy_color:
-      - 0.6
-      - 0.4
-    service: light.turn_on
-  - delay:
-      seconds: 15
-  - data_template:
-      brightness: 255
-      transition: 12
-      white_value: 0
-      entity_id: '{{entity_id}}'
-      effect: Solid
-      xy_color:
-      - 0.48
-      - 0.4
-    service: light.turn_on
-  - delay:
-      seconds: 15
-  - data_template:
-      brightness: 255
-      color_name: white
-      transition: 12
-      white_value: 255
-      entity_id: '{{entity_id}}'
-      effect: Solid
-    service: light.turn_on
-  - delay:
-      seconds: 15
 ui_tts:
   sequence:
   - service: script.turn_on
@@ -359,104 +238,71 @@ ui_tts:
     data_template:
       variables:
         message: '{{states.input_text.tts.state}}'
-        
 snapshot_spotify:
   sequence:
   - service: variable.set_variable
     data:
       variable: spotify_phdelodder
-      value_template: >
-          {% if is_state('media_player.spotify_phdelodder', 'playing') and (
-             is_state_attr('media_player.spotify_phdelodder', 'source', 'Huis') or
-             is_state_attr('media_player.spotify_phdelodder', 'source', 'Tablet') or
-             is_state_attr('media_player.spotify_phdelodder', 'source', 'Bureau') or
-             is_state_attr('media_player.spotify_phdelodder', 'source', 'Woonkamer')) %}
-          True
-          {% else %}
-          False
-          {% endif %}
+      value_template: "{% if is_state('media_player.spotify_phdelodder', 'playing')\
+        \ and (\n   is_state_attr('media_player.spotify_phdelodder', 'source', 'Huis')\
+        \ or\n   is_state_attr('media_player.spotify_phdelodder', 'source', 'Tablet')\
+        \ or\n   is_state_attr('media_player.spotify_phdelodder', 'source', 'Bureau')\
+        \ or\n   is_state_attr('media_player.spotify_phdelodder', 'source', 'Woonkamer'))\
+        \ %}\nTrue {% else %} False {% endif %}\n"
   - service: variable.set_variable
     data:
       variable: spotify_febe
-      value_template: >
-          {% if is_state('media_player.spotify_febe', 'playing') and (
-             is_state_attr('media_player.spotify_febe', 'source', 'Huis') or
-             is_state_attr('media_player.spotify_febe', 'source', 'Tablet') or
-             is_state_attr('media_player.spotify_febe', 'source', 'Bureau') or
-             is_state_attr('media_player.spotify_febe', 'source', 'Woonkamer')) %}
-          True
-          {% else %}
-          False
-          {% endif %}
+      value_template: "{% if is_state('media_player.spotify_febe', 'playing') and\
+        \ (\n   is_state_attr('media_player.spotify_febe', 'source', 'Huis') or\n\
+        \   is_state_attr('media_player.spotify_febe', 'source', 'Tablet') or\n  \
+        \ is_state_attr('media_player.spotify_febe', 'source', 'Bureau') or\n   is_state_attr('media_player.spotify_febe',\
+        \ 'source', 'Woonkamer')) %}\nTrue {% else %} False {% endif %}\n"
   - service: variable.set_variable
     data:
       variable: spotify_margot
-      value_template: >
-          {% if is_state('media_player.spotify_margot', 'playing') and (
-             is_state_attr('media_player.spotify_margot', 'source', 'Huis') or
-             is_state_attr('media_player.spotify_margot', 'source', 'Tablet') or
-             is_state_attr('media_player.spotify_margot', 'source', 'Bureau') or
-             is_state_attr('media_player.spotify_margot', 'source', 'Woonkamer')) %}
-          True
-          {% else %}
-          False
-          {% endif %}
+      value_template: "{% if is_state('media_player.spotify_margot', 'playing') and\
+        \ (\n   is_state_attr('media_player.spotify_margot', 'source', 'Huis') or\n\
+        \   is_state_attr('media_player.spotify_margot', 'source', 'Tablet') or\n\
+        \   is_state_attr('media_player.spotify_margot', 'source', 'Bureau') or\n\
+        \   is_state_attr('media_player.spotify_margot', 'source', 'Woonkamer')) %}\n\
+        True {% else %} False {% endif %}\n"
   - service: variable.set_variable
     data:
       variable: spotify_isabel
-      value_template: >
-          {% if is_state('media_player.spotify_isabel', 'playing') and (
-             is_state_attr('media_player.spotify_isabel', 'source', 'Huis') or
-             is_state_attr('media_player.spotify_isabel', 'source', 'Tablet') or
-             is_state_attr('media_player.spotify_isabel', 'source', 'Bureau') or
-             is_state_attr('media_player.spotify_isabel', 'source', 'Woonkamer')) %}
-          True
-          {% else %}
-          False
-          {% endif %}
+      value_template: "{% if is_state('media_player.spotify_isabel', 'playing') and\
+        \ (\n   is_state_attr('media_player.spotify_isabel', 'source', 'Huis') or\n\
+        \   is_state_attr('media_player.spotify_isabel', 'source', 'Tablet') or\n\
+        \   is_state_attr('media_player.spotify_isabel', 'source', 'Bureau') or\n\
+        \   is_state_attr('media_player.spotify_isabel', 'source', 'Woonkamer')) %}\n\
+        True {% else %} False {% endif %}\n"
   - condition: template
-    value_template: >-
-        {{ is_state('variable.spotify_isabel', "True") 
-           or is_state('variable.spotify_febe', "True") 
-           or is_state('variable.spotify_margot', "True") 
-           or is_state('variable.spotify_phdelodder', "True") }}
+    value_template: "{{ is_state('variable.spotify_isabel', \"True\") \n   or is_state('variable.spotify_febe',\
+      \ \"True\") \n   or is_state('variable.spotify_margot', \"True\") \n   or is_state('variable.spotify_phdelodder',\
+      \ \"True\") }}"
   - service: media_player.media_pause
-    data_template: 
-      entity_id: >-
-        {% if is_state('variable.spotify_isabel', "True") %}
-         media_player.spotify_isabel
-        {% endif %}
-        {% if is_state('variable.spotify_febe', "True") %}
-         media_player.spotify_febe
-        {% endif %}
-        {% if is_state('variable.spotify_margot', "True") %}
-         media_player.spotify_margot
-        {% endif %}
-        {% if is_state('variable.spotify_phdelodder', "True") %}
-         media_player.spotify_phdelodder
-        {% endif %}
-
-restore_spotify_user: 
-  sequence: 
+    data_template:
+      entity_id: "{% if is_state('variable.spotify_isabel', \"True\") %}\n media_player.spotify_isabel\n\
+        {% endif %} {% if is_state('variable.spotify_febe', \"True\") %}\n media_player.spotify_febe\n\
+        {% endif %} {% if is_state('variable.spotify_margot', \"True\") %}\n media_player.spotify_margot\n\
+        {% endif %} {% if is_state('variable.spotify_phdelodder', \"True\") %}\n media_player.spotify_phdelodder\n\
+        {% endif %}"
+restore_spotify_user:
+  sequence:
   - condition: template
-    value_template: >- 
-      {{ is_state( var , "True") }}
+    value_template: '{{ is_state( var , "True") }}'
   - service: media_player.media_play
-    data_template: 
-      entity_id: "{{ media_player }}"
+    data_template:
+      entity_id: '{{ media_player }}'
   - service: variable.set_variable
     data_template:
-      variable: "{{ var_short }}"
-      value: False
-
+      variable: '{{ var_short }}'
+      value: false
 restore_spotify:
   sequence:
   - condition: template
-    value_template: >-
-        {{ is_state('variable.spotify_isabel', "True") or
-           is_state('variable.spotify_febe', "True") or
-           is_state('variable.spotify_margot', "True") or
-           is_state('variable.spotify_phdelodder', "True") }}
+    value_template: "{{ is_state('variable.spotify_isabel', \"True\") or\n   is_state('variable.spotify_febe',\
+      \ \"True\") or\n   is_state('variable.spotify_margot', \"True\") or\n   is_state('variable.spotify_phdelodder',\
+      \ \"True\") }}"
   - service: script.turn_on
     entity_id: script.restore_spotify_user
     data:
@@ -485,44 +331,33 @@ restore_spotify:
         media_player: media_player.spotify_phdelodder
         var: variable.spotify_phdelodder
         var_short: spotify_phdelodder
-    
-snapshot_mopidy: 
+snapshot_mopidy:
   sequence:
   - service: variable.set_variable
-    data: 
+    data:
       variable: mpd_huis
-      value_template: >
-         {% if is_state('media_player.huis', 'playing') %}
-           True
-         {% else %}
-           False
-         {% endif%}
+      value_template: "{% if is_state('media_player.huis', 'playing') %}\n  True\n\
+        {% else %}\n  False\n{% endif%}\n"
   - service: variable.set_variable
-    data: 
+    data:
       variable: mpd_huis_stream
-      value_template: >
-         {% if is_state('media_player.huis', 'playing') %}
-           {{ states.media_player.huis.attributes.media_content_id }}
-         {% else %}
-            
-         {% endif%}
-
-restore_mopidy: 
+      value_template: "{% if is_state('media_player.huis', 'playing') %}\n  {{ states.media_player.huis.attributes.media_content_id\
+        \ }}\n{% else %}\n   \n{% endif%}\n"
+restore_mopidy:
   sequence:
   - condition: template
-    value_template: >-
-        {{ is_state('variable.mpd_huis', "True") }}
+    value_template: '{{ is_state(''variable.mpd_huis'', "True") }}'
   - data_template:
       entity_id: media_player.huis
-      media_content_id: > 
-        {{ states('variable.mpd_huis_stream') }}
-      media_content_type: "music"
+      media_content_id: '{{ states(''variable.mpd_huis_stream'') }}
+
+        '
+      media_content_type: music
     service: media_player.play_media
   - service: variable.set_variable
     data:
       variable: mpd_huis
-      value: False
-
+      value: false
 play_tts:
   sequence:
   - service: snapcast.snapshot
@@ -554,9 +389,9 @@ play_tts:
   - service: media_player.volume_mute
     data:
       entity_id:
-        - media_player.snapcast_client_hentho
-        - media_player.snapcast_client_xgin
-        - media_player.snapcast_client_tablet
+      - media_player.snapcast_client_hentho
+      - media_player.snapcast_client_xgin
+      - media_player.snapcast_client_tablet
       is_volume_muted: false
   - service: media_player.play_media
     data:
@@ -565,16 +400,16 @@ play_tts:
       media_content_type: music
   - wait_template: '{{states.media_player.huis.state == ''off''}}'
     timeout: 120
-  - delay: "00:00:01"
+  - delay: 00:00:01
   - service_template: tts.google_translate_say
     data_template:
       entity_id: media_player.huis
       message: '{{message}}'
   - wait_template: '{{states.media_player.huis.state == ''off''}}'
     timeout: 120
-  - delay: "00:00:04"
+  - delay: 00:00:04
   - service: media_player.media_pause
-    data_template: 
+    data_template:
       entity_id: media_player.huis
   - service: snapcast.restore
     data:
@@ -586,29 +421,42 @@ play_tts:
     entity_id: script.restore_spotify
   - service: script.turn_on
     entity_id: script.restore_mopidy
-    
 play_tts_nodered:
   sequence:
-    
 play_studiobrussel_home:
   sequence:
   - service: variable.set_variable
     data:
       variable: radio_playing
-      value: "StuBru"
+      value: StuBru
   - data_template:
       entity_id: media_player.huis
-      media_content_id: >-
-        {% if states('input_select.stu_bru_streams') == 'Bruut' %}
-          http://icecast.vrtcdn.be/stubru_bruut.aac
-        {% elif states('input_select.stu_bru_streams') == 'Hooray' %}
-          http://icecast.vrtcdn.be/stubru_hiphophooray.aac
-        {% elif states('input_select.stu_bru_streams') == 'De Tijdloze' %}
-          http://icecast.vrtcdn.be/stubru_tijdloze.aac
-        {% elif states('input_select.stu_bru_streams') == '#ikluisterbelgisch' %}
-          http://icecast.vrtcdn.be/stubru_tgs.aac
-        {% elif states('input_select.stu_bru_streams') == 'Live Radio' %}
-          http://icecast.vrtcdn.be/stubru.aac
-        {% endif %}
+      media_content_id: "{% if states('input_select.stu_bru_streams') == 'Bruut' %}\n\
+        \  http://icecast.vrtcdn.be/stubru_bruut.aac\n{% elif states('input_select.stu_bru_streams')\
+        \ == 'Hooray' %}\n  http://icecast.vrtcdn.be/stubru_hiphophooray.aac\n{% elif\
+        \ states('input_select.stu_bru_streams') == 'De Tijdloze' %}\n  http://icecast.vrtcdn.be/stubru_tijdloze.aac\n\
+        {% elif states('input_select.stu_bru_streams') == '#ikluisterbelgisch' %}\n\
+        \  http://icecast.vrtcdn.be/stubru_tgs.aac\n{% elif states('input_select.stu_bru_streams')\
+        \ == 'Live Radio' %}\n  http://icecast.vrtcdn.be/stubru.aac\n{% endif %}"
       media_content_type: music
     service: media_player.play_media
+sunrise_wled:
+  alias: Sunrise wled
+  sequence:
+  - service: wled.effect
+    data:
+      entity_id: '{{ wled_id }}'
+      effect: solid
+  - service: wled.effect
+    data_template:
+      entity_id: '{{ wled_id }}'
+      effect: sunrise
+      speed: "{{ time | int }}"
+      intensity: 255
+  - service: light.turn_on
+    data_template:
+      entity_id: '{{ wled_id }}'
+  - delay: "{{ time | multiply(60) | int }}"
+  mode: parallel
+  icon: mdi:weather-sunset-up
+  max: 4

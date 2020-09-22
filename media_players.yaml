@@ -2,9 +2,9 @@
 #  client_id: !secret spotify-clientid
 #  client_secret: !secret spotify-client_secret
 - platform: snapcast
-  host: 192.168.0.24
+  host: 192.168.0.201
 - platform: mpd
-  host: 192.168.0.24
+  host: 192.168.0.201
   name: Huis
 - platform: mpd
   host: 192.168.0.20

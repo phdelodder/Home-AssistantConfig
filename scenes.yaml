@@ -28,110 +28,6 @@
     light.schouw:
       brightness: 84
       effect: Solid
-      effect_list:
-      - Android
-      - Blink
-      - Blink Rainbow
-      - Bouncing Balls
-      - Bpm
-      - Breathe
-      - Candle
-      - Candle Multi
-      - Chase
-      - Chase Flash
-      - Chase Flash Rnd
-      - Chase Rainbow
-      - Chase Random
-      - Circus
-      - Colorful
-      - Colorloop
-      - Colortwinkles
-      - Colorwaves
-      - Dissolve
-      - Dissolve Rnd
-      - Drip
-      - Dynamic
-      - Fade
-      - Fill Noise
-      - Fire 2012
-      - Fire Flicker
-      - Fireworks
-      - Fireworks 1D
-      - Fireworks Starburst
-      - Glitter
-      - Gradient
-      - Halloween
-      - Halloween Eyes
-      - Heartbeat
-      - ICU
-      - Juggle
-      - Lake
-      - Lighthouse
-      - Lightning
-      - Loading
-      - Merry Christmas
-      - Meteor
-      - Meteor Smooth
-      - Multi Comet
-      - Noise 1
-      - Noise 2
-      - Noise 3
-      - Noise 4
-      - Oscillate
-      - Pacifica
-      - Palette
-      - Percent
-      - Plasma
-      - Police
-      - Police All
-      - Popcorn
-      - Pride 2015
-      - Railway
-      - Rain
-      - Rainbow
-      - Rainbow Runner
-      - Random Colors
-      - Red & Blue
-      - Ripple
-      - Ripple Rainbow
-      - Running
-      - Running 2
-      - Saw
-      - Scan
-      - Scan Dual
-      - Scanner
-      - Scanner Dual
-      - Sinelon
-      - Sinelon Dual
-      - Sinelon Rainbow
-      - Solid
-      - Solid Pattern
-      - Solid Pattern Tri
-      - Sparkle
-      - Sparkle Dark
-      - Sparkle+
-      - Spots
-      - Spots Fade
-      - Stream
-      - Stream 2
-      - Strobe
-      - Strobe Mega
-      - Strobe Rainbow
-      - Sweep
-      - Sweep Random
-      - Theater
-      - Theater Rainbow
-      - Traffic Light
-      - Tri Chase
-      - Tri Fade
-      - Tri Wipe
-      - Twinkle
-      - Twinklecat
-      - Twinklefox
-      - Two Areas
-      - Two Dots
-      - Wipe
-      - Wipe Random
       friendly_name: Schouw
       hs_color:
       - 46.23
@@ -141,8 +37,6 @@
       max_mireds: 500
       min_mireds: 153
       palette: Default
-      playlist:
-      preset:
       reverse: false
       rgb_color:
       - 255
@@ -163,6 +57,153 @@
       min_mireds: 153
       state: 'on'
       supported_features: 43
+- id: '157443790043'
+  name: Woonkamer Evening
+  entities:
+    light.led_mini_kerstboom_led:
+      effect_list:
+      - None
+      - Candle_Flicker
+      friendly_name: Led Mini Kerstboom LED
+      state: unavailable
+      supported_features: 45
+    light.schouw:
+      brightness: 84
+      effect: Solid
+      friendly_name: Schouw
+      hs_color:
+      - 46.23
+      - 95.686
+      icon: mdi:led-strip-variant
+      intensity: 255
+      max_mireds: 500
+      min_mireds: 153
+      palette: Default
+      reverse: false
+      rgb_color:
+      - 255
+      - 199
+      - 11
+      speed: 132
+      state: 'on'
+      supported_features: 55
+      xy_color:
+      - 0.515
+      - 0.455
+    light.staande_lamp_living:
+      brightness: 89
+      color_temp: 425
+      friendly_name: Staande Lamp Living
+      is_deconz_group: false
+      max_mireds: 500
+      min_mireds: 153
+      state: 'on'
+      supported_features: 43
+- id: '157443790044'
+  name: Woonkamer Morning
+  entities:
+    light.led_mini_kerstboom_led:
+      effect_list:
+      - None
+      - Candle_Flicker
+      friendly_name: Led Mini Kerstboom LED
+      state: unavailable
+      supported_features: 45
+    light.schouw:
+      brightness: 84
+      effect: Solid
+      friendly_name: Schouw
+      hs_color:
+      - 46.23
+      - 95.686
+      icon: mdi:led-strip-variant
+      intensity: 255
+      max_mireds: 500
+      min_mireds: 153
+      palette: Default
+      reverse: false
+      rgb_color:
+      - 255
+      - 199
+      - 11
+      speed: 132
+      state: 'on'
+      supported_features: 55
+      xy_color:
+      - 0.515
+      - 0.455
+    light.staande_lamp_living:
+      brightness: 89
+      color_temp: 425
+      friendly_name: Staande Lamp Living
+      is_deconz_group: false
+      max_mireds: 500
+      min_mireds: 153
+      state: 'on'
+      supported_features: 43
+- id: '157443790054'
+  name: Woonkamer Eve
+  entities:
+    light.led_mini_kerstboom_led:
+      effect_list:
+      - None
+      - Candle_Flicker
+      friendly_name: Led Mini Kerstboom LED
+      state: unavailable
+      supported_features: 45
+    light.schouw:
+      brightness: 84
+      effect: Solid
+      friendly_name: Schouw
+      hs_color:
+      - 46.23
+      - 95.686
+      icon: mdi:led-strip-variant
+      intensity: 255
+      max_mireds: 500
+      min_mireds: 153
+      palette: Default
+      reverse: false
+      rgb_color:
+      - 255
+      - 199
+      - 11
+      speed: 132
+      state: 'on'
+      supported_features: 55
+      xy_color:
+      - 0.515
+      - 0.455
+    light.staande_lamp_living:
+      brightness: 89
+      color_temp: 425
+      friendly_name: Staande Lamp Living
+      is_deconz_group: false
+      max_mireds: 500
+      min_mireds: 153
+      state: 'on'
+      supported_features: 43
+- id: '157443790543'
+  name: Woonkamer Night
+  entities:
+    light.staande_lamp_living:
+      min_mireds: 140
+      max_mireds: 650
+      brightness: 254
+      color_temp: 140
+      is_deconz_group: false
+      friendly_name: Staande Lamp Living
+      supported_features: 43
+      state: 'on'
+- id: '157443790045'
+  name: Woonkamer Off
+  entities:
+    light.led_mini_kerstboom_led:
+      state: 'off'
+    light.schouw:
+      state: 'off'
+    light.staande_lamp_living:
+      state: 'off'
 - id: '1587621898182'
   name: Default Nachttafel Febe
   entities:
