@@ -2,20 +2,9 @@ tempsetactive:
   name: Active Set Temperature
   icon: mdi:toggle-switch
 
-house_guests:
-  name: House Guests
-  icon: mdi:human
-
 guest_mode:
   name: Guest mode
   icon: mdi:human-male-female
-
-house_presence:
-  name: House Presence
-  icon: mdi:home-account
-
-everybody_home:
-  name: Everybody Home
 
 night_mode:
   name: Night Mode
