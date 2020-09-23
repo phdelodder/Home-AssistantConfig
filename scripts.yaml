@@ -28,9 +28,9 @@ turn_off_switches_and_store_state:
 turn_on_switches_and_stored_states:
   alias: Turn On Switches and Restore Devices State
   sequence:
-  - service: scene.apply
+  - service: scene.turn_on
     data:
-      scene_id: scene.stored_states
+      entity_id: scene.stored_states
   - service: switch.turn_on
     data: {}
     entity_id: switch.boiler_keuken
