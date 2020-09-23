@@ -4,7 +4,7 @@ leaving:
   - service: script.turn_off_indoor_lights
   - service: script.turn_off_switches_and_store_states
   mode: single
-  icon: mdi:home-export-outline
+  icon: mdi:home-export-outline  
 turn_off_indoor_lights:
   alias: Turn Off Indoor Lights
   sequence:
@@ -25,6 +25,18 @@ turn_off_switches_and_store_states:
   - service: switch.turn_off
     data: {}
     entity_id: switch.boiler_keuken
+  - service: media_player.turn_off
+    entity_id: 
+      - media_player.samsung_samsung_dtv_rcr
+      - media_player.huis
+arriving:
+  alias: Arriving at our house
+  sequence:
+    - service: script.turn_on_switches_and_stored_states
+    - service: script.deactivate_guest_mode
+    - service: script.set_thermostat_home
+  mode: single
+  icon: mdi:home-import-outline 
 turn_on_switches_and_stored_states:
   alias: Turn On Switches and Restore Devices State
   sequence:
@@ -34,6 +46,7 @@ turn_on_switches_and_stored_states:
   - service: switch.turn_on
     data: {}
     entity_id: switch.boiler_keuken
+
 set_temperature:
   alias: Set Temperature
   sequence:
@@ -50,53 +63,55 @@ set_temperature:
   - service: input_boolean.turn_off
     data:
       entity_id: input_boolean.tempsetactive
-set_nest_away:
+
+set_thermostat_away:
   sequence:
   - data:
       preset_mode: away
       entity_id: climate.downstairs
     service: climate.set_preset_mode
-  - data_template:
-      message: Nest has been set to away
-    service: notify.hazilverberkenstraatbot
-set_nest_home:
+
+set_thermostat_home:
   sequence:
   - data:
       present_mode: none
       entity_id: climate.downstairs
     service: climate.set_present_mode
-  - data_template:
-      message: Nest has been set to home
-    service: notify.hazilverberkenstraatbot
-nest_motion_detection:
-  sequence:
-  - service: camera.snapshot
-    data_template:
-      entity_id: camera.oprit
-      filename: /config/www/snapshots/camera.oprit.jpg
-  - service: notify.hazilverberkenstraatbot
-    data_template:
-      message: Nest has detected motion
-      data:
-        photo:
-        - file: /config/www/snapshots/camera.oprit.jpg
-          caption: Nest has detected motion
+
 start_up_home_assistant:
   alias: Start Up Home Assistant
   sequence: []
+
+ask_to_active_guest_mode:
+  alias: Ask to active guest mode
+  sequence:
+    - service: telegram_bot.send_message
+      data_template:
+        target: '[ 689595780, 696299625 ]'
+        title: Guest Mode Activation
+        message: Wil je Guest Mode activeren? 
+        inline_keyboard:
+        - Ja graag.:/yesguest
+        - Nee dank u.:/noguest
+
 activate_guest_mode:
   sequence:
   - service: input_boolean.turn_on
     data:
-      entity_id: input_boolean.house_guests
+      entity_id: input_boolean.guest_mode
+  - service: script.set_thermostat_home
   - service: notify.hazilverberkenstraatbot
     data_template:
       message: 'Guest mode activated'
 deactivate_guest_mode:
   sequence:
+  - condition: state
+    entity_id:
+      - binary_sensor.guest_mode
+    state: 'on'
   - service: input_boolean.turn_off
     data:
-      entity_id: input_boolean.house_guests
+      entity_id: input_boolean.guest_mode
   - service: notify.hazilverberkenstraatbot
     data_template:
       message: 'Guest mode deactivated'
@@ -106,19 +121,6 @@ notify_afval:
   - service: notify.hazilverberkenstraatbot
     data_template:
       message: '{{ states(''sensor.recycleapp_morgen'') }} morgen buiten zetten!'
-outside_motion_detection:
-  sequence:
-  - service: camera.snapshot
-    data_template:
-      entity_id: camera.oprit
-      filename: /config/www/snapshots/camera.oprit.jpg
-  - service: notify.hazilverberkenstraatbot
-    data_template:
-      message: Buiten beweging gedetecteerd, {{ sensor }}
-      data:
-        photo:
-        - file: /config/www/snapshots/camera.oprit.jpg
-          caption: Buiten beweging gedetecteerd, {{ sensor }}
 
 motion_detected:
   alias: Motion Detected
@@ -139,6 +141,7 @@ motion_detected:
         photo:
         - file: /config/www/snapshots/camera.oprit.jpg
           caption: Beweging gedecteerd door {{ sensor }}
+  - service: script.ask_to_active_guest_mode
 
 vacuum:
   alias: Vacuum
@@ -585,7 +588,7 @@ play_tts:
   - service: script.turn_on
     entity_id: script.restore_mopidy
 play_tts_nodered:
-  sequence:
+  sequence: []
 play_studiobrussel_home:
   sequence:
   - service: variable.set_variable

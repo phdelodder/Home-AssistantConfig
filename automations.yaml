@@ -663,15 +663,16 @@
   description: ''
   trigger:
   - entity_id: media_player.samsung_samsung_dtv_rcr
-    for: 5s
     platform: state
-    to: 'On'
+    from: 'off'
+    for: 00:00:05
+    to: 'on'
   condition: []
   action:
-  - service: input_select.select_option
-    data:
-      option: Mute
-      entity_id: input_select.source_woonkamer
+  - service: media_player.volume_mute
+    entity_id: media_player.snapcast_client_hentho
+    data: {}
+  mode: single
 - id: '1591101305128'
   alias: Turn On StuBru in Bureau
   description: ''
@@ -804,8 +805,25 @@
   action:
   - service: script.vacuum
   mode: single
+- id: '1600754548159'
+  alias: 'Leaving: set thermostat to ECO'
+  description: Set thermostat to ECO after an hour
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.no_one_home
+    to: 'on'
+    for:
+      minutes: 60
+  condition:
+  - condition: state
+    entity_id:
+    - input_boolean.guest_mode
+    state: 'off'
+  action:
+  - service: script.set_thermostat_away
+  mode: single
 - id: '1600754448159'
-  alias: 'Arriving: turn on switches and stored states'
+  alias: Arriving
   description: ''
   trigger:
   - platform: state
@@ -813,7 +831,7 @@
     to: 'off'
   condition: []
   action:
-  - service: script.turn_on_switches_and_stored_states
+  - service: script.arriving
   mode: single
 - id: '1600756948650'
   alias: Woonkamer Lights Morning On
@@ -1026,6 +1044,65 @@
     state: docked
   action:
   - service: script.motion_detected
-    data: 
+    data:
       sensor: '{{ trigger.entity_id }}'
+  mode: single
+- id: '1600868245749'
+  alias: 'Climate: Enable ECO when doors are open'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: group.doordetection
+    from: 'off'
+    to: 'on'
+    for: 00:10:00
+  condition: []
+  action:
+  - service: climate.set_preset_mode
+    data:
+      preset_mode: eco
+    entity_id: climate.downstairs
+  mode: restart
+- id: '1600868305287'
+  alias: 'Climate: disable ECO when the doors are closed'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: group.doordetection
+    from: 'on'
+    to: 'off'
+    for: 00:05:00
+  condition: []
+  action:
+  - service: climate.set_preset_mode
+    data:
+      preset_mode: none
+    entity_id: climate.downstairs
+  mode: restart
+- id: '1600870113700'
+  alias: Active Guest Mode
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: input_boolean.guest_mode
+    from: 'off'
+    to: 'on'
+  condition: []
+  action:
+  - service: script.activate_guest_mode
+    data: {}
+  mode: single
+- id: '1600870370709'
+  alias: Set Timed Temperature Based on Input
+  description: ''
+  trigger:
+  - platform: time
+    at: input_datetime.temperaturetime
+  condition:
+  - condition: state
+    entity_id: input_boolean.tempsetactive
+    state: 'on'
+  action:
+  - service: script.set_temperature
+    data: {}
   mode: single
