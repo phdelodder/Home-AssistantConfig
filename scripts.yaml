@@ -173,7 +173,7 @@ vacuum:
     state: 'off'
   - wait_for_trigger:
       platform: template
-      value_template: '{{ is_state(vacuum.xiaomi_vacuum_cleaner, ''docked'') }}'
+      value_template: '{{ is_state(''vacuum.xiaomi_vacuum_cleaner'', ''docked'') }}'
     timeout: 02:00:00
     continue_on_timeout: false
   - variables:
