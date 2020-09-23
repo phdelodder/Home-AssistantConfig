@@ -2,7 +2,7 @@ leaving:
   alias: Leaving the house
   sequence:
   - service: script.turn_off_indoor_lights
-  - service: script.turn_off_switches_and_store_state
+  - service: script.turn_off_switches_and_store_states
   mode: single
   icon: mdi:home-export-outline
 turn_off_indoor_lights:
@@ -14,7 +14,7 @@ turn_off_indoor_lights:
     - light.zolder_group
     - light.gelijkvloers_group
     - light.eerste_verdiep_group
-turn_off_switches_and_store_state:
+turn_off_switches_and_store_states:
   alias: Store devices state
   sequence:
   - service: scene.create
