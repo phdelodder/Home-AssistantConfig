@@ -771,120 +771,49 @@
     entity_id: input_boolean.disable_motion_trigger_light_bureau
     service: input_boolean.turn_off
   mode: single
-- id: '1600750527337'
-  alias: Determine Home State
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: person.isabel
-  - platform: state
-    entity_id: person.philippe
-  - platform: state
-    entity_id: binary_sensor.house_guests
-  condition: []
-  action:
-  - choose:
-    - conditions:
-      - condition: and
-        conditions:
-        - condition: state
-          entity_id: person.philippe
-          state: home
-        - condition: state
-          entity_id: person.isabel
-          state: home
-      sequence:
-      - service: input_boolean.turn_on
-        data: {}
-        entity_id: input_boolean.everybody_home
-      - service: input_boolean.turn_on
-        data: {}
-        entity_id: input_boolean.house_presence
-    - conditions:
-      - condition: and
-        conditions:
-        - condition: state
-          entity_id: person.isabel
-          state: not_home
-        - condition: state
-          entity_id: person.philippe
-          state: not_home
-      sequence:
-      - service: input_boolean.turn_off
-        data: {}
-        entity_id: input_boolean.everybody_home
-      - service: input_boolean.turn_off
-        data: {}
-        entity_id: input_boolean.house_presence
-    default:
-    - service: input_boolean.turn_off
-      data: {}
-      entity_id: input_boolean.everybody_home
-    - service: input_boolean.turn_on
-      data: {}
-      entity_id: input_boolean.house_presence
-  - choose:
-    - conditions:
-      - condition: and
-        conditions:
-        - condition: state
-          entity_id: binary_sensor.house_presence
-          state: 'on'
-        - condition: state
-          entity_id: binary_sensor.house_guests
-          state: 'on'
-      sequence:
-      - service: script.deactivate_guest_mode
-        data: {}
-    default: []
-  mode: queued
-  max: 10
 - id: '1600753998896'
-  alias: Turn Off All Indoor Lights
+  alias: 'Leaving: automatically turn off'
   description: ''
   trigger:
   - platform: state
-    entity_id: binary_sensor.everybody_home
-    to: 'off'
-  condition: []
-  action:
-  - service: light.turn_off
-    data: {}
+    entity_id: binary_sensor.no_one_home
+    to: 'on'
+    for:
+      minutes: 1
+  condition:
+  - condition: state
     entity_id:
-    - light.zolder_group
-    - light.gelijkvloers_group
-    - light.eerste_verdiep_group
-  mode: single
-- id: '1600754371850'
-  alias: Store Device State
+    - input_boolean.guest_mode
+    state: 'off'
+  action:
+  - service: script.leaving
+- id: '1600753998897'
+  alias: 'Leaving: start vacuum after 15 mins'
   description: ''
   trigger:
   - platform: state
-    entity_id: binary_sensor.house_presence
-    to: 'off'
-  condition: []
+    entity_id: binary_sensor.no_one_home
+    to: 'on'
+    for:
+      minutes: 15
+  condition:
+  - condition: state
+    entity_id:
+    - input_boolean.guest_mode
+    state: 'off'
   action:
-  - service: scene.create
-    data:
-      scene_id: stored_states
-      snapshot_entities:
-      - switch.boiler_keuken
-  - service: switch.turn_off
-    data: {}
-    entity_id: switch.boiler_keuken
+  - service: script.vacuum
   mode: single
 - id: '1600754448159'
-  alias: Restore Device State
+  alias: 'Arriving: turn on switches and stored states'
   description: ''
   trigger:
   - platform: state
-    entity_id: binary_sensor.house_presence
-    to: 'on'
+    entity_id: binary_sensor.no_one_home
+    to: 'off'
   condition: []
   action:
-  - service: scene.apply
-    data:
-      scene_id: scene.stored_states
+  - service: script.turn_on_switches_and_stored_states
   mode: single
 - id: '1600756948650'
   alias: Woonkamer Lights Morning On
@@ -900,8 +829,8 @@
       after: '5:30:00'
       before: '9:30:00'
     - condition: state
-      entity_id: binary_sensor.house_presence
-      state: 'on'
+      entity_id: binary_sensor.no_one_home
+      state: 'off'
     - condition: numeric_state
       entity_id: sensor.illuminance_living
       below: '3'
@@ -934,45 +863,51 @@
   - scene: scene.woonkamer_off
   mode: single
 - id: '1600758658063'
-  alias: Woonkomer Lights Eve On
+  alias: Woonkamer Lights Eve On
   description: ''
   trigger:
   - platform: time
     at: '16:00:00'
   - platform: state
-    entity_id: binary_sensor.house_presence
-    to: 'On'
+    entity_id: binary_sensor.no_one_home
+    to: 'off'
+  - platform: template
+    value_template: '{{ states(''sensor.illuminance_living'') | float < 15 and (states(''sensor.time'')
+      >= ''16:00:00'' and states(''sensor.time'') <= ''19:00:00'') }}'
   condition:
   - condition: time
     after: '16:00:00'
     before: '19:00:00'
   - condition: state
-    entity_id: binary_sensor.house_presence
-    state: 'on'
+    entity_id: binary_sensor.no_one_home
+    state: 'off'
+  - condition: numeric_state
+    entity_id: sensor.illuminance_living
+    below: '15'
   action:
   - scene: scene.woonkamer_eve
   mode: single
 - id: '1600759062566'
-  alias: Woonkomer Lights Evening On
+  alias: Woonkamer Lights Evening On
   description: ''
   trigger:
   - platform: time
     at: '19:00:00'
   - platform: state
-    entity_id: binary_sensor.house_presence
-    to: 'on'
+    entity_id: binary_sensor.no_one_home
+    to: 'off'
   condition:
   - condition: time
     after: '19:00:00'
     before: '22:00:00'
   - condition: state
-    entity_id: binary_sensor.house_presence
-    state: 'on'
+    entity_id: binary_sensor.no_one_home
+    state: 'off'
   action:
   - scene: scene.woonkamer_evening
   mode: single
 - id: '1600759267237'
-  alias: Woonkamer Lights Night On
+  alias: Woonkamer Lights Night
   description: ''
   trigger:
   - platform: state
@@ -983,7 +918,7 @@
     after: '22:00:00'
     before: 05:30:00
   - condition: state
-    entity_id: binary_sensor.house_presence
+    entity_id: binary_sensor.no_one_home
     state: 'on'
   - condition: state
     entity_id: media_player.samsung_samsung_dtv_rcr
@@ -994,7 +929,7 @@
   - scene: scene.woonkamer_off
   mode: restart
 - id: '1600759643151'
-  alias: Woonkomer Lights Evening Off
+  alias: Woonkamer Lights Evening Off
   description: ''
   trigger:
   - platform: time
@@ -1008,4 +943,89 @@
       for: 00:05:00
     timeout: ''
   - scene: scene.woonkamer_off
+  mode: single
+- id: '1600846307260'
+  alias: Reset Daily Inputs
+  description: ''
+  trigger:
+  - platform: time
+    at: 00:00:00
+  condition: []
+  action:
+  - service: input_boolean.turn_off
+    entity_id: input_boolean.daily_vacuum_first_run
+  mode: single
+- id: '1600848151975'
+  alias: Telegram Vacuum Response
+  description: ''
+  trigger:
+  - platform: event
+    event_type: telegram_callback
+    event_data:
+      command: /vacuumemptybindone
+  - platform: event
+    event_type: telegram_callback
+    event_data:
+      command: /vacuumemptybinextend
+  condition: []
+  action:
+  - service: script.vacuum_bin_feedback
+    data:
+      callback_id: '{{ trigger.event.data.id }}'
+      command: '{{ trigger.event.data[''command''].strip(''/'') }}'
+  mode: single
+- id: '1600850581196'
+  alias: 'Vacuum: Select Room'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: input_select.vacuum_room
+    from: Selecteer Kamer
+  condition: []
+  action:
+  - service: script.vacuum_zone
+    data:
+      zone: '{{ states(''input_select.vacuum_room'') }}'
+  mode: single
+- id: '1600861348101'
+  alias: 'Security: motion detected but we are not home'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.voor_deur
+    - binary_sensor.achter_deur
+    - binary_sensor.keuken_deur
+    - binary_sensor.garage_deur
+    to: 'on'
+  - platform: state
+    entity_id:
+    - binary_sensor.bureau_motion
+    - binary_sensor.speelkamer_motion
+    - binary_sensor.motion_achterdeur
+    - binary_sensor.motion_wc_boven
+    - binary_sensor.motion_wc_beneden
+    - binary_sensor.motion_gang_eerste_2
+    - binary_sensor.motion_gang_eerste_1
+    - binary_sensor.motion_inkom
+    - binary_sensor.motion_gang_zolder
+    - binary_sensor.motion_bureau
+    - binary_sensor.motion_logeerkamer
+    - binary_sensor.motion_speelkamer
+    - binary_sensor.motion_living
+    to: 'on'
+  - platform: state
+    entity_id: binary_sensor.zilverberkenstraat_7_away
+    to: 'off'
+  condition:
+  - condition: state
+    entity_id: binary_sensor.no_one_home
+    state: 'on'
+  - condition: state
+    entity_id: vacuum.xiaomi_vacuum_cleaner
+    state: docked
+  action:
+  - service: script.motion_detected
+    data: 
+      sensor: '{{ trigger.entity_id }}'
   mode: single

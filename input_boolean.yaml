@@ -6,6 +6,10 @@ house_guests:
   name: House Guests
   icon: mdi:human
 
+guest_mode:
+  name: Guest mode
+  icon: mdi:human-male-female
+
 house_presence:
   name: House Presence
   icon: mdi:home-account

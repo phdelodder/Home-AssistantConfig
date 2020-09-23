@@ -1,5 +1,10 @@
 - platform: template
   sensors:
+    no_one_home:
+      friendly_name: No one is home
+      value_template: >
+        {{ not is_state("person.philippe", "home")
+            and not is_state("person.isabel", "home") }}
     everybody_home:
       value_template: "{{ is_state('input_boolean.everybody_home', 'on') }}"
       friendly_name: "Everybody Home"
@@ -8,6 +13,10 @@
       value_template: "{{ is_state('input_boolean.house_presence','on') }}"
       device_class: presence
       friendly_name: "House Presence"
+    guest_mode:
+      value_template: "{{ is_state('input_boolean.guest_mode','on') }}"
+      device_class: presence
+      friendly_name: "Guest Mode"
     house_guests:
       value_template: "{{ is_state('input_boolean.house_guests', 'on') }}"
       device_class: presence

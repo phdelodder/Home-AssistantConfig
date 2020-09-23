@@ -1,3 +1,39 @@
+leaving:
+  alias: Leaving the house
+  sequence:
+  - service: script.turn_off_indoor_lights
+  - service: script.turn_off_switches_and_store_state
+  mode: single
+  icon: mdi:home-export-outline
+turn_off_indoor_lights:
+  alias: Turn Off Indoor Lights
+  sequence:
+  - service: light.turn_off
+    data: {}
+    entity_id:
+    - light.zolder_group
+    - light.gelijkvloers_group
+    - light.eerste_verdiep_group
+turn_off_switches_and_store_state:
+  alias: Store devices state
+  sequence:
+  - service: scene.create
+    data:
+      scene_id: stored_states
+      snapshot_entities:
+      - switch.boiler_keuken
+  - service: switch.turn_off
+    data: {}
+    entity_id: switch.boiler_keuken
+turn_on_switches_and_stored_states:
+  alias: Turn On Switches and Restore Devices State
+  sequence:
+  - service: scene.apply
+    data:
+      scene_id: scene.stored_states
+  - service: switch.turn_on
+    data: {}
+    entity_id: switch.boiler_keuken
 set_temperature:
   alias: Set Temperature
   sequence:
@@ -55,9 +91,7 @@ activate_guest_mode:
       entity_id: input_boolean.house_guests
   - service: notify.hazilverberkenstraatbot
     data_template:
-      message: 'Guest mode activated
-
-        '
+      message: 'Guest mode activated'
 deactivate_guest_mode:
   sequence:
   - service: input_boolean.turn_off
@@ -65,17 +99,13 @@ deactivate_guest_mode:
       entity_id: input_boolean.house_guests
   - service: notify.hazilverberkenstraatbot
     data_template:
-      message: 'Guest mode deactivated
-
-        '
+      message: 'Guest mode deactivated'
 notify_afval:
   alias: Notify Afval
   sequence:
   - service: notify.hazilverberkenstraatbot
     data_template:
-      message: '{{ states(''sensor.recycleapp_morgen'') }} morgen buiten zetten!
-
-        '
+      message: '{{ states(''sensor.recycleapp_morgen'') }} morgen buiten zetten!'
 outside_motion_detection:
   sequence:
   - service: camera.snapshot
@@ -89,81 +119,214 @@ outside_motion_detection:
         photo:
         - file: /config/www/snapshots/camera.oprit.jpg
           caption: Buiten beweging gedetecteerd, {{ sensor }}
-vacuum_keuken:
-  alias: Vacuum Keuken
+
+motion_detected:
+  alias: Motion Detected
+  mode: parallel
+  fields:
+    sensor:
+      description: How detected the motion
+      example: camera garage
   sequence:
-  - service: vacuum.send_command
+  - service: camera.snapshot
+    data_template:
+      entity_id: camera.oprit
+      filename: /config/www/snapshots/camera.oprit.jpg
+  - service: notify.hazilverberkenstraatbot
+    data_template:
+      message: Buiten beweging gedetecteerd, {{ sensor }}
+      data:
+        photo:
+        - file: /config/www/snapshots/camera.oprit.jpg
+          caption: Beweging gedecteerd door {{ sensor }}
+
+vacuum:
+  alias: Vacuum
+  mode: single
+  sequence:
+  - condition: and
+    conditions:
+    - condition: state
+      entity_id:
+      - input_boolean.daily_vacuum_first_run
+      - input_boolean.disable_daily_vacuum
+      state: 'off'
+    - condition: time
+      after: 07:00:00
+      before: '19:00:00'
+  - variables:
+      start_time: '{{ as_timestamp(now()) }}'
+  - service: vacuum.start
+    entity_id: vacuum.xiaomi_vacuum_cleaner
+  - service: input_number.increment
+    entity_id: input_number.vacuum_number_of_runs
+  - service: input_boolean.turn_on
+    entity_id: input_boolean.daily_vacuum_first_run
+  - condition: state
+    entity_id:
+    - input_boolean.disable_dustbin_notification
+    state: 'off'
+  - wait_for_trigger:
+      platform: template
+      value_template: '{{ is_state(vacuum.xiaomi_vacuum_cleaner, ''docked'') }}'
+    timeout: 02:00:00
+    continue_on_timeout: false
+  - variables:
+      end_time: '{{ as_timestamp(now()) }}'
+  - variables:
+      total_time: '{{ (end_time|float - start_time|float) }}'
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: '{{ states(''input_number.vacuum_number_of_runs'') | int >=
+          states(''input_number.vacuum_empty_bin_after_days'') | int }}'
+      sequence:
+      - service: telegram_bot.send_message
+        data_template:
+          target: '[ 689595780, 696299625 ]'
+          title: Stofzuiger
+          message: Stofzuiger is klaar na {{ total_time }} minuten. Het is tijd dat
+            de vuilbak van stofzuiger wordt geleegd!
+          inline_keyboard:
+          - Gedaan.:/vacuumemptybindone
+          - Uitstel.:/vacuumemptybinextend
+    default:
+    - service: notify.hazilverberkenstraatbot
+      data_template:
+        message: Stofzuiger is klaar na {{ total_time }} minuten
+  icon: mdi:robot-vacuum
+vacuum_zone:
+  alias: Vacuum a Specific Zone
+  mode: single
+  fields:
+    zone:
+      description: zone
+      example: keuken
+  sequence:
+  - variables:
+      start_time: '{{ as_timestamp(now()) }}'
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: '{{ zone == ''Keuken'' }}'
+      sequence:
+      - service: vacuum.send_command
+        data:
+          entity_id: vacuum.xiaomi_vacuum_cleaner
+          command: app_zoned_clean
+          params:
+          - 23386
+          - 23366
+          - 25286
+          - 28216
+          - 1
+    - conditions:
+      - condition: template
+        value_template: '{{ zone == ''Eet Kamer'' }}'
+      sequence:
+      - service: vacuum.send_command
+        data:
+          entity_id: vacuum.xiaomi_vacuum_cleaner
+          command: app_zoned_clean
+          params:
+          - 25244
+          - 21493
+          - 30594
+          - 26593
+          - 1
+    - conditions:
+      - condition: template
+        value_template: '{{ zone == ''Livng'' }}'
+      sequence:
+      - service: vacuum.send_command
+        data:
+          entity_id: vacuum.xiaomi_vacuum_cleaner
+          command: app_zoned_clean
+          params:
+          - 24260
+          - 16982
+          - 30710
+          - 21882
+          - 1
+    - conditions:
+      - condition: template
+        value_template: '{{ zone == ''Inkom'' }}'
+      sequence:
+      - service: vacuum.send_command
+        data:
+          entity_id: vacuum.xiaomi_vacuum_cleaner
+          command: app_zoned_clean
+          params:
+          - 23110
+          - 14614
+          - 25410
+          - 18664
+          - 1
+    - conditions:
+      - condition: template
+        value_template: '{{ zone == ''Berging'' }}'
+      sequence:
+      - service: vacuum.send_command
+        data:
+          entity_id: vacuum.xiaomi_vacuum_cleaner
+          command: app_zoned_clean
+          params:
+          - 23508
+          - 21814
+          - 25408
+          - 23314
+          - 1
+  - wait_for_trigger:
+      platform: template
+      value_template: '{{ is_state(''vacuum.xiaomi_vacuum_cleaner'', ''docked'') }}'
+    timeout: 02:00:00
+    continue_on_timeout: false
+  - service: input_select.select_option
+    entity_id: input_select.vacuum_room
     data:
-      entity_id: vacuum.xiaomi_vacuum_cleaner
-      command: app_zoned_clean
-      params:
-      - - 23386
-        - 23366
-        - 25286
-        - 28216
-        - 1
-vacuum_eet_kamer:
-  alias: Vacuum Eet Kamer
+      option: Selecteer Kamer
+  - condition: state
+    entity_id:
+    - input_boolean.disable_dustbin_notification
+    state: 'off'
+  - variables:
+      end_time: '{{ as_timestamp(now()) }}'
+  - variables:
+      total_time: '{{ (end_time|float - start_time|float) }}'
+  - service: notify.hazilverberkenstraatbot
+    data_template:
+      message: Stofzuiger is klaar met {{zone}} in {{ total_time }} minuten.
+  icon: mdi:robot-vacuum
+vacuum_bin_feedback:
+  icon: mdi:robot-vacuum
+  alias: Vacuum bin feedback
+  fields:
+    command:
+      description: the response command from telegram
+      example: vacuumemptybindone
+    callback_id:
+      description: the callback_id to give a reponse
+      example: ''
   sequence:
-  - service: vacuum.send_command
-    data:
-      entity_id: vacuum.xiaomi_vacuum_cleaner
-      command: app_zoned_clean
-      params:
-      - - 25244
-        - 21493
-        - 30594
-        - 26593
-        - 1
-vacuum_living:
-  alias: Vacuum Living
-  sequence:
-  - service: vacuum.send_command
-    data:
-      entity_id: vacuum.xiaomi_vacuum_cleaner
-      command: app_zoned_clean
-      params:
-      - - 24260
-        - 16982
-        - 30710
-        - 21882
-        - 1
-vacuum_inkom:
-  alias: Vacuum Inkom
-  sequence:
-  - service: vacuum.send_command
-    data:
-      entity_id: vacuum.xiaomi_vacuum_cleaner
-      command: app_zoned_clean
-      params:
-      - - 23110
-        - 14614
-        - 25410
-        - 18664
-        - 1
-vacuum_berging:
-  alias: Vacuum Berging
-  sequence:
-  - service: vacuum.send_command
-    data:
-      entity_id: vacuum.xiaomi_vacuum_cleaner
-      command: app_zoned_clean
-      params:
-      - - 23508
-        - 21814
-        - 25408
-        - 23314
-        - 1
-vacuum_is_done:
-  sequence:
-  - data_template:
-      message: Stofzuiger is klaar
-    service: notify.hazilverberkenstraatbot
-vacuum_is_done_room:
-  sequence:
-  - data_template:
-      message: Stofzuiger is klaar met {{room}}
-    service: notify.hazilverberkenstraatbot
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: '{{ command == ''vacuumemptybindone'' }}'
+      sequence:
+      - service: input_number.set_value
+        data:
+          entity_id: input_number.vacuum_number_of_runs
+          value: 0
+  - service: telegram_bot.answer_callback_query
+    data_template:
+      callback_query_id: '{{ callback_id }}'
+      message: >
+        {% if (command == 'vacuumemptybindone') %}
+        Genoteerd dat de vuilbak is geleegd!
+        {% elif (command == 'vacuumemptybinextend') %}
+        Uitgesteld tot de volgende run!
+        {% endif %}
+  mode: single
 low_battery_notification:
   sequence:
   - service: persistent_notification.create
@@ -401,7 +564,7 @@ play_tts:
   - wait_template: '{{states.media_player.huis.state == ''off''}}'
     timeout: 120
   - delay: 00:00:01
-  - service_template: tts.google_translate_say
+  - service: tts.google_translate_say
     data_template:
       entity_id: media_player.huis
       message: '{{message}}'
@@ -451,12 +614,12 @@ sunrise_wled:
     data_template:
       entity_id: '{{ wled_id }}'
       effect: sunrise
-      speed: "{{ time | int }}"
+      speed: '{{ time | int }}'
       intensity: 255
   - service: light.turn_on
     data_template:
       entity_id: '{{ wled_id }}'
-  - delay: "{{ time | multiply(60) | int }}"
+  - delay: '{{ time | multiply(60) | int }}'
   mode: parallel
   icon: mdi:weather-sunset-up
   max: 4
