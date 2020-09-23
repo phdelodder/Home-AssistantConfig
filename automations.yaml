@@ -974,7 +974,7 @@
     entity_id: input_boolean.daily_vacuum_first_run
   mode: single
 - id: '1600848151975'
-  alias: Telegram Vacuum Response
+  alias: "Telegram: Vacuum Response"
   description: ''
   trigger:
   - platform: event
@@ -988,6 +988,25 @@
   condition: []
   action:
   - service: script.vacuum_bin_feedback
+    data:
+      callback_id: '{{ trigger.event.data.id }}'
+      command: '{{ trigger.event.data[''command''].strip(''/'') }}'
+  mode: single
+- id: '1600848151075'
+  alias: "Telegram: Guest Mode Response"
+  description: ''
+  trigger:
+  - platform: event
+    event_type: telegram_callback
+    event_data:
+      command: /yesguest
+  - platform: event
+    event_type: telegram_callback
+    event_data:
+      command: /noguest
+  condition: []
+  action:
+  - service: script.guest_mode_feedback
     data:
       callback_id: '{{ trigger.event.data.id }}'
       command: '{{ trigger.event.data[''command''].strip(''/'') }}'

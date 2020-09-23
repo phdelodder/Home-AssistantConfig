@@ -95,6 +95,7 @@ ask_to_active_guest_mode:
         - Nee dank u.:/noguest
 
 activate_guest_mode:
+  alias: Active Guest Mode
   sequence:
   - service: input_boolean.turn_on
     data:
@@ -104,6 +105,7 @@ activate_guest_mode:
     data_template:
       message: 'Guest mode activated'
 deactivate_guest_mode:
+  alias: Deactivate Guest Mode
   sequence:
   - condition: state
     entity_id:
@@ -329,6 +331,34 @@ vacuum_bin_feedback:
         {% elif (command == 'vacuumemptybinextend') %}
         Uitgesteld tot de volgende run!
         {% endif %}
+      show_alert: true
+  mode: single
+guest_mode_feedback:
+  alias: Guest Mode feedback
+  fields:
+    command:
+      description: the response command from telegram
+      example: vacuumemptybindone
+    callback_id:
+      description: the callback_id to give a reponse
+      example: ''
+  sequence:
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: '{{ command == ''yesguest'' }}'
+      sequence:
+      - service: script.activate_guest_mode
+  - service: telegram_bot.answer_callback_query
+    data_template:
+      callback_query_id: '{{ callback_id }}'
+      message: >
+        {% if (command == 'yesguest') %}
+        Guest Mode is active
+        {% elif (command == 'noguest') %}
+        Guest Mode is not active
+        {% endif %}
+      show_alert: true
   mode: single
 low_battery_notification:
   sequence:
