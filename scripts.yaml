@@ -3,8 +3,16 @@ leaving:
   sequence:
   - service: script.turn_off_indoor_lights
   - service: script.turn_off_switches_and_store_states
+  - service: script.turn_on_motion_detection_camera
   mode: single
   icon: mdi:home-export-outline
+turn_on_motion_detection_camera:
+  alias: Turn On Motion Detection Camera
+  sequence:
+    - service: switch.turn_on
+      entity_id: switch.oprit_state
+  mode: single
+  icon: mdi:camera-switch
 turn_off_indoor_lights:
   alias: Turn Off Indoor Lights
   sequence:
@@ -14,6 +22,7 @@ turn_off_indoor_lights:
     - light.zolder_group
     - light.gelijkvloers_group
     - light.eerste_verdiep_group
+  icon: mdi:lightbulb
 turn_off_switches_and_store_states:
   alias: Turn off switches and store devices state
   sequence:
@@ -29,14 +38,31 @@ turn_off_switches_and_store_states:
     entity_id:
     - media_player.samsung_samsung_dtv_rcr
     - media_player.huis
+  icon: mdi:light-switch
 arriving:
   alias: Arriving at our house
   sequence:
   - service: script.turn_on_switches_and_stored_states
   - service: script.deactivate_guest_mode
   - service: script.set_thermostat_home
+  - service: script.turn_off_motion_detection_camera
   mode: single
   icon: mdi:home-import-outline
+turn_off_motion_detection_camera:
+  alias: Turn Off Motion Detection Camera
+  sequence:
+    - wait_for_trigger: 
+        platform: state
+        entity_id:
+          - binary_sensor.oprit_camera
+        for:
+          minutes: 5
+        to: 'off'
+      timeout: '01:00:00'
+    - service: switch.turn_off
+      entity_id: switch.oprit_state
+  mode: single
+  icon: mdi:camera-switch
 turn_on_switches_and_stored_states:
   alias: Turn On Switches and Restore Devices State
   sequence:
