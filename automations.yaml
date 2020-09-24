@@ -679,7 +679,7 @@
   description: ''
   trigger:
   - platform: template
-    value_template: '{{ states(''sensor.illuminance_living'') | float > 5 and (states(''sensor.time'')
+    value_template: '{{ states(''sensor.illuminance_living'') | float > 3 and (states(''sensor.time'')
       >= ''05:30:00'' and states(''sensor.time'') <= ''09:30:00'') }}'
   - platform: time
     at: 09:30:00
@@ -709,7 +709,7 @@
     entity_id: binary_sensor.no_one_home
     to: 'off'
   - platform: template
-    value_template: '{{ states(''sensor.illuminance_living'') | float < 15 and (states(''sensor.time'')
+    value_template: '{{ states(''sensor.illuminance_living'') | float < 5 and (states(''sensor.time'')
       >= ''16:00:00'' and states(''sensor.time'') <= ''19:00:00'') }}'
   condition:
   - condition: time
@@ -966,6 +966,7 @@
   - service: input_boolean.turn_on
     data: {}
     entity_id: input_boolean.night_mode
+  - service: script.turn_on_motion_detection_camera
   mode: single
 - id: '1600927587299'
   alias: 'Night Mode: Deactivate'
@@ -988,4 +989,5 @@
   - service: input_boolean.turn_off
     data: {}
     entity_id: input_boolean.night_mode
+  - service: script.turn_off_motion_detection_camera
   mode: single
