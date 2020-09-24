@@ -958,7 +958,8 @@
     - platform: state
       entity_id: media_player.samsung_samsung_dtv_rcr
       to: 'off'
-      for: 00:05:00
+      for: 
+        minutes: 5
     timeout: ''
   - scene: scene.woonkamer_off
   mode: single
