@@ -72,6 +72,7 @@ turn_on_switches_and_stored_states:
   - service: switch.turn_on
     data: {}
     entity_id: switch.boiler_keuken
+  icon: mdi:light-switch
 set_temperature:
   alias: Set Temperature
   sequence:
