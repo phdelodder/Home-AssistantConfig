@@ -89,18 +89,26 @@ set_temperature:
   - service: input_boolean.turn_off
     data:
       entity_id: input_boolean.tempsetactive
+  mode: single
+  icon: mdi:thermostat
 set_thermostat_away:
+  alias: Set Thermostat to away
   sequence:
   - data:
       preset_mode: away
       entity_id: climate.downstairs
     service: climate.set_preset_mode
+  mode: single
+  icon: mdi:thermostat
 set_thermostat_home:
+  alias: Set Thermostat to home
   sequence:
   - data:
       present_mode: none
       entity_id: climate.downstairs
     service: climate.set_present_mode
+  mode: single
+  icon: mdi:thermostat
 start_up_home_assistant:
   alias: Start Up Home Assistant
   sequence: []
