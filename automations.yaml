@@ -479,40 +479,28 @@
   - choose:
     - conditions:
       - condition: template
-        value_template: '{{ trigger.to_state.attributes == ''Woonkamer'' }}'
+        value_template: '{{ trigger.to_state.attributes.source == ''Woonkamer'' }}'
       sequence:
       - data:
-          entity_id:
-          - media_player.snapcast_client_hentho
           source: Spotify-Woonkamer
         service: media_player.select_source
-      - service: input_select.select_option
-        data:
-          entity_id: input_select.source_woonkamer
-          option: Spotify
+        entity_id: media_player.snapcast_client_hentho
     - conditions:
       - condition: template
-        value_template: '{{ trigger.to_state.attributes == ''Bureau'' }}'
+        value_template: '{{ trigger.to_state.attributes.source  == ''Bureau'' }}'
       sequence:
       - data:
-          entity_id:
-          - media_player.snapcast_client_xgin
           source: Spotify-Bureau
         service: media_player.select_source
-      - service: input_select.select_option
-        data:
-          entity_id: input_select.source_bureau
-          option: Spotify
+        entity_id: media_player.snapcast_client_xgin
     - conditions:
       - condition: template
-        value_template: '{{trigger.to_state.attributes.source==''Huis''}}'
+        value_template: '{{ trigger.to_state.attributes.source  ==''Huis''}}'
       sequence:
       - data:
-          entity_id:
-          - media_player.snapcast_client_hentho
-          - media_player.snapcast_client_xgin
           source: Spotify-Huis
         service: media_player.select_source
+        entity_id: media_player.snapcast_client_hentho,media_player.snapcast_client_xgin
   mode: single
 - id: '1589881124105'
   alias: Mute Snapcast Woonkamer, when tv is on
@@ -527,7 +515,8 @@
   action:
   - service: media_player.volume_mute
     entity_id: media_player.snapcast_client_hentho
-    data: {}
+    data:
+      is_volume_muted: true
   mode: single
 - id: shellies_announce
   alias: Shellies Announce
