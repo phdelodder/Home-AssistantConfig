@@ -15,7 +15,7 @@ turn_off_indoor_lights:
     - light.gelijkvloers_group
     - light.eerste_verdiep_group
 turn_off_switches_and_store_states:
-  alias: Store devices state
+  alias: Turn off switches and store devices state
   sequence:
   - service: scene.create
     data:
