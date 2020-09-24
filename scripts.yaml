@@ -4,7 +4,7 @@ leaving:
   - service: script.turn_off_indoor_lights
   - service: script.turn_off_switches_and_store_states
   mode: single
-  icon: mdi:home-export-outline  
+  icon: mdi:home-export-outline
 turn_off_indoor_lights:
   alias: Turn Off Indoor Lights
   sequence:
@@ -26,17 +26,17 @@ turn_off_switches_and_store_states:
     data: {}
     entity_id: switch.boiler_keuken
   - service: media_player.turn_off
-    entity_id: 
-      - media_player.samsung_samsung_dtv_rcr
-      - media_player.huis
+    entity_id:
+    - media_player.samsung_samsung_dtv_rcr
+    - media_player.huis
 arriving:
   alias: Arriving at our house
   sequence:
-    - service: script.turn_on_switches_and_stored_states
-    - service: script.deactivate_guest_mode
-    - service: script.set_thermostat_home
+  - service: script.turn_on_switches_and_stored_states
+  - service: script.deactivate_guest_mode
+  - service: script.set_thermostat_home
   mode: single
-  icon: mdi:home-import-outline 
+  icon: mdi:home-import-outline
 turn_on_switches_and_stored_states:
   alias: Turn On Switches and Restore Devices State
   sequence:
@@ -46,7 +46,6 @@ turn_on_switches_and_stored_states:
   - service: switch.turn_on
     data: {}
     entity_id: switch.boiler_keuken
-
 set_temperature:
   alias: Set Temperature
   sequence:
@@ -63,37 +62,32 @@ set_temperature:
   - service: input_boolean.turn_off
     data:
       entity_id: input_boolean.tempsetactive
-
 set_thermostat_away:
   sequence:
   - data:
       preset_mode: away
       entity_id: climate.downstairs
     service: climate.set_preset_mode
-
 set_thermostat_home:
   sequence:
   - data:
       present_mode: none
       entity_id: climate.downstairs
     service: climate.set_present_mode
-
 start_up_home_assistant:
   alias: Start Up Home Assistant
   sequence: []
-
 ask_to_active_guest_mode:
   alias: Ask to active guest mode
   sequence:
-    - service: telegram_bot.send_message
-      data_template:
-        target: '[ 689595780, 696299625 ]'
-        title: Guest Mode Activation
-        message: Wil je Guest Mode activeren? 
-        inline_keyboard:
-        - Ja graag.:/yesguest
-        - Nee dank u.:/noguest
-
+  - service: telegram_bot.send_message
+    data_template:
+      target: '[ 689595780, 696299625 ]'
+      title: Guest Mode Activation
+      message: Wil je Guest Mode activeren?
+      inline_keyboard:
+      - Ja graag.:/yesguest
+      - Nee dank u.:/noguest
 activate_guest_mode:
   alias: Active Guest Mode
   sequence:
@@ -103,27 +97,26 @@ activate_guest_mode:
   - service: script.set_thermostat_home
   - service: notify.hazilverberkenstraatbot
     data_template:
-      message: 'Guest mode activated'
+      message: Guest mode activated
 deactivate_guest_mode:
   alias: Deactivate Guest Mode
   sequence:
   - condition: state
     entity_id:
-      - binary_sensor.guest_mode
+    - binary_sensor.guest_mode
     state: 'on'
   - service: input_boolean.turn_off
     data:
       entity_id: input_boolean.guest_mode
   - service: notify.hazilverberkenstraatbot
     data_template:
-      message: 'Guest mode deactivated'
+      message: Guest mode deactivated
 notify_afval:
   alias: Notify Afval
   sequence:
   - service: notify.hazilverberkenstraatbot
     data_template:
       message: '{{ states(''sensor.recycleapp_morgen'') }} morgen buiten zetten!'
-
 motion_detected:
   alias: Motion Detected
   mode: parallel
@@ -144,7 +137,6 @@ motion_detected:
         - file: /config/www/snapshots/camera.oprit.jpg
           caption: Beweging gedecteerd door {{ sensor }}
   - service: script.ask_to_active_guest_mode
-
 vacuum:
   alias: Vacuum
   mode: single
@@ -325,12 +317,11 @@ vacuum_bin_feedback:
   - service: telegram_bot.answer_callback_query
     data_template:
       callback_query_id: '{{ callback_id }}'
-      message: >
-        {% if (command == 'vacuumemptybindone') %}
-        Genoteerd dat de vuilbak is geleegd!
-        {% elif (command == 'vacuumemptybinextend') %}
-        Uitgesteld tot de volgende run!
-        {% endif %}
+      message: '{% if (command == ''vacuumemptybindone'') %} Genoteerd dat de vuilbak
+        is geleegd! {% elif (command == ''vacuumemptybinextend'') %} Uitgesteld tot
+        de volgende run! {% endif %}
+
+        '
       show_alert: true
   mode: single
 guest_mode_feedback:
@@ -352,12 +343,10 @@ guest_mode_feedback:
   - service: telegram_bot.answer_callback_query
     data_template:
       callback_query_id: '{{ callback_id }}'
-      message: >
-        {% if (command == 'yesguest') %}
-        Guest Mode is active
-        {% elif (command == 'noguest') %}
-        Guest Mode is not active
-        {% endif %}
+      message: '{% if (command == ''yesguest'') %} Guest Mode is active {% elif (command
+        == ''noguest'') %} Guest Mode is not active {% endif %}
+
+        '
       show_alert: true
   mode: single
 low_battery_notification:
@@ -427,204 +416,8 @@ wakeup_light_sunrise:
     service: light.turn_on
   - delay:
       seconds: 15
-ui_tts:
-  sequence:
-  - service: script.turn_on
-    entity_id: script.play_tts
-    data_template:
-      variables:
-        message: '{{states.input_text.tts.state}}'
-snapshot_spotify:
-  sequence:
-  - service: variable.set_variable
-    data:
-      variable: spotify_phdelodder
-      value_template: "{% if is_state('media_player.spotify_phdelodder', 'playing')\
-        \ and (\n   is_state_attr('media_player.spotify_phdelodder', 'source', 'Huis')\
-        \ or\n   is_state_attr('media_player.spotify_phdelodder', 'source', 'Tablet')\
-        \ or\n   is_state_attr('media_player.spotify_phdelodder', 'source', 'Bureau')\
-        \ or\n   is_state_attr('media_player.spotify_phdelodder', 'source', 'Woonkamer'))\
-        \ %}\nTrue {% else %} False {% endif %}\n"
-  - service: variable.set_variable
-    data:
-      variable: spotify_febe
-      value_template: "{% if is_state('media_player.spotify_febe', 'playing') and\
-        \ (\n   is_state_attr('media_player.spotify_febe', 'source', 'Huis') or\n\
-        \   is_state_attr('media_player.spotify_febe', 'source', 'Tablet') or\n  \
-        \ is_state_attr('media_player.spotify_febe', 'source', 'Bureau') or\n   is_state_attr('media_player.spotify_febe',\
-        \ 'source', 'Woonkamer')) %}\nTrue {% else %} False {% endif %}\n"
-  - service: variable.set_variable
-    data:
-      variable: spotify_margot
-      value_template: "{% if is_state('media_player.spotify_margot', 'playing') and\
-        \ (\n   is_state_attr('media_player.spotify_margot', 'source', 'Huis') or\n\
-        \   is_state_attr('media_player.spotify_margot', 'source', 'Tablet') or\n\
-        \   is_state_attr('media_player.spotify_margot', 'source', 'Bureau') or\n\
-        \   is_state_attr('media_player.spotify_margot', 'source', 'Woonkamer')) %}\n\
-        True {% else %} False {% endif %}\n"
-  - service: variable.set_variable
-    data:
-      variable: spotify_isabel
-      value_template: "{% if is_state('media_player.spotify_isabel', 'playing') and\
-        \ (\n   is_state_attr('media_player.spotify_isabel', 'source', 'Huis') or\n\
-        \   is_state_attr('media_player.spotify_isabel', 'source', 'Tablet') or\n\
-        \   is_state_attr('media_player.spotify_isabel', 'source', 'Bureau') or\n\
-        \   is_state_attr('media_player.spotify_isabel', 'source', 'Woonkamer')) %}\n\
-        True {% else %} False {% endif %}\n"
-  - condition: template
-    value_template: "{{ is_state('variable.spotify_isabel', \"True\") \n   or is_state('variable.spotify_febe',\
-      \ \"True\") \n   or is_state('variable.spotify_margot', \"True\") \n   or is_state('variable.spotify_phdelodder',\
-      \ \"True\") }}"
-  - service: media_player.media_pause
-    data_template:
-      entity_id: "{% if is_state('variable.spotify_isabel', \"True\") %}\n media_player.spotify_isabel\n\
-        {% endif %} {% if is_state('variable.spotify_febe', \"True\") %}\n media_player.spotify_febe\n\
-        {% endif %} {% if is_state('variable.spotify_margot', \"True\") %}\n media_player.spotify_margot\n\
-        {% endif %} {% if is_state('variable.spotify_phdelodder', \"True\") %}\n media_player.spotify_phdelodder\n\
-        {% endif %}"
-restore_spotify_user:
-  sequence:
-  - condition: template
-    value_template: '{{ is_state( var , "True") }}'
-  - service: media_player.media_play
-    data_template:
-      entity_id: '{{ media_player }}'
-  - service: variable.set_variable
-    data_template:
-      variable: '{{ var_short }}'
-      value: false
-restore_spotify:
-  sequence:
-  - condition: template
-    value_template: "{{ is_state('variable.spotify_isabel', \"True\") or\n   is_state('variable.spotify_febe',\
-      \ \"True\") or\n   is_state('variable.spotify_margot', \"True\") or\n   is_state('variable.spotify_phdelodder',\
-      \ \"True\") }}"
-  - service: script.turn_on
-    entity_id: script.restore_spotify_user
-    data:
-      variables:
-        media_player: media_player.spotify_isabel
-        var: variable.spotify_isabel
-        var_short: spotify_isabel
-  - service: script.turn_on
-    entity_id: script.restore_spotify_user
-    data:
-      variables:
-        media_player: media_player.spotify_febe
-        var: variable.spotify_febe
-        var_short: spotify_febe
-  - service: script.turn_on
-    entity_id: script.restore_spotify_user
-    data:
-      variables:
-        media_player: media_player.spotify_margot
-        var: variable.spotify_margot
-        var_short: spotify_margot
-  - service: script.turn_on
-    entity_id: script.restore_spotify_user
-    data:
-      variables:
-        media_player: media_player.spotify_phdelodder
-        var: variable.spotify_phdelodder
-        var_short: spotify_phdelodder
-snapshot_mopidy:
-  sequence:
-  - service: variable.set_variable
-    data:
-      variable: mpd_huis
-      value_template: "{% if is_state('media_player.huis', 'playing') %}\n  True\n\
-        {% else %}\n  False\n{% endif%}\n"
-  - service: variable.set_variable
-    data:
-      variable: mpd_huis_stream
-      value_template: "{% if is_state('media_player.huis', 'playing') %}\n  {{ states.media_player.huis.attributes.media_content_id\
-        \ }}\n{% else %}\n   \n{% endif%}\n"
-restore_mopidy:
-  sequence:
-  - condition: template
-    value_template: '{{ is_state(''variable.mpd_huis'', "True") }}'
-  - data_template:
-      entity_id: media_player.huis
-      media_content_id: '{{ states(''variable.mpd_huis_stream'') }}
-
-        '
-      media_content_type: music
-    service: media_player.play_media
-  - service: variable.set_variable
-    data:
-      variable: mpd_huis
-      value: false
-play_tts:
-  sequence:
-  - service: snapcast.snapshot
-    data:
-      entity_id:
-      - media_player.snapcast_client_hentho
-      - media_player.snapcast_client_xgin
-      - media_player.snapcast_client_tablet
-  - service: script.turn_on
-    entity_id: script.snapshot_spotify
-  - service: script.turn_on
-    entity_id: script.snapshot_mopidy
-  - service: media_player.media_pause
-    entity_id: media_player.huis
-  - service: media_player.select_source
-    data:
-      entity_id:
-      - media_player.snapcast_client_hentho
-      - media_player.snapcast_client_xgin
-      - media_player.snapcast_client_tablet
-      source: Mopidy
-  - service: media_player.volume_set
-    data:
-      entity_id:
-      - media_player.snapcast_client_hentho
-      - media_player.snapcast_client_xgin
-      - media_player.snapcast_client_tablet
-      volume_level: 1.0
-  - service: media_player.volume_mute
-    data:
-      entity_id:
-      - media_player.snapcast_client_hentho
-      - media_player.snapcast_client_xgin
-      - media_player.snapcast_client_tablet
-      is_volume_muted: false
-  - service: media_player.play_media
-    data:
-      entity_id: media_player.huis
-      media_content_id: https://ha.delodder.be/local/hail.mp3
-      media_content_type: music
-  - wait_template: '{{states.media_player.huis.state == ''off''}}'
-    timeout: 120
-  - delay: 00:00:01
-  - service: tts.google_translate_say
-    data_template:
-      entity_id: media_player.huis
-      message: '{{message}}'
-  - wait_template: '{{states.media_player.huis.state == ''off''}}'
-    timeout: 120
-  - delay: 00:00:04
-  - service: media_player.media_pause
-    data_template:
-      entity_id: media_player.huis
-  - service: snapcast.restore
-    data:
-      entity_id:
-      - media_player.snapcast_client_hentho
-      - media_player.snapcast_client_xgin
-      - media_player.snapcast_client_tablet
-  - service: script.turn_on
-    entity_id: script.restore_spotify
-  - service: script.turn_on
-    entity_id: script.restore_mopidy
-play_tts_nodered:
-  sequence: []
 play_studiobrussel_home:
   sequence:
-  - service: variable.set_variable
-    data:
-      variable: radio_playing
-      value: StuBru
   - data_template:
       entity_id: media_player.huis
       media_content_id: "{% if states('input_select.stu_bru_streams') == 'Bruut' %}\n\
