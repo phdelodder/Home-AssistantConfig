@@ -494,3 +494,23 @@ sunrise_wled:
   mode: parallel
   icon: mdi:weather-sunset-up
   max: 4
+activate_night_mode:
+  alias: Active Guest Mode
+  sequence:
+  - service: input_boolean.turn_on
+    data:
+      entity_id: input_boolean.night_mode
+deactivate_night_mode:
+  alias: Deactivate Guest Mode
+  sequence:
+  - service: input_boolean.turn_off
+    data:
+      entity_id: input_boolean.night_mode
+night_mode_turn_on:
+  alias: Night Mode Turn On
+  sequence:
+    - service: script.turn_on_motion_detection_camera
+night_mode_turn_off:
+  alias: Night Mode Turn Off
+  sequence:
+    - service: script.turn_off_motion_detection_camera

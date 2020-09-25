@@ -976,7 +976,6 @@
   - service: input_boolean.turn_on
     data: {}
     entity_id: input_boolean.night_mode
-  - service: script.turn_on_motion_detection_camera
   mode: single
 - id: '1600927587299'
   alias: 'Night Mode: Deactivate'
@@ -984,6 +983,8 @@
   trigger:
   - platform: time
     at: 07:00:00
+  - platform: time
+    at: 08:00:00
   - platform: state
     entity_id: binary_sensor.no_one_home
     to: 'off'
@@ -996,10 +997,25 @@
     after: 07:00:00
     before: '21:30:00'
   action:
-  - service: input_boolean.turn_off
-    data: {}
-    entity_id: input_boolean.night_mode
-  - service: script.turn_off_motion_detection_camera
+  - choose:
+    - conditions:
+      - condition: time
+        weekday:
+        - mon
+        - tue
+        - wed
+        - thu
+        - fri
+      sequence:
+      - service: script.deactivate_night_mode
+    - conditions:
+      - condition: time
+        weekday:
+        - sat
+        - sun
+      sequence:
+      - service: script.deactivate_night_mode
+    default: []
   mode: single
 - id: '1600928587299'
   alias: 'Notify: Bureau Led Door Opened'
@@ -1028,3 +1044,14 @@
   - delay:
       minutes: 1
   - scene: scene.notify_led_bureau
+- id: '1600928588299'
+  alias: 'Night Mode: Toggle'
+  description: ''
+  trigger: 
+  - platform: state
+    entity_id: binary_sensor.night_mode
+    for:
+      minutes: 1
+  condition: []
+  action:
+  - service: script.night_mode_turn_{{ trigger.to_state.state }}
