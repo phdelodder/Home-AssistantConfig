@@ -762,13 +762,18 @@
     at: '22:00:00'
   condition: []
   action:
-  - wait_for_trigger:
-    - platform: state
-      entity_id: media_player.samsung_samsung_dtv_rcr
-      to: 'off'
-      for:
-        minutes: 5
-    timeout: ''
+  - choose:
+    - conditions:
+        condition: state
+        entity_id: binary_sensor.samsung_samsung_dtv_rcr
+        state: 'on'
+      sequence:
+        - wait_for_trigger: 
+            platform: state
+            entity_id: binary_sensor.samsung_samsung_dtv_rcr
+            for:
+              minutes: 5
+            to: 'off'
   - scene: scene.woonkamer_off
   mode: single
 - id: '1600846307260'
@@ -980,3 +985,30 @@
     entity_id: input_boolean.night_mode
   - service: script.turn_off_motion_detection_camera
   mode: single
+- id: '1600928587299'
+  alias: 'Notify: Bureau Led Door Opened' 
+  description: ""
+  trigger: 
+  - platform: state
+    entity_id: 
+      - binary_sensor.voor_deur
+      - binary_sensor.keuken_deur
+      - binary_sensor.achter_deur
+      - binary_sensor.garage_deur
+    from: 'off'
+    to: 'on'
+  condition: []
+  action:
+  - service: scene.create
+    data:
+      scene_id: notify_led_bureau
+      snapshot_entities:
+      - light.geometric_lamp
+  - service: light.turn_on
+    data:
+      effect: police
+      brightness_pct: 100
+    entity_id: light.geometric_lamp
+  - delay:
+      minutes: 1
+  - scene: scene.notify_led_bureau
