@@ -782,12 +782,12 @@
   - choose:
     - conditions:
         condition: state
-        entity_id: binary_sensor.samsung_samsung_dtv_rcr
+        entity_id: media_player.samsung_samsung_dtv_rcr
         state: 'on'
       sequence:
       - wait_for_trigger:
           platform: state
-          entity_id: binary_sensor.samsung_samsung_dtv_rcr
+          entity_id: media_player.samsung_samsung_dtv_rcr
           for:
             minutes: 5
           to: 'off'
