@@ -590,143 +590,14 @@
 - id: '1588064326445'
   name: Default Speelkamer
   entities:
-    light.geometric_lamp:
-      brightness: 255
-      effect: Colorloop
-      effect_list:
-      - Android
-      - Blink
-      - Blink Rainbow
-      - Bouncing Balls
-      - Bpm
-      - Breathe
-      - Candle
-      - Chase
-      - Chase Flash
-      - Chase Flash Rnd
-      - Chase Rainbow
-      - Chase Random
-      - Circus
-      - Colorful
-      - Colorloop
-      - Colortwinkles
-      - Colorwaves
-      - Dissolve
-      - Dissolve Rnd
-      - Drip
-      - Dynamic
-      - Fade
-      - Fill Noise
-      - Fire 2012
-      - Fire Flicker
-      - Fireworks
-      - Fireworks 1D
-      - Fireworks Starburst
-      - Glitter
-      - Gradient
-      - Halloween
-      - Halloween Eyes
-      - Heartbeat
-      - ICU
-      - Juggle
-      - Lake
-      - Lighthouse
-      - Lightning
-      - Loading
-      - Merry Christmas
-      - Meteor
-      - Meteor Smooth
-      - Multi Comet
-      - Noise 1
-      - Noise 2
-      - Noise 3
-      - Noise 4
-      - Oscillate
-      - Palette
-      - Percent
-      - Plasma
-      - Police
-      - Police All
-      - Popcorn
-      - Pride 2015
-      - Railway
-      - Rain
-      - Rainbow
-      - Rainbow Runner
-      - Random Colors
-      - Red & Blue
-      - Ripple
-      - Ripple Rainbow
-      - Running
-      - Running 2
-      - Saw
-      - Scan
-      - Scan Dual
-      - Scanner
-      - Scanner Dual
-      - Sinelon
-      - Sinelon Dual
-      - Sinelon Rainbow
-      - Solid
-      - Solid Pattern
-      - Solid Pattern Tri
-      - Sparkle
-      - Sparkle Dark
-      - Sparkle+
-      - Spots
-      - Spots Fade
-      - Stream
-      - Stream 2
-      - Strobe
-      - Strobe Mega
-      - Strobe Rainbow
-      - Sweep
-      - Sweep Random
-      - Theater
-      - Theater Rainbow
-      - Traffic Light
-      - Tri Chase
-      - Tri Fade
-      - Tri Wipe
-      - Twinkle
-      - Twinklecat
-      - Twinklefox
-      - Two Areas
-      - Two Dots
-      - Wipe
-      - Wipe Random
-      friendly_name: Geometric Lamp
-      hs_color:
-      - 300
-      - 100
-      icon: mdi:led-strip-variant
-      intensity: 128
-      max_mireds: 500
-      min_mireds: 153
-      palette: Default
-      playlist:
-      preset:
-      reverse: false
-      rgb_color:
-      - 255
-      - 0
-      - 255
-      speed: 128
-      state: 'on'
-      supported_features: 55
-      xy_color:
-      - 0.385
-      - 0.155
     light.led_speelkamer:
-      brightness: 255
-      effect: '2'
       effect_list:
       - '0'
       - '1'
       - '2'
       - '3'
       - '4'
-      friendly_name: led speelkamer
+      brightness: 255
       hs_color:
       - 300
       - 100
@@ -734,14 +605,17 @@
       - 255
       - 0
       - 255
-      state: 'on'
-      supported_features: 21
       xy_color:
       - 0.385
       - 0.155
+      effect: '2'
+      friendly_name: Led Speelkamer
+      icon: mdi:led-strip-variant
+      supported_features: 21
+      state: 'on'
     light.plank:
-      brightness: 255
-      effect: Colorloop
+      min_mireds: 153
+      max_mireds: 500
       effect_list:
       - Android
       - Blink
@@ -750,16 +624,19 @@
       - Bpm
       - Breathe
       - Candle
+      - Candle Multi
       - Chase
       - Chase Flash
       - Chase Flash Rnd
       - Chase Rainbow
       - Chase Random
+      - Chunchun
       - Circus
       - Colorful
       - Colorloop
       - Colortwinkles
       - Colorwaves
+      - Dancing Shadows
       - Dissolve
       - Dissolve Rnd
       - Drip
@@ -771,6 +648,7 @@
       - Fireworks
       - Fireworks 1D
       - Fireworks Starburst
+      - Flow
       - Glitter
       - Gradient
       - Halloween
@@ -790,9 +668,13 @@
       - Noise 2
       - Noise 3
       - Noise 4
+      - Noise Pal
       - Oscillate
+      - Pacifica
       - Palette
       - Percent
+      - Phased
+      - Phased Noise
       - Plasma
       - Police
       - Police All
@@ -813,10 +695,12 @@
       - Scan Dual
       - Scanner
       - Scanner Dual
+      - Sine
       - Sinelon
       - Sinelon Dual
       - Sinelon Rainbow
       - Solid
+      - Solid Glitter
       - Solid Pattern
       - Solid Pattern Tri
       - Sparkle
@@ -829,6 +713,7 @@
       - Strobe
       - Strobe Mega
       - Strobe Rainbow
+      - Sunrise
       - Sweep
       - Sweep Random
       - Theater
@@ -840,66 +725,50 @@
       - Twinkle
       - Twinklecat
       - Twinklefox
+      - Twinkleup
       - Two Areas
       - Two Dots
       - Wipe
       - Wipe Random
-      friendly_name: Plank
+      brightness: 255
       hs_color:
       - 300
       - 100
-      icon: mdi:led-strip-variant
-      intensity: 128
-      max_mireds: 500
-      min_mireds: 153
-      palette: Default
-      playlist:
-      preset:
-      reverse: false
       rgb_color:
       - 255
       - 0
       - 255
-      speed: 128
-      state: 'on'
-      supported_features: 55
       xy_color:
       - 0.385
       - 0.155
-    switch.geometric_lamp_nightlight:
-      duration: 60
-      fade: true
-      friendly_name: Geometric Lamp Nightlight
-      icon: mdi:weather-night
-      state: 'off'
-      target_brightness: 0
-    switch.geometric_lamp_sync_receive:
-      friendly_name: Geometric Lamp Sync Receive
-      icon: mdi:download-network-outline
-      state: 'off'
-      udp_port: 21324
-    switch.geometric_lamp_sync_send:
-      friendly_name: Geometric Lamp Sync Send
-      icon: mdi:upload-network-outline
-      state: 'off'
-      udp_port: 21324
+      effect: Colorloop
+      intensity: 128
+      palette: Default
+      playlist:
+      preset:
+      reverse: false
+      speed: 128
+      friendly_name: Plank
+      icon: mdi:led-strip-variant
+      supported_features: 55
+      state: 'on'
     switch.plank_nightlight:
       duration: 60
       fade: true
+      target_brightness: 0
       friendly_name: Plank Nightlight
       icon: mdi:weather-night
       state: 'off'
-      target_brightness: 0
     switch.plank_sync_receive:
+      udp_port: 21324
       friendly_name: Plank Sync Receive
       icon: mdi:download-network-outline
       state: 'off'
-      udp_port: 21324
     switch.plank_sync_send:
+      udp_port: 21324
       friendly_name: Plank Sync Send
       icon: mdi:upload-network-outline
       state: 'off'
-      udp_port: 21324
 - id: '1592226328848'
   name: Testing
   entities:
