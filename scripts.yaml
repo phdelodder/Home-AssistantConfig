@@ -51,9 +51,10 @@ arriving:
 turn_off_motion_detection_camera:
   alias: Turn Off Motion Detection Camera
   sequence:
+    - delay: 
+        minutes: 1
     - condition: state
-      entity_id:
-        - binary_sensor.night_mode
+      entity_id: binary_sensor.night_mode
       for:
         minutes: 1
       state: 'off'
@@ -77,9 +78,7 @@ turn_off_motion_detection_camera:
 turn_on_switches_and_stored_states:
   alias: Turn On Switches and Restore Devices State
   sequence:
-  - service: scene.turn_on
-    data:
-      entity_id: scene.stored_states
+  - scene: scene.stored_states
   - service: switch.turn_on
     data: {}
     entity_id: switch.boiler_keuken
