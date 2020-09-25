@@ -23,7 +23,8 @@
     - binary_sensor.motion_wc_beneden
     - binary_sensor.motion_gang_eerste_2
     - binary_sensor.motion_gang_eerste_1
-    - binary_sensor.motion_inkom
+    - binary_sensor.motion_inkom_1
+    - binary_sensor.motion_inkom_2
     - binary_sensor.motion_gang_zolder
     - binary_sensor.motion_voordeur
     - binary_sensor.motion_bureau
@@ -869,12 +870,12 @@
     entity_id:
     - binary_sensor.bureau_motion
     - binary_sensor.speelkamer_motion
-    - binary_sensor.motion_achterdeur
     - binary_sensor.motion_wc_boven
     - binary_sensor.motion_wc_beneden
     - binary_sensor.motion_gang_eerste_2
     - binary_sensor.motion_gang_eerste_1
-    - binary_sensor.motion_inkom
+    - binary_sensor.motion_inkom_1
+    - binary_sensor.motion_inkom_2
     - binary_sensor.motion_gang_zolder
     - binary_sensor.motion_bureau
     - binary_sensor.motion_logeerkamer
