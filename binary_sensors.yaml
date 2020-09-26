@@ -40,3 +40,6 @@
   device_class: "moisture"
 
 - platform: zoneminder
+
+- platform: workday
+  country: BE
