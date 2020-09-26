@@ -495,13 +495,13 @@ sunrise_wled:
   icon: mdi:weather-sunset-up
   max: 4
 activate_night_mode:
-  alias: Active Guest Mode
+  alias: Active Night Mode
   sequence:
   - service: input_boolean.turn_on
     data:
       entity_id: input_boolean.night_mode
 deactivate_night_mode:
-  alias: Deactivate Guest Mode
+  alias: Deactivate Night Mode
   sequence:
   - service: input_boolean.turn_off
     data:
