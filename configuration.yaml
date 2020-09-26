@@ -21,6 +21,12 @@ frontend:
 
 recorder:
   db_url: !secret db_url
+  exclude:
+    entities:
+      - sensor.time
+      - sensor.time_utc
+      - sensor.date
+      - sensor.date_time
 
 discovery:
 
