@@ -402,11 +402,11 @@
     - conditions:
       - condition: time
         weekday:
+        - sun
         - mon
         - tue
         - wed
         - thu
-        - fri
       sequence:
       - service: input_datetime.set_datetime
         data:
@@ -415,8 +415,8 @@
     - conditions:
       - condition: time
         weekday:
+        - fri
         - sat
-        - sun
       sequence:
       - service: input_datetime.set_datetime
         data:
@@ -438,11 +438,11 @@
     - conditions:
       - condition: time
         weekday:
+        - sun
         - mon
         - tue
         - wed
         - thu
-        - fri
       sequence:
       - service: input_datetime.set_datetime
         data:
@@ -451,8 +451,8 @@
     - conditions:
       - condition: time
         weekday:
-        - sat
-        - sun
+          - fri
+          - sat
       sequence:
       - service: input_datetime.set_datetime
         data:
