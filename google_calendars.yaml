@@ -1,49 +1,49 @@
 
-- cal_id: delodder.be_0n8otjlagcbong8cjq2er6stds@group.calendar.google.com
+- cal_id: family13308496197359806202@group.calendar.google.com
+  entities:
+  - device_id: gezin
+    ignore_availability: true
+    name: Gezin
+    track: true
+
+- cal_id: mt4c5qs78vlg9dtp6dbsk4irr4@group.calendar.google.com
   entities:
   - device_id: werk_uren_sint_jan
     ignore_availability: true
     name: Werk Uren Sint-Jan
     track: true
 
-- cal_id: isabel_van_torre@delodder.be
+- cal_id: deloddermargot@gmail.com
   entities:
-  - device_id: isabel_van_torre_delodder_be
+  - device_id: deloddermargot_gmail_com
     ignore_availability: true
-    name: isabel_van_torre@delodder.be
+    name: Margot
     track: true
 
-- cal_id: familie@delodder.be
+- cal_id: addressbook#contacts@group.v.calendar.google.com
   entities:
-  - device_id: familie_delodder_be
+  - device_id: contacts
     ignore_availability: true
-    name: familie@delodder.be
+    name: Contacts
     track: true
 
-- cal_id: febe@delodder.be
+- cal_id: delodderfebe@gmail.com
   entities:
-  - device_id: febe_delodder_be
+  - device_id: delodderfebe_gmail_com
     ignore_availability: true
-    name: febe@delodder.be
+    name: Febe
     track: true
 
-- cal_id: margot@delodder.be
+- cal_id: delodderp@gmail.com
   entities:
-  - device_id: margot_delodder_be
+  - device_id: delodderp_gmail_com
     ignore_availability: true
-    name: margot@delodder.be
+    name: Philippe
     track: true
 
-- cal_id: j08915tugfeor90a8fbca92384@group.calendar.google.com
+- cal_id: nl.be#holiday@group.v.calendar.google.com
   entities:
-  - device_id: bestrijdingsplanning
+  - device_id: feestdagen_in_belgie
     ignore_availability: true
-    name: Bestrijdingsplanning
-    track: true
-
-- cal_id: philippe@delodder.be
-  entities:
-  - device_id: philippe_delodder_be
-    ignore_availability: true
-    name: philippe@delodder.be
+    name: "Feestdagen in Belgi\xEB"
     track: true
