@@ -451,8 +451,8 @@
     - conditions:
       - condition: time
         weekday:
-          - fri
-          - sat
+        - fri
+        - sat
       sequence:
       - service: input_datetime.set_datetime
         data:
@@ -508,15 +508,15 @@
       sequence:
       - data:
           source: Spotify-Huis
-          entity_id: 
-            - media_player.snapcast_client_hentho
-            - media_player.snapcast_client_xgin
+          entity_id:
+          - media_player.snapcast_client_hentho
+          - media_player.snapcast_client_xgin
         service: media_player.select_source
       - data:
           is_volume_muted: false
-          entity_id: 
-            - media_player.snapcast_client_hentho
-            - media_player.snapcast_client_xgin
+          entity_id:
+          - media_player.snapcast_client_hentho
+          - media_player.snapcast_client_xgin
         service: media_player.volume_mute
   mode: single
 - id: '1589881124105'
@@ -979,13 +979,11 @@
     entity_id: input_boolean.night_mode
   mode: single
 - id: '1600927587299'
-  alias: 'Night Mode: Deactivate'
+  alias: 'Night Mode: Deactivate Weekday'
   description: ''
   trigger:
   - platform: time
     at: 07:00:00
-  - platform: time
-    at: 08:00:00
   - platform: state
     entity_id: binary_sensor.no_one_home
     to: 'off'
@@ -997,26 +995,12 @@
   - condition: time
     after: 07:00:00
     before: '21:30:00'
+  - condition: state
+    entity_id: binary_sensor.workday_sensor
+    state: 'on'
   action:
-  - choose:
-    - conditions:
-      - condition: time
-        weekday:
-        - mon
-        - tue
-        - wed
-        - thu
-        - fri
-      sequence:
-      - service: script.deactivate_night_mode
-    - conditions:
-      - condition: time
-        weekday:
-        - sat
-        - sun
-      sequence:
-      - service: script.deactivate_night_mode
-    default: []
+  - service: script.deactivate_night_mode
+    data: {}
   mode: single
 - id: '1600928587299'
   alias: 'Notify: Bureau Led Door Opened'
@@ -1048,7 +1032,7 @@
 - id: '1600928588299'
   alias: 'Night Mode: Toggle'
   description: ''
-  trigger: 
+  trigger:
   - platform: state
     entity_id: binary_sensor.night_mode
     for:
@@ -1056,3 +1040,27 @@
   condition: []
   action:
   - service: script.night_mode_turn_{{ trigger.to_state.state }}
+- id: '1601324314469'
+  alias: 'Night Mode: Deactivate Weekend'
+  description: ''
+  trigger:
+  - platform: time
+    at: 08:00:00
+  - platform: state
+    entity_id: binary_sensor.no_one_home
+    to: 'off'
+    for: 00:01:00
+  condition:
+  - condition: state
+    entity_id: binary_sensor.no_one_home
+    state: 'off'
+  - condition: time
+    after: 08:00:00
+    before: '21:30:00'
+  - condition: state
+    entity_id: binary_sensor.workday_sensor
+    state: 'off'
+  action:
+  - service: script.deactivate_night_mode
+    data: {}
+  mode: single
