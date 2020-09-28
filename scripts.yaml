@@ -9,8 +9,8 @@ leaving:
 turn_on_motion_detection_camera:
   alias: Turn On Motion Detection Camera
   sequence:
-    - service: switch.turn_on
-      entity_id: switch.oprit_state
+  - service: switch.turn_on
+    entity_id: switch.oprit_state
   mode: single
   icon: mdi:camera-switch
 turn_off_indoor_lights:
@@ -51,28 +51,28 @@ arriving:
 turn_off_motion_detection_camera:
   alias: Turn Off Motion Detection Camera
   sequence:
-    - delay: 
-        minutes: 1
-    - condition: state
-      entity_id: binary_sensor.night_mode
-      for:
-        minutes: 1
-      state: 'off'
-    - choose:
-      - conditions:
-          condition: state
-          entity_id: binary_sensor.night_mode
-          state: 'on'
-        sequence:
-          - wait_for_trigger: 
-              platform: state
-              entity_id: binary_sensor.oprit_camera
-              for:
-                minutes: 5
-              to: 'off'
-            timeout: '01:00:00'
-    - service: switch.turn_off
-      entity_id: switch.oprit_state
+  - delay:
+      minutes: 1
+  - condition: state
+    entity_id: binary_sensor.night_mode
+    for:
+      minutes: 1
+    state: 'off'
+  - choose:
+    - conditions:
+        condition: state
+        entity_id: binary_sensor.night_mode
+        state: 'on'
+      sequence:
+      - wait_for_trigger:
+          platform: state
+          entity_id: binary_sensor.oprit_camera
+          for:
+            minutes: 5
+          to: 'off'
+        timeout: 01:00:00
+  - service: switch.turn_off
+    entity_id: switch.oprit_state
   mode: single
   icon: mdi:camera-switch
 turn_on_switches_and_stored_states:
@@ -114,9 +114,9 @@ set_thermostat_home:
   alias: Set Thermostat to home
   sequence:
   - data:
-      present_mode: none
-      entity_id: climate.downstairs
-    service: climate.set_present_mode
+      preset_mode: none
+    service: climate.set_preset_mode
+    entity_id: climate.downstairs
   mode: single
   icon: mdi:thermostat
 start_up_home_assistant:
@@ -509,8 +509,8 @@ deactivate_night_mode:
 night_mode_turn_on:
   alias: Night Mode Turn On
   sequence:
-    - service: script.turn_on_motion_detection_camera
+  - service: script.turn_on_motion_detection_camera
 night_mode_turn_off:
   alias: Night Mode Turn Off
   sequence:
-    - service: script.turn_off_motion_detection_camera
+  - service: script.turn_off_motion_detection_camera
