@@ -490,6 +490,7 @@ sunrise_wled:
   - service: light.turn_on
     data_template:
       entity_id: '{{ wled_id }}'
+      brightness_pct: 70
   - delay: '{{ time | multiply(60) | int }}'
   mode: parallel
   icon: mdi:weather-sunset-up
