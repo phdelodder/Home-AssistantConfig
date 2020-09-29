@@ -182,6 +182,76 @@ motion_detected:
         - file: /config/www/snapshots/camera.oprit.jpg
           caption: Beweging gedecteerd door {{ sensor }}
   - service: script.ask_to_active_guest_mode
+vacuum_notify:
+  alias: Vacuum Notify
+  mode: single
+  fields:
+    zone:
+      description: zone
+      example: keuken
+  sequence:
+    - condition: state
+      entity_id:
+      - input_boolean.disable_dustbin_notification
+      state: 'off'
+    - wait_for_trigger:
+        platform: template
+        value_template: '{{ is_state(''vacuum.xiaomi_vacuum_cleaner'', ''docked'') }}'
+      timeout: 02:00:00
+      continue_on_timeout: false
+    - variables:
+        end_time: '{{ as_timestamp(now()) }}'
+    - variables:
+        total_time: '{{ (end_time|float - start_time|float) }}'
+    - choose:
+      - conditions: 
+        - condition: not
+          conditions:
+          - condition: state
+            entity_id:
+              - input_select.select_option
+            state: 'Selecteer Kamer'
+        sequence:
+          - service: input_select.select_option
+            entity_id: input_select.vacuum_room
+            data:
+              option: Selecteer Kamer
+    - choose:
+      - conditions:
+        - condition: template
+          value_template: '{{ states(''input_number.vacuum_number_of_runs'') | int >=
+            states(''input_number.vacuum_empty_bin_after_days'') | int }}'
+        sequence:
+        - service: telegram_bot.send_message
+          data_template:
+            target: '[ 689595780, 696299625 ]'
+            title: Stofzuiger
+            message: Stofzuiger is klaar na {{ total_time }} minuten. Het is tijd dat
+              de vuilbak van stofzuiger wordt geleegd!
+            inline_keyboard:
+            - Gedaan.:/vacuumemptybindone
+            - Uitstel.:/vacuumemptybinextend
+      default:
+      - service: notify.hazilverberkenstraatbot
+        data_template:
+          message: >
+            {% if zone == '' %}
+            Stofzuiger is klaar na {{ total_time }} minuten
+            {% else %}
+            Stofzuiger is klaar {{zone}} in {{ total_time }} minuten.
+            {% endif %}
+  icon: mdi:robot-vacuum
+vacuum_manual:
+  alias: Vacuum Manual
+  mode: single
+  sequence:
+    - service: vacuum.start
+      data:
+        entity_id: vacuum.xiaomi_vacuum_cleaner
+    - service: script.vacuum_notify
+      data_template:
+        zone: ''
+  icon: mdi:robot-vacuum
 vacuum:
   alias: Vacuum
   mode: single
@@ -204,38 +274,9 @@ vacuum:
     entity_id: input_number.vacuum_number_of_runs
   - service: input_boolean.turn_on
     entity_id: input_boolean.daily_vacuum_first_run
-  - condition: state
-    entity_id:
-    - input_boolean.disable_dustbin_notification
-    state: 'off'
-  - wait_for_trigger:
-      platform: template
-      value_template: '{{ is_state(''vacuum.xiaomi_vacuum_cleaner'', ''docked'') }}'
-    timeout: 02:00:00
-    continue_on_timeout: false
-  - variables:
-      end_time: '{{ as_timestamp(now()) }}'
-  - variables:
-      total_time: '{{ (end_time|float - start_time|float) }}'
-  - choose:
-    - conditions:
-      - condition: template
-        value_template: '{{ states(''input_number.vacuum_number_of_runs'') | int >=
-          states(''input_number.vacuum_empty_bin_after_days'') | int }}'
-      sequence:
-      - service: telegram_bot.send_message
-        data_template:
-          target: '[ 689595780, 696299625 ]'
-          title: Stofzuiger
-          message: Stofzuiger is klaar na {{ total_time }} minuten. Het is tijd dat
-            de vuilbak van stofzuiger wordt geleegd!
-          inline_keyboard:
-          - Gedaan.:/vacuumemptybindone
-          - Uitstel.:/vacuumemptybinextend
-    default:
-    - service: notify.hazilverberkenstraatbot
-      data_template:
-        message: Stofzuiger is klaar na {{ total_time }} minuten
+  - service: script.vacuum_notify
+    data_template:
+      zone: ''
   icon: mdi:robot-vacuum
 vacuum_zone:
   alias: Vacuum a Specific Zone
@@ -318,26 +359,9 @@ vacuum_zone:
           - 25408
           - 23314
           - 1
-  - wait_for_trigger:
-      platform: template
-      value_template: '{{ is_state(''vacuum.xiaomi_vacuum_cleaner'', ''docked'') }}'
-    timeout: 02:00:00
-    continue_on_timeout: false
-  - service: input_select.select_option
-    entity_id: input_select.vacuum_room
-    data:
-      option: Selecteer Kamer
-  - condition: state
-    entity_id:
-    - input_boolean.disable_dustbin_notification
-    state: 'off'
-  - variables:
-      end_time: '{{ as_timestamp(now()) }}'
-  - variables:
-      total_time: '{{ (end_time|float - start_time|float) }}'
-  - service: notify.hazilverberkenstraatbot
+  - service: script.vacuum_notify
     data_template:
-      message: Stofzuiger is klaar met {{zone}} in {{ total_time }} minuten.
+      zone: '{{ zone }}'
   icon: mdi:robot-vacuum
 vacuum_bin_feedback:
   icon: mdi:robot-vacuum
