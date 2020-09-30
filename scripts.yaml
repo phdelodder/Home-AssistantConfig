@@ -420,7 +420,6 @@ guest_mode_feedback:
   - service: telegram_bot.send_message
     data_template:
       target: [ 689595780, 696299625 ]
-      title: Stofzuiger
       message: '{% if (command == ''yesguest'') %} Guest Mode is active {% elif (command
       == ''noguest'') %} Guest Mode is not active {% endif %}'
   mode: single
