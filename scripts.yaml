@@ -415,10 +415,14 @@ guest_mode_feedback:
     data_template:
       callback_query_id: '{{ callback_id }}'
       message: '{% if (command == ''yesguest'') %} Guest Mode is active {% elif (command
-        == ''noguest'') %} Guest Mode is not active {% endif %}
-
-        '
+        == ''noguest'') %} Guest Mode is not active {% endif %}'
       show_alert: true
+  - service: telegram_bot.send_message
+    data_template:
+      target: [ 689595780, 696299625 ]
+      title: Stofzuiger
+      message: '{% if (command == ''yesguest'') %} Guest Mode is active {% elif (command
+      == ''noguest'') %} Guest Mode is not active {% endif %}'
   mode: single
 low_battery_notification:
   sequence:
