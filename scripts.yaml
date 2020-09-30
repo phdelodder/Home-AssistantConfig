@@ -226,7 +226,7 @@ vacuum_notify:
         sequence:
         - service: telegram_bot.send_message
           data_template:
-            target: '[ 689595780, 696299625 ]'
+            target: [ 689595780, 696299625 ]
             title: Stofzuiger
             message: Stofzuiger is klaar na {{ minutes }} minuten. Het is tijd dat
               de vuilbak van stofzuiger wordt geleegd!
