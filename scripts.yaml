@@ -194,6 +194,8 @@ vacuum_notify:
       entity_id:
       - input_boolean.disable_dustbin_notification
       state: 'off'
+    - variables:
+        start_time: '{{ as_timestamp(now()) }}'
     - wait_for_trigger:
         platform: template
         value_template: '{{ is_state(''vacuum.xiaomi_vacuum_cleaner'', ''docked'') }}'
@@ -268,8 +270,6 @@ vacuum:
     - condition: time
       after: 07:00:00
       before: '19:00:00'
-  - variables:
-      start_time: '{{ as_timestamp(now()) }}'
   - service: vacuum.start
     entity_id: vacuum.xiaomi_vacuum_cleaner
   - service: input_number.increment
@@ -288,8 +288,6 @@ vacuum_zone:
       description: zone
       example: keuken
   sequence:
-  - variables:
-      start_time: '{{ as_timestamp(now()) }}'
   - choose:
     - conditions:
       - condition: template
