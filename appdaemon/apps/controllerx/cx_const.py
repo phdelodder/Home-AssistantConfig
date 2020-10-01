@@ -3,13 +3,20 @@ from typing import Any, Awaitable, Callable, Dict, Tuple, Union
 
 ActionFunction = Callable[..., Awaitable[Any]]
 TypeAction = Union[ActionFunction, Tuple, str]
-TypeActionsMapping = Dict[Union[str, int], TypeAction]
+ActionEvent = Union[str, int]
+TypeActionsMapping = Dict[ActionEvent, TypeAction]
 
 
 class Light:
     ON = "on"
     OFF = "off"
     TOGGLE = "toggle"
+    TOGGLE_FULL_BRIGHTNESS = "toggle_full_brightness"
+    TOGGLE_FULL_WHITE_VALUE = "toggle_full_white_value"
+    TOGGLE_FULL_COLOR_TEMP = "toggle_full_color_temp"
+    TOGGLE_MIN_BRIGHTNESS = "toggle_min_brightness"
+    TOGGLE_MIN_WHITE_VALUE = "toggle_min_white_value"
+    TOGGLE_MIN_COLOR_TEMP = "toggle_min_color_temp"
     RELEASE = "release"
     ON_FULL_BRIGHTNESS = "on_full_brightness"
     ON_FULL_WHITE_VALUE = "on_full_white_value"

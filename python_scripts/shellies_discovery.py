@@ -13,6 +13,7 @@ COMP_SWITCH = "switch"
 
 CONF_DEVELOP = "develop"
 CONF_DISCOVERY_PREFIX = "discovery_prefix"
+CONF_EXPIRE_AFTER = "expire_after"
 CONF_FORCE_UPDATE_SENSORS = "force_update_sensors"
 CONF_FRIENDLY_NAME = "friendly_name"
 CONF_FW_VER = "fw_ver"
@@ -111,8 +112,11 @@ KEY_VALUE_TEMPLATE = "val_tpl"
 LIGHT_RGBW = "rgbw"
 LIGHT_WHITE = "white"
 
-MIN_4PRO_FIRMWARE_VERSION = "1.6.5"
-MIN_FIRMWARE_VERSION = "1.8.0"
+# Firmware 1.6.5 release date
+MIN_4PRO_FIRMWARE_DATE = 20200408
+
+# Firmware 1.8.0 release date
+MIN_FIRMWARE_DATE = 20200812
 
 MODEL_SHELLY1 = f"{ATTR_SHELLY} 1"
 MODEL_SHELLY1PM = f"{ATTR_SHELLY} 1PM"
@@ -383,11 +387,8 @@ ROLLER_DEVICE_CLASSES = [
 
 
 def parse_version(version):
-    """Parse version string and return version number as integer."""
-    version = version.split("/")[1].split("@")[0].rsplit(".", 1)
-    version = ["".join(i for i in item if i.isdigit()) for item in version]
-    version = "".join(i for i in version)[:3]
-    return int(version)
+    """Parse version string and return version date integer."""
+    return int(version.rsplit("-", 1)[0])
 
 
 def get_device_config(dev_id):
@@ -419,7 +420,7 @@ def mqtt_publish(topic, payload, retain, qos):
     hass.services.call("mqtt", "publish", service_data, False)  # noqa: F821
 
 
-expire_after = EXPIRE_AFTER_FOR_BATTERY_POWERED
+expire_after = None
 
 qos = 0
 retain = True
@@ -443,7 +444,7 @@ if not fw_ver:
     raise ValueError(f"{fw_ver} is wrong fw_ver argument")
 
 try:
-    cur_ver = parse_version(fw_ver)
+    cur_ver_date = parse_version(fw_ver)
 except (IndexError, ValueError):
     raise ValueError(
         f"Firmware version {fw_ver} is not supported, please update your device {dev_id}"
@@ -451,23 +452,18 @@ except (IndexError, ValueError):
 
 dev_id_prefix = dev_id.rsplit("-", 1)[0].lower()
 
-min_ver = MIN_FIRMWARE_VERSION.split(".")
-min_ver = int("".join(i for i in min_ver)[:3])
-min_ver_4pro = MIN_4PRO_FIRMWARE_VERSION.split(".")
-min_ver_4pro = int("".join(i for i in min_ver_4pro)[:3])
-
 if (
     dev_id_prefix == MODEL_SHELLY4PRO_PREFIX or MODEL_SHELLY4PRO_ID == model_id
-) and cur_ver < min_ver_4pro:
+) and cur_ver_date < MIN_4PRO_FIRMWARE_DATE:
     raise ValueError(
-        f"Firmware version {MIN_4PRO_FIRMWARE_VERSION} is required, please update your device {dev_id}"
+        f"Firmware dated {MIN_4PRO_FIRMWARE_DATE} is required, please update your device {dev_id}"
     )
 
 if (
     dev_id_prefix != MODEL_SHELLY4PRO_PREFIX and MODEL_SHELLY4PRO_ID != model_id
-) and cur_ver < min_ver:
+) and cur_ver_date < MIN_FIRMWARE_DATE:
     raise ValueError(
-        f"Firmware version {MIN_FIRMWARE_VERSION} is required, please update your device {dev_id}"
+        f"Firmware dated {MIN_FIRMWARE_DATE} is required, please update your device {dev_id}"
     )
 
 logger.debug(
@@ -1748,13 +1744,20 @@ for sensor_id in range(len(sensors)):
         state_topic = f"~sensor/{sensors[sensor_id]}"
 
     config_component = COMP_SWITCH
-    if device_config.get(CONF_POWERED) == ATTR_POWER_AC:
-        no_battery_sensor = True
-        expire_after = EXPIRE_AFTER_FOR_AC_POWERED
+    if battery_powered:
+        expire_after = device_config.get(
+            CONF_EXPIRE_AFTER, EXPIRE_AFTER_FOR_BATTERY_POWERED
+        )
+        if device_config.get(CONF_POWERED) == ATTR_POWER_AC:
+            no_battery_sensor = True
+            expire_after = device_config.get(
+                CONF_EXPIRE_AFTER, EXPIRE_AFTER_FOR_AC_POWERED
+            )
+        if not isinstance(expire_after, int):
+            raise TypeError(f"expire_after value {expire_after} is not an integer")
     payload = {
         KEY_NAME: sensor_name,
         KEY_STATE_TOPIC: state_topic,
-        KEY_EXPIRE_AFTER: expire_after,
         KEY_FORCE_UPDATE: str(force_update),
         KEY_UNIQUE_ID: unique_id,
         KEY_QOS: qos,
@@ -1776,16 +1779,18 @@ for sensor_id in range(len(sensors)):
         payload[KEY_DEVICE_CLASS] = sensors_classes[sensor_id]
     if sensors_topics[sensor_id]:
         payload[KEY_STATE_TOPIC] = sensors_topics[sensor_id]
-    if not battery_powered:
-        payload[KEY_AVAILABILITY_TOPIC] = availability_topic
-        payload[KEY_PAYLOAD_AVAILABLE] = VALUE_TRUE
-        payload[KEY_PAYLOAD_NOT_AVAILABLE] = VALUE_FALSE
     if sensors_tpls[sensor_id]:
         payload[KEY_VALUE_TEMPLATE] = sensors_tpls[sensor_id]
     if sensors[sensor_id] == SENSOR_SSID:
         payload[KEY_ICON] = "mdi:wifi"
     elif sensors[sensor_id] == SENSOR_UPTIME:
         payload[KEY_ICON] = "mdi:timer-outline"
+    if battery_powered:
+        payload[KEY_EXPIRE_AFTER] = expire_after
+    else:
+        payload[KEY_AVAILABILITY_TOPIC] = availability_topic
+        payload[KEY_PAYLOAD_AVAILABLE] = VALUE_TRUE
+        payload[KEY_PAYLOAD_NOT_AVAILABLE] = VALUE_FALSE
     if no_battery_sensor and sensors[sensor_id] == SENSOR_BATTERY:
         payload = ""
     if dev_id.lower() in ignored:
@@ -1814,7 +1819,6 @@ for sensor_id in range(ext_temp_sensors):
             KEY_VALUE_TEMPLATE: TPL_TEMPERATURE_EXT,
             KEY_UNIT: UNIT_CELSIUS,
             KEY_DEVICE_CLASS: SENSOR_TEMPERATURE,
-            KEY_EXPIRE_AFTER: expire_after,
             KEY_FORCE_UPDATE: str(force_update),
             KEY_AVAILABILITY_TOPIC: availability_topic,
             KEY_PAYLOAD_AVAILABLE: VALUE_TRUE,
@@ -1856,7 +1860,6 @@ for sensor_id in range(ext_humi_sensors):
             KEY_VALUE_TEMPLATE: TPL_HUMIDITY_EXT,
             KEY_UNIT: UNIT_PERCENT,
             KEY_DEVICE_CLASS: SENSOR_HUMIDITY,
-            KEY_EXPIRE_AFTER: expire_after,
             KEY_FORCE_UPDATE: str(force_update),
             KEY_AVAILABILITY_TOPIC: availability_topic,
             KEY_PAYLOAD_AVAILABLE: VALUE_TRUE,
@@ -1884,6 +1887,17 @@ for bin_sensor_id in range(len(bin_sensors)):
     push_off_delay = True
     if isinstance(device_config.get(CONF_PUSH_OFF_DELAY), bool):
         push_off_delay = device_config.get(CONF_PUSH_OFF_DELAY)
+    if battery_powered:
+        expire_after = device_config.get(
+            CONF_EXPIRE_AFTER, EXPIRE_AFTER_FOR_BATTERY_POWERED
+        )
+        if device_config.get(CONF_POWERED) == ATTR_POWER_AC:
+            no_battery_sensor = True
+            expire_after = device_config.get(
+                CONF_EXPIRE_AFTER, EXPIRE_AFTER_FOR_AC_POWERED
+            )
+        if not isinstance(expire_after, int):
+            raise TypeError(f"expire_after value {expire_after} is not an integer")
     config_mode = LIGHT_RGBW
     if device_config.get(CONF_MODE):
         config_mode = device_config[CONF_MODE]
