@@ -39,8 +39,8 @@
       friendly_name: "Night Mode"
     home_proximity:
       value_template: >-
-        {{ (is_state_attr('proximity.philippe_home','dir_of_travel','dir_of_travel') and state('proximity.philippe_home') | int <= 2) or
-           (is_state_attr('proximity.isabel_home','dir_of_travel','dir_of_travel') and state('proximity.isabel_home') | int <= 2)}}
+        {{ (is_state_attr('proximity.philippe_home','dir_of_travel','towards') and state('proximity.philippe_home') | int <= 2) or
+           (is_state_attr('proximity.isabel_home','dir_of_travel','towards') and state('proximity.isabel_home') | int <= 2)}}
 
 - platform: mqtt
   name: "Oprit Camera"
