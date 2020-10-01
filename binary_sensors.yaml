@@ -5,6 +5,25 @@
       value_template: >
         {{ not is_state("person.philippe", "home")
             and not is_state("person.isabel", "home") }}
+    indoor_motion_detected:
+      friendly_name: Any indoor motion detected
+      value_template: >
+        {{ is_state("binary_sensor.motion_wc_boven", "on")
+            or is_state("binary_sensor.motion_wc_beneden", "on")
+            or is_state("binary_sensor.motion_gang_eerste_2", "on")
+            or is_state("binary_sensor.motion_gang_eerste_1", "on")
+            or is_state("binary_sensor.motion_inkom_1", "on")
+            or is_state("binary_sensor.motion_inkom_2", "on")
+            or is_state("binary_sensor.motion_gang_zolder", "on")
+            or is_state("binary_sensor.motion_bureau", "on")
+            or is_state("binary_sensor.motion_logeerkamer", "on")
+            or is_state("binary_sensor.motion_speelkamer", "on")
+            or is_state("binary_sensor.motion_living", "on") }}
+    indoor_motion_detected_in_last_hour:
+      friendly_name: Any indoor motion detected in last hour
+      value_template: >
+        {{ is_state("binary_sensor.motion_detected", "on") }}
+      delay_off: "01:00:00"
     guest_mode:
       value_template: "{{ is_state('input_boolean.guest_mode','on') }}"
       device_class: presence
