@@ -669,7 +669,7 @@
   - condition: and
     conditions:
     - condition: time
-      after: '5:30:00'
+      after: '6:00:00'
       before: '9:30:00'
     - condition: state
       entity_id: binary_sensor.no_one_home
@@ -686,7 +686,7 @@
   trigger:
   - platform: template
     value_template: '{{ states(''sensor.illuminance_living'') | float > 2 and (states(''sensor.time'')
-      >= ''05:30:00'' and states(''sensor.time'') <= ''09:30:00'') }}'
+      >= ''06:00:00'' and states(''sensor.time'') <= ''09:30:00'') }}'
   - platform: time
     at: 09:30:00
   - platform: state
@@ -695,18 +695,9 @@
     for: 00:30:00
     from: 'on'
   condition:
-  - condition: or
-    conditions:
-    - condition: time
-      after: 09:30:00
-    - condition: and
-      conditions:
-      - condition: numeric_state
-        entity_id: sensor.illuminance_living
-        above: '5'
-      - condition: time
-        after: 05:30:00
-        before: 09:30:00
+  - condition: time
+    after: 06:00:00
+    before: 09:30:00
   action:
   - scene: scene.woonkamer_off
   mode: single
@@ -764,7 +755,7 @@
   condition:
   - condition: time
     after: '22:00:00'
-    before: 06:30:00
+    before: 06:00:00
   - condition: state
     entity_id: binary_sensor.no_one_home
     state: 'on'
