@@ -22,7 +22,7 @@
     motion_detected_indoor_in_last_hour:
       friendly_name: Any indoor motion detected in last hour
       value_template: >
-        {{ is_state("binary_sensor.motion_detected", "on") }}
+        {{ is_state("binary_sensor.motion_detected_indoor", "on") }}
       delay_off: "01:00:00"
     motion_detected_bureau_in_last_hour:
       friendly_name: Any motion detected (bureau) in last hour
