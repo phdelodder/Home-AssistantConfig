@@ -1,13 +1,13 @@
 philippe_home:
   zone: home
   devices:
-    - device_tracker.philippe_smartphone_gpslogger
+    - device_tracker.philippe_smartphone
   tolerance: 50
   unit_of_measurement: km
 
 isabel_home:
   zone: home 
   devices:
-    - device_tracker.isabel_smartphone_gpslogger
+    - device_tracker.isabel_smartphone
   tolerance: 50
   unit_of_measurement: km
