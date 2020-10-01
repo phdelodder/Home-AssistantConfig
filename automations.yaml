@@ -1012,7 +1012,11 @@
     - binary_sensor.garage_deur
     from: 'off'
     to: 'on'
-  condition: []
+  condition: 
+    - condition: state
+      entity_id:
+        - binary_sensor.motion_detected_bureau_in_last_hour
+      state: 'on'
   action:
   - service: scene.create
     data:
