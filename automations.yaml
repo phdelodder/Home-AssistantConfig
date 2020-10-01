@@ -868,8 +868,6 @@
     to: 'on'
   - platform: state
     entity_id:
-    - binary_sensor.bureau_motion
-    - binary_sensor.speelkamer_motion
     - binary_sensor.motion_wc_boven
     - binary_sensor.motion_wc_beneden
     - binary_sensor.motion_gang_eerste_2
