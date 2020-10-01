@@ -5,7 +5,7 @@
       value_template: >
         {{ not is_state("person.philippe", "home")
             and not is_state("person.isabel", "home") }}
-    indoor_motion_detected:
+    motion_detected_indoor:
       friendly_name: Any indoor motion detected
       value_template: >
         {{ is_state("binary_sensor.motion_wc_boven", "on")
@@ -19,10 +19,15 @@
             or is_state("binary_sensor.motion_logeerkamer", "on")
             or is_state("binary_sensor.motion_speelkamer", "on")
             or is_state("binary_sensor.motion_living", "on") }}
-    indoor_motion_detected_in_last_hour:
+    motion_detected_indoor_in_last_hour:
       friendly_name: Any indoor motion detected in last hour
       value_template: >
         {{ is_state("binary_sensor.motion_detected", "on") }}
+      delay_off: "01:00:00"
+    motion_detected_bureau_in_last_hour:
+      friendly_name: Any motion detected (bureau) in last hour
+      value_template: >
+        {{ is_state("binary_sensor.motion_bureau", "on") }}
       delay_off: "01:00:00"
     guest_mode:
       value_template: "{{ is_state('input_boolean.guest_mode','on') }}"
