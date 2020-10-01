@@ -689,6 +689,11 @@
       >= ''05:30:00'' and states(''sensor.time'') <= ''09:30:00'') }}'
   - platform: time
     at: 09:30:00
+  - platform: state
+    entity_id: binary_sensor.motion_living
+    to: 'off'
+    for: 00:30:00
+    from: 'on'
   condition:
   - condition: or
     conditions:
