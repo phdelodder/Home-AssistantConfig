@@ -14,13 +14,13 @@
       device_class: moving
       friendly_name: "Night Mode"
     home_proximity:
-       value_template: >-
-               {% if (states.proximity.philippe_home.attributes.dir_of_travel == "towards" and states.proximity.philippe_home.state | int <= 2) or
-                     (states.proximity.isabel_home.attributes.dir_of_travel == "towards" and states.proximity.isabel_home.state | int <= 2) %}
-                  True
-               {%else%}
-                  False
-               {%endif%}
+      value_template: >-
+        {% if (states.proximity.philippe_home.attributes.dir_of_travel == "towards" and states.proximity.philippe_home.state | int <= 2) or
+              (states.proximity.isabel_home.attributes.dir_of_travel == "towards" and states.proximity.isabel_home.state | int <= 2) %}
+          True
+        {%else%}
+          False
+        {%endif%}
 
 - platform: mqtt
   name: "Oprit Camera"
