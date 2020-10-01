@@ -856,7 +856,7 @@
       zone: '{{ states(''input_select.vacuum_room'') }}'
   mode: single
 - id: '1600861348101'
-  alias: 'Security: motion detected but we are not home'
+  alias: 'Security: motion detected indoor but we are not home'
   description: ''
   trigger:
   - platform: state
@@ -1012,11 +1012,11 @@
     - binary_sensor.garage_deur
     from: 'off'
     to: 'on'
-  condition: 
-    - condition: state
-      entity_id:
-        - binary_sensor.motion_detected_bureau_in_last_hour
-      state: 'on'
+  condition:
+  - condition: state
+    entity_id:
+    - binary_sensor.motion_detected_bureau_in_last_hour
+    state: 'on'
   action:
   - service: scene.create
     data:
