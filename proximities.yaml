@@ -1,7 +1,6 @@
 philippe_home:
   zone: home
   devices:
-    - device_tracker.philippe_smartphone
     - device_tracker.pixel_2
   tolerance: 50
   unit_of_measurement: km
@@ -9,7 +8,6 @@ philippe_home:
 isabel_home:
   zone: home 
   devices:
-    - device_tracker.isabel_smartphone
     - device_tracker.mi_a2
   tolerance: 50
   unit_of_measurement: km
