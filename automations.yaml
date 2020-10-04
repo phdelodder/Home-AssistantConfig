@@ -614,14 +614,13 @@
   action:
   - service: script.leaving
 - id: '1600753998897'
-  alias: 'Leaving: start vacuum after 15 mins'
+  alias: 'Leaving: start vacuum after 5 mins'
   description: ''
   trigger:
   - platform: state
     entity_id: binary_sensor.no_one_home
     to: 'on'
-    for:
-      minutes: 15
+    for: 0:05:00
   condition:
   - condition: state
     entity_id:
@@ -758,7 +757,7 @@
     before: 06:00:00
   - condition: state
     entity_id: binary_sensor.no_one_home
-    state: 'on'
+    state: 'off'
   - condition: state
     entity_id: media_player.samsung_samsung_dtv_rcr
     state: 'off'
