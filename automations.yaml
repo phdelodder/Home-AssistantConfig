@@ -28,7 +28,7 @@
     - binary_sensor.motion_gang_zolder
     - binary_sensor.motion_voordeur
     - binary_sensor.motion_bureau
-    - binary_sensor.motion_logeerkamer
+    - binary_sensor.motion_dressing
     - binary_sensor.motion_speelkamer
     - binary_sensor.motion_living
     to: 'on'
@@ -871,7 +871,7 @@
     - binary_sensor.motion_inkom_2
     - binary_sensor.motion_gang_zolder
     - binary_sensor.motion_bureau
-    - binary_sensor.motion_logeerkamer
+    - binary_sensor.motion_dressing
     - binary_sensor.motion_speelkamer
     - binary_sensor.motion_living
     to: 'on'
