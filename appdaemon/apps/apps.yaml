@@ -43,7 +43,7 @@ slaapkamer_controller:
 # If you want to check the events that it fires, you can check here: https://xaviml.github.io/controllerx/controllers/Niko91004 and if you want to check which predefined actions you want to use, you can do it in here: https://xaviml.github.io/controllerx/others/custom-controllers#custom-light-controller
 dressing_strips_controller:
     module: controllerx
-    class: CustomLightController
+    class: LightController
     controller: dressing_dimmer_switch
     integration: deconz
     light: light.dressing_led_strip
@@ -55,62 +55,41 @@ dressing_strips_controller:
         4001: hold_color_toggle
         4003: release
 
-dressing_spots_controller_day1:
+dressing_spots_controller_day:
   module: controllerx
-  class: CustomLightController
+  class: LightController
   controller: dressing_dimmer_switch
   integration: deconz
   light: light.dressing_spots
-  constrain_start_time: "07:00:00"
-  constrain_end_time: "20:00:00"
+  constrain_input_boolean: input_boolean.night_mode,off
   mapping:
     1001: hold_brightness_toggle
-    1003: release
-    2001: hold_color_toggle
-    2002: "off"
-    2003: release
-dressing_spots_controller_day2:
-  module: controllerx
-  class: CallServiceController
-  controller: dressing_dimmer_switch
-  integration: deconz
-  light: light.dressing_spots
-  constrain_start_time: "07:00:00"
-  constrain_end_time: "20:00:00"
-  mapping:
     1002:
-      service: light.turn_on
+      service: light.toggle
       data:
         entity_id: light.dressing_spots
-        brightness_pct: 100 
-dressing_spots_controller_night1:
-  module: controllerx
-  class: CustomLightController
-  controller: dressing_dimmer_switch
-  integration: deconz
-  light: light.dressing_spots
-  constrain_start_time: "20:00:00"
-  constrain_end_time: "07:00:00"
-  mapping:
-    1001: hold_brightness_toggle
+        brightness_pct: 75 
     1003: release
     2001: hold_color_toggle
-    2002: "off"
     2003: release
-dressing_spots_controller_night2:
+
+dressing_spots_controller_night:
   module: controllerx
-  class: CallServiceController
+  class: LightController
   controller: dressing_dimmer_switch
   integration: deconz
   light: light.dressing_spots
-  constrain_start_time: "20:00:00"
-  constrain_end_time: "07:00:00"
+  constrain_input_boolean: input_boolean.night_mode
   mapping:
+    1001: hold_brightness_toggle
     1002:
-      service: light.turn_on
+      service: light.toggle
       data:
         entity_id: light.dressing_spots
         brightness_pct: 20 
+    1003: release
+    2001: hold_color_toggle
+    2003: release
 
 febe_slaapkamer_controller_button:
   module: controllerx
@@ -127,7 +106,7 @@ febe_slaapkamer_controller_button:
 
 febe_slaapkamer_controller_b1:
   module: controllerx
-  class: CustomLightController
+  class: LightController
   controller: slaapkamer_febe_dimmer_switch
   integration: deconz
   light: light.febe_slaapkamer
@@ -157,7 +136,7 @@ febe_slaapkamer_controller_b2:
 
 febe_slaapkamer_controller_b4:
   module: controllerx
-  class: CustomLightController
+  class: LightController
   controller: slaapkamer_febe_dimmer_switch
   integration: deconz
   light: light.slaapkamer_febe_kleerkast
