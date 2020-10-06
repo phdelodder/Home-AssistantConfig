@@ -1,5 +1,10 @@
 homeassistant:
   customize: !include customize.yaml
+  auth_providers:
+    - type: trusted_networks
+      trusted_networks:
+        - 192.168.0.0/24
+        - fd00::/8
 
 # Configure a default setup of Home Assistant (frontend, api, etc)
 default_config:
