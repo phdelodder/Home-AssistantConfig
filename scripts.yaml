@@ -250,18 +250,22 @@ vacuum_notify:
 
           '
   icon: mdi:robot-vacuum
-vacuum_manual:
+vacuum:
   alias: Vacuum Manual
   mode: single
   sequence:
   - service: vacuum.start
     data:
       entity_id: vacuum.xiaomi_vacuum_cleaner
+  - service: input_number.increment
+    entity_id: input_number.vacuum_number_of_runs
+  - service: input_boolean.turn_on
+    entity_id: input_boolean.daily_vacuum_first_run
   - service: script.vacuum_notify
     data_template:
       zone: ''
   icon: mdi:robot-vacuum
-vacuum:
+vacuum_automated:
   alias: Vacuum
   mode: single
   sequence:
@@ -275,12 +279,7 @@ vacuum:
     - condition: time
       after: 07:00:00
       before: '19:00:00'
-  - service: vacuum.start
-    entity_id: vacuum.xiaomi_vacuum_cleaner
-  - service: input_number.increment
-    entity_id: input_number.vacuum_number_of_runs
-  - service: input_boolean.turn_on
-    entity_id: input_boolean.daily_vacuum_first_run
+  - service: script.vacuum
   - service: script.vacuum_notify
     data_template:
       zone: ''

@@ -627,7 +627,7 @@
     - input_boolean.guest_mode
     state: 'off'
   action:
-  - service: script.vacuum
+  - service: script.vacuum_automated
   mode: single
 - id: '1600754548159'
   alias: 'Leaving: set thermostat to ECO'
