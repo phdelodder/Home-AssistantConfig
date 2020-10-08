@@ -1,5 +1,5 @@
 - platform: snapcast
   host: 192.168.0.201
 - platform: mpd
-  host: 192.168.0.25
-  name: Bureau
+  host: 192.168.0.201
+  name: Snapcast Mopidy
