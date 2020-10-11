@@ -266,7 +266,7 @@ vacuum:
       zone: ''
   icon: mdi:robot-vacuum
 vacuum_automated:
-  alias: Vacuum
+  alias: Vacuum Automated
   mode: single
   sequence:
   - condition: and
@@ -280,9 +280,6 @@ vacuum_automated:
       after: 07:00:00
       before: '19:00:00'
   - service: script.vacuum
-  - service: script.vacuum_notify
-    data_template:
-      zone: ''
   icon: mdi:robot-vacuum
 vacuum_zone:
   alias: Vacuum a Specific Zone
@@ -557,3 +554,35 @@ casttohub:
       input: catt -d 192.168.0.84 cast_site http://192.168.0.104:8123/lovelace-tablet/default_view
   mode: single
   icon: mdi:cast
+play_chromecast_radio:
+  alias: Cast Selected Radio on Chromecast Speakers
+  icon: mdi:cast
+  sequence:
+  - service: media_player.play_media
+    data_template:
+      entity_id: '{% if is_state("input_select.cast_radio", "Woonkamer") %}
+        media_player.woonkamer {% elif is_state("input_select.cast_radio", "Keuken")
+        %} media_player.keuken {% elif is_state("input_select.cast_radio", "Beneden")
+        %} media_player.speakers_beneden {% endif %}'
+      media_content_id: '{% if states(''input_select.stu_bru_streams'') == ''Bruut''
+        %} http://icecast.vrtcdn.be/stubru_bruut.aac {% elif states(''input_select.stu_bru_streams'')
+        == ''Hooray'' %} http://icecast.vrtcdn.be/stubru_hiphophooray.aac {% elif
+        states(''input_select.stu_bru_streams'') == ''De Tijdloze'' %} http://icecast.vrtcdn.be/stubru_tijdloze.aac
+        {% elif states(''input_select.stu_bru_streams'') == ''#ikluisterbelgisch''
+        %} http://icecast.vrtcdn.be/stubru_tgs.aac {% elif states(''input_select.stu_bru_streams'')
+        == ''Live Radio'' %} http://icecast.vrtcdn.be/stubru.aac {% endif %}'
+      media_content_type: music
+  mode: single
+radio_beneden:
+  alias: Speel Radio Beneden
+  sequence:
+  - service: input_select.select_option
+    data:
+      option: Live Radio
+    entity_id: input_select.stu_bru_streams
+  - service: input_select.select_option
+    data:
+      option: Beneden
+    entity_id: input_select.cast_radio
+  - service: script.play_chromecast_radio
+  mode: single

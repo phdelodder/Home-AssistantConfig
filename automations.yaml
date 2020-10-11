@@ -460,81 +460,6 @@
         entity_id: input_datetime.febe_next_alarm
     default: []
   mode: single
-- id: Autoswitch to Spotify source
-  alias: Autoswitch to Spotify source
-  trigger:
-  - entity_id: media_player.spotify_phdelodder
-    platform: state
-    attribute: source
-  - entity_id: media_player.spotify_isabel
-    platform: state
-    attribute: source
-  - entity_id: media_player.spotify_febe
-    platform: state
-    attribute: source
-  - entity_id: media_player.spotify_margot
-    platform: state
-    attribute: source
-  condition: []
-  action:
-  - choose:
-    - conditions:
-      - condition: template
-        value_template: '{{ trigger.to_state.attributes.source == ''Woonkamer'' }}'
-      sequence:
-      - data:
-          source: Spotify-Woonkamer
-        service: media_player.select_source
-        entity_id: media_player.snapcast_client_hentho
-      - data:
-          is_volume_muted: false
-        service: media_player.volume_mute
-        entity_id: media_player.snapcast_client_hentho
-    - conditions:
-      - condition: template
-        value_template: '{{ trigger.to_state.attributes.source  == ''Bureau'' }}'
-      sequence:
-      - data:
-          source: Spotify-Bureau
-        service: media_player.select_source
-        entity_id: media_player.snapcast_client_xgin
-      - data:
-          is_volume_muted: false
-        service: media_player.volume_mute
-        entity_id: media_player.snapcast_client_xgin
-    - conditions:
-      - condition: template
-        value_template: '{{ trigger.to_state.attributes.source  ==''Huis''}}'
-      sequence:
-      - data:
-          source: Spotify-Huis
-          entity_id:
-          - media_player.snapcast_client_hentho
-          - media_player.snapcast_client_xgin
-        service: media_player.select_source
-      - data:
-          is_volume_muted: false
-          entity_id:
-          - media_player.snapcast_client_hentho
-          - media_player.snapcast_client_xgin
-        service: media_player.volume_mute
-  mode: single
-- id: '1589881124105'
-  alias: Mute Snapcast Woonkamer, when tv is on
-  description: ''
-  trigger:
-  - entity_id: media_player.samsung_samsung_dtv_rcr
-    platform: state
-    from: 'off'
-    for: 00:00:05
-    to: 'on'
-  condition: []
-  action:
-  - service: media_player.volume_mute
-    entity_id: media_player.snapcast_client_hentho
-    data:
-      is_volume_muted: true
-  mode: single
 - id: shellies_announce
   alias: Shellies Announce
   trigger:
@@ -870,7 +795,7 @@
     - binary_sensor.motion_inkom_1
     - binary_sensor.motion_inkom_2
     - binary_sensor.motion_gang_zolder
-    - binary_sensor.motion_bureau
+    #- binary_sensor.motion_bureau not used, to much fake alerts
     - binary_sensor.motion_dressing
     - binary_sensor.motion_speelkamer
     - binary_sensor.motion_living
@@ -1059,5 +984,25 @@
     state: 'off'
   action:
   - service: script.deactivate_night_mode
+    data: {}
+  mode: single
+- id: '1602156764240'
+  alias: Morning
+  description: Alles wat 's morgens moet gebeuren.
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.motion_living
+    to: 'on'
+  condition:
+  - condition: and
+    conditions:
+    - condition: time
+      after: '6:00'
+      before: '12:00'
+    - condition: state
+      entity_id: binary_sensor.no_one_home
+      state: 'off'
+  action:
+  - service: script.radio_beneden
     data: {}
   mode: single
