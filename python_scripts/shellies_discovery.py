@@ -204,6 +204,7 @@ MODEL_SHELLYI3_ID = "SHIX3-1"  # Shelly i3
 MODEL_SHELLYI3_PREFIX = "shellyix3"
 
 MODEL_SHELLYPLUG_ID = "SHPLG-1"  # Shelly Plug
+MODEL_SHELLYPLUG_E_ID = "SHPLG2-1"  # Shelly Plug E
 MODEL_SHELLYPLUG_PREFIX = "shellyplug"
 
 MODEL_SHELLYPLUG_S_ID = "SHPLG-S"  # Shelly Plug S
@@ -388,7 +389,7 @@ ROLLER_DEVICE_CLASSES = [
 
 def parse_version(version):
     """Parse version string and return version date integer."""
-    return int(version.rsplit("-", 1)[0])
+    return int(version.split("-", 1)[0])
 
 
 def get_device_config(dev_id):
@@ -700,7 +701,10 @@ if model_id == MODEL_SHELLYUNI_ID or dev_id_prefix == MODEL_SHELLYUNI_PREFIX:
     sensors_tpls = [None, TPL_RSSI, TPL_SSID, TPL_UPTIME]
     sensors_topics = [TOPIC_ADC, None, None, None]
 
-if model_id == MODEL_SHELLYPLUG_ID or dev_id_prefix == MODEL_SHELLYPLUG_PREFIX:
+if (
+    model_id in [MODEL_SHELLYPLUG_ID, MODEL_SHELLYPLUG_E_ID]
+    or dev_id_prefix == MODEL_SHELLYPLUG_PREFIX
+):
     model = MODEL_SHELLYPLUG
     relays = 1
     relays_sensors = [SENSOR_POWER, SENSOR_ENERGY]
@@ -1450,7 +1454,7 @@ for roller_id in range(rollers):
     if device_config.get(f"roller-{roller_id}-class"):
         if device_config[f"roller-{roller_id}-class"] in ROLLER_DEVICE_CLASSES:
             device_class = device_config[f"roller-{roller_id}-class"]
-        elif device_config[f"roller-{roller_id}-class"]:
+        else:
             logger.error(
                 "Wrong roller class, the default value None was used"
             )  # noqa: F821
@@ -2236,7 +2240,7 @@ for light_id in range(white_lights):
             '"cmd_off_tpl":"{\\"turn\\":\\"off\\"}",'
             '"stat_tpl":"{%if value_json.ison%}on{%else%}off{%endif%}",'
             '"bri_tpl":"{{value_json.brightness|float|multiply(2.55)|round}}",'
-            '"clr_temp_tpl":"{{((1000000/(value_json.temp|int))|round(0,\\"floor\\"))}}",'
+            '"clr_temp_tpl":"{{((1000000/(value_json.temp|int,2700)|max)|round(0,\\"floor\\"))}}",'
             '"max_mireds":370,'
             '"min_mireds":153,'
             '"uniq_id":"' + unique_id + '",'
