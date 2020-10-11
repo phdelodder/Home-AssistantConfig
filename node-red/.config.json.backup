@@ -450,7 +450,7 @@
   },
   "node-red-contrib-home-assistant-websocket": {
    "name": "node-red-contrib-home-assistant-websocket",
-   "version": "0.26.1",
+   "version": "0.27.0",
    "local": false,
    "nodes": {
     "server": {
@@ -825,7 +825,7 @@
   },
   "node-red-contrib-moment": {
    "name": "node-red-contrib-moment",
-   "version": "3.0.3",
+   "version": "4.0.0",
    "local": false,
    "nodes": {
     "moment": {
