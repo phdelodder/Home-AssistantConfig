@@ -31,13 +31,18 @@ turn_off_switches_and_store_states:
       scene_id: stored_states
       snapshot_entities:
       - switch.boiler_keuken
+      - media_player.keuken
+      - media_player.woonkamer
+      - media_player.bureau
   - service: switch.turn_off
     data: {}
     entity_id: switch.boiler_keuken
   - service: media_player.turn_off
     entity_id:
     - media_player.samsung_samsung_dtv_rcr
-    - media_player.huis
+    - media_player.keuken
+    - media_player.woonkamer
+    - media_player.bureau
   icon: mdi:light-switch
 arriving:
   alias: Arriving at our house
@@ -491,19 +496,6 @@ wakeup_light_sunrise:
     service: light.turn_on
   - delay:
       seconds: 15
-play_studiobrussel_home:
-  sequence:
-  - data_template:
-      entity_id: media_player.huis
-      media_content_id: "{% if states('input_select.stu_bru_streams') == 'Bruut' %}\n\
-        \  http://icecast.vrtcdn.be/stubru_bruut.aac\n{% elif states('input_select.stu_bru_streams')\
-        \ == 'Hooray' %}\n  http://icecast.vrtcdn.be/stubru_hiphophooray.aac\n{% elif\
-        \ states('input_select.stu_bru_streams') == 'De Tijdloze' %}\n  http://icecast.vrtcdn.be/stubru_tijdloze.aac\n\
-        {% elif states('input_select.stu_bru_streams') == '#ikluisterbelgisch' %}\n\
-        \  http://icecast.vrtcdn.be/stubru_tgs.aac\n{% elif states('input_select.stu_bru_streams')\
-        \ == 'Live Radio' %}\n  http://icecast.vrtcdn.be/stubru.aac\n{% endif %}"
-      media_content_type: music
-    service: media_player.play_media
 sunrise_wled:
   alias: Sunrise wled
   sequence:
@@ -560,10 +552,10 @@ play_chromecast_radio:
   sequence:
   - service: media_player.play_media
     data_template:
-      entity_id: '{% if is_state("input_select.cast_radio", "Woonkamer") %}
-        media_player.woonkamer {% elif is_state("input_select.cast_radio", "Keuken")
-        %} media_player.keuken {% elif is_state("input_select.cast_radio", "Beneden")
-        %} media_player.speakers_beneden {% endif %}'
+      entity_id: '{% if is_state("input_select.cast_radio", "Woonkamer") %} media_player.woonkamer
+        {% elif is_state("input_select.cast_radio", "Keuken") %} media_player.keuken
+        {% elif is_state("input_select.cast_radio", "Beneden") %} media_player.beneden
+        {% endif %}'
       media_content_id: '{% if states(''input_select.stu_bru_streams'') == ''Bruut''
         %} http://icecast.vrtcdn.be/stubru_bruut.aac {% elif states(''input_select.stu_bru_streams'')
         == ''Hooray'' %} http://icecast.vrtcdn.be/stubru_hiphophooray.aac {% elif
