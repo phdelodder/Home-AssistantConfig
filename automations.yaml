@@ -795,7 +795,6 @@
     - binary_sensor.motion_inkom_1
     - binary_sensor.motion_inkom_2
     - binary_sensor.motion_gang_zolder
-    #- binary_sensor.motion_bureau not used, to much fake alerts
     - binary_sensor.motion_dressing
     - binary_sensor.motion_speelkamer
     - binary_sensor.motion_living
@@ -942,12 +941,12 @@
     data:
       scene_id: notify_led_bureau
       snapshot_entities:
-      - light.geometric_lamp
+      - light.desk_lamp
   - service: light.turn_on
     data:
       effect: police
       brightness_pct: 100
-    entity_id: light.geometric_lamp
+    entity_id: light.desk_lamp
   - delay:
       minutes: 1
   - scene: scene.notify_led_bureau
@@ -987,20 +986,26 @@
     data: {}
   mode: single
 - id: '1602156764240'
-  alias: Morning
-  description: Alles wat 's morgens moet gebeuren.
+  alias: Radio Beneden
+  description: Radio aansteken, 's morgens (beweging), door de dag op presence
   trigger:
   - platform: state
     entity_id: binary_sensor.motion_living
     to: 'on'
+  - platform: state
+    entity_id: binary_sensor.no_one_home
+    to: 'off'
   condition:
   - condition: and
     conditions:
     - condition: time
       after: '6:00'
-      before: '12:00'
+      before: '18:00'
     - condition: state
-      entity_id: binary_sensor.no_one_home
+      entity_id: media_player.beneden
+      state: 'off'
+    - condition: state
+      entity_id: media_player.samsung_samsung_dtv_rcr
       state: 'off'
   action:
   - service: script.radio_beneden
