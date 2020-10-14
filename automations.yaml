@@ -1011,3 +1011,20 @@
   - service: script.radio_beneden
     data: {}
   mode: single
+- id: '1602686644196'
+  alias: Vacuum Started Cleaning
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: vacuum.xiaomi_vacuum_cleaner
+    to: cleaning
+    from: docked
+  condition:
+  - condition: state
+    entity_id: input_select.vacuum_room
+    state: Selecteer Kamer
+  action:
+  - service: script.vacuum_record_run
+  - service: script.vacuum_notify
+    data: {}
+  mode: single
