@@ -134,6 +134,22 @@ febe_slaapkamer_controller_b2:
         brightness_pct: 100
     2003: release
 
+febe_slaapkamer_controller_b3:
+  module: controllerx
+  class: LightController
+  controller: slaapkamer_febe_dimmer_switch
+  integration: deconz
+  light: light.febe_leds
+  mapping:
+    3001: hold_brightness_toggle
+    3002:
+      service: light.toggle
+      data:
+        entity_id: light.febe_leds
+        brightness_pct: 100
+        effect: solid
+    3003: release
+
 febe_slaapkamer_controller_b4:
   module: controllerx
   class: LightController
