@@ -556,13 +556,15 @@
   mode: single
 - id: '1600754548159'
   alias: 'Leaving: set thermostat to ECO'
-  description: Set thermostat to ECO after an hour
+  description: Set thermostat to ECO
   trigger:
   - platform: state
     entity_id: binary_sensor.no_one_home
     to: 'on'
-    for:
-      minutes: 60
+    for: 0:15:00
+  - platform: template
+    value_template: '{{ is_state(''person.isabel'', ''Az-Sint Jan'') and is_state(''person.philippe'',
+      ''Connective'') }}'
   condition:
   - condition: state
     entity_id:
