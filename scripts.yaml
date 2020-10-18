@@ -299,12 +299,7 @@ vacuum_zone:
         data:
           entity_id: vacuum.xiaomi_vacuum_cleaner
           command: app_zoned_clean
-          params:
-          - 23386
-          - 23366
-          - 25286
-          - 28216
-          - 1
+          params: [[23386,23366,25286,28216,1]]
     - conditions:
       - condition: template
         value_template: '{{ zone == ''Eet Kamer'' }}'
@@ -313,12 +308,7 @@ vacuum_zone:
         data:
           entity_id: vacuum.xiaomi_vacuum_cleaner
           command: app_zoned_clean
-          params:
-          - 25244
-          - 21493
-          - 30594
-          - 26593
-          - 1
+          params: [[25244,21493,30594,26593,1]]
     - conditions:
       - condition: template
         value_template: '{{ zone == ''Livng'' }}'
@@ -327,12 +317,7 @@ vacuum_zone:
         data:
           entity_id: vacuum.xiaomi_vacuum_cleaner
           command: app_zoned_clean
-          params:
-          - 24260
-          - 16982
-          - 30710
-          - 21882
-          - 1
+          params: [[24260,16982,30710,21882,1]]
     - conditions:
       - condition: template
         value_template: '{{ zone == ''Inkom'' }}'
@@ -341,12 +326,7 @@ vacuum_zone:
         data:
           entity_id: vacuum.xiaomi_vacuum_cleaner
           command: app_zoned_clean
-          params:
-          - 23110
-          - 14614
-          - 25410
-          - 18664
-          - 1
+          params: [[23110,14614,25410,18664,1]]
     - conditions:
       - condition: template
         value_template: '{{ zone == ''Berging'' }}'
@@ -355,12 +335,7 @@ vacuum_zone:
         data:
           entity_id: vacuum.xiaomi_vacuum_cleaner
           command: app_zoned_clean
-          params:
-          - 23508
-          - 21814
-          - 25408
-          - 23314
-          - 1
+          params: [[23508,21814,25408,23314,1]]
   - service: script.vacuum_notify
     data_template:
       zone: '{{ zone }}'
