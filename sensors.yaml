@@ -752,3 +752,9 @@
           states('sensor.vriezer_garage') | float)
         }}
       unit_of_measurement: "w"
+
+- platform: mqtt
+  name: CPU Temperature
+  state_topic: "pve/cpu_temp"
+  unit_of_measurement: "°C"
+  device_class: "temperature"
