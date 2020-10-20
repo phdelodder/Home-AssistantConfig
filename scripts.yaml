@@ -4,6 +4,7 @@ leaving:
   - service: script.turn_off_indoor_lights
   - service: script.turn_off_switches_and_store_states
   - service: script.turn_on_motion_detection_camera
+  - service: script.turn_on_computer_fan
   mode: single
   icon: mdi:home-export-outline
 turn_on_motion_detection_camera:
@@ -51,6 +52,7 @@ arriving:
   - service: script.deactivate_guest_mode
   - service: script.set_thermostat_home
   - service: script.turn_off_motion_detection_camera
+  - service: script.turn_off_computer_fan
   mode: single
   icon: mdi:home-import-outline
 turn_off_motion_detection_camera:
@@ -163,6 +165,20 @@ deactivate_guest_mode:
   - service: notify.hazilverberkenstraatbot
     data_template:
       message: Guest mode deactivated
+turn_on_computer_fan:
+  alias: Turn On Computer Fan
+  sequence:
+    service: switch.turn_on
+    data:
+      entity: switch.computer_fan
+  icon: mdi:fan
+turn_off_computer_fan:
+  alias: Turn Off Computer Fan
+  sequence:
+    service: switch.turn_off
+    data:
+      entity: switch.computer_fan
+  icon: mdi:fan
 notify_afval:
   alias: Notify Afval
   sequence:
