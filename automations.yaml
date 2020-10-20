@@ -944,14 +944,20 @@
       scene_id: notify_led_bureau
       snapshot_entities:
       - light.desk_lamp
+  - variables:
+      effect: '{{ state_attr(''light.desk_lamp'', ''effect'')}}'
   - service: light.turn_on
     data:
       effect: police
       brightness_pct: 100
     entity_id: light.desk_lamp
-  - delay:
-      minutes: 1
+  - delay: 00:01:00
   - scene: scene.notify_led_bureau
+  - service: wled.effect
+    data_template:
+      effect: '{{ effect }}'
+      entity_id: light.desk_lamp
+  mode: single
 - id: '1600928588299'
   alias: 'Night Mode: Toggle'
   description: ''
