@@ -1036,3 +1036,29 @@
   - service: script.vacuum_notify
     data: {}
   mode: single
+- id: '1603348403144'
+  alias: Cabinet Fan Control
+  description: Controls the fan speed depending on the temperature
+  trigger:
+  - platform: state
+    entity_id: sensor.cabinet_temperature
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: numeric_state
+        entity_id: sensor.cabinet_temperature
+        below: 21
+      sequence:
+      - service: fan.turn_off
+        data:
+          entity_id: fan.cabinet_fan
+    default:
+    - service: fan.turn_on
+      data_template:
+        entity_id: fan.cabinet_fan
+        speed: "{% if states('sensor.cabinet_temperature') | float > 30 %}\n  high\n\
+          {% elif states('sensor.cabinet_temperature') | float > 25 %}\n  medium\n\
+          {% elif states('sensor.cabinet_temperature') | float >= 21 %}\n  low\n{%\
+          \ endif %}\n"
+  mode: single
