@@ -648,7 +648,7 @@
     state: 'off'
   - condition: numeric_state
     entity_id: sensor.illuminance_living
-    below: '15'
+    below: '5'
   action:
   - scene: scene.woonkamer_eve
   mode: single
@@ -1026,7 +1026,6 @@
   - platform: state
     entity_id: vacuum.xiaomi_vacuum_cleaner
     to: cleaning
-    from: docked
   condition:
   - condition: state
     entity_id: input_select.vacuum_room
@@ -1057,7 +1056,7 @@
     - service: fan.turn_on
       data_template:
         entity_id: fan.cabinet_fan
-        speed: "{% if states('sensor.cabinet_temperature') | float > 30 %}\n  high\n\
+        speed: "{% if states('sensor.cabinet_temperature') | float > 28 %}\n  high\n\
           {% elif states('sensor.cabinet_temperature') | float > 25 %}\n  medium\n\
           {% elif states('sensor.cabinet_temperature') | float >= 21 %}\n  low\n{%\
           \ endif %}\n"
