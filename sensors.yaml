@@ -1,5 +1,3 @@
-- platform: nest
-
 - platform: template
   sensors:
     temperature_degrees:
@@ -788,3 +786,10 @@
   state_topic: "pve/disk/sdd_temp"
   unit_of_measurement: "°C"
   device_class: "temperature"
+
+- platform: snmp
+  host: 192.168.0.10
+  community: public
+  name: Synology Temperature
+  baseoid: 1.3.6.1.4.1.6574.1.2.0
+  unit_of_measurement: °C

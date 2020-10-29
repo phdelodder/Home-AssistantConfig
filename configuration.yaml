@@ -77,10 +77,6 @@ vacuum:
   host: dalek.fritz.box
   token: !secret vacuum_xiaomi_token
 
-nest:
-  client_id: !secret nest-client_id
-  client_secret: !secret nest-client_secret
-
 ifttt:
   key: !secret ifttt-key  
 
