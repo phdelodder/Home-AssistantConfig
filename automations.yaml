@@ -811,6 +811,9 @@
   - condition: state
     entity_id: vacuum.xiaomi_vacuum_cleaner
     state: docked
+  - condition: state
+    entity_id: binary_sensor.guest_mode
+    state: 'off'
   action:
   - service: script.motion_detected
     data:
