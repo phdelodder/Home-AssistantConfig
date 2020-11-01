@@ -752,40 +752,62 @@
       unit_of_measurement: "w"
 
 - platform: mqtt
+  name: PVE CPU Usage
+  state_topic: "pve/cpu_usage"
+  unit_of_measurement: "%"
+  icon: mdi:memory
+- platform: mqtt
+  name: PVE RAM Usage
+  state_topic: "pve/ram_usage"
+  unit_of_measurement: "%"
+  icon: mdi:memory
+- platform: mqtt
+  name: PVE SWAP Usage
+  state_topic: "pve/swap_usage"
+  unit_of_measurement: "%"
+  icon: mdi:memory
+- platform: mqtt
   name: PVE CPU Temperature
   state_topic: "pve/cpu_temp"
   unit_of_measurement: "°C"
   device_class: "temperature"
+  icon: mdi:thermometer
 - platform: mqtt
   name: PVE SYS Temperature
   state_topic: "pve/sys_temp"
   unit_of_measurement: "°C"
   device_class: "temperature"
+  icon: mdi:thermometer
 - platform: mqtt
   name: PVE Disk NVME0 Temperature
   state_topic: "pve/disk/nvme0_temp"
   unit_of_measurement: "°C"
   device_class: "temperature"
+  icon: mdi:thermometer
 - platform: mqtt
   name: PVE Disk SDA Temperature
   state_topic: "pve/disk/sda_temp"
   unit_of_measurement: "°C"
   device_class: "temperature"
+  icon: mdi:thermometer
 - platform: mqtt
   name: PVE Disk SDB Temperature
   state_topic: "pve/disk/sdb_temp"
   unit_of_measurement: "°C"
   device_class: "temperature"
+  icon: mdi:thermometer
 - platform: mqtt
   name: PVE Disk SDC Temperature
   state_topic: "pve/disk/sdc_temp"
   unit_of_measurement: "°C"
   device_class: "temperature"
+  icon: mdi:thermometer
 - platform: mqtt
   name: PVE Disk SDD Temperature
   state_topic: "pve/disk/sdd_temp"
   unit_of_measurement: "°C"
   device_class: "temperature"
+  icon: mdi:thermometer
 
 - platform: snmp
   host: 192.168.0.10
