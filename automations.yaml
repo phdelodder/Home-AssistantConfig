@@ -1054,11 +1054,15 @@
       sequence:
       - service: fan.turn_off
         data:
-          entity_id: fan.cabinet_fan
+          entity_id:
+          - fan.cabinet_fan_1
+          - fan.cabinet_fan_2
     default:
     - service: fan.turn_on
       data_template:
-        entity_id: fan.cabinet_fan
+        entity_id:
+        - fan.cabinet_fan_1
+        - fan.cabinet_fan_2
         speed: "{% if states('sensor.cabinet_temperature') | float > 28 %}\n  high\n\
           {% elif states('sensor.cabinet_temperature') | float > 25 %}\n  medium\n\
           {% elif states('sensor.cabinet_temperature') | float >= 21 %}\n  low\n{%\
