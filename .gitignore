@@ -19,6 +19,7 @@ alarm_oprit_snapshot.jpg
 
 # Directory ignores
 www/snapshots/
+www/tmp/
 deps/
 tts/
 .storage/
