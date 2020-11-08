@@ -1585,5 +1585,32 @@
                 "file": "/opt/node_modules/node-red-contrib-hold/hold/hold.js"
             }
         }
+    },
+    "node-red-contrib-plate-recognizer": {
+        "name": "node-red-contrib-plate-recognizer",
+        "version": "1.0.3",
+        "local": false,
+        "nodes": {
+            "plate-recognizer": {
+                "name": "plate-recognizer",
+                "types": [
+                    "plate-recognizer"
+                ],
+                "enabled": true,
+                "local": false,
+                "module": "node-red-contrib-plate-recognizer",
+                "file": "/opt/node_modules/node-red-contrib-plate-recognizer/plate-recognizer.js"
+            },
+            "plate-statistics": {
+                "name": "plate-statistics",
+                "types": [
+                    "plate-statistics"
+                ],
+                "enabled": true,
+                "local": false,
+                "module": "node-red-contrib-plate-recognizer",
+                "file": "/opt/node_modules/node-red-contrib-plate-recognizer/plate-statistics.js"
+            }
+        }
     }
 }
