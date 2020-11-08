@@ -18,6 +18,7 @@ alarm_oprit_snapshot.jpg
 .google.token
 
 # Directory ignores
+www/security/
 www/snapshots/
 www/tmp/
 deps/
