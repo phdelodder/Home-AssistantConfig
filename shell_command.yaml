@@ -1,3 +1,5 @@
 ha_start: 'curl http://docker.fritz.box:1880/hastart'
 set_oprit_profile_night: !secret oprit_night_profile_url
 set_oprit_profile_day: !secret oprit_day_profile_url
+remove_motioneye_movie: '/config/scripts/delete_motioneye_movie.sh {{ camera_id }} {{ file }} {{ event }}'
+move_event_snapshots: '/config/scripts/move_event_snapshots.sh {{ camera_name }} {{ event }}'

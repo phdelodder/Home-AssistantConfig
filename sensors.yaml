@@ -449,7 +449,7 @@
   options: 
     mode: driving
 
-- platform: zoneminder
+#- platform: zoneminder
 
 - platform: afvalbeheer
   wastecollector: RecycleApp
@@ -815,3 +815,37 @@
   name: Synology Temperature
   baseoid: 1.3.6.1.4.1.6574.1.2.0
   unit_of_measurement: °C
+
+- platform: command_line
+  name: Oprit ALPR
+  command: !secret curl_platerecognizer
+  scan_interval: 10000
+  value_template: >-
+    {% if value_json.results[0] is defined %}
+      {{ value_json.results[0].plate }}
+    {% else %}
+      
+    {% endif %}
+  json_attributes:
+    - timestamp
+    - processing_time
+    - results
+
+- platform: template
+  sensors:
+    oprit_last_motion:
+      friendly_name: Oprit Last Motion
+      value_template: >-
+        {{ (as_timestamp(states.input_datetime.oprit_last_motion.state)) | timestamp_custom('%a %d %h at %H:%M') }}
+    oprit_last_motion_event:
+      friendly_name: Oprit Last Motion Event
+      value_template: >-
+        {{ "%02d" % (states('input_number.oprit_last_motion_event') | int) }}
+    oprit_last_cctv_motion:
+      friendly_name: Oprit Last CCTV Motion
+      value_template: >-
+        {{ (as_timestamp(states.input_datetime.oprit_last_cctv_motion.state)) | timestamp_custom('%a %d %h at %H:%M') }}
+    oprit_last_cctv_motion_event:
+      friendly_name: Oprit Last CCTV Motion Event
+      value_template: >-
+        {{ "%02d" % (states('input_number.oprit_last_cctv_motion_event') | int) }}

@@ -4,14 +4,13 @@ leaving:
   - service: script.turn_off_indoor_lights
   - service: script.turn_off_switches_and_store_states
   - service: script.turn_on_motion_detection_camera
-  - service: script.turn_on_computer_fan
   mode: single
   icon: mdi:home-export-outline
 turn_on_motion_detection_camera:
   alias: Turn On Motion Detection Camera
   sequence:
   - service: switch.turn_on
-    entity_id: switch.oprit_state
+    entity_id: switch.oprit_motion_detection
   mode: single
   icon: mdi:camera-switch
 turn_off_indoor_lights:
@@ -52,22 +51,27 @@ arriving:
   - service: script.deactivate_guest_mode
   - service: script.set_thermostat_home
   - service: script.turn_off_motion_detection_camera
-  - service: script.turn_off_computer_fan
   mode: single
   icon: mdi:home-import-outline
 turn_off_motion_detection_camera:
   alias: Turn Off Motion Detection Camera
   sequence:
-  - delay:
-      minutes: 1
+  - delay: 00:01:00
+  - condition: sun
+    after: sunrise
   - condition: state
     entity_id: binary_sensor.night_mode
     for:
       minutes: 1
     state: 'off'
+  - condition: state
+    entity_id: binary_sensor.no_one_home
+    for:
+      minutes: 1
+    state: 'off'
   - choose:
     - conditions:
-        condition: state
+      - condition: state
         entity_id: binary_sensor.night_mode
         state: 'on'
       sequence:
@@ -79,7 +83,7 @@ turn_off_motion_detection_camera:
           to: 'off'
         timeout: 01:00:00
   - service: switch.turn_off
-    entity_id: switch.oprit_state
+    entity_id: switch.oprit_motion_detection
   mode: single
   icon: mdi:camera-switch
 turn_on_switches_and_stored_states:
@@ -165,20 +169,6 @@ deactivate_guest_mode:
   - service: notify.hazilverberkenstraatbot
     data_template:
       message: Guest mode deactivated
-turn_on_computer_fan:
-  alias: Turn On Computer Fan
-  sequence:
-    service: switch.turn_on
-    data:
-      entity: switch.computer_fan
-  icon: mdi:fan
-turn_off_computer_fan:
-  alias: Turn Off Computer Fan
-  sequence:
-    service: switch.turn_off
-    data:
-      entity: switch.computer_fan
-  icon: mdi:fan
 notify_afval:
   alias: Notify Afval
   sequence:
@@ -315,7 +305,12 @@ vacuum_zone:
         data:
           entity_id: vacuum.xiaomi_vacuum_cleaner
           command: app_zoned_clean
-          params: [[23386,23366,25286,28216,1]]
+          params:
+          - - 23386
+            - 23366
+            - 25286
+            - 28216
+            - 1
     - conditions:
       - condition: template
         value_template: '{{ zone == ''Eet Kamer'' }}'
@@ -324,7 +319,12 @@ vacuum_zone:
         data:
           entity_id: vacuum.xiaomi_vacuum_cleaner
           command: app_zoned_clean
-          params: [[25244,21493,30594,26593,1]]
+          params:
+          - - 25244
+            - 21493
+            - 30594
+            - 26593
+            - 1
     - conditions:
       - condition: template
         value_template: '{{ zone == ''Livng'' }}'
@@ -333,7 +333,12 @@ vacuum_zone:
         data:
           entity_id: vacuum.xiaomi_vacuum_cleaner
           command: app_zoned_clean
-          params: [[24260,16982,30710,21882,1]]
+          params:
+          - - 24260
+            - 16982
+            - 30710
+            - 21882
+            - 1
     - conditions:
       - condition: template
         value_template: '{{ zone == ''Inkom'' }}'
@@ -342,7 +347,12 @@ vacuum_zone:
         data:
           entity_id: vacuum.xiaomi_vacuum_cleaner
           command: app_zoned_clean
-          params: [[23110,14614,25410,18664,1]]
+          params:
+          - - 23110
+            - 14614
+            - 25410
+            - 18664
+            - 1
     - conditions:
       - condition: template
         value_template: '{{ zone == ''Berging'' }}'
@@ -351,7 +361,12 @@ vacuum_zone:
         data:
           entity_id: vacuum.xiaomi_vacuum_cleaner
           command: app_zoned_clean
-          params: [[23508,21814,25408,23314,1]]
+          params:
+          - - 23508
+            - 21814
+            - 25408
+            - 23314
+            - 1
   - service: script.vacuum_notify
     data_template:
       zone: '{{ zone }}'
@@ -565,3 +580,40 @@ radio_beneden:
     entity_id: input_select.cast_radio
   - service: script.play_chromecast_radio
   mode: single
+motioneye_object_detected:
+  alias: MotionEye Object Detected
+  sequence:
+  - service: input_number.set_value
+    entity_id: input_number.oprit_last_motion_event
+    data_template:
+      value: '{{ states.input_number.oprit_last_cctv_motion_event.state }}'
+  - service: input_datetime.set_datetime
+    entity_id: input_datetime.oprit_last_motion
+    data_template:
+      datetime: '{{ states.input_datetime.oprit_last_cctv_motion.state }}'
+  - service: input_boolean.turn_on
+    data: {}
+    entity_id: input_boolean.oprit_motion
+motioneye_test_person_object:
+  alias: MotionEye Test Person Object
+  sequence:
+  - condition: template
+    value_template: '{{ ''person'' in state_attr(''image_processing.doods_oprit'',
+      ''summary'') }}'
+  - service: script.motioneye_object_detected
+motioneye_test_car_object:
+  alias: MotionEye Test Car Object
+  sequence:
+  - condition: template
+    value_template: '{{ ''car'' in state_attr(''image_processing.doods_oprit'', ''summary'')
+      }}'
+  - service: homeassistant.update_entity
+    entity_id: sensor.oprit_alpr
+  - wait_for_trigger:
+    - platform: state
+      entity_id: sensor.oprit_alpr
+      attribute: timestamp
+    timeout: 00:00:05
+  - condition: template
+    value_template: '{{ is_state(''binary_sensor.oprit_known_plate'',''off'') }}'
+  - service: script.motioneye_object_detected

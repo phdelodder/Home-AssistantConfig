@@ -89,6 +89,7 @@
   action:
   - entity_id: scene.default_nachttafel_febe
     service: scene.turn_on
+  mode: single
 - id: NachtTafel Licht Febe Uit
   alias: NachtTafel Licht Febe Uit
   description: ''
@@ -1067,4 +1068,115 @@
           {% elif states('sensor.cabinet_temperature') | float > 25 %}\n  medium\n\
           {% elif states('sensor.cabinet_temperature') | float >= 21 %}\n  low\n{%\
           \ endif %}\n"
+  mode: single
+- id: '1604346606992'
+  alias: 'Security: MotionEye - Oprit'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.oprit_cctv_motion
+    to: 'on'
+  action:
+  - service: input_number.set_value
+    entity_id: input_number.oprit_last_cctv_motion_event
+    data_template:
+      value: '{{ state_attr(''binary_sensor.oprit_cctv_motion'',''eventnumber'') }}'
+  - service: input_datetime.set_datetime
+    entity_id: input_datetime.oprit_last_cctv_motion
+    data_template:
+      date: '{{ state_attr(''binary_sensor.oprit_cctv_motion'',''timestamp'').split(''
+        '')[0] }}'
+      time: '{{ state_attr(''binary_sensor.oprit_cctv_motion'',''timestamp'').split(''
+        '')[1].replace(''-'','':'') }}'
+  - repeat:
+      sequence:
+      - service: logbook.log
+        data:
+          name: Process Loop
+          message: Started
+      - service: image_processing.scan
+        entity_id: image_processing.doods_oprit
+      - wait_for_trigger:
+        - platform: state
+          entity_id: image_processing.doods_oprit
+          attribute: matches
+        timeout: 00:00:05
+      - service: logbook.log
+        data_template:
+          name: Found Objects
+          message: '{{ state_attr(''image_processing.doods_oprit'', ''summary'') }}'
+      - service: script.turn_on
+        entity_id:
+        - script.motioneye_test_person_object
+        - script.motioneye_test_car_object
+      - wait_template: '{{ is_state(''script.motioneye_test_person_object'',''off'')
+          and is_state(''script.motioneye_test_car_object'',''off'') }}'
+      until:
+      - condition: template
+        value_template: '{{ is_state(''binary_sensor.oprit_cctv_motion'', ''off'')
+          or is_state(''binary_sensor.oprit_motion'',''on'') }}'
+  - service: logbook.log
+    data:
+      name: Process Loop
+      message: Ended
+  - wait_template: '{{ is_state(''binary_sensor.oprit_cctv_motion'', ''off'') }}'
+    timeout: 02:00:00
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: input_boolean.oprit_motion
+        state: 'off'
+      sequence:
+      - service: logbook.log
+        data_template:
+          name: 'Before remove movie: '
+          message: '{{ (as_timestamp(states.input_datetime.oprit_last_cctv_motion.state))
+            | timestamp_custom(''%Y-%m-%d'')}}/{{ ''%02d'' % states(''input_number.oprit_last_cctv_motion_event'')
+            | int }}'
+      - service: shell_command.remove_motioneye_movie
+        data_template:
+          camera_id: 1
+          file: '{{ (as_timestamp(states.input_datetime.oprit_last_cctv_motion.state))
+            | timestamp_custom(''%Y-%m-%d'')}}/{{ ''%02d'' % states(''input_number.oprit_last_cctv_motion_event'')
+            | int }}'
+          event: '{{ ''%02d'' % states(''input_number.oprit_last_cctv_motion_event'') | int }}'
+    default: 
+      - service: shell_command.move_event_snapshots
+        data_template:
+          camera_name: "oprit"
+          event: '{{ ''%02d'' % states(''input_number.oprit_last_cctv_motion_event'') | int }}'
+  - service: input_boolean.turn_off
+    data: {}
+    entity_id: input_boolean.oprit_motion
+  mode: single
+- id: '1604821741495'
+  alias: 'Security: Enable Oprit Motion Detection'
+  description: Enable Oprit Motion Detection at sunset
+  trigger:
+  - platform: sun
+    event: sunset
+  condition: []
+  action:
+  - service: script.turn_on_motion_detection_camera
+    data: {}
+  mode: single
+- id: '1604821819133'
+  alias: 'Security: Disable Oprit Motion Detection'
+  description: Disable Oprit Motion Detection at sunrise
+  trigger:
+  - platform: sun
+    event: sunrise
+  condition:
+  - condition: and
+    conditions:
+    - condition: state
+      entity_id: binary_sensor.night_mode
+      state: 'off'
+    - condition: state
+      entity_id: binary_sensor.no_one_home
+      state: 'off'
+  action:
+  - service: script.turn_off_motion_detection_camera
+    data: {}
   mode: single

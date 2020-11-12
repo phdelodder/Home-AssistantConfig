@@ -42,15 +42,15 @@
         {{ (is_state_attr('proximity.philippe_home','dir_of_travel','towards') and states('proximity.philippe_home') | int <= 2) or
           (is_state_attr('proximity.isabel_home','dir_of_travel','towards') and states('proximity.isabel_home') | int <= 2)}}
 
-- platform: mqtt
-  name: "Oprit Camera"
-  state_topic: "zoneminder/1"
-  payload_on: "event_start"
-  payload_off: "event_end"
-  device_class: "motion"
-  json_attributes_topic: "zoneminder/1"
-  json_attributes_template: "{{ value_json | tojson }}"
-  value_template: "{{ value_json.eventtype}}"
+#- platform: mqtt
+#  name: "Oprit Camera"
+#  state_topic: "zoneminder/1"
+#  payload_on: "event_start"
+#  payload_off: "event_end"
+#  device_class: "motion"
+#  json_attributes_topic: "zoneminder/1"
+#  json_attributes_template: "{{ value_json | tojson }}"
+#  value_template: "{{ value_json.eventtype}}"
   
 - platform: mqtt
   name: "Weather Station Rain"
@@ -59,7 +59,26 @@
   payload_off: "OFF"
   device_class: "moisture"
 
-- platform: zoneminder
+#- platform: zoneminder
 
 - platform: workday
   country: BE
+
+- platform: template
+  sensors:
+    oprit_motion:
+      friendly_name: "Oprit Motion"
+      value_template: '{{ is_state(''input_boolean.oprit_motion'', ''on'') }}'
+      device_class: motion
+    oprit_known_plate:
+      friendly_name: "Oprit Known Plate"
+      value_template: !secret known_car_plate_template
+
+- platform: mqtt
+  name: "Oprit CCTV Motion"
+  state_topic: "cctv/oprit/motion"
+  device_class: motion
+  json_attributes_topic: "cctv/oprit/motion"
+  value_template: '{{ value_json.motion }}'
+  payload_off: "off"
+  payload_on: "on"

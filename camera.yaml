@@ -1,1 +1,10 @@
-- platform: zoneminder
+# - platform: zoneminder
+
+- platform: mjpeg
+  mjpeg_url: http://cctv.fritz.box:8081
+  still_image_url: http://cctv.fritz.box:8765/picture/1/current/
+  name: Oprit
+
+- platform: generic
+  name: Doods Oprit
+  still_image_url: http://homeassistant.fritz.box:8123/local/snapshots/oprit_latest.jpg

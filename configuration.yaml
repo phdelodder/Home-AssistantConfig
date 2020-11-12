@@ -1,4 +1,8 @@
 homeassistant:
+  media_dirs:
+    media: /media
+    snapshots: /config/www/snapshots
+    security: /config/www/security
   customize: !include customize.yaml
   auth_providers:
     - type: homeassistant
@@ -63,6 +67,7 @@ shell_command: !include shell_command.yaml
 plant: !include plant.yaml
 rest_command: !include rest_command.yaml
 utility_meter: !include utility_meter.yaml
+image_processing: !include image_processing.yaml
 
 python_script:
 
@@ -90,12 +95,12 @@ influxdb:
   max_retries: 3
   default_measurement: state
 
-zoneminder:
-  - host: !secret zoneminder-host
-    ssl: true
-    verify_ssl: false
-    username: !secret zoneminder-username
-    password: !secret zoneminder-password
+#zoneminder:
+#  - host: !secret zoneminder-host
+#    ssl: true
+#    verify_ssl: false
+#    username: !secret zoneminder-username
+#    password: !secret zoneminder-password
 
 stream:
 

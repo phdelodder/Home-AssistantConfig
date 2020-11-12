@@ -1,0 +1,15 @@
+- platform: doods
+  scan_interval: 10000
+  url: "http://cctv.fritz.box:8080"
+  detector: tensorflow
+  source:
+    - entity_id: camera.oprit
+  file_out:
+    - "/config/www/snapshots/{{ camera_entity.split('.')[1] }}_latest.jpg"
+    - "/config/www/security/{{ camera_entity.split('.')[1] }}_{{ '%02d' % (states('input_number.oprit_last_cctv_motion_event') | int) }}_{{ now().strftime('%Y%m%d_%H%M%S') }}.jpg"
+  labels:
+    - name: person
+      confidence: 30
+    - name: car
+      confidence: 30
+    - name: truck
