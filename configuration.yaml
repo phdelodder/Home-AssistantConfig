@@ -79,9 +79,9 @@ telegram_bot:
       - !secret telegram_bot_chat_id2
 
 vacuum:
-  platform: xiaomi_miio
-  host: dalek.fritz.box
-  token: !secret vacuum_xiaomi_token
+  - platform: xiaomi_miio
+    host: dalek.fritz.box
+    token: !secret vacuum_xiaomi_token
 
 ifttt:
   key: !secret ifttt-key  
