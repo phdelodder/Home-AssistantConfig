@@ -417,6 +417,11 @@ guest_mode_feedback:
         value_template: '{{ command == ''yesguest'' }}'
       sequence:
       - service: script.activate_guest_mode
+    - conditions:
+      - condition: template
+        value_template: '{{ command == ''noguest'' }}'
+      sequence:
+      - service: script.set_thermostat_away
   - service: telegram_bot.answer_callback_query
     data_template:
       callback_query_id: '{{ callback_id }}'
