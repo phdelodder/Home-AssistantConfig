@@ -19,6 +19,8 @@ stages:
   before_script:
     - python -m homeassistant --version
     - cp ./.stubs/secrets.yaml ./
+    - mkdir -p /config/www/snapshots
+    - mkdir -p /config/www/security
   script:
     - |
       python -m homeassistant \
