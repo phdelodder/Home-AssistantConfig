@@ -15,5 +15,5 @@ data="{}"
 signature=$(echo -n "POST:$uri:$data:$password" | sha1sum | cut -d ' ' -f 1)
 port="8765"
 
-curl -s -S -m $timeout -H "Content-Type: application/json" -X POST "http://cctv.fritz.box:$port$uri&_signature=$signature" -d "$data" >> /config/scripts/delete_motioneye_movie.log
+curl -s -S -m $timeout -H "Content-Type: application/json" -X POST "http://192.168.0.207:$port$uri&_signature=$signature" -d "$data" >> /config/scripts/delete_motioneye_movie.log
 

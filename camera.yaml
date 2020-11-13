@@ -1,8 +1,8 @@
 # - platform: zoneminder
 
 - platform: mjpeg
-  mjpeg_url: http://cctv.fritz.box:8081
-  still_image_url: http://cctv.fritz.box:8765/picture/1/current/
+  mjpeg_url: http://192.168.0.207:8081
+  still_image_url: http://192.168.0.207:8765/picture/1/current/
   name: Oprit
 
 - platform: generic

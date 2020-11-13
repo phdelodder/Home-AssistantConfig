@@ -1,6 +1,6 @@
 - platform: doods
   scan_interval: 10000
-  url: "http://cctv.fritz.box:8080"
+  url: "http://192.168.0.207:8080"
   detector: tensorflow
   source:
     - entity_id: camera.oprit
