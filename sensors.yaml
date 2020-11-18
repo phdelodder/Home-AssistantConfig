@@ -819,7 +819,7 @@
 - platform: command_line
   name: Oprit ALPR
   command: !secret curl_platerecognizer
-  scan_interval: 10000
+  scan_interval: 100000
   value_template: >-
     {% if value_json.results[0] is defined %}
       {{ value_json.results[0].plate }}
