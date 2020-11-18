@@ -113,10 +113,10 @@ set_temperature:
   mode: single
   icon: mdi:thermostat
 set_thermostat_away:
-  alias: Set Thermostat to away
+  alias: Set Thermostat to Away and Eco
   sequence:
   - data:
-      preset_mode: away
+      preset_mode: Away and Eco
       entity_id: climate.downstairs
     service: climate.set_preset_mode
   mode: single
@@ -612,6 +612,10 @@ motioneye_test_car_object:
   - condition: template
     value_template: '{{ ''car'' in state_attr(''image_processing.doods_oprit'', ''summary'')
       }}'
+  - service: logbook.log
+    data_template:
+      name: Car found in image
+      message: '{{ state_attr(''image_processing.doods_oprit'', ''summary'') }}'
   - service: homeassistant.update_entity
     entity_id: sensor.oprit_alpr
   - wait_for_trigger:
@@ -621,4 +625,8 @@ motioneye_test_car_object:
     timeout: 00:00:05
   - condition: template
     value_template: '{{ is_state(''binary_sensor.oprit_known_plate'',''off'') }}'
+  - service: logbook.log
+    data_template:
+      name: Unknown License Plate
+      message: "{{ state_attr('sensor.oprit_alpr','results') }}"
   - service: script.motioneye_object_detected
