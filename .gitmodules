@@ -1,3 +1,3 @@
 [submodule "esphome"]
 	path = esphome
-	url = git@git.fritz.box:config/esphome-config.git
+	url = git@git.delodder.be:2222/config/esphome-config.git
