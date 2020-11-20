@@ -7,4 +7,4 @@
 
 - platform: generic
   name: Doods Oprit
-  still_image_url: http://homeassistant.fritz.box:8123/local/snapshots/oprit_latest.jpg
+  still_image_url: http://192.168.0.104:8123/local/snapshots/oprit_latest.jpg
