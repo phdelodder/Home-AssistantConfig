@@ -18,7 +18,7 @@ default_config:
 http:
   use_x_forwarded_for: true
   trusted_proxies:
-    - 192.168.0.208
+    - 192.168.0.201
 
 # Text to speech
 tts:
