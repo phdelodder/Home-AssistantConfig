@@ -36,21 +36,20 @@
   - service: variable.set_variable
     data:
       variable: last_motion
-      attributes_template: "{\n      \"history_1\": \"{{ trigger.to_state.attributes.friendly_name|replace('motion\
-        \ sensor','') }}\",\n      \"history_2\": \"{{ states.variable.last_motion.attributes.history_1\
-        \ }}\",\n      \"history_3\": \"{{ states.variable.last_motion.attributes.history_2\
-        \ }}\",\n      \"history_4\": \"{{ states.variable.last_motion.attributes.history_3\
-        \ }}\",\n      \"history_5\": \"{{ states.variable.last_motion.attributes.history_4\
-        \ }}\",\n      \"history_6\": \"{{ states.variable.last_motion.attributes.history_5\
-        \ }}\",\n      \"history_7\": \"{{ states.variable.last_motion.attributes.history_6\
-        \ }}\",\n      \"history_8\": \"{{ states.variable.last_motion.attributes.history_7\
-        \ }}\",\n      \"history_9\": \"{{ states.variable.last_motion.attributes.history_8\
-        \ }}\",\n      \"history_10\": \"{{ states.variable.last_motion.attributes.history_9\
-        \ }}\"\n}\n"
-    data_template:
-      value: '{{ trigger.to_state.attributes.friendly_name|replace(''motion sensor'','''')
-        }}: {{as_timestamp(states.variable.last_motion.last_changed)| timestamp_custom(''%X'')
-        }}        '
+      attributes: 
+        history_1: "{{ trigger.to_state.attributes.friendly_name|replace('motion sensor','') }}"
+        history_2: "{{ states.variable.last_motion.attributes.history_1 }}"
+        history_3: "{{ states.variable.last_motion.attributes.history_2 }}"
+        history_4: "{{ states.variable.last_motion.attributes.history_3 }}"
+        history_5: "{{ states.variable.last_motion.attributes.history_4 }}"
+        history_6: "{{ states.variable.last_motion.attributes.history_5 }}"
+        history_7: "{{ states.variable.last_motion.attributes.history_6 }}"
+        history_8: "{{ states.variable.last_motion.attributes.history_7 }}"
+        history_9: "{{ states.variable.last_motion.attributes.history_8 }}"
+        history_10: "{{ states.variable.last_motion.attributes.history_9 }}"
+      value: >
+        {{ trigger.to_state.attributes.friendly_name|replace('motion sensor','') }}:
+        {{as_timestamp(states.variable.last_motion.last_changed)| timestamp_custom('%X') }}
   initial_state: true
   mode: single
 - id: '1575277594428'
@@ -1091,10 +1090,6 @@
         '')[1].replace(''-'','':'') }}'
   - repeat:
       sequence:
-      - service: logbook.log
-        data:
-          name: Process Loop
-          message: Started
       - service: image_processing.scan
         entity_id: image_processing.doods_oprit
       - wait_for_trigger:
@@ -1102,10 +1097,6 @@
           entity_id: image_processing.doods_oprit
           attribute: matches
         timeout: 00:00:05
-      - service: logbook.log
-        data_template:
-          name: Found Objects
-          message: '{{ state_attr(''image_processing.doods_oprit'', ''summary'') }}'
       - service: script.turn_on
         entity_id:
         - script.motioneye_test_person_object
@@ -1116,10 +1107,6 @@
       - condition: template
         value_template: '{{ is_state(''binary_sensor.oprit_cctv_motion'', ''off'')
           or is_state(''binary_sensor.oprit_motion'',''on'') }}'
-  - service: logbook.log
-    data:
-      name: Process Loop
-      message: Ended
   - wait_template: '{{ is_state(''binary_sensor.oprit_cctv_motion'', ''off'') }}'
     timeout: 02:00:00
   - choose:
@@ -1128,24 +1115,20 @@
         entity_id: input_boolean.oprit_motion
         state: 'off'
       sequence:
-      - service: logbook.log
-        data_template:
-          name: 'Before remove movie: '
-          message: '{{ (as_timestamp(states.input_datetime.oprit_last_cctv_motion.state))
-            | timestamp_custom(''%Y-%m-%d'')}}/{{ ''%02d'' % states(''input_number.oprit_last_cctv_motion_event'')
-            | int }}'
       - service: shell_command.remove_motioneye_movie
         data_template:
           camera_id: 1
           file: '{{ (as_timestamp(states.input_datetime.oprit_last_cctv_motion.state))
             | timestamp_custom(''%Y-%m-%d'')}}/{{ ''%02d'' % states(''input_number.oprit_last_cctv_motion_event'')
             | int }}'
-          event: '{{ ''%02d'' % states(''input_number.oprit_last_cctv_motion_event'') | int }}'
-    default: 
-      - service: shell_command.move_event_snapshots
-        data_template:
-          camera_name: "oprit"
-          event: '{{ ''%02d'' % states(''input_number.oprit_last_cctv_motion_event'') | int }}'
+          event: '{{ ''%02d'' % states(''input_number.oprit_last_cctv_motion_event'')
+            | int }}'
+    default:
+    - service: shell_command.move_event_snapshots
+      data_template:
+        camera_name: oprit
+        event: '{{ ''%02d'' % states(''input_number.oprit_last_cctv_motion_event'')
+          | int }}'
   - service: input_boolean.turn_off
     data: {}
     entity_id: input_boolean.oprit_motion
