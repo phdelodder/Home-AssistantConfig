@@ -48,10 +48,9 @@ dressing_strips_controller:
     integration: deconz
     light: light.dressing_led_strip
     mapping:
-        3000: "on"
         3001: hold_brightness_toggle
+        3002: toggle
         3003: release
-        4000: "off"
         4001: hold_color_toggle
         4003: release
 
