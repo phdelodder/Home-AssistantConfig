@@ -13,7 +13,7 @@ steps:
     image: koalaman/shellcheck-alpine:stable
     commands:
       - shellcheck --version
-      - shellcheck myscripts/*.sh
+      - shellcheck scripts/*.sh
 
 ---
 kind: pipeline
