@@ -9,6 +9,23 @@ steps:
       - yamllint --version
       - yamllint .
 
+  - name: ShellCheck
+    image: koalaman/shellcheck-alpine:stable
+    commands:
+      - shellcheck --version
+      - apk -no-cache add grep
+      - >
+        for file in $(grep -IRl "#\!\(/bin/bash\)"); do
+          if ! shellcheck $file; then
+            export FAILED=1
+          else
+            echo "$file OK"
+          fi
+        done
+        if [ "${FAILED}" = "1" ]; then
+          exit 1
+        fi
+
 ---
 kind: pipeline
 name: Home Assistant
