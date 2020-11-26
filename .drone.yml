@@ -1,0 +1,68 @@
+---
+kind: pipeline
+name: Pre-Flight
+
+steps:
+  - name: yamllint
+    image: cytopia/yamllint
+    commands: 
+      - yamllint --version
+      - yamllint .
+
+  - name: ShellCheck
+    image: koalaman/shellcheck-alpine:stable
+    failure: ignore
+    commands:
+      - shellcheck --version
+      - shellcheck scripts/*.sh
+
+  - name: markdownline
+    image: pipelinecomponents/markdownlint:latest
+    commands:
+      - mdl --style all --warnings ./README.md
+
+---
+kind: pipeline
+name: Home Assistant
+
+depends_on: 
+  - Pre-Flight
+
+steps:
+  - name: "Config Check: Beta"
+    image: homeassistant/home-assistant:beta
+    pull: always
+    failure: ignore
+    commands:
+      - python -m homeassistant --version
+      - cp ./.stubs/secrets.yaml ./
+      - mkdir -p /config/www/snapshots
+      - mkdir -p /config/www/security
+      - "python -m homeassistant --config ./ \
+         --script check_config \
+         --info all"
+
+  - name: "Config Check: RC"
+    image: homeassistant/home-assistant:rc
+    pull: always
+    failure: ignore
+    commands:
+      - python -m homeassistant --version
+      - cp ./.stubs/secrets.yaml ./
+      - mkdir -p /config/www/snapshots
+      - mkdir -p /config/www/security
+      - "python -m homeassistant --config ./ \
+         --script check_config \
+         --info all"
+
+  - name: "Config Check: Latest"
+    image: homeassistant/home-assistant:latest
+    pull: always
+    commands:
+      - python -m homeassistant --version
+      - cp ./.stubs/secrets.yaml ./
+      - mkdir -p /config/www/snapshots
+      - mkdir -p /config/www/security
+      - "python -m homeassistant --config ./ \
+         --script check_config \
+         --info all"
