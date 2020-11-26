@@ -16,6 +16,11 @@ steps:
       - shellcheck --version
       - shellcheck scripts/*.sh
 
+  - name: markdownline
+    image: pipelinecomponents/markdownlint:latest
+    commands:
+      - mdl --style all --warnings ./README.md
+
 ---
 kind: pipeline
 name: Home Assistant
