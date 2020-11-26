@@ -22,23 +22,35 @@ steps:
     pull: always
     failure: ignore
     commands:
-      - cd /usr/src/homeassistant
-      - "python -m homeassistant -c /drone/src/hass/settings \
-         --script check_config"
+      - python -m homeassistant --version
+      - cp ./.stubs/secrets.yaml ./
+      - mkdir -p /config/www/snapshots
+      - mkdir -p /config/www/security
+      - "python -m homeassistant --config ./ \
+         --script check_config \
+         --info all"
 
   - name: "Config Check: RC"
     image: homeassistant/home-assistant:rc
     pull: always
     failure: ignore
     commands:
-      - cd /usr/src/homeassistant
-      - "python -m homeassistant -c /drone/src/hass/settings \
-        --script check_config"
+      - python -m homeassistant --version
+      - cp ./.stubs/secrets.yaml ./
+      - mkdir -p /config/www/snapshots
+      - mkdir -p /config/www/security
+      - "python -m homeassistant --config ./ \
+         --script check_config \
+         --info all"
 
   - name: "Config Check: Latest"
     image: homeassistant/home-assistant:latest
     pull: always
     commands:
-      - cd /usr/src/homeassistant
-      - "python -m homeassistant -c /drone/src/hass/settings \
-        --script check_config"
+      - python -m homeassistant --version
+      - cp ./.stubs/secrets.yaml ./
+      - mkdir -p /config/www/snapshots
+      - mkdir -p /config/www/security
+      - "python -m homeassistant --config ./ \
+         --script check_config \
+         --info all"
