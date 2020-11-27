@@ -12,7 +12,7 @@ hp_info=$(hp-info 2>&1)
 
 #Publish status
 status=$(echo "$hp_info" | grep  -oP "(?<=status-desc\s{18})(.*\S)")
-mosquitto_pub -h $mqtt_hostname -p $mqtt_port -t "home/printer/status" -r -m "$status"
+mosquitto_pub -h "$mqtt_hostname" -p "$mqtt_port" -t "home/printer/status" -r -m "$status"
 
 #Publish ink levels
 ink_levels=$(echo "$hp_info" | grep -oP "(?<=agent[1-4]-level\s{18})(.*\S)" | tr "\n" ",")

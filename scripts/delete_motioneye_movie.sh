@@ -8,7 +8,7 @@ motion_camera_id=$1
 filename="$2.mp4"
 event="$3"
 
-echo $(date -u) "delete_motioneye_movie start up with paramaters: motion_camera_id -> ${motion_camera_id} || filename -> ${filename} || event -> ${event}" >> /config/scripts/delete_motioneye_movie.log
+echo "$(date -u)" "delete_motioneye_movie start up with paramaters: motion_camera_id -> ${motion_camera_id} || filename -> ${filename} || event -> ${event}" >> /config/scripts/delete_motioneye_movie.log
 
 uri="/movie/$motion_camera_id/delete/$filename?_username=$username"
 data="{}"
