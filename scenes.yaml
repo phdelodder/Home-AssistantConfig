@@ -315,6 +315,10 @@
       friendly_name: Staande Lamp Living
       supported_features: 43
       state: 'on'
+    switch.kerstboom:
+      friendly_name: Kerstboom
+      icon: mdi:pine-tree
+      state: 'on'
 - id: '157443790044'
   name: Woonkamer Morning
   entities:
@@ -465,6 +469,10 @@
       friendly_name: Staande Lamp Living
       supported_features: 43
       state: 'on'
+    switch.kerstboom:
+      friendly_name: Kerstboom
+      icon: mdi:pine-tree
+      state: 'off'
 - id: '157443790054'
   name: Woonkamer Eve
   entities:
@@ -615,6 +623,10 @@
       friendly_name: Staande Lamp Living
       supported_features: 43
       state: 'on'
+    switch.kerstboom:
+      friendly_name: Kerstboom
+      icon: mdi:pine-tree
+      state: 'on'
 - id: '157443790543'
   name: Woonkamer Night
   entities:
@@ -631,10 +643,139 @@
   name: Woonkamer Off
   entities:
     light.led_mini_kerstboom_led:
+      effect_list:
+      - None
+      - Candle_Flicker
+      friendly_name: Led Mini Kerstboom LED
+      supported_features: 45
       state: 'off'
     light.schouw:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - Android
+      - Blink
+      - Blink Rainbow
+      - Bouncing Balls
+      - Bpm
+      - Breathe
+      - Candle
+      - Candle Multi
+      - Chase
+      - Chase Flash
+      - Chase Flash Rnd
+      - Chase Rainbow
+      - Chase Random
+      - Circus
+      - Colorful
+      - Colorloop
+      - Colortwinkles
+      - Colorwaves
+      - Dissolve
+      - Dissolve Rnd
+      - Drip
+      - Dynamic
+      - Fade
+      - Fill Noise
+      - Fire 2012
+      - Fire Flicker
+      - Fireworks
+      - Fireworks 1D
+      - Fireworks Starburst
+      - Glitter
+      - Gradient
+      - Halloween
+      - Halloween Eyes
+      - Heartbeat
+      - ICU
+      - Juggle
+      - Lake
+      - Lighthouse
+      - Lightning
+      - Loading
+      - Merry Christmas
+      - Meteor
+      - Meteor Smooth
+      - Multi Comet
+      - Noise 1
+      - Noise 2
+      - Noise 3
+      - Noise 4
+      - Oscillate
+      - Pacifica
+      - Palette
+      - Percent
+      - Plasma
+      - Police
+      - Police All
+      - Popcorn
+      - Pride 2015
+      - Railway
+      - Rain
+      - Rainbow
+      - Rainbow Runner
+      - Random Colors
+      - Red & Blue
+      - Ripple
+      - Ripple Rainbow
+      - Running
+      - Running 2
+      - Saw
+      - Scan
+      - Scan Dual
+      - Scanner
+      - Scanner Dual
+      - Sinelon
+      - Sinelon Dual
+      - Sinelon Rainbow
+      - Solid
+      - Solid Pattern
+      - Solid Pattern Tri
+      - Sparkle
+      - Sparkle Dark
+      - Sparkle+
+      - Spots
+      - Spots Fade
+      - Stream
+      - Stream 2
+      - Strobe
+      - Strobe Mega
+      - Strobe Rainbow
+      - Sweep
+      - Sweep Random
+      - Theater
+      - Theater Rainbow
+      - Traffic Light
+      - Tri Chase
+      - Tri Fade
+      - Tri Wipe
+      - Twinkle
+      - Twinklecat
+      - Twinklefox
+      - Two Areas
+      - Two Dots
+      - Wipe
+      - Wipe Random
+      intensity: 128
+      palette: Default
+      playlist:
+      preset:
+      reverse: false
+      speed: 128
+      friendly_name: Schouw
+      icon: mdi:led-strip-variant
+      supported_features: 55
       state: 'off'
     light.staande_lamp_living:
+      min_mireds: 140
+      max_mireds: 650
+      is_deconz_group: false
+      friendly_name: Staande Lamp Living
+      supported_features: 43
+      state: 'off'
+    switch.kerstboom:
+      friendly_name: Kerstboom
+      icon: mdi:pine-tree
       state: 'off'
 - id: '1587621898182'
   name: Default Nachttafel Febe
