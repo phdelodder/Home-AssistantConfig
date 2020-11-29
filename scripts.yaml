@@ -36,7 +36,9 @@ turn_off_switches_and_store_states:
       - media_player.bureau
   - service: switch.turn_off
     data: {}
-    entity_id: switch.boiler_keuken
+    entity_id: 
+      - switch.boiler_keuken
+      - switch.kerstboom
   - service: media_player.turn_off
     entity_id:
     - media_player.samsung_samsung_dtv_rcr
