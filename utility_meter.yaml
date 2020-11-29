@@ -160,3 +160,87 @@ vriezer_garage_current_usage_yearly:
   cycle: yearly
   tariffs:
     - normaal
+
+koelkast_vriezer_garage_current_usage_daily:
+  source: sensor.koelkast_vriezer_garage_consumption
+  cycle: daily
+  tariffs:
+    - normaal
+koelkast_vriezer_garage_current_usage_weekly:
+  source: sensor.koelkast_vriezer_garage_consumption
+  cycle: weekly
+  tariffs:
+    - normaal
+koelkast_vriezer_garage_current_usage_monthly:
+  source: sensor.koelkast_vriezer_garage_consumption
+  cycle: monthly
+  tariffs:
+    - normaal
+koelkast_vriezer_garage_current_usage_yearly:
+  source: sensor.koelkast_vriezer_garage_consumption
+  cycle: yearly
+  tariffs:
+    - normaal
+
+boiler_keuken_current_usage_daily:
+  source: sensor.boiler_keuken_consumption
+  cycle: daily
+  tariffs:
+    - normaal
+boiler_keuken_current_usage_weekly:
+  source: sensor.boiler_keuken_consumption
+  cycle: weekly
+  tariffs:
+    - normaal
+boiler_keuken_current_usage_monthly:
+  source: sensor.boiler_keuken_consumption
+  cycle: monthly
+  tariffs:
+    - normaal
+boiler_keuken_current_usage_yearly:
+  source: sensor.boiler_keuken_consumption
+  cycle: yearly
+  tariffs:
+    - normaal
+
+wasmachine_current_usage_daily:
+  source: sensor.wasmachine_consumption
+  cycle: daily
+  tariffs:
+    - normaal
+wasmachine_current_usage_weekly:
+  source: sensor.wasmachine_consumption
+  cycle: weekly
+  tariffs:
+    - normaal
+wasmachine_current_usage_monthly:
+  source: sensor.wasmachine_consumption
+  cycle: monthly
+  tariffs:
+    - normaal
+wasmachine_current_usage_yearly:
+  source: sensor.wasmachine_consumption
+  cycle: yearly
+  tariffs:
+    - normaal
+
+droogkast_current_usage_daily:
+  source: sensor.droogkast_consumption
+  cycle: daily
+  tariffs:
+    - normaal
+droogkast_current_usage_weekly:
+  source: sensor.droogkast_consumption
+  cycle: weekly
+  tariffs:
+    - normaal
+droogkast_current_usage_monthly:
+  source: sensor.droogkast_consumption
+  cycle: monthly
+  tariffs:
+    - normaal
+droogkast_current_usage_yearly:
+  source: sensor.droogkast_consumption
+  cycle: yearly
+  tariffs:
+    - normaal
