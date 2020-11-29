@@ -604,7 +604,10 @@
       entity_id: sensor.illuminance_living
       below: '3'
   action:
-  - scene: scene.woonkamer_morning
+  - service: scene.turn_on
+    data:
+      entity_id: scene.woonkamer_morning
+      transition: 60
   mode: single
 - id: '1600757546616'
   alias: Woonkamer Lights Morning Off
@@ -650,7 +653,10 @@
     entity_id: sensor.illuminance_living
     below: '5'
   action:
-  - scene: scene.woonkamer_eve
+  - service: scene.turn_on
+    data:
+      entity_id: scene.woonkamer_eve
+      transition: 60
   mode: single
 - id: '1600759062566'
   alias: Woonkamer Lights Evening On
@@ -669,7 +675,10 @@
     entity_id: binary_sensor.no_one_home
     state: 'off'
   action:
-  - scene: scene.woonkamer_evening
+  - service: scene.turn_on
+    data:
+      entity_id: scene.woonkamer_evening
+      transition: 60
   mode: single
 - id: '1600759267237'
   alias: Woonkamer Lights Night
@@ -689,9 +698,15 @@
     entity_id: media_player.samsung_samsung_dtv_rcr
     state: 'off'
   action:
-  - scene: scene.woonkamer_night
-  - delay: 00:05:00
-  - scene: scene.woonkamer_off
+  - service: scene.turn_on
+    data:
+      entity_id: scene.woonkamer_night
+      transition: 60
+  - delay: 00:04:00
+  - service: scene.turn_on
+    data:
+      entity_id: scene.woonkamer_off
+      transition: 60
   mode: restart
 - id: '1600759643151'
   alias: Woonkamer Lights Evening Off
@@ -713,7 +728,10 @@
           for:
             minutes: 5
           to: 'off'
-  - scene: scene.woonkamer_off
+  - service: scene.turn_on
+    data:
+      entity_id: scene.woonkamer_off
+      transition: 60
   mode: single
 - id: '1600846307260'
   alias: Reset Daily Inputs
