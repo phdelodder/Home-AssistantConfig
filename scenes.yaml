@@ -486,7 +486,7 @@
     switch.kerstboom:
       friendly_name: Kerstboom
       icon: mdi:pine-tree
-      state: 'off'
+      state: 'on'
     light.kerst_vaas:
       shelly_type: Shelly 1
       shelly_id: 8B1B47
