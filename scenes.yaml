@@ -319,6 +319,20 @@
       friendly_name: Kerstboom
       icon: mdi:pine-tree
       state: 'on'
+    light.kerst_vaas:
+      shelly_type: Shelly 1
+      shelly_id: 8B1B47
+      ip_address: 192.168.0.95
+      protocols:
+      - CoAP-discovery
+      - CoAP-msg
+      - poll
+      has_firmware_update: false
+      cloud_status: disabled
+      switch: false
+      friendly_name: Kerst Vaas
+      supported_features: 0
+      state: 'on'
 - id: '157443790044'
   name: Woonkamer Morning
   entities:
@@ -473,6 +487,20 @@
       friendly_name: Kerstboom
       icon: mdi:pine-tree
       state: 'off'
+    light.kerst_vaas:
+      shelly_type: Shelly 1
+      shelly_id: 8B1B47
+      ip_address: 192.168.0.95
+      protocols:
+      - CoAP-discovery
+      - CoAP-msg
+      - poll
+      has_firmware_update: false
+      cloud_status: disabled
+      switch: false
+      friendly_name: Kerst Vaas
+      supported_features: 0
+      state: 'on'
 - id: '157443790054'
   name: Woonkamer Eve
   entities:
@@ -627,6 +655,20 @@
       friendly_name: Kerstboom
       icon: mdi:pine-tree
       state: 'on'
+    light.kerst_vaas:
+      shelly_type: Shelly 1
+      shelly_id: 8B1B47
+      ip_address: 192.168.0.95
+      protocols:
+      - CoAP-discovery
+      - CoAP-msg
+      - poll
+      has_firmware_update: false
+      cloud_status: disabled
+      switch: false
+      friendly_name: Kerst Vaas
+      supported_features: 0
+      state: 'on'
 - id: '157443790543'
   name: Woonkamer Night
   entities:
@@ -776,6 +818,20 @@
     switch.kerstboom:
       friendly_name: Kerstboom
       icon: mdi:pine-tree
+      state: 'off'
+    light.kerst_vaas:
+      shelly_type: Shelly 1
+      shelly_id: 8B1B47
+      ip_address: 192.168.0.95
+      protocols:
+      - CoAP-discovery
+      - CoAP-msg
+      - poll
+      has_firmware_update: false
+      cloud_status: disabled
+      switch: false
+      friendly_name: Kerst Vaas
+      supported_features: 0
       state: 'off'
 - id: '1587621898182'
   name: Default Nachttafel Febe

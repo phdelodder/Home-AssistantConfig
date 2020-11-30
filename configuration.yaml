@@ -126,6 +126,8 @@ shelly:
       sensors: [ switch ]
     - id: "98F4ABD0C5D0"
       light_switch: true
+    - id: "8B1B47"
+      light_switch: true
 
 spotify:
   client_id: !secret spotify-clientid
