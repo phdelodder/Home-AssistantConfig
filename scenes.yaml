@@ -477,7 +477,7 @@
     light.staande_lamp_living:
       min_mireds: 140
       max_mireds: 650
-      brightness: 2
+      brightness: 234
       color_temp: 425
       is_deconz_group: false
       friendly_name: Staande Lamp Living
