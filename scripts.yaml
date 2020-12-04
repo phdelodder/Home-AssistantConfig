@@ -19,10 +19,11 @@ turn_off_indoor_lights:
   - service: light.turn_off
     data: {}
     entity_id:
-    - light.zolder_group
-    - light.gelijkvloers_group
-    - light.eerste_verdiep_group
+    - light.zolder
+    - light.gelijkvloers
+    - light.eerste_verdiep
   icon: mdi:lightbulb
+  mode: single
 turn_off_switches_and_store_states:
   alias: Turn off switches and store devices state
   sequence:
@@ -36,9 +37,9 @@ turn_off_switches_and_store_states:
       - media_player.bureau
   - service: switch.turn_off
     data: {}
-    entity_id: 
-      - switch.boiler_keuken
-      - switch.kerstboom
+    entity_id:
+    - switch.boiler_keuken
+    - switch.kerstboom
   - service: media_player.turn_off
     entity_id:
     - media_player.samsung_samsung_dtv_rcr
