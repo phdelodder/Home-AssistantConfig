@@ -1,13 +1,14 @@
 - platform: group
-  name: gelijkvloers group
+  name: Gelijkvloers
   entities:
     - light.wc_beneden
     - light.inkom
     - light.schouw
     - light.staande_lamp_living
+    - light.kerst_vaas
 
 - platform: group
-  name: eerste verdiep group
+  name: Eerste Verdiep
   entities:
     - light.slaapkamer_margot
     - light.nachttafel_margot
@@ -17,7 +18,6 @@
     - light.dressing_spots
     - light.dressing_led_strip
     - light.gang_eerste_verdiep
-    - light.shelly_dimmer_d0f117_light_0
     - light.wc_boven
     - light.led_slaapkamer
 
@@ -28,18 +28,17 @@
     - light.febe_led_bed
 
 - platform: group
-  name: buiten group
+  name: Buiten
   entities: 
     - light.voordeur
     - light.achterdeur
     - light.garage_buiten
 
 - platform: group
-  name: zolder group
+  name: Zolder
   entities:
     - light.gang_zolder
     - light.speelkamer
-    - light.led_speelkamer
     - light.bureau
     - light.desk_lamp
-    - light.cell_structure_lamp
+    - light.plank
