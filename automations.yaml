@@ -1190,63 +1190,73 @@
   trigger:
   - platform: time_pattern
     minutes: /5
+  - platform: state
+    entity_id: sensor.downstairs_thermostat_target
   condition:
   - condition: state
     entity_id: binary_sensor.no_one_home
     state: 'off'
+  - condition: state
+    entity_id: input_boolean.automated_scheduling
+    state: 'on'
   action:
   - choose:
     - conditions:
       - condition: time
-        after: "06:45:00"
-        before: "08:30:00"
+        after: 06:45:00
+        before: 08:30:00
       sequence:
       - condition: template
-        value_template: '{{ not is_state(''sensor.downstairs_thermostat_target'', states(''input_number.climate_termperature_morning''))
-          }}'
+        value_template: '{{ not is_state(''sensor.downstairs_thermostat_target'',
+          states(''input_number.climate_termperature_morning'')) }}'
       - service: climate.set_temperature
         data:
-          temperature: '{{ states("input_number.climate_temperature_morning") | float }}'
+          temperature: '{{ states("input_number.climate_temperature_morning") | float
+            }}'
         entity_id: climate.downstairs
     - conditions:
       - condition: time
-        after: "11:50:00"
-        before: "13:00:00"
+        after: '11:50:00'
+        before: '13:00:00'
       sequence:
       - condition: template
-        value_template: '{{ not is_state(''sensor.downstairs_thermostat_target'', states(''input_number.climate_termperature_noon''))
-          }}'
+        value_template: '{{ not is_state(''sensor.downstairs_thermostat_target'',
+          states(''input_number.climate_termperature_noon'')) }}'
       - service: climate.set_temperature
         data:
-          temperature: '{{ states("input_number.climate_temperature_noon") | float }}'
+          temperature: '{{ states("input_number.climate_temperature_noon") | float
+            }}'
         entity_id: climate.downstairs
     - conditions:
       - condition: time
-        after: "17:00:00"
-        before: "19:30:00"
+        after: '17:00:00'
+        before: '19:30:00'
       sequence:
       - condition: template
-        value_template: '{{ not is_state(''sensor.downstairs_thermostat_target'', states(''input_number.climate_termperature_eve''))
-          }}'
+        value_template: '{{ not is_state(''sensor.downstairs_thermostat_target'',
+          states(''input_number.climate_termperature_eve'')) }}'
       - service: climate.set_temperature
         data:
-          temperature: '{{ states("input_number.climate_temperature_eve") | float }}'
+          temperature: '{{ states("input_number.climate_temperature_eve") | float
+            }}'
         entity_id: climate.downstairs
     - conditions:
       - condition: time
-        after: "19:30:00"
-        before: "22:00:00"
+        after: '19:30:00'
+        before: '22:00:00'
       sequence:
       - condition: template
-        value_template: '{{ not is_state(''sensor.downstairs_thermostat_target'', states(''input_number.climate_temperature_evening''))
-          }}'
+        value_template: '{{ not is_state(''sensor.downstairs_thermostat_target'',
+          states(''input_number.climate_temperature_evening'')) }}'
       - service: climate.set_temperature
         data:
-          temperature: '{{ states("input_number.climate_temperature_evening") | float }}'
+          temperature: '{{ states("input_number.climate_temperature_evening") | float
+            }}'
         entity_id: climate.downstairs
     default:
     - condition: template
-      value_template: '{{ not is_state(''sensor.downstairs_thermostat_target'', states(''input_number.climate_termperature_low'')) }}'
+      value_template: '{{ not is_state(''sensor.downstairs_thermostat_target'', states(''input_number.climate_termperature_low''))
+        }}'
     - service: climate.set_temperature
       data:
         temperature: '{{ states("input_number.climate_temperature_low") | float }}'
