@@ -315,9 +315,9 @@
       friendly_name: Staande Lamp Living
       supported_features: 43
       state: 'on'
-    switch.kerstboom:
+    light.kerstboom:
       friendly_name: Kerstboom
-      icon: mdi:pine-tree
+      supported_features: 0
       state: 'on'
     light.kerst_vaas:
       shelly_type: Shelly 1
@@ -477,15 +477,11 @@
     light.staande_lamp_living:
       min_mireds: 140
       max_mireds: 650
-      brightness: 234
+      brightness: 184
       color_temp: 425
       is_deconz_group: false
       friendly_name: Staande Lamp Living
       supported_features: 43
-      state: 'on'
-    switch.kerstboom:
-      friendly_name: Kerstboom
-      icon: mdi:pine-tree
       state: 'on'
     light.kerst_vaas:
       shelly_type: Shelly 1
@@ -499,6 +495,10 @@
       cloud_status: disabled
       switch: false
       friendly_name: Kerst Vaas
+      supported_features: 0
+      state: 'on'
+    light.kerstboom:
+      friendly_name: Kerstboom
       supported_features: 0
       state: 'on'
 - id: '157443790054'
@@ -651,9 +651,9 @@
       friendly_name: Staande Lamp Living
       supported_features: 43
       state: 'on'
-    switch.kerstboom:
+    light.kerstboom:
       friendly_name: Kerstboom
-      icon: mdi:pine-tree
+      supported_features: 0
       state: 'on'
     light.kerst_vaas:
       shelly_type: Shelly 1
@@ -815,9 +815,7 @@
       friendly_name: Staande Lamp Living
       supported_features: 43
       state: 'off'
-    switch.kerstboom:
-      friendly_name: Kerstboom
-      icon: mdi:pine-tree
+    light.kerstboom:
       state: 'off'
     light.kerst_vaas:
       shelly_type: Shelly 1
