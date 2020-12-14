@@ -1194,7 +1194,7 @@
     entity_id: sensor.downstairs_thermostat_target
   condition:
   - condition: state
-    entity_id: binary_sensor.no_one_home
+    entity_id: binary_sensor.zilverberkenstraat_7_away
     state: 'off'
   - condition: state
     entity_id: input_boolean.automated_scheduling
@@ -1262,3 +1262,42 @@
         temperature: '{{ states("input_number.climate_temperature_low") | float }}'
       entity_id: climate.downstairs
   mode: single
+- id: '1607349802281'
+  alias: 'Verlichting Buiten Voorkant: On'
+  description: ''
+  trigger:
+  - platform: sun
+    event: sunset
+    offset: -00:45:00
+  - platform: time
+    at: 05:30:00
+  condition: []
+  action:
+  - service: switch.turn_on
+    data: {}
+    entity_id: switch.verlichting_buiten_voorkant
+  mode: single
+- id: '1607349875705'
+  alias: 'Verlichting Buiten Voorkant: Off'
+  description: ''
+  trigger:
+  - platform: time
+    at: '23:30:00'
+  - platform: time
+    at: 09:00:00
+  condition: []
+  action:
+  - service: switch.turn_off
+    data: {}
+    entity_id: switch.verlichting_buiten_voorkant
+  mode: single
+- id: '1607930433185'
+  alias: 'Motion: WC Beneden'
+  description: ''
+  use_blueprint:
+    path: homeassistant/motion_light.yaml
+    input:
+      no_motion_wait: '65'
+      motion_entity: binary_sensor.motion_wc_beneden
+      light_target:
+        area_id: 91ee1f9b134f4ecca57e2fb1ba925a6f
