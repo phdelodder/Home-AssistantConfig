@@ -1,3 +1,11 @@
+- platform: switch
+  name: Kerstboom
+  entity_id: switch.kerstboom
+
+- platform: switch
+  name: Voortuin
+  entity_id: switch.verlichting_buiten_voorkant
+
 - platform: group
   name: Gelijkvloers
   entities:
@@ -6,6 +14,8 @@
     - light.schouw
     - light.staande_lamp_living
     - light.kerst_vaas
+    - light.led_mini_kerstboom_led
+    - light.kerstboom
 
 - platform: group
   name: Eerste Verdiep
@@ -33,6 +43,7 @@
     - light.voordeur
     - light.achterdeur
     - light.garage_buiten
+    - light.voortuin
 
 - platform: group
   name: Zolder
