@@ -1,20 +1,14 @@
-import sys
 from typing import Any, Dict, Optional, Type, Union
 
 from cx_const import Light, TypeActionsMapping
 from cx_core.color_helper import get_color_wheel
-from cx_core.controller import ReleaseHoldController, action
+from cx_core.controller import action
 from cx_core.feature_support.light import LightSupport
+from cx_core.release_hold_controller import ReleaseHoldController
 from cx_core.stepper import Stepper
 from cx_core.stepper.circular_stepper import CircularStepper
 from cx_core.stepper.minmax_stepper import MinMaxStepper
 from cx_core.type_controller import Entity, TypeController
-
-if sys.version_info[1] < 8:
-    from typing_extensions import Literal
-else:
-    from typing import Literal  # type: ignore
-
 
 DEFAULT_MANUAL_STEPS = 10
 DEFAULT_AUTOMATIC_STEPS = 10
@@ -28,7 +22,10 @@ DEFAULT_TRANSITION = 300
 DEFAULT_ADD_TRANSITION = True
 DEFAULT_TRANSITION_TURN_TOGGLE = False
 
-ColorMode = Literal["auto", "xy_color", "color_temp"]
+ColorMode = str
+# Once the minimum supported version of Python is 3.8,
+# we can declare the ColorMode as a Literal
+# ColorMode = Literal["auto", "xy_color", "color_temp"]
 
 
 class LightEntity(Entity):
@@ -39,7 +36,7 @@ class LightEntity(Entity):
         self.color_mode = color_mode
 
 
-class LightController(TypeController[LightEntity, LightSupport], ReleaseHoldController):
+class LightController(TypeController[LightEntity], ReleaseHoldController):
     """
     This is the main class that controls the lights for different devices.
     Type of actions:
@@ -122,9 +119,6 @@ class LightController(TypeController[LightEntity, LightSupport], ReleaseHoldCont
 
     def _get_entity_type(self) -> Type[LightEntity]:
         return LightEntity
-
-    def _get_feature_support_type(self) -> Type[LightSupport]:
-        return LightSupport
 
     def get_type_actions_mapping(self) -> TypeActionsMapping:
         return {
