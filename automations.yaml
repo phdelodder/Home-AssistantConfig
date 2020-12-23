@@ -152,20 +152,16 @@
     service: script.notify_afval
 - id: '1587360682923'
   alias: Alarm Clock Philippe
-  description: https://flemmingss.com/wake-up-light-based-on-android-alarm-with-home-assistant-and-tasker/
   trigger:
   - platform: template
-    value_template: '{% set alarm_time = as_timestamp(states(''input_datetime.philippe_phone_next_alarm''))
+    value_template: '{% set alarm_time = as_timestamp(states(''sensor.pixel_5_volgende_alarm''))
       %}
 
       {% set time_now = as_timestamp(states(''sensor.date_time'').replace('','',''''))
       %}
 
-      {{ time_now >= ( alarm_time - 300) }}'
+      {{ alarm_time is not none and time_now >= ( alarm_time - 300) }}'
   condition:
-  - condition: state
-    entity_id: input_boolean.philippe_phone_alarm_set
-    state: 'on'
   - condition: state
     entity_id: person.philippe
     state: home
@@ -915,7 +911,7 @@
     state: 'off'
   - condition: time
     after: '21:30:00'
-    before: 07:00:00
+    before: 07:15:00
   action:
   - service: input_boolean.turn_on
     data: {}
@@ -926,7 +922,7 @@
   description: ''
   trigger:
   - platform: time
-    at: 07:00:00
+    at: 07:15:00
   - platform: state
     entity_id: binary_sensor.no_one_home
     to: 'off'
@@ -936,7 +932,7 @@
     entity_id: binary_sensor.no_one_home
     state: 'off'
   - condition: time
-    after: 07:00:00
+    after: 07:15:00
     before: '21:30:00'
   - condition: state
     entity_id: binary_sensor.workday_sensor
