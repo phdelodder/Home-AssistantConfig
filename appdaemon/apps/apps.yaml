@@ -37,6 +37,11 @@ slaapkamer_controller:
   controller: dimmer_switch
   integration: deconz
   light: light.led_slaapkamer
+  merge_mapping:
+    1002:
+      service: scene.turn_on
+      data:
+        entity_id: scene.default_led_slaapkamer
 
 # Top and bottom press for turn on/off lights, then when holding top one will change brightness (changing directions everytime you hold) 
 # and the bottom one for the color (changing directions everytime you hold). 
