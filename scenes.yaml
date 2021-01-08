@@ -1389,16 +1389,16 @@
       - Wipe Random
       brightness: 255
       hs_color:
-      - 300
-      - 100
+      - 28.457
+      - 68.627
       rgb_color:
       - 255
-      - 0
-      - 255
+      - 163
+      - 80
       xy_color:
-      - 0.385
-      - 0.155
-      effect: Colorloop
+      - 0.535
+      - 0.388
+      effect: Solid
       intensity: 128
       palette: Default
       playlist:
@@ -1546,45 +1546,22 @@
       - Washing Machine
       - Wipe
       - Wipe Random
-      brightness: 255
-      hs_color:
-      - 300
-      - 100
-      rgb_color:
-      - 255
-      - 0
-      - 255
-      xy_color:
-      - 0.385
-      - 0.155
-      effect: Colorloop
-      intensity: 128
-      palette: Default
-      playlist:
-      preset:
-      reverse: false
-      speed: 128
       friendly_name: WLED Matrix
       icon: mdi:led-strip-variant
       supported_features: 55
-      state: 'on'
+      state: unavailable
     switch.wled_matrix_nightlight:
-      duration: 60
-      fade: true
-      target_brightness: 0
       friendly_name: WLED Matrix Nightlight
       icon: mdi:weather-night
-      state: 'off'
+      state: unavailable
     switch.wled_matrix_sync_send:
-      udp_port: 21324
       friendly_name: WLED Matrix Sync Send
       icon: mdi:upload-network-outline
-      state: 'on'
+      state: unavailable
     switch.wled_matrix_sync_receive:
-      udp_port: 21324
       friendly_name: WLED Matrix Sync Receive
       icon: mdi:download-network-outline
-      state: 'on'
+      state: unavailable
 - id: '1592226328848'
   name: Testing
   entities:
@@ -1743,3 +1720,163 @@
       icon: mdi:upload-network-outline
       state: 'off'
       udp_port: 21324
+- id: '1609832879321'
+  name: Default Led Slaapkamer
+  entities:
+    light.led_slaapkamer:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - Android
+      - Blink
+      - Blink Rainbow
+      - Bouncing Balls
+      - Bpm
+      - Breathe
+      - Candle
+      - Candle Multi
+      - Chase
+      - Chase Flash
+      - Chase Flash Rnd
+      - Chase Rainbow
+      - Chase Random
+      - Chunchun
+      - Circus
+      - Colorful
+      - Colorloop
+      - Colortwinkles
+      - Colorwaves
+      - Dancing Shadows
+      - Dissolve
+      - Dissolve Rnd
+      - Drip
+      - Dynamic
+      - Fade
+      - Fill Noise
+      - Fire 2012
+      - Fire Flicker
+      - Fireworks
+      - Fireworks 1D
+      - Fireworks Starburst
+      - Flow
+      - Glitter
+      - Gradient
+      - Halloween
+      - Halloween Eyes
+      - Heartbeat
+      - ICU
+      - Juggle
+      - Lake
+      - Lighthouse
+      - Lightning
+      - Loading
+      - Merry Christmas
+      - Meteor
+      - Meteor Smooth
+      - Multi Comet
+      - Noise 1
+      - Noise 2
+      - Noise 3
+      - Noise 4
+      - Noise Pal
+      - Oscillate
+      - Pacifica
+      - Palette
+      - Percent
+      - Phased
+      - Phased Noise
+      - Plasma
+      - Police
+      - Police All
+      - Popcorn
+      - Pride 2015
+      - Railway
+      - Rain
+      - Rainbow
+      - Rainbow Runner
+      - Random Colors
+      - Red & Blue
+      - Ripple
+      - Ripple Rainbow
+      - Running
+      - Running 2
+      - Saw
+      - Scan
+      - Scan Dual
+      - Scanner
+      - Scanner Dual
+      - Sine
+      - Sinelon
+      - Sinelon Dual
+      - Sinelon Rainbow
+      - Solid
+      - Solid Glitter
+      - Solid Pattern
+      - Solid Pattern Tri
+      - Sparkle
+      - Sparkle Dark
+      - Sparkle+
+      - Spots
+      - Spots Fade
+      - Stream
+      - Stream 2
+      - Strobe
+      - Strobe Mega
+      - Strobe Rainbow
+      - Sunrise
+      - Sweep
+      - Sweep Random
+      - Theater
+      - Theater Rainbow
+      - Traffic Light
+      - Tri Chase
+      - Tri Fade
+      - Tri Wipe
+      - Twinkle
+      - Twinklecat
+      - Twinklefox
+      - Twinkleup
+      - Two Areas
+      - Two Dots
+      - Wipe
+      - Wipe Random
+      brightness: 178
+      hs_color:
+      - 330.118
+      - 100
+      rgb_color:
+      - 255
+      - 0
+      - 126
+      xy_color:
+      - 0.583
+      - 0.245
+      white_value: 239
+      effect: Solid
+      intensity: 255
+      palette: Default
+      playlist:
+      preset:
+      reverse: false
+      speed: 5
+      friendly_name: Led Slaapkamer
+      icon: mdi:led-strip-variant
+      supported_features: 183
+      state: 'on'
+    switch.led_slaapkamer_nightlight:
+      duration: 60
+      fade: true
+      target_brightness: 0
+      friendly_name: Led Slaapkamer Nightlight
+      icon: mdi:weather-night
+      state: 'off'
+    switch.led_slaapkamer_sync_send:
+      udp_port: 21324
+      friendly_name: Led Slaapkamer Sync Send
+      icon: mdi:upload-network-outline
+      state: 'off'
+    switch.led_slaapkamer_sync_receive:
+      udp_port: 21324
+      friendly_name: Led Slaapkamer Sync Receive
+      icon: mdi:download-network-outline
+      state: 'off'
