@@ -41,6 +41,16 @@
       value_template: >-
         {{ (is_state_attr('proximity.philippe_home','dir_of_travel','towards') and states('proximity.philippe_home') | int <= 2) or
           (is_state_attr('proximity.isabel_home','dir_of_travel','towards') and states('proximity.isabel_home') | int <= 2)}}
+    motion_inkom:
+      friendly_name: Inkom
+      value_template: >
+        {{ is_state("binary_sensor.motion_inkom_1", "on") or is_state("binary_sensor.motion_inkom_2", "on")}}
+      device_class: motion
+    motion_gang_eerste:
+      friendly_name: Gang Eerste
+      value_template: >
+        {{ is_state("binary_sensor.motion_gang_eerste_1", "on") or is_state("binary_sensor.motion_gang_eerste_2", "on")}}
+      device_class: motion
 
 #- platform: mqtt
 #  name: "Oprit Camera"

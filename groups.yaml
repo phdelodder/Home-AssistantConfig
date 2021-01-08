@@ -4,18 +4,6 @@ Proximity:
      - proximity.philippe_home
      - proximity.isabel_home
 
-motion_gang_eerste_verdiep:
-  name: Motion Gang Eerste Verdiep
-  entities: 
-    - binary_sensor.motion_gang_eerste_1
-    - binary_sensor.motion_gang_eerste_2
-
-motion_inkom:
-  name: Motion Inkom
-  entities: 
-    - binary_sensor.motion_inkom_1
-    - binary_sensor.motion_inkom_2
-
 DoorDetection:
   name: Door Detection
   entities:
