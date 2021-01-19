@@ -12,7 +12,7 @@ staande_lamp_controller:
 
 Livingroom_part1_controller:
   module: controllerx
-  class: CallServiceController
+  class: Controller
   controller: schouw
   integration: deconz
   mapping:
@@ -97,7 +97,7 @@ dressing_spots_controller_night:
 
 febe_slaapkamer_controller_button:
   module: controllerx
-  class: CallServiceController
+  class: Controller
   controller: slaapkamer_febe
   integration: deconz
   light: light.febe_slaapkamer
