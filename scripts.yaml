@@ -96,40 +96,30 @@ turn_on_switches_and_stored_states:
     data: {}
     entity_id: switch.boiler_keuken
   icon: mdi:light-switch
-set_temperature:
-  alias: Set Temperature
-  sequence:
-  - service: climate.set_operation_mode
-    data:
-      entity_id: climate.downstairs
-      operation_mode: heat
-  - service: climate.set_temperature
-    data_template:
-      temperature: '{{ states.sensor.temperature_degrees.state | float }}'
-  - service: notify.hazilverberkenstraatbot
-    data_template:
-      message: Temperature set to {{ states.sensor.temperature_degrees.state}}
-  - service: input_boolean.turn_off
-    data:
-      entity_id: input_boolean.tempsetactive
-  mode: single
-  icon: mdi:thermostat
 set_thermostat_away:
-  alias: Set Thermostat to Away and Eco
+  alias: Set Thermostat to Away
   sequence:
   - data:
-      preset_mode: Away and Eco
-      entity_id: climate.downstairs
+      preset_mode: away
+      entity_id: climate.huis
     service: climate.set_preset_mode
+  - service: climate.set_temperature
+    data:
+      entity_id:
+        - climate.margot
+        - climate.slaapkamer
+        - climate.febe
+        - climate.dressing
+      temperature: 12
   mode: single
   icon: mdi:thermostat
 set_thermostat_home:
   alias: Set Thermostat to home
   sequence:
   - data:
-      preset_mode: none
+      preset_mode: Auto
     service: climate.set_preset_mode
-    entity_id: climate.downstairs
+    entity_id: climate.huis
   mode: single
   icon: mdi:thermostat
 start_up_home_assistant:
@@ -408,7 +398,7 @@ guest_mode_feedback:
   fields:
     command:
       description: the response command from telegram
-      example: vacuumemptybindone
+      example: yesguest
     callback_id:
       description: the callback_id to give a reponse
       example: ''

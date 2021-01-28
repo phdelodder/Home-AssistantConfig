@@ -141,3 +141,15 @@ browser_mod:
 google:
   client_id: !secret google-client_id
   client_secret: !secret google-client_secret
+
+#evohome:
+#  username: !secret international.mytotalconnectcomfort.com-username
+#  password: !secret international.mytotalconnectcomfort.com-password
+#  scan_interval: 120
+
+evohome_cc:
+  scan_interval: 15
+  serial_port: /dev/ttyUSB0
+  packet_log: /config/evohome_cc_packet.log
+  schema:
+    controller: 01:223036

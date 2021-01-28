@@ -554,13 +554,13 @@
   - service: script.vacuum_automated
   mode: single
 - id: '1600754548159'
-  alias: 'Leaving: set thermostat to ECO'
-  description: Set thermostat to ECO
+  alias: 'Leaving: set thermostat to Away'
+  description: Set thermostat to Away
   trigger:
   - platform: state
     entity_id: binary_sensor.no_one_home
     to: 'on'
-    for: 0:15:00
+    for: 0:01:00
   - platform: template
     value_template: '{{ is_state(''person.isabel'', ''Az-Sint Jan'') and is_state(''person.philippe'',
       ''Connective'') }}'
@@ -845,12 +845,17 @@
     from: 'off'
     to: 'on'
     for: 00:10:00
-  condition: []
+  condition:
+  - condition: not
+    conditions:
+    - condition: state
+      entity_id: climate.huis
+      state: 'off'
   action:
   - service: climate.set_preset_mode
     data:
       preset_mode: eco
-    entity_id: climate.downstairs
+    entity_id: climate.huis
   mode: restart
 - id: '1600868305287'
   alias: 'Climate: disable ECO when the doors are closed'
@@ -861,12 +866,16 @@
     from: 'on'
     to: 'off'
     for: 00:05:00
-  condition: []
+  condition:
+  - condition: state
+    entity_id: climate.huis
+    state: eco
+    attribute: preset_mode
   action:
   - service: climate.set_preset_mode
     data:
-      preset_mode: none
-    entity_id: climate.downstairs
+      preset_mode: Auto
+    entity_id: climate.huis
   mode: restart
 - id: '1600870113700'
   alias: Active Guest Mode
@@ -1179,84 +1188,6 @@
   action:
   - service: script.turn_off_motion_detection_camera
     data: {}
-  mode: single
-- id: '1607004363653'
-  alias: 'Climate: Automated Scheduling'
-  description: ''
-  trigger:
-  - platform: time_pattern
-    minutes: /5
-  - platform: state
-    entity_id: sensor.downstairs_thermostat_target
-  condition:
-  - condition: state
-    entity_id: binary_sensor.zilverberkenstraat_7_away
-    state: 'off'
-  - condition: state
-    entity_id: input_boolean.automated_scheduling
-    state: 'on'
-  action:
-  - choose:
-    - conditions:
-      - condition: time
-        after: 06:45:00
-        before: 08:30:00
-      sequence:
-      - condition: template
-        value_template: '{{ not is_state(''sensor.downstairs_thermostat_target'',
-          states(''input_number.climate_termperature_morning'')) }}'
-      - service: climate.set_temperature
-        data:
-          temperature: '{{ states("input_number.climate_temperature_morning") | float
-            }}'
-        entity_id: climate.downstairs
-    - conditions:
-      - condition: time
-        after: '11:50:00'
-        before: '13:00:00'
-      sequence:
-      - condition: template
-        value_template: '{{ not is_state(''sensor.downstairs_thermostat_target'',
-          states(''input_number.climate_termperature_noon'')) }}'
-      - service: climate.set_temperature
-        data:
-          temperature: '{{ states("input_number.climate_temperature_noon") | float
-            }}'
-        entity_id: climate.downstairs
-    - conditions:
-      - condition: time
-        after: '17:00:00'
-        before: '19:30:00'
-      sequence:
-      - condition: template
-        value_template: '{{ not is_state(''sensor.downstairs_thermostat_target'',
-          states(''input_number.climate_termperature_eve'')) }}'
-      - service: climate.set_temperature
-        data:
-          temperature: '{{ states("input_number.climate_temperature_eve") | float
-            }}'
-        entity_id: climate.downstairs
-    - conditions:
-      - condition: time
-        after: '19:30:00'
-        before: '22:00:00'
-      sequence:
-      - condition: template
-        value_template: '{{ not is_state(''sensor.downstairs_thermostat_target'',
-          states(''input_number.climate_temperature_evening'')) }}'
-      - service: climate.set_temperature
-        data:
-          temperature: '{{ states("input_number.climate_temperature_evening") | float
-            }}'
-        entity_id: climate.downstairs
-    default:
-    - condition: template
-      value_template: '{{ not is_state(''sensor.downstairs_thermostat_target'', states(''input_number.climate_termperature_low''))
-        }}'
-    - service: climate.set_temperature
-      data:
-        temperature: '{{ states("input_number.climate_temperature_low") | float }}'
-      entity_id: climate.downstairs
   mode: single
 - id: '1607349802281'
   alias: 'Verlichting Buiten Voorkant: On'
