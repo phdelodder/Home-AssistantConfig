@@ -39,11 +39,6 @@ group.Family:
   hidden: true
 group.PortableDevices:
   hidden: true
-sensor.downstairs_thermostat_hvac_state:
-  friendly_name: Downstairs Thermostat hvac state
-  hidden: true
-sensor.downstairs_thermostat_target:
-  friendly_name: Downstairs target °C
 sensor.last_update_isabel_smartphone:
   icon: mdi:update
 sensor.last_update_philippe_smartphone:
