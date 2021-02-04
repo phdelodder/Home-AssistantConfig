@@ -172,16 +172,15 @@
       effect_list:
       - None
       - Candle_Flicker
-      brightness: 255
-      effect: Candle_Flicker
       friendly_name: Led Mini Kerstboom LED
       supported_features: 45
-      state: 'on'
+      state: unavailable
     light.schouw:
       min_mireds: 153
       max_mireds: 500
       effect_list:
       - Android
+      - Blends
       - Blink
       - Blink Rainbow
       - Bouncing Balls
@@ -189,16 +188,19 @@
       - Breathe
       - Candle
       - Candle Multi
+      - Candy Cane
       - Chase
       - Chase Flash
       - Chase Flash Rnd
       - Chase Rainbow
       - Chase Random
+      - Chunchun
       - Circus
       - Colorful
       - Colorloop
       - Colortwinkles
       - Colorwaves
+      - Dancing Shadows
       - Dissolve
       - Dissolve Rnd
       - Drip
@@ -210,6 +212,7 @@
       - Fireworks
       - Fireworks 1D
       - Fireworks Starburst
+      - Flow
       - Glitter
       - Gradient
       - Halloween
@@ -229,10 +232,13 @@
       - Noise 2
       - Noise 3
       - Noise 4
+      - Noise Pal
       - Oscillate
       - Pacifica
       - Palette
       - Percent
+      - Phased
+      - Phased Noise
       - Plasma
       - Police
       - Police All
@@ -253,10 +259,12 @@
       - Scan Dual
       - Scanner
       - Scanner Dual
+      - Sine
       - Sinelon
       - Sinelon Dual
       - Sinelon Rainbow
       - Solid
+      - Solid Glitter
       - Solid Pattern
       - Solid Pattern Tri
       - Sparkle
@@ -269,6 +277,7 @@
       - Strobe
       - Strobe Mega
       - Strobe Rainbow
+      - Sunrise
       - Sweep
       - Sweep Random
       - Theater
@@ -280,8 +289,10 @@
       - Twinkle
       - Twinklecat
       - Twinklefox
+      - Twinkleup
       - Two Areas
       - Two Dots
+      - Washing Machine
       - Wipe
       - Wipe Random
       brightness: 84
@@ -320,18 +331,15 @@
       supported_features: 0
       state: 'on'
     light.kerst_vaas:
-      shelly_type: Shelly 1
-      shelly_id: 8B1B47
-      ip_address: 192.168.0.95
-      protocols:
-      - CoAP-discovery
-      - CoAP-msg
-      - poll
-      has_firmware_update: false
-      cloud_status: disabled
-      switch: false
-      friendly_name: Kerst Vaas
+      restored: true
       supported_features: 0
+      friendly_name: Kerst Vaas
+      state: unavailable
+    light.lamp_barkast:
+      brightness: 64
+      is_deconz_group: false
+      friendly_name: Lamp Barkast
+      supported_features: 41
       state: 'on'
 - id: '157443790044'
   name: Woonkamer Morning
@@ -340,16 +348,15 @@
       effect_list:
       - None
       - Candle_Flicker
-      brightness: 255
-      effect: None
       friendly_name: Led Mini Kerstboom LED
       supported_features: 45
-      state: 'on'
+      state: unavailable
     light.schouw:
       min_mireds: 153
       max_mireds: 500
       effect_list:
       - Android
+      - Blends
       - Blink
       - Blink Rainbow
       - Bouncing Balls
@@ -357,16 +364,19 @@
       - Breathe
       - Candle
       - Candle Multi
+      - Candy Cane
       - Chase
       - Chase Flash
       - Chase Flash Rnd
       - Chase Rainbow
       - Chase Random
+      - Chunchun
       - Circus
       - Colorful
       - Colorloop
       - Colortwinkles
       - Colorwaves
+      - Dancing Shadows
       - Dissolve
       - Dissolve Rnd
       - Drip
@@ -378,6 +388,7 @@
       - Fireworks
       - Fireworks 1D
       - Fireworks Starburst
+      - Flow
       - Glitter
       - Gradient
       - Halloween
@@ -397,10 +408,13 @@
       - Noise 2
       - Noise 3
       - Noise 4
+      - Noise Pal
       - Oscillate
       - Pacifica
       - Palette
       - Percent
+      - Phased
+      - Phased Noise
       - Plasma
       - Police
       - Police All
@@ -421,10 +435,12 @@
       - Scan Dual
       - Scanner
       - Scanner Dual
+      - Sine
       - Sinelon
       - Sinelon Dual
       - Sinelon Rainbow
       - Solid
+      - Solid Glitter
       - Solid Pattern
       - Solid Pattern Tri
       - Sparkle
@@ -437,6 +453,7 @@
       - Strobe
       - Strobe Mega
       - Strobe Rainbow
+      - Sunrise
       - Sweep
       - Sweep Random
       - Theater
@@ -448,8 +465,10 @@
       - Twinkle
       - Twinklecat
       - Twinklefox
+      - Twinkleup
       - Two Areas
       - Two Dots
+      - Washing Machine
       - Wipe
       - Wipe Random
       brightness: 84
@@ -484,22 +503,19 @@
       supported_features: 43
       state: 'on'
     light.kerst_vaas:
-      shelly_type: Shelly 1
-      shelly_id: 8B1B47
-      ip_address: 192.168.0.95
-      protocols:
-      - CoAP-discovery
-      - CoAP-msg
-      - poll
-      has_firmware_update: false
-      cloud_status: disabled
-      switch: false
-      friendly_name: Kerst Vaas
+      restored: true
       supported_features: 0
-      state: 'on'
+      friendly_name: Kerst Vaas
+      state: unavailable
     light.kerstboom:
       friendly_name: Kerstboom
       supported_features: 0
+      state: 'on'
+    light.lamp_barkast:
+      brightness: 120
+      is_deconz_group: false
+      friendly_name: Lamp Barkast
+      supported_features: 41
       state: 'on'
 - id: '157443790054'
   name: Woonkamer Eve
@@ -508,16 +524,15 @@
       effect_list:
       - None
       - Candle_Flicker
-      brightness: 255
-      effect: Candle_Flicker
       friendly_name: Led Mini Kerstboom LED
       supported_features: 45
-      state: 'on'
+      state: unavailable
     light.schouw:
       min_mireds: 153
       max_mireds: 500
       effect_list:
       - Android
+      - Blends
       - Blink
       - Blink Rainbow
       - Bouncing Balls
@@ -525,16 +540,19 @@
       - Breathe
       - Candle
       - Candle Multi
+      - Candy Cane
       - Chase
       - Chase Flash
       - Chase Flash Rnd
       - Chase Rainbow
       - Chase Random
+      - Chunchun
       - Circus
       - Colorful
       - Colorloop
       - Colortwinkles
       - Colorwaves
+      - Dancing Shadows
       - Dissolve
       - Dissolve Rnd
       - Drip
@@ -546,6 +564,7 @@
       - Fireworks
       - Fireworks 1D
       - Fireworks Starburst
+      - Flow
       - Glitter
       - Gradient
       - Halloween
@@ -565,10 +584,13 @@
       - Noise 2
       - Noise 3
       - Noise 4
+      - Noise Pal
       - Oscillate
       - Pacifica
       - Palette
       - Percent
+      - Phased
+      - Phased Noise
       - Plasma
       - Police
       - Police All
@@ -589,10 +611,12 @@
       - Scan Dual
       - Scanner
       - Scanner Dual
+      - Sine
       - Sinelon
       - Sinelon Dual
       - Sinelon Rainbow
       - Solid
+      - Solid Glitter
       - Solid Pattern
       - Solid Pattern Tri
       - Sparkle
@@ -605,6 +629,7 @@
       - Strobe
       - Strobe Mega
       - Strobe Rainbow
+      - Sunrise
       - Sweep
       - Sweep Random
       - Theater
@@ -616,8 +641,10 @@
       - Twinkle
       - Twinklecat
       - Twinklefox
+      - Twinkleup
       - Two Areas
       - Two Dots
+      - Washing Machine
       - Wipe
       - Wipe Random
       brightness: 255
@@ -656,18 +683,15 @@
       supported_features: 0
       state: 'on'
     light.kerst_vaas:
-      shelly_type: Shelly 1
-      shelly_id: 8B1B47
-      ip_address: 192.168.0.95
-      protocols:
-      - CoAP-discovery
-      - CoAP-msg
-      - poll
-      has_firmware_update: false
-      cloud_status: disabled
-      switch: false
-      friendly_name: Kerst Vaas
+      restored: true
       supported_features: 0
+      friendly_name: Kerst Vaas
+      state: unavailable
+    light.lamp_barkast:
+      brightness: 209
+      is_deconz_group: false
+      friendly_name: Lamp Barkast
+      supported_features: 41
       state: 'on'
 - id: '157443790543'
   name: Woonkamer Night
@@ -690,12 +714,13 @@
       - Candle_Flicker
       friendly_name: Led Mini Kerstboom LED
       supported_features: 45
-      state: 'off'
+      state: unavailable
     light.schouw:
       min_mireds: 153
       max_mireds: 500
       effect_list:
       - Android
+      - Blends
       - Blink
       - Blink Rainbow
       - Bouncing Balls
@@ -703,16 +728,19 @@
       - Breathe
       - Candle
       - Candle Multi
+      - Candy Cane
       - Chase
       - Chase Flash
       - Chase Flash Rnd
       - Chase Rainbow
       - Chase Random
+      - Chunchun
       - Circus
       - Colorful
       - Colorloop
       - Colortwinkles
       - Colorwaves
+      - Dancing Shadows
       - Dissolve
       - Dissolve Rnd
       - Drip
@@ -724,6 +752,7 @@
       - Fireworks
       - Fireworks 1D
       - Fireworks Starburst
+      - Flow
       - Glitter
       - Gradient
       - Halloween
@@ -743,10 +772,13 @@
       - Noise 2
       - Noise 3
       - Noise 4
+      - Noise Pal
       - Oscillate
       - Pacifica
       - Palette
       - Percent
+      - Phased
+      - Phased Noise
       - Plasma
       - Police
       - Police All
@@ -767,10 +799,12 @@
       - Scan Dual
       - Scanner
       - Scanner Dual
+      - Sine
       - Sinelon
       - Sinelon Dual
       - Sinelon Rainbow
       - Solid
+      - Solid Glitter
       - Solid Pattern
       - Solid Pattern Tri
       - Sparkle
@@ -783,6 +817,7 @@
       - Strobe
       - Strobe Mega
       - Strobe Rainbow
+      - Sunrise
       - Sweep
       - Sweep Random
       - Theater
@@ -794,8 +829,10 @@
       - Twinkle
       - Twinklecat
       - Twinklefox
+      - Twinkleup
       - Two Areas
       - Two Dots
+      - Washing Machine
       - Wipe
       - Wipe Random
       intensity: 128
@@ -816,20 +853,18 @@
       supported_features: 43
       state: 'off'
     light.kerstboom:
+      friendly_name: Kerstboom
+      supported_features: 0
       state: 'off'
     light.kerst_vaas:
-      shelly_type: Shelly 1
-      shelly_id: 8B1B47
-      ip_address: 192.168.0.95
-      protocols:
-      - CoAP-discovery
-      - CoAP-msg
-      - poll
-      has_firmware_update: false
-      cloud_status: disabled
-      switch: false
-      friendly_name: Kerst Vaas
+      restored: true
       supported_features: 0
+      friendly_name: Kerst Vaas
+      state: unavailable
+    light.lamp_barkast:
+      is_deconz_group: false
+      friendly_name: Lamp Barkast
+      supported_features: 41
       state: 'off'
 - id: '1587621898182'
   name: Default Nachttafel Febe

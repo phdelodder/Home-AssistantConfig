@@ -16,6 +16,7 @@
     - light.kerst_vaas
     - light.led_mini_kerstboom_led
     - light.kerstboom
+    - light.lamp_barkast
 
 - platform: group
   name: Eerste Verdiep
