@@ -1229,3 +1229,74 @@
       motion_entity: binary_sensor.motion_wc_beneden
       light_target:
         area_id: 91ee1f9b134f4ecca57e2fb1ba925a6f
+- id: '1612165532755'
+  alias: 'Climate: Set bureau temperature'
+  description: When working from home increase temperature bureau
+  trigger:
+  - platform: event
+    event_type: start
+  - platform: time
+    at: 07:00:00
+  - platform: state
+    entity_id: binary_sensor.motion_detected_bureau_in_last_hour,switch.laptop_power,light.bureau
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: or
+        conditions:
+        - condition: template
+          value_template: '{{state_attr(''calendar.delodderp_gmail_com'', ''start_time'')[0:10]
+            == states(''sensor.date'') and state_attr(''calendar.delodderp_gmail_com'',
+            ''start_time'')[11:16] == ''08:00'' and state_attr(''calendar.delodderp_gmail_com'',
+            ''message'') == ''Afwezigheid : work from home'' }}'
+        - condition: state
+          entity_id: switch.laptop_power
+          state: 'on'
+        - condition: state
+          entity_id: light.bureau
+          state: 'on'
+      sequence:
+      - service: climate.set_temperature
+        data:
+          temperature: 19.5
+          entity_id: climate.bureau
+    default:
+    - service: climate.set_temperature
+      data:
+        temperature: 12
+        entity_id: climate.bureau
+  mode: single
+- id: '1612258410918'
+  alias: WFH - Only Philippe @home
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: person.isabel
+  - platform: event
+    event_type: start
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: not
+        conditions:
+        - condition: state
+          entity_id: person.isabel
+          state: home
+      - condition: template
+        value_template: '{{state_attr(''calendar.delodderp_gmail_com'', ''start_time'')[0:10]
+          == states(''sensor.date'') and state_attr(''calendar.delodderp_gmail_com'',
+          ''start_time'')[11:16] == ''08:00'' and state_attr(''calendar.delodderp_gmail_com'',
+          ''message'') == ''Afwezigheid : work from home'' }}'
+      sequence:
+      - service: climate.set_temperature
+        data:
+          temperature: 16
+          entity_id: climate.bureau
+    default:
+    - service: climate.set_preset_mode
+      data:
+        preset_mode: None
+        entity_id: climate.keuken
+  mode: single

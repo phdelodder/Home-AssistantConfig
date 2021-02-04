@@ -110,6 +110,9 @@ set_thermostat_away:
         - climate.slaapkamer
         - climate.febe
         - climate.dressing
+        - climate.badkamer
+        - climate.bureau
+        - climate.speelkamer
       temperature: 12
   mode: single
   icon: mdi:thermostat
@@ -120,6 +123,21 @@ set_thermostat_home:
       preset_mode: Auto
     service: climate.set_preset_mode
     entity_id: climate.huis
+  - wait_template: "{{ is_state('climate.huis', 'heat') }}"
+  - data:
+      entity_id: 
+        - climate.bureau
+        - climate.speelkamer
+        - climate.badkamer
+        - climate.dressing
+        - climate.slaapkamer
+        - climate.febe
+        - climate.margot
+        - climate.inkom
+        - climate.keuken
+        - climate.woonkamer
+      preset_mode: none
+    service: climate.set_preset_mode
   mode: single
   icon: mdi:thermostat
 start_up_home_assistant:

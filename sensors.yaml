@@ -868,3 +868,43 @@
       friendly_name: Oprit Last CCTV Motion Event
       value_template: >-
         {{ "%02d" % (states('input_number.oprit_last_cctv_motion_event') | int) }}
+
+- platform: template
+  sensors:
+    operatingstate:
+      value_template: "{{ state_attr('climate.huis', 'hvac_action') }}"
+
+- platform: history_stats
+  name: Verwarmen Vandaag
+  entity_id: sensor.operatingstate
+  state: 'heating'
+  type: time
+  start: '{{ now().replace(hour=0).replace(minute=0).replace(second=0) }}'
+  end: '{{ now() }}'
+
+- platform: history_stats
+  name: Verwarmen Gisteren
+  entity_id: sensor.operatingstate
+  state: 'heating'
+  type: time
+  end: '{{ now().replace(hour=0).replace(minute=0).replace(second=0) }}'
+  duration:
+    hours: 24
+
+- platform: history_stats
+  name: Verwarmen 2 Dagen Geleden
+  entity_id: sensor.operatingstate
+  state: 'heating'
+  type: time
+  end: '{{ as_timestamp( now().replace(hour=0).replace(minute=0).replace(second=0) ) - 86400 }}'
+  duration:
+    hours: 24
+
+- platform: history_stats
+  name: Verwarmen Voorbij Week
+  entity_id: sensor.operatingstate
+  state: 'heating'
+  type: time
+  end: '{{ now().replace(hour=0, minute=0, second=0) }}'
+  duration:
+    days: 7
