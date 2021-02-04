@@ -20,6 +20,15 @@ http:
   trusted_proxies:
     - 192.168.0.201
 
+logger:
+  default: warning
+  logs:
+    custom_components.evohome_cc: debug
+    evohome_rf.*: debug
+    evohome_rf.packet_log: debug
+    #evohome_rf.transport: info
+    #evohome_rf.protocol: info
+
 # Text to speech
 tts:
   - platform: google_translate
