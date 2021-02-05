@@ -1313,3 +1313,37 @@
         preset_mode: None
         entity_id: climate.keuken
   mode: single
+- id: '1612538972636'
+  alias: 'Climate: Set speelkamer temperature'
+  description: Manage a more fine tuned climate control for the Speelkamer
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.motion_speelkamer
+    for: 00:10:00
+  - platform: state
+    entity_id: light.speelkamer
+  - platform: event
+    event_type: start
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: or
+        conditions:
+        - condition: state
+          entity_id: light.speelkamer
+          state: 'on'
+        - condition: state
+          entity_id: binary_sensor.motion_speelkamer
+          state: 'on'
+      sequence:
+      - service: climate.set_temperature
+        data:
+          temperature: 18
+          entity_id: climate.speelkamer
+    default:
+    - service: climate.set_preset_mode
+      data:
+        preset_mode: None
+        entity_id: climate.speelkamer
+  mode: single
