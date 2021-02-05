@@ -1239,7 +1239,7 @@
   - platform: time
     at: 07:05:00
   - platform: state
-    entity_id: binary_sensor.motion_detected_bureau_in_last_hour,switch.laptop_power,light.bureau
+    entity_id: binary_sensor.motion_detected_bureau_in_last_hour,switch.laptop_power,light.bureau,light.bureau_spot
   condition: []
   action:
   - choose:
@@ -1256,6 +1256,9 @@
           state: 'on'
         - condition: state
           entity_id: light.bureau
+          state: 'on'
+        - condition: state
+          entity_id: light.bureau_spot
           state: 'on'
       sequence:
       - service: climate.set_temperature
@@ -1278,6 +1281,7 @@
     event_type: start
   - platform: state
     entity_id: binary_sensor.motion_keuken
+    for: 00:05:00
   condition: []
   action:
   - choose:
