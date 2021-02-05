@@ -17,7 +17,6 @@
     - light.led_mini_kerstboom_led
     - light.kerstboom
     - light.lamp_barkast
-    - light.bureau_spot
 
 - platform: group
   name: Eerste Verdiep
@@ -57,3 +56,4 @@
     - light.plank
     - light.wled_speelkamer
     - light.matrix
+    - light.bureau_spot
