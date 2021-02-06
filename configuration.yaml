@@ -21,13 +21,16 @@ http:
     - 192.168.0.201
 
 logger:
-  default: warning
+  default: info                  # don't use debug
   logs:
-    custom_components.evohome_cc: debug
-    evohome_rf.*: debug
-    evohome_rf.packet_log: debug
-    #evohome_rf.transport: info
-    #evohome_rf.protocol: info
+    homeassistant.core: debug    # Event state_changed
+    homeassistant.loader: info   # You are using a custom integration for evohome_cc...
+    homeassistant.setup: info    # Setting up evohome_cc
+
+    custom_components.evohome_cc: info
+    custom_components.evohome_cc.*: debug
+
+    # evohome_rf.transport: info
 
 # Text to speech
 tts:
@@ -157,8 +160,9 @@ google:
 #  scan_interval: 120
 
 evohome_cc:
-  scan_interval: 15
   serial_port: /dev/ttyUSB0
-  packet_log: /config/evohome_cc_packet.log
+  scan_interval: 15
+  config: 
+    packet_log: /config/evohome_cc_packet.log
   schema:
     controller: 01:223036
