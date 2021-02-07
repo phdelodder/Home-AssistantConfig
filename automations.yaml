@@ -1266,9 +1266,9 @@
           temperature: 19.5
           entity_id: climate.bureau
     default:
-    - service: climate.set_temperature
+    - service: climate.set_preset_mode
       data:
-        temperature: 12
+        preset_mode: None
         entity_id: climate.bureau
   mode: single
 - id: '1612258410918'
@@ -1282,7 +1282,17 @@
   - platform: state
     entity_id: binary_sensor.motion_keuken
     for: 00:05:00
-  condition: []
+  - platform: state
+    entity_id: binary_sensor.no_one_home, binary_sensor.guest_mode
+  condition:
+  - condition: or
+    conditions:
+    - condition: state
+      entity_id: binary_sensor.no_one_home
+      state: 'off'
+    - condition: state
+      entity_id: binary_sensor.guest_mode
+      state: 'on'
   action:
   - choose:
     - conditions:

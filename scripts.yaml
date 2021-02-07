@@ -103,6 +103,7 @@ set_thermostat_away:
       preset_mode: away
       entity_id: climate.huis
     service: climate.set_preset_mode
+  - wait_template: "{{ is_state_attr('climate.huis', 'preset_mode', 'away') }}"
   - service: climate.set_temperature
     data:
       entity_id:
