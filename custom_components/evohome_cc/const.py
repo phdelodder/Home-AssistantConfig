@@ -6,7 +6,7 @@
 Requires a Honeywell HGI80 (or compatible) gateway.
 """
 
-__version__ = "0.5.2"
+__version__ = "0.5.5"
 
 DOMAIN = "evohome_cc"
 
@@ -24,3 +24,7 @@ ATTR_WINDOW_STATE = "window_state"
 
 BINARY_SENSOR_ATTRS = (ATTR_ACTUATOR_STATE, ATTR_BATTERY_STATE, ATTR_WINDOW_STATE)
 SENSOR_ATTRS = (ATTR_HEAT_DEMAND, ATTR_RELAY_DEMAND, ATTR_TEMPERATURE)
+
+EVOZONE_FOLLOW = "follow_schedule"
+EVOZONE_TEMPOVER = "temporary_override"
+EVOZONE_PERMOVER = "permanent_override"
