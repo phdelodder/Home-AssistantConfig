@@ -154,10 +154,11 @@ google:
   client_id: !secret google-client_id
   client_secret: !secret google-client_secret
 
-#evohome:
-#  username: !secret international.mytotalconnectcomfort.com-username
-#  password: !secret international.mytotalconnectcomfort.com-password
-#  scan_interval: 120
+#fallback for evohome_cc
+evohome:
+  username: !secret international.mytotalconnectcomfort.com-username
+  password: !secret international.mytotalconnectcomfort.com-password
+  scan_interval: 120
 
 evohome_cc:
   serial_port: /dev/ttyUSB0
