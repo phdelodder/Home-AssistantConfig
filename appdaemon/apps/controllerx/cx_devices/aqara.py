@@ -98,8 +98,8 @@ class WXKG01LMLightController(LightController):
             1005: Light.ON_MIN_BRIGHTNESS,  # triple
             1006: Light.SET_HALF_BRIGHTNESS,  # quadruple
             # 1010: "", # many
-            1003: Light.HOLD_BRIGHTNESS_TOGGLE,  # hold the button
-            1000: Light.RELEASE,  # release the button
+            1001: Light.HOLD_BRIGHTNESS_TOGGLE,  # hold the button
+            1003: Light.RELEASE,  # release the button
         }
 
     def get_zha_actions_mapping(self) -> DefaultActionsMapping:
@@ -111,7 +111,10 @@ class WXKG01LMLightController(LightController):
         }
 
     def get_zha_action(self, data: EventData) -> str:
-        return data["args"]["click_type"]
+        args = data["args"]
+        if "click_type" in args:
+            return args["click_type"]
+        return data["command"]
 
 
 class WXKG11LMRemoteLightController(LightController):
