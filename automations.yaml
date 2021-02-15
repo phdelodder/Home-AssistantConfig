@@ -1240,17 +1240,17 @@
     at: 07:05:00
   - platform: state
     entity_id: binary_sensor.motion_detected_bureau_in_last_hour,switch.laptop_power,light.bureau,light.bureau_spot
+  - platform: state
+    entity_id: climate.huis
+    attribute: preset_mode
+    to: None
+    for: 00:01:00
   condition: []
   action:
   - choose:
     - conditions:
       - condition: or
         conditions:
-        - condition: template
-          value_template: '{{state_attr(''calendar.delodderp_gmail_com'', ''start_time'')[0:10]
-            == states(''sensor.date'') and state_attr(''calendar.delodderp_gmail_com'',
-            ''start_time'')[11:16] == ''08:00'' and state_attr(''calendar.delodderp_gmail_com'',
-            ''message'') == ''Afwezigheid : work from home'' }}'
         - condition: state
           entity_id: switch.laptop_power
           state: 'on'
@@ -1263,7 +1263,20 @@
       sequence:
       - service: climate.set_temperature
         data:
-          temperature: 19.5
+          temperature: 19
+          entity_id: climate.bureau
+    - conditions:
+      - condition: or
+        conditions:
+        - condition: template
+          value_template: '{{state_attr(''calendar.delodderp_gmail_com'', ''start_time'')[0:10]
+            == states(''sensor.date'') and state_attr(''calendar.delodderp_gmail_com'',
+            ''start_time'')[11:16] == ''08:00'' and state_attr(''calendar.delodderp_gmail_com'',
+            ''message'') == ''Afwezigheid : work from home'' }}'
+      sequence:
+      - service: climate.set_temperature
+        data:
+          temperature: 17
           entity_id: climate.bureau
     default:
     - service: climate.set_preset_mode
@@ -1281,9 +1294,14 @@
     event_type: start
   - platform: state
     entity_id: binary_sensor.motion_keuken
-    for: 00:05:00
+    for: 00:15:00
   - platform: state
     entity_id: binary_sensor.no_one_home, binary_sensor.guest_mode
+  - platform: state
+    entity_id: climate.huis
+    attribute: preset_mode
+    to: None
+    for: 00:01:00
   condition:
   - condition: or
     conditions:
@@ -1334,6 +1352,11 @@
     entity_id: light.speelkamer
   - platform: event
     event_type: start
+  - platform: state
+    entity_id: climate.huis
+    attribute: preset_mode
+    to: None
+    for: 00:01:00
   condition: []
   action:
   - choose:
