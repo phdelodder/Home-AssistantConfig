@@ -5,6 +5,12 @@
       value_template: >
         {{ not is_state("person.philippe", "home")
             and not is_state("person.isabel", "home") }}
+      icon_template: >-
+        {% if is_state('binary_sensor.no_one_home', 'off') %}
+          mdi:home
+        {% else %}
+          mdi:home-outline
+        {% endif %}
     motion_detected_indoor:
       friendly_name: Any indoor motion detected
       value_template: >
@@ -34,6 +40,10 @@
       value_template: "{{ is_state('input_boolean.guest_mode','on') }}"
       device_class: presence
       friendly_name: "Guest Mode"
+    vacation_mode:
+      value_template: "{{ is_state('input_boolean.vacation_mode','on') }}"
+      device_class: presence
+      friendly_name: "Vacation Mode"
     night_mode:
       value_template: "{{ is_state('input_boolean.night_mode', 'on') }}"
       device_class: moving
@@ -52,6 +62,9 @@
       value_template: >
         {{ is_state("binary_sensor.motion_gang_eerste_1", "on") or is_state("binary_sensor.motion_gang_eerste_2", "on")}}
       device_class: motion
+    school_vacation:
+      friendly_name: School Vakantie
+      value_template: "{{ is_state('input_boolean.school_vacation','on') }}"
 
 #- platform: mqtt
 #  name: "Oprit Camera"
@@ -62,13 +75,6 @@
 #  json_attributes_topic: "zoneminder/1"
 #  json_attributes_template: "{{ value_json | tojson }}"
 #  value_template: "{{ value_json.eventtype}}"
-  
-- platform: mqtt
-  name: "Weather Station Rain"
-  state_topic: "stat/weather_station/RAIN"
-  payload_on: "ON"
-  payload_off: "OFF"
-  device_class: "moisture"
 
 #- platform: zoneminder
 
@@ -93,3 +99,19 @@
   value_template: '{{ value_json.motion }}'
   payload_off: "off"
   payload_on: "on"
+
+- platform: template
+  sensors:
+    plant_attention:
+      value_template: >-
+        {% set attention_requered = namespace(value=false) %}
+        {% for plant in states.plant %}
+          {% if 'moisture low' in plant.attributes.problem %}
+            {% set attention_requered.value = true %}
+          {% endif %}
+          {% if 'conductivity low' in plant.attributes.problem %}
+            {% set attention_requered.value = true %}
+          {% endif %}
+        {% endfor %}
+        {{ attention_requered.value }}
+      device_class: problem

@@ -51,6 +51,7 @@ arriving:
   sequence:
   - service: script.turn_on_switches_and_stored_states
   - service: script.deactivate_guest_mode
+  - service: script.deactivate_vaction_mode
   - service: script.set_thermostat_home
   - service: script.turn_off_motion_detection_camera
   mode: single
@@ -182,6 +183,28 @@ deactivate_guest_mode:
   - service: notify.hazilverberkenstraatbot
     data_template:
       message: Guest mode deactivated
+activate_vacation_mode:
+  alias: Active Vacation Mode
+  sequence:
+  - service: input_boolean.turn_on
+    data:
+      entity_id: input_boolean.vacation_mode
+  - service: notify.hazilverberkenstraatbot
+    data_template:
+      message: Vacation mode activated
+deactivate_vacation_mode:
+  alias: Deactivate Vacation Mode
+  sequence:
+  - condition: state
+    entity_id:
+    - binary_sensor.vacation_mode
+    state: 'on'
+  - service: input_boolean.turn_off
+    data:
+      entity_id: input_boolean.vacation_mode
+  - service: notify.hazilverberkenstraatbot
+    data_template:
+      message: Vacation mode deactivated
 notify_afval:
   alias: Notify Afval
   sequence:

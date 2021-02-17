@@ -4,7 +4,7 @@ tempsetactive:
 
 guest_mode:
   name: Guest mode
-  icon: mdi:human-male-female
+  icon: mdi:account
 
 night_mode:
   name: Night Mode

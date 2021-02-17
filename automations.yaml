@@ -879,17 +879,30 @@
     entity_id: climate.huis
   mode: restart
 - id: '1600870113700'
-  alias: Active Guest Mode
+  alias: 'Guest Mode: Activate/Deactivate'
   description: ''
   trigger:
   - platform: state
     entity_id: input_boolean.guest_mode
-    from: 'off'
-    to: 'on'
   condition: []
   action:
   - service: script.activate_guest_mode
     data: {}
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: binary_sensor.guest_mode
+        state: 'on'
+      sequence:
+      - service: script.activate_guest_mode
+        data: {}
+    - conditions:
+      - condition: device
+        device_id: ''
+        domain: ''
+        entity_id: ''
+      sequence: []
+    default: []
   mode: single
 - id: '1600870370709'
   alias: Set Timed Temperature Based on Input
@@ -1245,7 +1258,17 @@
     attribute: preset_mode
     to: None
     for: 00:01:00
-  condition: []
+  - platform: state
+    entity_id: binary_sensor.no_one_home, binary_sensor.guest_mode
+  condition:
+  - condition: or
+    conditions:
+    - condition: state
+      entity_id: binary_sensor.no_one_home
+      state: 'off'
+    - condition: state
+      entity_id: binary_sensor.guest_mode
+      state: 'on'
   action:
   - choose:
     - conditions:
@@ -1357,7 +1380,17 @@
     attribute: preset_mode
     to: None
     for: 00:01:00
-  condition: []
+  - platform: state
+    entity_id: binary_sensor.no_one_home, binary_sensor.guest_mode
+  condition:
+  - condition: or
+    conditions:
+    - condition: state
+      entity_id: binary_sensor.no_one_home
+      state: 'off'
+    - condition: state
+      entity_id: binary_sensor.guest_mode
+      state: 'on'
   action:
   - choose:
     - conditions:
@@ -1379,4 +1412,66 @@
       data:
         preset_mode: None
         entity_id: climate.speelkamer
+  mode: single
+- id: '1613471447340'
+  alias: 'Leaving: Activate Vacation Mode'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.no_one_home
+    to: 'on'
+    for: '24:00:00'
+  condition: []
+  action:
+  - service: script.activate_vacation_mode
+    data: {}
+  mode: single
+- id: '1613482887399'
+  alias: 'Climate: Set Febe slaapkamer temperature'
+  description: ''
+  trigger:
+  - platform: time
+    at: '15:30:00'
+  - platform: event
+    event_type: start
+  - platform: state
+    entity_id: binary_sensor.no_one_home, binary_sensor.guest_mode
+  - platform: state
+    entity_id: climate.huis
+    attribute: preset_mode
+    to: None
+    for: 00:01:00
+  condition:
+  - condition: state
+    entity_id: binary_sensor.school_vacation
+    state: 'off'
+  - condition: or
+    conditions:
+    - condition: state
+      entity_id: binary_sensor.no_one_home
+      state: 'off'
+    - condition: state
+      entity_id: binary_sensor.guest_mode
+      state: 'on'
+  action:
+  - service: climate.set_temperature
+    data:
+      temperature: 18
+    entity_id: climate.febe
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: '{% set time = states(''sensor.time'') %} {{ ''15:30'' < time
+          < ''17:30'' and (now().weekday() == 0 or now().weekday() == 1 or now().weekday()
+          == 3 ) }}'
+      sequence:
+      - service: climate.set_temperature
+        data:
+          temperature: 18
+        entity_id: climate.febe
+    default:
+    - service: climate.set_preset_mode
+      data:
+        preset_mode: None
+        entity_id: climate.febe
   mode: single

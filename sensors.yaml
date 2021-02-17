@@ -852,6 +852,28 @@
 
 - platform: template
   sensors:
+    house_mode:
+      friendly_name: House Mode
+      value_template: >-
+        {% if is_state('binary_sensor.guest_mode', 'on') %}
+          guest
+        {% elif is_state('binary_sensor.no_one_home', 'off') %}
+          home
+        {% elif is_state('input_boolean.vacation_mode', 'on') %}
+          vacation
+        {% else %}
+          away
+        {% endif %}
+      icon_template: >-
+        {% if is_state('binary_sensor.guest_mode', 'on') %}
+          mdi:account
+        {% elif is_state('binary_sensor.no_one_home', 'off') %}
+          mdi:home
+        {% elif is_state('input_boolean.vacation_mode', 'on') %}
+          mdi:beach
+        {% else %}
+          mdi:home-outline
+        {% endif %}
     oprit_last_motion:
       friendly_name: Oprit Last Motion
       value_template: >-
