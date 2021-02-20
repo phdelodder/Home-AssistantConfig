@@ -51,7 +51,7 @@ arriving:
   sequence:
   - service: script.turn_on_switches_and_stored_states
   - service: script.deactivate_guest_mode
-  - service: script.deactivate_vaction_mode
+  - service: script.deactivate_vacation_mode
   - service: script.set_thermostat_home
   - service: script.turn_off_motion_detection_camera
   mode: single
