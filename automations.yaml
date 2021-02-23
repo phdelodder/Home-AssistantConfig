@@ -837,47 +837,6 @@
     data:
       sensor: '{{ trigger.entity_id }}'
   mode: single
-- id: '1600868245749'
-  alias: 'Climate: Enable ECO when doors are open'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: group.doordetection
-    from: 'off'
-    to: 'on'
-    for: 00:10:00
-  condition:
-  - condition: not
-    conditions:
-    - condition: state
-      entity_id: climate.huis
-      state: 'off'
-  action:
-  - service: climate.set_preset_mode
-    data:
-      preset_mode: eco
-    entity_id: climate.huis
-  mode: restart
-- id: '1600868305287'
-  alias: 'Climate: disable ECO when the doors are closed'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: group.doordetection
-    from: 'on'
-    to: 'off'
-    for: 00:05:00
-  condition:
-  - condition: state
-    entity_id: climate.huis
-    state: eco
-    attribute: preset_mode
-  action:
-  - service: climate.set_preset_mode
-    data:
-      preset_mode: Auto
-    entity_id: climate.huis
-  mode: restart
 - id: '1600870113700'
   alias: 'Guest Mode: Activate/Deactivate'
   description: ''
@@ -1247,8 +1206,8 @@
   alias: 'Climate: Set bureau temperature'
   description: Manage a more fine tuned climate control for the Bureau
   trigger:
-  - platform: event
-    event_type: start
+  - platform: homeassistant
+    event: start
   - platform: time
     at: 07:15:00
   - platform: state
@@ -1306,8 +1265,8 @@
   trigger:
   - platform: state
     entity_id: person.isabel, sensor.house_mode
-  - platform: event
-    event_type: start
+  - platform: homeassistant
+    event: start
   - platform: state
     entity_id: binary_sensor.motion_keuken
     for: 00:15:00
@@ -1359,8 +1318,8 @@
     for: 00:10:00
   - platform: state
     entity_id: light.speelkamer
-  - platform: event
-    event_type: start
+  - platform: homeassistant
+    event: start
   - platform: state
     entity_id: climate.huis
     attribute: preset_mode
@@ -1413,8 +1372,8 @@
   trigger:
   - platform: time
     at: '15:30:00'
-  - platform: event
-    event_type: start
+  - platform: homeassistant
+    event: start
   - platform: state
     entity_id: sensor.house_mode
   - platform: state
@@ -1433,8 +1392,8 @@
   - choose:
     - conditions:
       - condition: template
-        value_template: '{% set time = states(''sensor.time'') %} {{ ''15:30'' < time
-          < ''17:30'' and (now().weekday() == 0 or now().weekday() == 1 or now().weekday()
+        value_template: '{% set time = states(''sensor.time'') %} {{ ''15:30'' <=
+          time < ''17:30'' and (now().weekday() == 0 or now().weekday() == 1 or now().weekday()
           == 3 ) }}'
       sequence:
       - service: climate.set_temperature
@@ -1446,4 +1405,46 @@
       data:
         preset_mode: None
         entity_id: climate.febe
+  mode: single
+- id: '1614091814826'
+  alias: 'Climate: Eco Mode Toggle'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: group.doordetection
+    from: 'on'
+    to: 'off'
+    for: 00:05:00
+  - platform: state
+    entity_id: group.doordetection
+    from: 'off'
+    to: 'on'
+    for: 00:10:00
+  - platform: homeassistant
+    event: start
+  condition:
+  - condition: template
+    value_template: '{{ is_state(''sensor.house_mode'', ''home'') or is_state(''sensor.house_mode'',
+      ''guest'')  }}'
+  - condition: not
+    conditions:
+    - condition: state
+      entity_id: climate.huis
+      state: 'off'
+  action:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: group.doordetection
+        state: 'on'
+      sequence:
+      - service: climate.set_preset_mode
+        data:
+          preset_mode: eco
+        entity_id: climate.huis
+    default:
+    - service: climate.set_preset_mode
+      data:
+        preset_mode: None
+      entity_id: climate.huis
   mode: single
