@@ -1250,25 +1250,18 @@
   - platform: event
     event_type: start
   - platform: time
-    at: 07:05:00
+    at: 07:15:00
   - platform: state
-    entity_id: binary_sensor.motion_detected_bureau_in_last_hour,switch.laptop_power,light.bureau,light.bureau_spot
+    entity_id: binary_sensor.motion_detected_bureau_in_last_hour,switch.laptop_power,light.bureau,light.bureau_spot,sensor.house_mode
   - platform: state
     entity_id: climate.huis
     attribute: preset_mode
     to: None
     for: 00:01:00
-  - platform: state
-    entity_id: binary_sensor.no_one_home, binary_sensor.guest_mode
   condition:
-  - condition: or
-    conditions:
-    - condition: state
-      entity_id: binary_sensor.no_one_home
-      state: 'off'
-    - condition: state
-      entity_id: binary_sensor.guest_mode
-      state: 'on'
+  - condition: template
+    value_template: '{{ is_state(''sensor.house_mode'', ''home'') or is_state(''sensor.house_mode'',
+      ''guest'')  }}'
   action:
   - choose:
     - conditions:
@@ -1312,28 +1305,21 @@
   description: Manage a more fine tuned climate control for the Bureau
   trigger:
   - platform: state
-    entity_id: person.isabel
+    entity_id: person.isabel, sensor.house_mode
   - platform: event
     event_type: start
   - platform: state
     entity_id: binary_sensor.motion_keuken
     for: 00:15:00
   - platform: state
-    entity_id: binary_sensor.no_one_home, binary_sensor.guest_mode
-  - platform: state
     entity_id: climate.huis
     attribute: preset_mode
     to: None
     for: 00:01:00
   condition:
-  - condition: or
-    conditions:
-    - condition: state
-      entity_id: binary_sensor.no_one_home
-      state: 'off'
-    - condition: state
-      entity_id: binary_sensor.guest_mode
-      state: 'on'
+  - condition: template
+    value_template: '{{ is_state(''sensor.house_mode'', ''home'') or is_state(''sensor.house_mode'',
+      ''guest'')  }}'
   action:
   - choose:
     - conditions:
@@ -1381,16 +1367,11 @@
     to: None
     for: 00:01:00
   - platform: state
-    entity_id: binary_sensor.no_one_home, binary_sensor.guest_mode
+    entity_id: sensor.house_mode
   condition:
-  - condition: or
-    conditions:
-    - condition: state
-      entity_id: binary_sensor.no_one_home
-      state: 'off'
-    - condition: state
-      entity_id: binary_sensor.guest_mode
-      state: 'on'
+  - condition: template
+    value_template: '{{ is_state(''sensor.house_mode'', ''home'') or is_state(''sensor.house_mode'',
+      ''guest'')  }}'
   action:
   - choose:
     - conditions:
@@ -1435,7 +1416,7 @@
   - platform: event
     event_type: start
   - platform: state
-    entity_id: binary_sensor.no_one_home, binary_sensor.guest_mode
+    entity_id: sensor.house_mode
   - platform: state
     entity_id: climate.huis
     attribute: preset_mode
@@ -1445,19 +1426,10 @@
   - condition: state
     entity_id: binary_sensor.school_vacation
     state: 'off'
-  - condition: or
-    conditions:
-    - condition: state
-      entity_id: binary_sensor.no_one_home
-      state: 'off'
-    - condition: state
-      entity_id: binary_sensor.guest_mode
-      state: 'on'
+  - condition: template
+    value_template: '{{ is_state(''sensor.house_mode'', ''home'') or is_state(''sensor.house_mode'',
+      ''guest'')  }}'
   action:
-  - service: climate.set_temperature
-    data:
-      temperature: 18
-    entity_id: climate.febe
   - choose:
     - conditions:
       - condition: template
