@@ -21,16 +21,18 @@ http:
     - 192.168.0.201
 
 logger:
-  default: info                  # don't use debug
+  default: warning                  # don't use debug
+
   logs:
-    homeassistant.core: debug    # Event state_changed
-    homeassistant.loader: info   # You are using a custom integration for evohome_cc...
-    homeassistant.setup: info    # Setting up evohome_cc
-
+    #homeassistant.core: debug    # Event state_changed
+    #homeassistant.loader: info   # You are using a custom integration for evohome_cc...
+    #homeassistant.setup: info    # Setting up evohome_cc
     custom_components.evohome_cc: info
-    custom_components.evohome_cc.*: debug
-
-    # evohome_rf.transport: info
+    custom_components.evohome_cc.*: info
+    evohome_rf: warning
+    evohome_rf.*: warning
+    evohome_rf.packet_log: info  # info=STDOUT, warning=STDERR
+    evohome_rf.protocol: info  # for rcvd msgs
 
 # Text to speech
 tts:
@@ -163,7 +165,24 @@ google:
 evohome_cc:
   serial_port: /dev/ttyUSB0
   scan_interval: 15
-  config: 
+  config:
     packet_log: /config/evohome_cc_packet.log
+    enforce_allowlist: true
   schema:
     controller: 01:223036
+  allow_list:
+    - 01:223036
+    - 10:040239
+    - 04:231770
+    - 04:231772
+    - 04:231774
+    - 04:231776
+    - 04:050559
+    - 04:155445
+    - 04:155403
+    - 04:081849
+    - 04:155443
+    - 04:155407
+    - 04:155551
+    - 04:155533
+    - 04:155537
