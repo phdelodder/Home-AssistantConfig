@@ -101,11 +101,15 @@ KEY_PAYLOAD_OFF = "pl_off"
 KEY_PAYLOAD_ON = "pl_on"
 KEY_PAYLOAD_OPEN = "pl_open"
 KEY_PAYLOAD_STOP = "pl_stop"
+KEY_POSITION_TEMPLATE = "pos_tpl"
 KEY_POSITION_TOPIC = "pos_t"
 KEY_QOS = "qos"
 KEY_RETAIN = "ret"
-KEY_SET_POSITION_TOPIC = "set_pos_t"
 KEY_SET_POSITION_TEMPLATE = "set_pos_tpl"
+KEY_SET_POSITION_TOPIC = "set_pos_t"
+KEY_STATE_CLOSING = "stat_closing"
+KEY_STATE_OPENING = "stat_opening"
+KEY_STATE_STOPPED = "stat_stopped"
 KEY_STATE_TEMPLATE = "stat_tpl"
 KEY_STATE_TOPIC = "stat_t"
 KEY_SUBTYPE = "stype"
@@ -366,7 +370,6 @@ TPL_OVERPOWER_VALUE_TO_JSON = "{{{^overpower_value^:value}|tojson}}"
 TPL_POSITION = "{%if value!=-1%}{{value}}{%endif%}"
 TPL_POWER = "{{value|float|round(1)}}"
 TPL_POWER_FACTOR = "{{value|float*100|round}}"
-TPL_ROLLER_TO_JSON = "{{{^roller_state^:value}|tojson}}"
 TPL_RSSI = "{{value_json[^wifi_sta^].rssi}}"
 TPL_IP = "{{value_json.ip}}"
 TPL_SHORTPUSH = "{%if value_json.event==^S^%}ON{%else%}OFF{%endif%}"
@@ -398,10 +401,13 @@ VALUE_1 = "1"
 VALUE_BUTTON_LONG_PRESS = "button_long_press"
 VALUE_BUTTON_SHORT_PRESS = "button_short_press"
 VALUE_CLOSE = "close"
+VALUE_CLOSE = "close"
 VALUE_FALSE = "false"
 VALUE_OFF = "off"
 VALUE_ON = "on"
 VALUE_OPEN = "open"
+VALUE_OPEN = "open"
+VALUE_STOP = "stop"
 VALUE_STOP = "stop"
 VALUE_TRIGGER = "trigger"
 VALUE_TRUE = "true"
@@ -449,13 +455,13 @@ def get_device_config(dev_id):
         return result
 
 
-def mqtt_publish(topic, payload, retain, qos):
+def mqtt_publish(topic, payload, retain):
     """Publish data to MQTT broker."""
     service_data = {
         "topic": topic,
         "payload": payload,
         "retain": retain,
-        "qos": qos,
+        "qos": 0,
     }
     logger.debug(service_data)
     logger.debug("Sending to MQTT broker: %s %s", topic, payload)  # noqa: F821
@@ -1840,16 +1846,20 @@ for roller_id in range(rollers):
             KEY_NAME: roller_name,
             KEY_COMMAND_TOPIC: command_topic,
             KEY_POSITION_TOPIC: position_topic,
-            KEY_VALUE_TEMPLATE: position_template,
+            KEY_STATE_TOPIC: state_topic,
+            KEY_STATE_CLOSING: VALUE_CLOSE,
+            KEY_STATE_OPENING: VALUE_OPEN,
+            KEY_STATE_STOPPED: VALUE_STOP,
+            KEY_POSITION_TEMPLATE: position_template,
             KEY_SET_POSITION_TOPIC: set_position_topic,
             KEY_PAYLOAD_OPEN: VALUE_OPEN,
             KEY_PAYLOAD_CLOSE: VALUE_CLOSE,
             KEY_PAYLOAD_STOP: VALUE_STOP,
-            KEY_OPTIMISTIC: VALUE_FALSE,
             KEY_AVAILABILITY_TOPIC: availability_topic,
             KEY_PAYLOAD_AVAILABLE: VALUE_TRUE,
             KEY_PAYLOAD_NOT_AVAILABLE: VALUE_FALSE,
             KEY_UNIQUE_ID: unique_id,
+            KEY_OPTIMISTIC: VALUE_FALSE,
             KEY_QOS: qos,
             KEY_DEVICE: {
                 KEY_IDENTIFIERS: [mac],
@@ -1859,8 +1869,6 @@ for roller_id in range(rollers):
                 KEY_MANUFACTURER: ATTR_MANUFACTURER,
             },
             "~": default_topic,
-            KEY_JSON_ATTRIBUTES_TOPIC: f"~roller/{roller_id}",
-            KEY_JSON_ATTRIBUTES_TEMPLATE: TPL_ROLLER_TO_JSON,
         }
     else:
         payload = ""
@@ -1870,9 +1878,7 @@ for roller_id in range(rollers):
         payload[KEY_DEVICE_CLASS] = device_class
     if dev_id.lower() in ignored:
         payload = ""
-    mqtt_publish(
-        config_topic, str(payload).replace("'", '"').replace("^", "'"), retain, qos
-    )
+    mqtt_publish(config_topic, str(payload).replace("'", '"').replace("^", "'"), retain)
 
 # relays
 for relay_id in range(relays):
@@ -1917,7 +1923,7 @@ for relay_id in range(relays):
             payload = ""
         if dev_id.lower() in ignored:
             payload = ""
-        mqtt_publish(config_topic, str(payload).replace("'", '"'), retain, qos)
+        mqtt_publish(config_topic, str(payload).replace("'", '"'), retain)
 
     # relay's sensors
     if relay_id == relays - 1:
@@ -1961,7 +1967,7 @@ for relay_id in range(relays):
                 payload = ""
             if dev_id.lower() in ignored:
                 payload = ""
-            mqtt_publish(config_topic, str(payload).replace("'", '"'), retain, qos)
+            mqtt_publish(config_topic, str(payload).replace("'", '"'), retain)
 
     # relay's sensors
     for sensor_id in range(len(relays_sensors)):
@@ -2004,7 +2010,7 @@ for relay_id in range(relays):
             payload = ""
         if dev_id.lower() in ignored:
             payload = ""
-        mqtt_publish(config_topic, str(payload).replace("'", '"'), retain, qos)
+        mqtt_publish(config_topic, str(payload).replace("'", '"'), retain)
 
     # relay's binary sensors
     for bin_sensor_id in range(len(relays_bin_sensors)):
@@ -2098,7 +2104,7 @@ for relay_id in range(relays):
         if dev_id.lower() in ignored:
             payload = ""
         mqtt_publish(
-            config_topic, str(payload).replace("'", '"').replace("^", "'"), retain, qos
+            config_topic, str(payload).replace("'", '"').replace("^", "'"), retain
         )
 
 # sensors
@@ -2190,9 +2196,7 @@ for sensor_id in range(len(sensors)):
         payload = ""
     if dev_id.lower() in ignored:
         payload = ""
-    mqtt_publish(
-        config_topic, str(payload).replace("'", '"').replace("^", "'"), retain, qos
-    )
+    mqtt_publish(config_topic, str(payload).replace("'", '"').replace("^", "'"), retain)
 
 # inputs
 for input_id in range(inputs):
@@ -2218,9 +2222,7 @@ for input_id in range(inputs):
     }
     if dev_id.lower() in ignored:
         payload = ""
-    mqtt_publish(
-        config_topic, str(payload).replace("'", '"').replace("^", "'"), retain, qos
-    )
+    mqtt_publish(config_topic, str(payload).replace("'", '"').replace("^", "'"), retain)
 
 # external temperature sensors
 for sensor_id in range(ext_temp_sensors):
@@ -2261,7 +2263,7 @@ for sensor_id in range(ext_temp_sensors):
         payload = ""
     if dev_id.lower() in ignored:
         payload = ""
-    mqtt_publish(config_topic, str(payload).replace("'", '"'), retain, qos)
+    mqtt_publish(config_topic, str(payload).replace("'", '"'), retain)
 
 # external humidity sensors
 for sensor_id in range(ext_humi_sensors):
@@ -2302,7 +2304,7 @@ for sensor_id in range(ext_humi_sensors):
         payload = ""
     if dev_id.lower() in ignored:
         payload = ""
-    mqtt_publish(config_topic, str(payload).replace("'", '"'), retain, qos)
+    mqtt_publish(config_topic, str(payload).replace("'", '"'), retain)
 
 # binary sensors
 for bin_sensor_id in range(len(bin_sensors)):
@@ -2442,9 +2444,7 @@ for bin_sensor_id in range(len(bin_sensors)):
         payload = ""
     if dev_id.lower() in ignored:
         payload = ""
-    mqtt_publish(
-        config_topic, str(payload).replace("'", '"').replace("^", "'"), retain, qos
-    )
+    mqtt_publish(config_topic, str(payload).replace("'", '"').replace("^", "'"), retain)
 
 # color lights
 for light_id in range(rgbw_lights):
@@ -2526,7 +2526,7 @@ for light_id in range(rgbw_lights):
         payload = ""
     if dev_id.lower() in ignored:
         payload = ""
-    mqtt_publish(config_topic, payload, retain, qos)
+    mqtt_publish(config_topic, payload, retain)
 
     # color light's binary sensors
     for bin_sensor_id in range(len(lights_bin_sensors)):
@@ -2572,7 +2572,7 @@ for light_id in range(rgbw_lights):
             payload = ""
         if dev_id.lower() in ignored:
             payload = ""
-        mqtt_publish(config_topic, str(payload).replace("'", '"'), retain, qos)
+        mqtt_publish(config_topic, str(payload).replace("'", '"'), retain)
 
     # color light's sensors
     for sensor_id in range(len(lights_sensors)):
@@ -2615,7 +2615,7 @@ for light_id in range(rgbw_lights):
             payload = ""
         if dev_id.lower() in ignored:
             payload = ""
-        mqtt_publish(config_topic, str(payload).replace("'", '"'), retain, qos)
+        mqtt_publish(config_topic, str(payload).replace("'", '"'), retain)
 
 # white lights
 for light_id in range(white_lights):
@@ -2740,7 +2740,7 @@ for light_id in range(white_lights):
         payload = ""
     if dev_id.lower() in ignored:
         payload = ""
-    mqtt_publish(config_topic, payload, retain, qos)
+    mqtt_publish(config_topic, payload, retain)
 
     # white light's binary sensors
     for bin_sensor_id in range(len(lights_bin_sensors)):
@@ -2796,7 +2796,7 @@ for light_id in range(white_lights):
                 payload = ""
             if dev_id.lower() in ignored:
                 payload = ""
-            mqtt_publish(config_topic, str(payload).replace("'", '"'), retain, qos)
+            mqtt_publish(config_topic, str(payload).replace("'", '"'), retain)
 
     # white light's sensors
     for sensor_id in range(len(lights_sensors)):
@@ -2850,7 +2850,7 @@ for light_id in range(white_lights):
             payload = ""
         if dev_id.lower() in ignored:
             payload = ""
-        mqtt_publish(config_topic, str(payload).replace("'", '"'), retain, qos)
+        mqtt_publish(config_topic, str(payload).replace("'", '"'), retain)
 
 # meters
 for meter_id in range(meters):
@@ -2892,4 +2892,4 @@ for meter_id in range(meters):
             payload[KEY_DEVICE_CLASS] = meters_sensors_classes[sensor_id]
         if dev_id.lower() in ignored:
             payload = ""
-        mqtt_publish(config_topic, str(payload).replace("'", '"'), retain, qos)
+        mqtt_publish(config_topic, str(payload).replace("'", '"'), retain)
