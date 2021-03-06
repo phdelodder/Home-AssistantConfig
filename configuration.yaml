@@ -27,12 +27,11 @@ logger:
     #homeassistant.core: debug    # Event state_changed
     #homeassistant.loader: info   # You are using a custom integration for evohome_cc...
     #homeassistant.setup: info    # Setting up evohome_cc
+
+    evohome_rf.packet_log: info
+
     custom_components.evohome_cc: info
     custom_components.evohome_cc.*: info
-    evohome_rf: warning
-    evohome_rf.*: warning
-    evohome_rf.packet_log: info  # info=STDOUT, warning=STDERR
-    evohome_rf.protocol: info  # for rcvd msgs
 
 # Text to speech
 tts:
