@@ -887,6 +887,8 @@
     entity_id: binary_sensor.no_one_home
     to: 'off'
     for: 00:01:00
+  - platform: homeassistant
+    event: start
   condition:
   - condition: state
     entity_id: binary_sensor.no_one_home
@@ -909,6 +911,8 @@
     entity_id: binary_sensor.no_one_home
     to: 'off'
     for: 00:01:00
+  - platform: homeassistant
+    event: start
   condition:
   - condition: state
     entity_id: binary_sensor.no_one_home
@@ -981,6 +985,8 @@
     entity_id: binary_sensor.no_one_home
     to: 'off'
     for: 00:01:00
+  - platform: homeassistant
+    event: start
   condition:
   - condition: state
     entity_id: binary_sensor.no_one_home
