@@ -1247,7 +1247,8 @@
           value_template: '{{state_attr(''calendar.delodderp_gmail_com'', ''start_time'')[0:10]
             == states(''sensor.date'') and state_attr(''calendar.delodderp_gmail_com'',
             ''start_time'')[11:16] == ''08:00'' and state_attr(''calendar.delodderp_gmail_com'',
-            ''message'') == ''Afwezigheid : work from home'' }}'
+            ''message'') == ''Afwezigheid : work from home'' and states(''sensor.time'')
+            >= ''07:00''  }}'
       sequence:
       - service: climate.set_temperature
         data:
@@ -1269,7 +1270,7 @@
     event: start
   - platform: state
     entity_id: binary_sensor.motion_keuken
-    for: 00:15:00
+    for: 00:10:00
   - platform: state
     entity_id: climate.huis
     attribute: preset_mode
