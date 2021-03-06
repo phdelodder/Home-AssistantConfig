@@ -13,3 +13,13 @@
     - name: car
       confidence: 30
     - name: truck
+
+- platform: platerecognizer
+  api_token: !secret platerecognizer_apikey
+  regions:
+    - be
+  save_file_folder: "/config/www/snapshots/platerecognizer"
+  save_timestamped_file: True
+  always_save_latest_file: True
+  source:
+    - entity_id: camera.doods_oprit

@@ -648,11 +648,12 @@ motioneye_test_car_object:
   - condition: template
     value_template: '{{ ''car'' in state_attr(''image_processing.doods_oprit'', ''summary'')
       }}'
-  - service: homeassistant.update_entity
-    entity_id: sensor.oprit_alpr
+  - service: image_processing.scan
+    target:
+      entity_id: image_processing.platerecognizer_doods_oprit
   - wait_for_trigger:
     - platform: state
-      entity_id: sensor.oprit_alpr
+      entity_id: image_processing.platerecognizer_doods_oprit
       attribute: timestamp
     timeout: 00:00:05
   - condition: template
