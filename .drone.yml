@@ -38,6 +38,7 @@ steps:
       - cp ./.stubs/secrets.yaml ./
       - mkdir -p /config/www/snapshots
       - mkdir -p /config/www/security
+      - mkdir -p /config/www/snapshots/platerecognizer
       - "python -m homeassistant --config ./ \
          --script check_config \
          --info all"
@@ -51,6 +52,7 @@ steps:
       - cp ./.stubs/secrets.yaml ./
       - mkdir -p /config/www/snapshots
       - mkdir -p /config/www/security
+      - mkdir -p /config/www/snapshots/platerecognizer
       - "python -m homeassistant --config ./ \
          --script check_config \
          --info all"
@@ -63,6 +65,7 @@ steps:
       - cp ./.stubs/secrets.yaml ./
       - mkdir -p /config/www/snapshots
       - mkdir -p /config/www/security
+      - mkdir -p /config/www/snapshots/platerecognizer
       - "python -m homeassistant --config ./ \
          --script check_config \
          --info all"
