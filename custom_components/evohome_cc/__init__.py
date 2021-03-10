@@ -19,6 +19,10 @@ except (ImportError, ModuleNotFoundError):
     import evohome_rf
 
 
+from homeassistant.components.climate import DOMAIN as CLIMATE
+from homeassistant.components.binary_sensor import DOMAIN as BINARY_SENSOR
+from homeassistant.components.sensor import DOMAIN as SENSOR
+from homeassistant.components.water_heater import DOMAIN as WATER_HEATER
 from homeassistant.const import CONF_SCAN_INTERVAL, TEMP_CELSIUS
 from homeassistant.core import callback
 import homeassistant.helpers.config_validation as cv
@@ -27,18 +31,19 @@ from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.typing import ConfigType, HomeAssistantType
 
 from .const import (
-    __version__,
     DOMAIN,
     STORAGE_KEY,
     STORAGE_VERSION,
     BINARY_SENSOR_ATTRS,
     SENSOR_ATTRS,
 )
+from .version import __version__ as VERSION
 
 _LOGGER = logging.getLogger(__name__)
 
-BROKER = "broker"
+PLATFORMS = [BINARY_SENSOR, CLIMATE, SENSOR, WATER_HEATER]
 
+BROKER = "broker"
 SCAN_INTERVAL_DEFAULT = timedelta(seconds=300)
 SCAN_INTERVAL_MINIMUM = timedelta(seconds=10)
 
@@ -84,7 +89,7 @@ CONFIG_SCHEMA = vol.Schema(
 def new_binary_sensors(broker) -> list:
     sensors = [
         s
-        for s in broker.client.evo.devices + [broker.client.evo]
+        for s in broker.client.devices + [broker.client.evo]
         if any([hasattr(s, a) for a in BINARY_SENSOR_ATTRS])
     ]
     return [s for s in sensors if s not in broker.binary_sensors]
@@ -93,7 +98,7 @@ def new_binary_sensors(broker) -> list:
 def new_sensors(broker) -> list:
     sensors = [
         s
-        for s in broker.client.evo.devices + [broker.client.evo]
+        for s in broker.client.devices + [broker.client.evo]
         if any([hasattr(s, a) for a in SENSOR_ATTRS])
     ]
     return [s for s in sensors if s not in broker.sensors]
@@ -102,21 +107,28 @@ def new_sensors(broker) -> list:
 async def async_setup(hass: HomeAssistantType, hass_config: ConfigType) -> bool:
     """xxx."""
 
+    async def handle_exceptions(awaitable):
+        try:
+            return await awaitable
+        except serial.SerialException as exc:
+            _LOGGER.error("Unable to open the serial port. Message is: %s", exc)
+            raise exc
+
     async def load_system_config(store) -> Optional[Dict]:
         app_storage = await store.async_load()
         return dict(app_storage if app_storage else {})
 
-    if __version__ == evohome_rf.__version__:
+    if VERSION == evohome_rf.VERSION:
         _LOGGER.warning(
             "evohome_cc v%s, using evohome_rf v%s - versions match (this is good)",
-            __version__,
-            evohome_rf.__version__,
+            VERSION,
+            evohome_rf.VERSION,
         )
     else:
         _LOGGER.error(
             "evohome_cc v%s, using evohome_rf v%s - versions don't match (this is bad)",
-            __version__,
-            evohome_rf.__version__,
+            VERSION,
+            evohome_rf.VERSION,
         )
 
     store = hass.helpers.storage.Store(STORAGE_VERSION, STORAGE_KEY)
@@ -132,11 +144,7 @@ async def async_setup(hass: HomeAssistantType, hass_config: ConfigType) -> bool:
         kwargs["config"].pop("log_rotate_backups", 7)
     )
 
-    try:  # TODO: test invalid serial_port="AA"
-        client = evohome_rf.Gateway(serial_port, loop=hass.loop, **kwargs)
-    except serial.SerialException as exc:
-        _LOGGER.exception("Unable to open serial port. Message is: %s", exc)
-        return False
+    client = evohome_rf.Gateway(serial_port, loop=hass.loop, **kwargs)
 
     hass.data[DOMAIN] = {}
     hass.data[DOMAIN][BROKER] = broker = EvoBroker(
@@ -145,8 +153,7 @@ async def async_setup(hass: HomeAssistantType, hass_config: ConfigType) -> bool:
 
     broker.hass_config = hass_config
 
-    # #roker.loop_task = hass.async_create_task(client.start())
-    broker.loop_task = hass.loop.create_task(client.start())
+    broker.loop_task = hass.loop.create_task(handle_exceptions(client.start()))
 
     hass.helpers.event.async_track_time_interval(
         broker.update, hass_config[DOMAIN][CONF_SCAN_INTERVAL]
@@ -192,6 +199,9 @@ class EvoBroker:
 
         evohome = self.client.evo
         _LOGGER.info("Schema = %s", evohome.schema if evohome is not None else None)
+        _LOGGER.info(
+            "Devices = %s", {d.id: d.status for d in sorted(self.client.devices)}
+        )
         if evohome is None:
             return
 
@@ -219,8 +229,10 @@ class EvoBroker:
                 )
             )
 
-        _LOGGER.info("Params = %s", evohome.params)
-        _LOGGER.info("Status = %s", evohome.status)
+        _LOGGER.info("Params = %s", evohome.params if evohome is not None else None)
+        _LOGGER.info(
+            "Status = %s", {k: v for k, v in evohome.status.items() if k != "devices"}
+        )
 
         # inform the evohome devices that state data has been updated
         self.hass.helpers.dispatcher.async_dispatcher_send(DOMAIN)
