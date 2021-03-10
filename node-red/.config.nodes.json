@@ -895,7 +895,7 @@
     },
     "node-red-contrib-sunevents": {
         "name": "node-red-contrib-sunevents",
-        "version": "2.0.3",
+        "version": "3.0.0",
         "local": false,
         "nodes": {
             "node-red-contrib-sunevents": {
@@ -906,7 +906,7 @@
                 "enabled": true,
                 "local": false,
                 "module": "node-red-contrib-sunevents",
-                "file": "/opt/node_modules/node-red-contrib-sunevents/sunevents-node.js"
+                "file": "/opt/node_modules/node-red-contrib-sunevents/lib/sun-events-node.js"
             }
         }
     },

@@ -963,7 +963,7 @@
     },
     "node-red-dashboard": {
         "name": "node-red-dashboard",
-        "version": "2.27.0",
+        "version": "2.28.1",
         "local": false,
         "nodes": {
             "ui_base": {
