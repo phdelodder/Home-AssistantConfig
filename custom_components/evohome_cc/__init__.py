@@ -6,84 +6,42 @@
 Requires a Honeywell HGI80 (or compatible) gateway.
 """
 
-from datetime import timedelta
 import logging
 from typing import Any, Dict, Optional
 
+import evohome_rf
 import serial
-import voluptuous as vol
-
-try:
-    from . import evohome_rf
-except (ImportError, ModuleNotFoundError):
-    import evohome_rf
-
-
-from homeassistant.components.climate import DOMAIN as CLIMATE
 from homeassistant.components.binary_sensor import DOMAIN as BINARY_SENSOR
+from homeassistant.components.climate import DOMAIN as CLIMATE
 from homeassistant.components.sensor import DOMAIN as SENSOR
 from homeassistant.components.water_heater import DOMAIN as WATER_HEATER
 from homeassistant.const import CONF_SCAN_INTERVAL, TEMP_CELSIUS
 from homeassistant.core import callback
-import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.discovery import async_load_platform
+from homeassistant.helpers.dispatcher import (
+    async_dispatcher_connect,
+    async_dispatcher_send,
+)
 from homeassistant.helpers.entity import Entity
+from homeassistant.helpers.service import verify_domain_control
 from homeassistant.helpers.typing import ConfigType, HomeAssistantType
 
 from .const import (
+    BINARY_SENSOR_ATTRS,
+    BROKER,
     DOMAIN,
+    SENSOR_ATTRS,
     STORAGE_KEY,
     STORAGE_VERSION,
-    BINARY_SENSOR_ATTRS,
-    SENSOR_ATTRS,
 )
+from .schema import CONFIG_SCHEMA  # noqa: F401
+from .schema import CONF_ALLOW_LIST, CONF_BLOCK_LIST, CONF_SERIAL_PORT, DOMAIN_SERVICES
 from .version import __version__ as VERSION
 
 _LOGGER = logging.getLogger(__name__)
 
+
 PLATFORMS = [BINARY_SENSOR, CLIMATE, SENSOR, WATER_HEATER]
-
-BROKER = "broker"
-SCAN_INTERVAL_DEFAULT = timedelta(seconds=300)
-SCAN_INTERVAL_MINIMUM = timedelta(seconds=10)
-
-CONF_SERIAL_PORT = "serial_port"
-CONF_CONFIG = "config"
-CONF_SCHEMA = "schema"
-CONF_GATEWAY_ID = "gateway_id"
-CONF_PACKET_LOG = "packet_log"
-CONF_MAX_ZONES = "max_zones"
-
-CONF_ALLOW_LIST = "allow_list"
-CONF_BLOCK_LIST = "block_list"
-LIST_MSG = f"{CONF_ALLOW_LIST} and {CONF_BLOCK_LIST} are mutally exclusive"
-
-CONFIG_SCHEMA = vol.Schema(
-    {
-        DOMAIN: vol.Schema(
-            {
-                # vol.Optional(CONF_GATEWAY_ID): vol.Match(r"^18:[0-9]{6}$"),
-                vol.Required(CONF_SERIAL_PORT): cv.string,
-                vol.Optional("serial_config"): dict,
-                vol.Required(CONF_CONFIG): vol.Schema(
-                    {
-                        vol.Optional(CONF_MAX_ZONES, default=12): vol.Any(None, int),
-                        vol.Optional(CONF_PACKET_LOG): cv.string,
-                        vol.Optional("enforce_allowlist"): bool,
-                    }
-                ),
-                vol.Optional(CONF_SCHEMA): dict,
-                vol.Exclusive(CONF_ALLOW_LIST, "device_filter", msg=LIST_MSG): list,
-                vol.Exclusive(CONF_BLOCK_LIST, "device_filter", msg=LIST_MSG): list,
-                vol.Optional(
-                    CONF_SCAN_INTERVAL, default=SCAN_INTERVAL_DEFAULT
-                ): vol.All(cv.time_period, vol.Range(min=SCAN_INTERVAL_MINIMUM)),
-            },
-            extra=vol.ALLOW_EXTRA,  # TODO: remove for production
-        )
-    },
-    extra=vol.ALLOW_EXTRA,
-)
 
 
 def new_binary_sensors(broker) -> list:
@@ -105,7 +63,7 @@ def new_sensors(broker) -> list:
 
 
 async def async_setup(hass: HomeAssistantType, hass_config: ConfigType) -> bool:
-    """xxx."""
+    """Create a Honeywell RF (RAMSES_II)-based system."""
 
     async def handle_exceptions(awaitable):
         try:
@@ -140,8 +98,8 @@ async def async_setup(hass: HomeAssistantType, hass_config: ConfigType) -> bool:
     serial_port = kwargs.pop(CONF_SERIAL_PORT)
     kwargs["allowlist"] = dict.fromkeys(kwargs.pop(CONF_ALLOW_LIST, []), {})
     kwargs["blocklist"] = dict.fromkeys(kwargs.pop(CONF_BLOCK_LIST, []), {})
-    kwargs["config"]["log_rotate_backups"] = (
-        kwargs["config"].pop("log_rotate_backups", 7)
+    kwargs["config"]["log_rotate_backups"] = kwargs["config"].pop(
+        "log_rotate_backups", 7
     )
 
     client = evohome_rf.Gateway(serial_port, loop=hass.loop, **kwargs)
@@ -156,10 +114,49 @@ async def async_setup(hass: HomeAssistantType, hass_config: ConfigType) -> bool:
     broker.loop_task = hass.loop.create_task(handle_exceptions(client.start()))
 
     hass.helpers.event.async_track_time_interval(
-        broker.update, hass_config[DOMAIN][CONF_SCAN_INTERVAL]
+        broker.async_update, hass_config[DOMAIN][CONF_SCAN_INTERVAL]
     )
 
+    setup_service_functions(hass, broker)
+
     return True
+
+
+@callback
+def setup_service_functions(hass: HomeAssistantType, broker):
+    """Set up the handlers for the system-wide services."""
+
+    @verify_domain_control(hass, DOMAIN)
+    async def svc_force_refresh(call) -> None:
+        """Obtain the latest state data via the vendor's RESTful API."""
+        await broker.async_update()
+
+    @verify_domain_control(hass, DOMAIN)
+    async def svc_reset_system(call) -> None:
+        """Set the system mode."""
+        payload = {
+            "unique_id": broker.client.evo.id,
+            "service": call.service,
+            "data": call.data,
+        }
+        async_dispatcher_send(hass, DOMAIN, payload)
+
+    @verify_domain_control(hass, DOMAIN)
+    async def svc_set_system_mode(call) -> None:
+        """Set the system mode."""
+        payload = {
+            "unique_id": broker.client.evo.id,
+            "service": call.service,
+            "data": call.data,
+        }
+        async_dispatcher_send(hass, DOMAIN, payload)
+
+    services = {k: v for k, v in locals().items() if k.startswith("svc")}
+    [
+        hass.services.async_register(DOMAIN, k, services[f"svc_{k}"], schema=v)
+        for k, v in DOMAIN_SERVICES.items()
+        if f"svc_{k}" in services
+    ]
 
 
 class EvoBroker:
@@ -179,6 +176,7 @@ class EvoBroker:
         self.climates = []
         self.water_heater = None
         self.sensors = []
+        self.services = {}
 
         self.hass_config = None
         self.loop_task = None
@@ -189,7 +187,7 @@ class EvoBroker:
 
         await self._store.async_save(app_storage)
 
-    async def update(self, *args, **kwargs) -> None:
+    async def async_update(self, *args, **kwargs) -> None:
         """Retrieve the latest state data..."""
 
         #     self.hass.async_create_task(self._update(self.hass, *args, **kwargs))
@@ -241,17 +239,19 @@ class EvoBroker:
 class EvoEntity(Entity):
     """Base for any evohome II-compatible entity (e.g. Climate, Sensor)."""
 
-    def __init__(self, evo_broker, evo_device) -> None:
+    def __init__(self, broker, device) -> None:
         """Initialize the entity."""
-        self._evo_device = evo_device
-        self._evo_broker = evo_broker
+        self._device = device
+        self._broker = broker
 
         self._unique_id = self._name = None
-        self._device_state_attrs = {}
+        self._entity_state_attrs = ()
 
     @callback
-    def _refresh(self) -> None:
-        self.async_schedule_update_ha_state(force_refresh=True)
+    def _handle_dispatch(self, *args) -> None:
+        """Process a dispatched message."""
+        if not args:
+            self.async_schedule_update_ha_state(force_refresh=True)
 
     @property
     def should_poll(self) -> bool:
@@ -264,60 +264,73 @@ class EvoEntity(Entity):
         return self._unique_id
 
     @property
-    def name(self) -> str:
-        """Return the name of the entity."""
-        return self._name
-
-    @property
     def device_state_attributes(self) -> Dict[str, Any]:
         """Return the integration-specific state attributes."""
-        # result = {}
-        # for attr in ("schema", "config", "status"):
-        #     if hasattr(self._evo_device, attr):
-        #         result.update({attr: getattr(self._evo_device, attr)})
-        return {
-            "controller": self._evo_device._ctl.id if self._evo_device._ctl else None
+        attrs = {
+            a: getattr(self._device, a)
+            for a in self._entity_state_attrs
+            if hasattr(self._device, a)
         }
+        attrs["controller"] = self._device._ctl.id if self._device._ctl else None
+        return attrs
 
     async def async_added_to_hass(self) -> None:
         """Run when entity about to be added to hass."""
-        self.hass.helpers.dispatcher.async_dispatcher_connect(DOMAIN, self._refresh)
+        async_dispatcher_connect(self.hass, DOMAIN, self._handle_dispatch)
 
 
 class EvoDeviceBase(EvoEntity):
     """Base for any evohome II-compatible entity (e.g. Climate, Sensor)."""
 
+    DEVICE_CLASS = None
+    STATE_ATTR = "enabled"
+
+    def __init__(self, broker, device) -> None:
+        """Initialize the sensor."""
+        super().__init__(broker, device)
+
+        klass = self.DEVICE_CLASS if self.DEVICE_CLASS else self.STATE_ATTR
+        self._name = f"{device.id} ({klass})"
+
     @property
     def available(self) -> bool:
-        """Return True if entity is available."""
-        return self._evo_device._is_present
+        """Return True if the entity is available."""
+        return getattr(self._device, self.STATE_ATTR) is not None
 
     @property
     def device_class(self) -> str:
         """Return the device class of the sensor."""
-        return self._device_class
+        return self.DEVICE_CLASS
 
     @property
     def device_state_attributes(self) -> Dict[str, Any]:
         """Return the integration-specific state attributes."""
-        return {
-            **super().device_state_attributes,
-            # "domain_id": self._evo_device. self._domain_id,
-            # "zone_name": self._evo_device.zone.name if self._evo_device.zone else None,
-        }
+        attrs = super().device_state_attributes
+        attrs["domain_id"] = self._device._domain_id
+        return attrs
+
+    @property
+    def name(self) -> str:
+        """Return the name of the sensor."""
+        return self._name
 
 
 class EvoZoneBase(EvoEntity):
     """Base for any evohome RF-compatible entity (e.g. Climate, Sensor)."""
 
+    def __init__(self, broker, device) -> None:
+        """Initialize the sensor."""
+        super().__init__(broker, device)
+        self._supported_features = None
+
     @property
     def current_temperature(self) -> Optional[float]:
         """Return the current temperature."""
-        return self._evo_device.temperature
+        return self._device.temperature
 
     @property
     def name(self) -> str:
-        return self._evo_device.name
+        return self._device.name
 
     @property
     def supported_features(self) -> int:
@@ -332,8 +345,6 @@ class EvoZoneBase(EvoEntity):
     @property
     def device_state_attributes(self) -> Dict[str, Any]:
         """Return the integration-specific state attributes."""
-        return {
-            **super().device_state_attributes,
-            # "zone_idx": self._evo_device.idx,
-            # "zone_name": self._evo_device.zone.name if self._evo_device.zone else None,
-        }
+        attrs = super().device_state_attributes
+        attrs["zone_idx"] = self._device.idx
+        return attrs

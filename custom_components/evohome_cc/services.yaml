@@ -1,0 +1,158 @@
+reset_dhw_mode:
+  description: >-
+    Reset the operating mode of the DHW controller.
+  fields:
+    entity_id:
+      description: The entity_id of the water_heater.
+      example: water_heater.stored_hw
+
+set_dhw_boost:
+  description: >-
+    Enable the DHW controller for an hour.
+  fields:
+    entity_id:
+      description: The entity_id of the water_heater.
+      example: water_heater.stored_hw
+
+set_dhw_mode:
+  name: Set DHW mode
+  description: >-
+    Set the operating mode of the DHW controller, optionally for a given duration.
+  target:
+    integration: evohome_cc
+    domain: water_heater
+  fields:
+    # entity_id:
+    #   name: Entity ID
+    #   description: The entity_id of the water_heater.
+    #   example: water_heater.stored_hw
+    mode:
+      name: DHW mode
+      description: >-
+        The duration of the override. Optional, one of: follow_schedule,
+        temporary_override or permanent_override.
+      example: temporary_override
+      selector:
+        select:
+          options:
+            - follow_schedule
+            - permanent_override
+            - tmporary_override
+    active:
+      name: DHW state
+      description: >-
+        The state of the water heater.
+      selector:
+        boolean:
+      example: true
+    duration:
+      name: Override duration
+      description: >-
+        The duration of the override. Mutually exclusive with until.
+      example: '{"minutes": 135}'
+      selector:
+        number:
+          min: 15
+          max: 1440
+          step: 15
+          unit_of_measurement: mins
+          mode: slider
+    until:
+      name: Override end time
+      description: >-
+        The end of the override. Mutually exclusive with duration.
+      # example: '{"minutes": 135}'
+
+reset_dhw_params:
+  description: >-
+    Reset the configuration of the DHW controller.
+  fields:
+    entity_id:
+      description: The entity_id of the water_heater.
+      example: water_heater.stored_hw
+
+set_dhw_params:
+  description: >-
+    Set the configuration of the DHW controller.
+  fields:
+    entity_id:
+      description: The entity_id of the water_heater.
+      example: water_heater.stored_hw
+    setpoint:
+      description: >-
+        The target temperature in degrees Celsius. Default is 50.0.
+      example: 50.0
+    overrun:
+      description: >-
+        The overrun in minutes. Default is 5.
+      example: 5
+    differential:
+      description: >-
+        The differential in degrees Celsius.  Default is 1.
+      example: 1
+
+refresh_system:
+  description: >-
+    Update the system now, rather than waiting for the next scheduled update.
+
+reset_system:
+  description: >-
+    Hard reset the System. The Controller will be in auto mode, and all Zones will
+    be in follow_schedule mode (including those in permanent_override mode).
+
+set_system_mode:
+  description: >-
+    Reset the System. The Controller will be in Auto mode.
+  fields:
+    mode:
+      description: "One of: auto, eco_boost, away, day_off, heating_off, or custom."
+      example: away
+    period:
+      description: >-
+        A period of time in days; used only with away, day_off, or custom. The system
+        will revert to auto at midnight (up to 99 days, today is day 1).
+      example: '{"days": 28}'
+    duration:
+      description: The duration in hours; used only with eco_boost (up to 24 hours).
+      example: '{"hours": 18}'
+
+reset_zone_config:
+  description: >-
+    Reset the configuration of the Zone.
+  fields:
+    entity_id:
+      description: The entity_id of the Zone.
+      example: climate.bedroom
+
+reset_zone_mode:
+  description: >-
+    Reset the operating mode of the Zone.
+  fields:
+    entity_id:
+      description: The entity_id of the Zone.
+      example: climate.bedroom
+
+set_zone_mode:
+  description: >-
+    Set the operating mode of the Zone, either indefinitely or for a given duration.
+  fields:
+    entity_id:
+      description: The entity_id of the Zone.
+      example: climate.bedroom
+    mode:
+      description: >-
+        The duration of the override. Optional, one of: follow_schedule,
+        advanced_override, temporary_override or permanent_override.
+      example: temporary_override
+    setpoint:
+      description: >-
+        The target temperature in degrees Celsius. Default is 21.0.
+      example: 21.0
+    duration:
+      description: >-
+        The duration of the override. Mutually exclusive with until.
+      example: '{"minutes": 135}'
+    until:
+      description: >-
+        The end of the override. Mutually exclusive with duration.
+      # example: '{"minutes": 135}'
