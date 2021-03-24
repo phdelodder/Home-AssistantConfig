@@ -1296,7 +1296,7 @@
             == states(''sensor.date'') and state_attr(''calendar.delodderp_gmail_com'',
             ''start_time'')[11:16] == ''08:00'' and state_attr(''calendar.delodderp_gmail_com'',
             ''message'') == ''Afwezigheid : work from home'' and states(''person.isabel'')
-            != ''home'' }}'
+            != ''home'' and states(''sensor.time'') >= ''08:00'' }}'
         - condition: and
           conditions:
           - condition: state
@@ -1377,8 +1377,10 @@
   alias: 'Climate: Set Febe slaapkamer temperature'
   description: ''
   trigger:
-  - platform: time
-    at: '15:30:00'
+  - platform: template
+    value_template: '{% set time = states(''sensor.time'') %} {{ (''15:30'' == time
+      and (now().weekday() == 0 )) or (''16:10'' == time and (now().weekday() == 1
+      or now().weekday() == 3 )) }}'
   - platform: homeassistant
     event: start
   - platform: state
@@ -1398,15 +1400,22 @@
   action:
   - choose:
     - conditions:
-      - condition: template
-        value_template: '{% set time = states(''sensor.time'') %} {{ ''15:30'' <=
-          time < ''17:30'' and (now().weekday() == 0 or now().weekday() == 1 or now().weekday()
-          == 3 ) }}'
+      - condition: or
+        conditions:
+        - condition: template
+          value_template: '{% set time = states(''sensor.time'') %} {{ ''15:30'' <=
+            time < ''17:30'' and (now().weekday() == 0 ) }}'
+        - condition: template
+          value_template: '{% set time = states(''sensor.time'') %} {{ ''16:10'' <=
+            time < ''17:30'' and (now().weekday() == 1 or now().weekday() == 3 ) }}'
       sequence:
-      - service: climate.set_temperature
+      - service: evohome_cc.set_zone_mode
         data:
-          temperature: 18
-        entity_id: climate.febe
+          entity_id: climate.febe
+          mode: temporary_override
+          setpoint: 18
+          duration:
+            minutes: 60
     default:
     - service: climate.set_preset_mode
       data:
