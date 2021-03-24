@@ -895,7 +895,7 @@
     },
     "node-red-contrib-sunevents": {
         "name": "node-red-contrib-sunevents",
-        "version": "2.0.3",
+        "version": "3.0.0",
         "local": false,
         "nodes": {
             "node-red-contrib-sunevents": {
@@ -906,7 +906,7 @@
                 "enabled": true,
                 "local": false,
                 "module": "node-red-contrib-sunevents",
-                "file": "/opt/node_modules/node-red-contrib-sunevents/sunevents-node.js"
+                "file": "/opt/node_modules/node-red-contrib-sunevents/lib/sun-events-node.js"
             }
         }
     },
@@ -1321,7 +1321,7 @@
     },
     "node-red-node-rbe": {
         "name": "node-red-node-rbe",
-        "version": "0.2.9",
+        "version": "0.4.0",
         "local": false,
         "nodes": {
             "rbe": {
@@ -1492,7 +1492,7 @@
     },
     "node-red-contrib-light-scheduler": {
         "name": "node-red-contrib-light-scheduler",
-        "version": "0.0.16",
+        "version": "0.0.17",
         "local": false,
         "nodes": {
             "light-scheduler": {
@@ -1546,7 +1546,7 @@
     },
     "node-red-node-mysql": {
         "name": "node-red-node-mysql",
-        "version": "0.1.1",
+        "version": "0.1.6",
         "local": false,
         "nodes": {
             "mysql": {
