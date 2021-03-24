@@ -880,6 +880,16 @@
   sensors:
     operatingstate:
       value_template: "{{ state_attr('climate.huis', 'hvac_action') }}"
+    
+    fc_heat_demand:
+      friendly_name: "Boiler Demand"
+      unit_of_measurement: "%"
+      value_template: "{{ state_attr('climate.huis', 'heat_demands').FC }}"
+
+    fc_relay_demand:
+      friendly_name: "Boiler Relay"
+      unit_of_measurement: "%"
+      value_template: "{{ state_attr('climate.huis', 'relay_demands').FC }}"
 
 - platform: history_stats
   name: Verwarmen Vandaag
