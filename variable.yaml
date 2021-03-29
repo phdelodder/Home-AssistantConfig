@@ -4,3 +4,7 @@ last_motion:
   attributes:
     icon: mdi:run
     friendly_name: 'Laatste Beweging'
+
+daily_vacuum_first_run:
+  value: false
+  restore: true
