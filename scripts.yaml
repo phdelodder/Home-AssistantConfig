@@ -262,7 +262,7 @@ vacuum_notify:
         conditions:
         - condition: state
           entity_id:
-          - input_select.select_option
+          - input_select.vacuum_room
           state: Selecteer Kamer
       sequence:
       - service: input_select.select_option
