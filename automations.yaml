@@ -1458,6 +1458,19 @@
         data:
           preset_mode: eco
         entity_id: climate.huis
+      - wait_template: '{{ is_state_attr(''climate.huis'', ''preset_mode'', ''eco'') }}'
+      - service: climate.set_temperature
+        data:
+          entity_id:
+          - climate.margot
+          - climate.slaapkamer
+          - climate.febe
+          - climate.dressing
+          - climate.badkamer
+          - climate.bureau
+          - climate.speelkamer
+          - climate.inkom
+          temperature: 10
     default:
     - service: climate.set_preset_mode
       data:
