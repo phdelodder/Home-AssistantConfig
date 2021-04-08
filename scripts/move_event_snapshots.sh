@@ -12,3 +12,6 @@ find /config/www/security/"${motion_camera}"*.jpg -type f -mtime +14 -exec rm -f
 
 #clean wanted snapshots after 30 days
 find /config/www/security/"${motion_camera}"_motion/ -type f -mtime +30 -exec rm -f {} \; 
+
+#clean unwanted platerecognizer snapshots after 14 days
+find /config/www/snapshots/platerecognizer/platerecognizer_doods_"${motion_camera}"*.png -type f -mtime +14 -exec rm -f {} \;   
