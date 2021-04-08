@@ -145,9 +145,6 @@ shelly:
 spotify:
   client_id: !secret spotify-clientid
   client_secret: !secret spotify-client_secret
-  
-cast:
-  media_player:
 
 browser_mod:
 
