@@ -163,9 +163,9 @@ google:
 
 evohome_cc:
   serial_port: /dev/ttyUSB0
-  scan_interval: 15
+  scan_interval: 60
+  packet_log: /config/evohome_cc_packet.log
   config:
-    packet_log: /config/evohome_cc_packet.log
     enforce_allowlist: true
   schema:
     controller: 01:223036

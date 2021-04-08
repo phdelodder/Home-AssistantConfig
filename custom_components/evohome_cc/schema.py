@@ -1,88 +1,86 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-"""Support for Honeywell's RAMSES-II RF protocol, as used by evohome."""
+"""Support for Honeywell's RAMSES-II RF protocol, as used by evohome & others."""
 
 from datetime import timedelta as td
+from typing import Tuple
 
 import voluptuous as vol
-from evohome_rf.const import SystemMode, ZoneMode
-from evohome_rf.schema import SYSTEM_SCHEMA
+from evohome_rf.const import SYSTEM_MODE_LOOKUP, SystemMode, ZoneMode
+from evohome_rf.schema import (
+    ALLOW_LIST,
+    BLOCK_LIST,
+    CONFIG,
+    CONFIG_SCHEMA,
+    EVOFW_FLAG,
+    FILTER_SCHEMA,
+    LOG_FILE_NAME,
+    LOG_ROTATE_BYTES,
+    LOG_ROTATE_COUNT,
+    PACKET_LOG,
+    PORT_NAME,
+    SERIAL_CONFIG,
+    SERIAL_CONFIG_SCHEMA,
+    SERIAL_PORT,
+)
 from homeassistant.const import ATTR_ENTITY_ID as CONF_ENTITY_ID
 from homeassistant.const import CONF_SCAN_INTERVAL
 from homeassistant.helpers import config_validation as cv
 
 from .const import DOMAIN
 
+CONF_MODE = "mode"
+CONF_SYSTEM_MODE = "system_mode"
+CONF_DURATION_DAYS = "period"
+CONF_DURATION_HOURS = "hours"
+
+CONF_DURATION = "duration"
+CONF_LOCAL_OVERRIDE = "local_override"
+CONF_MAX_TEMP = "max_temp"
+CONF_MIN_TEMP = "min_temp"
+CONF_MULTIROOM = "multiroom_mode"
+CONF_OPENWINDOW = "openwindow_function"
+CONF_SETPOINT = "setpoint"
+CONF_UNTIL = "until"
+
+CONF_ACTIVE = "active"
+CONF_DIFFERENTIAL = "differential"
+CONF_OVERRUN = "overrun"
+
 # Configuration schema
-CONF_ALLOW_LIST = "allow_list"
-CONF_BLOCK_LIST = "block_list"
-CONF_CONFIG = "config"
-CONF_ENFORCE_ALLOWLIST = "enforce_allowlist"
-CONF_GATEWAY_ID = "gateway_id"
-CONF_MAX_ZONES = "max_zones"
-CONF_PACKET_LOG = "packet_log"
-# import CONF_SCAN_INTERVAL
-CONF_SCHEMA = "schema"
-CONF_SERIAL_CONFIG = "serial_config"
-CONF_SERIAL_PORT = "serial_port"
-
-LIST_MSG = f"{CONF_ALLOW_LIST} and {CONF_BLOCK_LIST} are mutally exclusive"
-
 SCAN_INTERVAL_DEFAULT = td(seconds=300)
 SCAN_INTERVAL_MINIMUM = td(seconds=10)
 
-CONFIG_SCHEMA = vol.Schema(
+PACKET_LOG_SCHEMA = vol.Schema(
     {
-        DOMAIN: vol.Schema(
-            {
-                # vol.Optional(CONF_GATEWAY_ID): vol.Match(r"^18:[0-9]{6}$"),
-                vol.Required(CONF_SERIAL_PORT): cv.string,
-                vol.Optional(CONF_SERIAL_CONFIG): dict,
-                vol.Required(CONF_CONFIG): vol.Schema(
-                    {
-                        vol.Optional(CONF_MAX_ZONES, default=12): vol.All(
-                            cv.positive_int, vol.Range(min=1, max=16)
-                        ),
-                        vol.Optional(CONF_PACKET_LOG): cv.string,
-                        vol.Optional(CONF_ENFORCE_ALLOWLIST): cv.boolean,
-                    }
-                ),
-                vol.Optional(CONF_SCHEMA): SYSTEM_SCHEMA,
-                vol.Exclusive(CONF_ALLOW_LIST, CONF_ALLOW_LIST, msg=LIST_MSG): list,
-                vol.Exclusive(CONF_BLOCK_LIST, CONF_ALLOW_LIST, msg=LIST_MSG): list,
-                vol.Optional(
-                    CONF_SCAN_INTERVAL, default=SCAN_INTERVAL_DEFAULT
-                ): vol.All(cv.time_period, vol.Range(min=SCAN_INTERVAL_MINIMUM)),
-            },
-            extra=vol.ALLOW_EXTRA,  # TODO: remove for production
-        )
+        vol.Required(LOG_FILE_NAME): str,
+        vol.Optional(LOG_ROTATE_BYTES, default=None): vol.Any(None, int),
+        vol.Optional(LOG_ROTATE_COUNT, default=7): vol.All(
+            int, vol.Range(min=0, max=7)
+        ),
     },
-    extra=vol.ALLOW_EXTRA,
-)
+    extra=vol.PREVENT_EXTRA,
+)  # unlike evohome_rf, evohome_cc requires a packet_log
 
 # Integration domain services for System/Controller
 SVC_REFRESH_SYSTEM = "force_refresh"
 SVC_RESET_SYSTEM = "reset_system"
+SVC_SEND_PACKET = "send_packet"
 SVC_SET_SYSTEM_MODE = "set_system_mode"
 
-CONF_MODE = "mode"
-CONF_DURATION_DAYS = "period"
-CONF_DURATION_HOURS = "hours"
-
-CONF_SYSTEM_MODES = (
-    SystemMode.AUTO,
-    SystemMode.AWAY,
-    SystemMode.CUSTOM,
-    SystemMode.DAY_OFF,
-    SystemMode.ECO_BOOST,
-    SystemMode.HEAT_OFF,
-    SystemMode.RESET,
+SEND_PACKET_SCHEMA = vol.Schema(
+    {
+        vol.Required("device_id"): vol.Match(r"^[0-9]{2}:[0-9]{6}$"),
+        vol.Required("verb"): vol.In((" I", "RQ", "RP", " W")),
+        vol.Required("code"): vol.Match(r"^[0-9A-F]{4}$"),
+        vol.Required("payload"): vol.Match(r"^[0-9A-F]{1,48}$"),
+    }
 )
 
 SET_SYSTEM_MODE_SCHEMA = vol.Schema(
     {
-        vol.Required(CONF_MODE): vol.In(CONF_SYSTEM_MODES),
+        vol.Required(CONF_MODE): vol.In(SYSTEM_MODE_LOOKUP),  # incl. DAY_OFF_ECO
     }
 )
 SET_SYSTEM_MODE_SCHEMA_HOURS = vol.Schema(
@@ -110,6 +108,7 @@ SET_SYSTEM_MODE_SCHEMA = vol.Any(
 DOMAIN_SERVICES = {
     SVC_REFRESH_SYSTEM: None,
     SVC_RESET_SYSTEM: None,
+    SVC_SEND_PACKET: SEND_PACKET_SCHEMA,
     SVC_SET_SYSTEM_MODE: SET_SYSTEM_MODE_SCHEMA,
 }
 
@@ -118,16 +117,6 @@ SVC_RESET_ZONE_CONFIG = "reset_zone_config"
 SVC_RESET_ZONE_MODE = "reset_zone_mode"
 SVC_SET_ZONE_CONFIG = "set_zone_config"
 SVC_SET_ZONE_MODE = "set_zone_mode"
-
-# CONF_MODE = "mode"  # import CONF_ENTITY_ID = "entity_id"
-CONF_DURATION = "duration"
-CONF_LOCAL_OVERRIDE = "local_override"
-CONF_MAX_TEMP = "max_temp"
-CONF_MIN_TEMP = "min_temp"
-CONF_MULTIROOM = "multiroom_mode"
-CONF_OPENWINDOW = "openwindow_function"
-CONF_SETPOINT = "setpoint"
-CONF_UNTIL = "until"
 
 CONF_ZONE_MODES = (
     ZoneMode.SCHEDULE,
@@ -202,14 +191,6 @@ SVC_SET_DHW_BOOST = "set_dhw_boost"
 SVC_SET_DHW_MODE = "set_dhw_mode"
 SVC_SET_DHW_PARAMS = "set_dhw_params"
 
-# CONF_MODE = "mode"  # import CONF_ENTITY_ID = "entity_id"
-CONF_ACTIVE = "active"
-CONF_DIFFERENTIAL = "differential"
-# CONF_DURATION = "duration"
-CONF_OVERRUN = "overrun"
-# CONF_SETPOINT = "setpoint"
-# CONF_UNTIL = "until"
-
 CONF_DHW_MODES = (
     ZoneMode.PERMANENT,
     ZoneMode.ADVANCED,
@@ -256,3 +237,55 @@ WATER_HEATER_SERVICES = {
     SVC_SET_DHW_MODE: SET_DHW_MODE_SCHEMA,
     SVC_SET_DHW_PARAMS: SET_DHW_CONFIG_SCHEMA,
 }
+
+
+CONFIG_SCHEMA = vol.Schema(
+    {
+        DOMAIN: vol.Schema(
+            {
+                vol.Required(SERIAL_PORT): vol.Any(
+                    cv.string,
+                    SERIAL_CONFIG_SCHEMA.extend({vol.Required(PORT_NAME): cv.string}),
+                ),
+                vol.Optional(CONFIG, default={}): CONFIG_SCHEMA,
+                vol.Required(PACKET_LOG): vol.Any(str, PACKET_LOG_SCHEMA),
+                vol.Optional(ALLOW_LIST, default=[]): FILTER_SCHEMA,
+                vol.Optional(BLOCK_LIST, default=[]): FILTER_SCHEMA,
+                vol.Required(
+                    CONF_SCAN_INTERVAL, default=SCAN_INTERVAL_DEFAULT
+                ): vol.All(cv.time_period, vol.Range(min=SCAN_INTERVAL_MINIMUM)),
+                vol.Optional(SVC_SEND_PACKET): bool,
+                vol.Optional("restore_client_state", default=True): bool,
+            },
+            extra=vol.ALLOW_EXTRA,  # will be system schemas
+        )
+    },
+    extra=vol.ALLOW_EXTRA,
+)
+
+
+def normalise_config_schema(config) -> Tuple[str, dict]:
+    """Convert a HA config dict into the client library's own format."""
+
+    del config[CONF_SCAN_INTERVAL]
+    config.pop(SVC_SEND_PACKET, None)
+
+    if isinstance(config[SERIAL_PORT], dict):
+        serial_port = config[SERIAL_PORT].pop(PORT_NAME)
+        config[CONFIG][EVOFW_FLAG] = config[SERIAL_PORT].pop(EVOFW_FLAG, None)
+        config[CONFIG][SERIAL_CONFIG] = config.pop(SERIAL_PORT)
+
+    else:
+        serial_port = config.pop(SERIAL_PORT)
+
+    if isinstance(config[PACKET_LOG], dict):
+        config[CONFIG][PACKET_LOG] = config.pop(PACKET_LOG)
+    else:
+        config[CONFIG][PACKET_LOG] = PACKET_LOG_SCHEMA(
+            {LOG_FILE_NAME: config.pop(PACKET_LOG)}
+        )
+
+    config[ALLOW_LIST] = {k: None for k in config[ALLOW_LIST]}
+    config[BLOCK_LIST] = {k: None for k in config[BLOCK_LIST]}
+
+    return serial_port, config

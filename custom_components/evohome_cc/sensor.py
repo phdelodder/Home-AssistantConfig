@@ -1,23 +1,27 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-"""Support for Honeywell's RAMSES-II RF protocol, as used by evohome.
+"""Support for Honeywell's RAMSES-II RF protocol, as used by evohome & others.
 
 Provides support for sensors.
 """
+
 import logging
 from typing import Any, Dict, Optional
 
 from homeassistant.const import (  # DEVICE_CLASS_BATTERY,; DEVICE_CLASS_PROBLEM,
+    DEVICE_CLASS_HUMIDITY,
     DEVICE_CLASS_TEMPERATURE,
     TEMP_CELSIUS,
 )
 from homeassistant.helpers.typing import ConfigType, HomeAssistantType
 
-from . import EvoDeviceBase, new_sensors
+from . import EvoDeviceBase
 from .const import (
+    ATTR_FAN_RATE,
     ATTR_FAULT_LOG,
     ATTR_HEAT_DEMAND,
+    ATTR_HUMIDITY,
     ATTR_RELAY_DEMAND,
     ATTR_SETPOINT,
     ATTR_TEMPERATURE,
@@ -37,23 +41,25 @@ async def async_setup_platform(
         return
 
     broker = hass.data[DOMAIN][BROKER]
-    new_devices = new_sensors(broker)
+    new_devices = broker.find_new_sensors()
     broker.sensors += new_devices
 
     new_entities = [
         klass(broker, device)
-        for klass in (EvoHeatDemand, EvoRelayDemand, EvoTemperature, EvoFaultLog)
+        for klass in SENSOR_CLASSES
         for device in new_devices
         if hasattr(device, klass.STATE_ATTR)
     ]
     if new_entities:
-        async_add_entities(new_entities, update_before_add=True)
+        async_add_entities(new_entities)
 
 
 class EvoSensorBase(EvoDeviceBase):
     """Representation of a generic sensor."""
 
+    DEVICE_CLASS = None
     DEVICE_UNITS = PERCENTAGE
+    STATE_ATTR = None  # needs to be overridden
 
     def __init__(self, broker, device) -> None:
         """Initialize the sensor."""
@@ -123,6 +129,19 @@ class EvoTemperature(EvoSensorBase):
         return attrs
 
 
+class EvoHumidity(EvoSensorBase):
+    """Representation of a humidity sensor."""
+
+    DEVICE_CLASS = DEVICE_CLASS_HUMIDITY
+    STATE_ATTR = ATTR_HUMIDITY
+
+
+class EvoFanRate(EvoSensorBase):
+    """Representation of a fan rate (not speed) sensor."""
+
+    STATE_ATTR = ATTR_FAN_RATE
+
+
 class EvoFaultLog(EvoDeviceBase):
     """Representation of a system's fault log."""
 
@@ -158,3 +177,13 @@ class EvoFaultLog(EvoDeviceBase):
         """Process the sensor's state data."""
         # self._fault_log = self._device.fault_log()  # TODO: needs sorting out
         pass
+
+
+SENSOR_CLASSES = (
+    EvoFanRate,
+    EvoHeatDemand,
+    EvoHumidity,
+    EvoRelayDemand,
+    EvoTemperature,
+    EvoFaultLog,
+)

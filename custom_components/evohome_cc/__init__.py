@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-"""Support for Honeywell's RAMSES-II RF protocol, as used by evohome.
+"""Support for Honeywell's RAMSES-II RF protocol, as used by evohome & others.
 
 Requires a Honeywell HGI80 (or compatible) gateway.
 """
 
 import logging
-from typing import Any, Dict, Optional
+from datetime import timedelta as td
+from typing import Any, Dict, List, Optional
 
 import evohome_rf
 import serial
@@ -29,37 +30,29 @@ from homeassistant.helpers.typing import ConfigType, HomeAssistantType
 from .const import (
     BINARY_SENSOR_ATTRS,
     BROKER,
+    DATA,
     DOMAIN,
     SENSOR_ATTRS,
+    SERVICE,
     STORAGE_KEY,
     STORAGE_VERSION,
+    UNIQUE_ID,
 )
 from .schema import CONFIG_SCHEMA  # noqa: F401
-from .schema import CONF_ALLOW_LIST, CONF_BLOCK_LIST, CONF_SERIAL_PORT, DOMAIN_SERVICES
+from .schema import DOMAIN_SERVICES, SVC_SEND_PACKET, normalise_config_schema
 from .version import __version__ as VERSION
 
 _LOGGER = logging.getLogger(__name__)
 
 
 PLATFORMS = [BINARY_SENSOR, CLIMATE, SENSOR, WATER_HEATER]
+SAVE_STATE_INTERVAL = td(seconds=300)  # TODO: 5 minutes
 
 
-def new_binary_sensors(broker) -> list:
-    sensors = [
-        s
-        for s in broker.client.devices + [broker.client.evo]
-        if any([hasattr(s, a) for a in BINARY_SENSOR_ATTRS])
-    ]
-    return [s for s in sensors if s not in broker.binary_sensors]
-
-
-def new_sensors(broker) -> list:
-    sensors = [
-        s
-        for s in broker.client.devices + [broker.client.evo]
-        if any([hasattr(s, a) for a in SENSOR_ATTRS])
-    ]
-    return [s for s in sensors if s not in broker.sensors]
+async def _load_store(store) -> Optional[Dict]:
+    # return store.async_save(app_storage)  # HOWTO: save store
+    app_storage = await store.async_load()
+    return dict(app_storage if app_storage else {})
 
 
 async def async_setup(hass: HomeAssistantType, hass_config: ConfigType) -> bool:
@@ -71,10 +64,6 @@ async def async_setup(hass: HomeAssistantType, hass_config: ConfigType) -> bool:
         except serial.SerialException as exc:
             _LOGGER.error("Unable to open the serial port. Message is: %s", exc)
             raise exc
-
-    async def load_system_config(store) -> Optional[Dict]:
-        app_storage = await store.async_load()
-        return dict(app_storage if app_storage else {})
 
     if VERSION == evohome_rf.VERSION:
         _LOGGER.warning(
@@ -89,19 +78,13 @@ async def async_setup(hass: HomeAssistantType, hass_config: ConfigType) -> bool:
             evohome_rf.VERSION,
         )
 
+    _LOGGER.debug("\r\n\nConfig =  %s\r\n", hass_config[DOMAIN])
+
     store = hass.helpers.storage.Store(STORAGE_VERSION, STORAGE_KEY)
-    evohome_store = await load_system_config(store)
+    evohome_store = await _load_store(store)
+    _LOGGER.debug("\r\n\nStore = %s\r\n", evohome_store)
 
-    _LOGGER.debug("Store = %s, Config =  %s", evohome_store, hass_config[DOMAIN])
-
-    kwargs = dict(hass_config[DOMAIN])
-    serial_port = kwargs.pop(CONF_SERIAL_PORT)
-    kwargs["allowlist"] = dict.fromkeys(kwargs.pop(CONF_ALLOW_LIST, []), {})
-    kwargs["blocklist"] = dict.fromkeys(kwargs.pop(CONF_BLOCK_LIST, []), {})
-    kwargs["config"]["log_rotate_backups"] = kwargs["config"].pop(
-        "log_rotate_backups", 7
-    )
-
+    serial_port, kwargs = normalise_config_schema(dict(hass_config[DOMAIN]))
     client = evohome_rf.Gateway(serial_port, loop=hass.loop, **kwargs)
 
     hass.data[DOMAIN] = {}
@@ -109,12 +92,22 @@ async def async_setup(hass: HomeAssistantType, hass_config: ConfigType) -> bool:
         hass, client, store, hass_config[DOMAIN]
     )
 
-    broker.hass_config = hass_config
-
+    broker.hass_config = hass_config  # TODO: don't think this is needed
     broker.loop_task = hass.loop.create_task(handle_exceptions(client.start()))
+
+    if hass_config[DOMAIN]["restore_client_state"]:
+        _LOGGER.debug("Restoring client state...")
+        await broker.async_restore_client_state()
+        await broker.async_update()
+    else:
+        _LOGGER.warning("The restore client state feature has been disabled.")
 
     hass.helpers.event.async_track_time_interval(
         broker.async_update, hass_config[DOMAIN][CONF_SCAN_INTERVAL]
+    )
+
+    hass.helpers.event.async_track_time_interval(
+        broker.async_save_client_state, SAVE_STATE_INTERVAL
     )
 
     setup_service_functions(hass, broker)
@@ -128,28 +121,36 @@ def setup_service_functions(hass: HomeAssistantType, broker):
 
     @verify_domain_control(hass, DOMAIN)
     async def svc_force_refresh(call) -> None:
-        """Obtain the latest state data via the vendor's RESTful API."""
-        await broker.async_update()
+        await broker.async_update()  #: includes async_dispatcher_send(hass, DOMAIN)
 
     @verify_domain_control(hass, DOMAIN)
     async def svc_reset_system(call) -> None:
-        """Set the system mode."""
         payload = {
-            "unique_id": broker.client.evo.id,
-            "service": call.service,
-            "data": call.data,
+            UNIQUE_ID: broker.client.evo.id,
+            SERVICE: call.service,
+            DATA: call.data,
         }
         async_dispatcher_send(hass, DOMAIN, payload)
+        async_dispatcher_send(hass, DOMAIN)
 
     @verify_domain_control(hass, DOMAIN)
     async def svc_set_system_mode(call) -> None:
-        """Set the system mode."""
         payload = {
-            "unique_id": broker.client.evo.id,
-            "service": call.service,
-            "data": call.data,
+            UNIQUE_ID: broker.client.evo.id,
+            SERVICE: call.service,
+            DATA: call.data,
         }
         async_dispatcher_send(hass, DOMAIN, payload)
+        async_dispatcher_send(hass, DOMAIN)
+
+    @verify_domain_control(hass, DOMAIN)
+    async def svc_send_packet(call) -> None:
+        broker.client.send_cmd(broker.client.make_cmd(**call.data))
+        async_dispatcher_send(hass, DOMAIN)
+
+    domain_service = DOMAIN_SERVICES
+    if not broker.hass_config[DOMAIN].get(SVC_SEND_PACKET):
+        del domain_service[SVC_SEND_PACKET]
 
     services = {k: v for k, v in locals().items() if k.startswith("svc")}
     [
@@ -167,9 +168,9 @@ class EvoBroker:
         self.hass = hass
         self.client = client
         self._store = store
-        self.params = params
 
         self.config = None
+        self.params = params
         self.status = None
 
         self.binary_sensors = []
@@ -181,59 +182,82 @@ class EvoBroker:
         self.hass_config = None
         self.loop_task = None
 
-    async def save_system_config(self) -> None:
+    async def async_restore_client_state(self) -> None:
         """Save..."""
-        app_storage = {}
+        app_storage = await _load_store(self._store)
 
-        await self._store.async_save(app_storage)
+        if app_storage.get("client_state"):
+            await self.client._set_state(**app_storage["client_state"])
+
+    async def async_save_client_state(self, *args, **kwargs) -> None:
+        """Save..."""
+        (schema, packets) = self.client._get_state()
+
+        await self._store.async_save(
+            {"client_state": {"schema": schema, "packets": packets}}
+        )
 
     async def async_update(self, *args, **kwargs) -> None:
         """Retrieve the latest state data..."""
 
-        #     self.hass.async_create_task(self._update(self.hass, *args, **kwargs))
-
-        # async def _update(self, *args, **kwargs) -> None:
-        #     """Retrieve the latest state data..."""
+        _LOGGER.info("Devices = %s", {d.id: d.status for d in self.client.devices})
 
         evohome = self.client.evo
-        _LOGGER.info("Schema = %s", evohome.schema if evohome is not None else None)
-        _LOGGER.info(
-            "Devices = %s", {d.id: d.status for d in sorted(self.client.devices)}
-        )
         if evohome is None:
             return
 
+        _LOGGER.info("Schema = %s", evohome.schema)
+        _LOGGER.info("Params = %s", evohome.params)
+        _LOGGER.info(
+            "Status = %s", {k: v for k, v in evohome.status.items() if k != "devices"}
+        )
+
         if [z for z in evohome.zones if z not in self.climates]:
             self.hass.async_create_task(
-                async_load_platform(self.hass, "climate", DOMAIN, {}, self.hass_config)
+                async_load_platform(self.hass, CLIMATE, DOMAIN, {}, self.hass_config)
             )
 
         if evohome.dhw and self.water_heater is None:
             self.hass.async_create_task(
                 async_load_platform(
-                    self.hass, "water_heater", DOMAIN, {}, self.hass_config
+                    self.hass, WATER_HEATER, DOMAIN, {}, self.hass_config
                 )
             )
 
-        if new_sensors(self):
+        if self.find_new_sensors():
             self.hass.async_create_task(
-                async_load_platform(self.hass, "sensor", DOMAIN, {}, self.hass_config)
+                async_load_platform(self.hass, SENSOR, DOMAIN, {}, self.hass_config)
             )
 
-        if new_binary_sensors(self):
+        if self.find_new_binary_sensors():
             self.hass.async_create_task(
                 async_load_platform(
-                    self.hass, "binary_sensor", DOMAIN, {}, self.hass_config
+                    self.hass, BINARY_SENSOR, DOMAIN, {}, self.hass_config
                 )
             )
 
-        _LOGGER.info("Params = %s", evohome.params if evohome is not None else None)
-        _LOGGER.info(
-            "Status = %s", {k: v for k, v in evohome.status.items() if k != "devices"}
-        )
+        # inform the evohome devices that state data may have changed
+        async_dispatcher_send(self.hass, DOMAIN)
 
-        # inform the evohome devices that state data has been updated
-        self.hass.helpers.dispatcher.async_dispatcher_send(DOMAIN)
+    def find_new_binary_sensors(self) -> list:
+        """Produce a list of any unknown binary sensors."""
+        sensors = [
+            s
+            for s in self.client.devices + [self.client.evo]
+            if any([hasattr(s, a) for a in BINARY_SENSOR_ATTRS])
+        ]
+        return [s for s in sensors if s not in self.binary_sensors]
+
+    def find_new_sensors(self) -> list:
+        """Produce a list of any unknown sensors."""
+        # if self.client.evo.heat_demands or self.client.evo.relay_demands:
+        #     x = 0
+        sensors = [
+            s
+            for s in self.client.devices + [self.client.evo]
+            if any([hasattr(s, a) for a in SENSOR_ATTRS])
+        ]
+        return [s for s in sensors if s not in self.sensors]
 
 
 class EvoEntity(Entity):
@@ -248,10 +272,13 @@ class EvoEntity(Entity):
         self._entity_state_attrs = ()
 
     @callback
-    def _handle_dispatch(self, *args) -> None:
-        """Process a dispatched message."""
+    def _handle_dispatch(self, *args) -> None:  # TODO: remove as unneeded?
+        """Process a dispatched message.
+
+        Data validation is not required, it will have been done upstream.
+        """
         if not args:
-            self.async_schedule_update_ha_state(force_refresh=True)
+            self.async_schedule_update_ha_state()
 
     @property
     def should_poll(self) -> bool:
@@ -271,7 +298,7 @@ class EvoEntity(Entity):
             for a in self._entity_state_attrs
             if hasattr(self._device, a)
         }
-        attrs["controller"] = self._device._ctl.id if self._device._ctl else None
+        attrs["controller_id"] = self._device._ctl.id if self._device._ctl else None
         return attrs
 
     async def async_added_to_hass(self) -> None:
@@ -291,6 +318,8 @@ class EvoDeviceBase(EvoEntity):
 
         klass = self.DEVICE_CLASS if self.DEVICE_CLASS else self.STATE_ATTR
         self._name = f"{device.id} ({klass})"
+        # if device.zone:  # not all have this attr
+        #     self._name = f"{device.zone.name} ({klass})"
 
     @property
     def available(self) -> bool:
@@ -306,13 +335,22 @@ class EvoDeviceBase(EvoEntity):
     def device_state_attributes(self) -> Dict[str, Any]:
         """Return the integration-specific state attributes."""
         attrs = super().device_state_attributes
+        attrs["device_id"] = self._device.id
         attrs["domain_id"] = self._device._domain_id
+        if hasattr(self._device, "zone"):
+            attrs["zone"] = self._device.zone.name if self._device.zone else None
         return attrs
 
     @property
     def name(self) -> str:
         """Return the name of the sensor."""
         return self._name
+        # klass = self.DEVICE_CLASS if self.DEVICE_CLASS else self.STATE_ATTR
+        # self._name = f"{self._device.id} ({klass})"
+        # if getattr(self._device, "zone", None):
+        #     return f"{self._device.zone.name} ({klass})"
+        # else:
+        # return f"{self._device.id} ({klass})"
 
 
 class EvoZoneBase(EvoEntity):
@@ -321,6 +359,9 @@ class EvoZoneBase(EvoEntity):
     def __init__(self, broker, device) -> None:
         """Initialize the sensor."""
         super().__init__(broker, device)
+
+        self._hvac_modes = None
+        self._preset_modes = None
         self._supported_features = None
 
     @property
@@ -330,6 +371,7 @@ class EvoZoneBase(EvoEntity):
 
     @property
     def name(self) -> str:
+        """Return the name of the entity."""
         return self._device.name
 
     @property
@@ -343,8 +385,22 @@ class EvoZoneBase(EvoEntity):
         return TEMP_CELSIUS
 
     @property
+    def hvac_modes(self) -> List[str]:
+        """Return the list of available hvac operation modes."""
+        return self._hvac_modes
+
+    @property
+    def preset_modes(self) -> Optional[List[str]]:
+        """Return a list of available preset modes."""
+        return self._preset_modes
+
+    @property
     def device_state_attributes(self) -> Dict[str, Any]:
         """Return the integration-specific state attributes."""
-        attrs = super().device_state_attributes
-        attrs["zone_idx"] = self._device.idx
-        return attrs
+        return {
+            **super().device_state_attributes,
+            "zone_idx": self._device.idx,
+            "config": self._device.config,
+            "heat_demand": self._device.heat_demand,
+            "mode": self._device.mode,
+        }
