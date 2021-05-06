@@ -39,7 +39,12 @@ from .const import (
     UNIQUE_ID,
 )
 from .schema import CONFIG_SCHEMA  # noqa: F401
-from .schema import DOMAIN_SERVICES, SVC_SEND_PACKET, normalise_config_schema
+from .schema import (
+    CONF_RESTORE_STATE,
+    DOMAIN_SERVICES,
+    SVC_SEND_PACKET,
+    normalise_config_schema,
+)
 from .version import __version__ as VERSION
 
 _LOGGER = logging.getLogger(__name__)
@@ -52,7 +57,7 @@ SAVE_STATE_INTERVAL = td(seconds=300)  # TODO: 5 minutes
 async def _load_store(store) -> Optional[Dict]:
     # return store.async_save(app_storage)  # HOWTO: save store
     app_storage = await store.async_load()
-    return dict(app_storage if app_storage else {})
+    return dict(app_storage or {})
 
 
 async def async_setup(hass: HomeAssistantType, hass_config: ConfigType) -> bool:
@@ -95,12 +100,14 @@ async def async_setup(hass: HomeAssistantType, hass_config: ConfigType) -> bool:
     broker.hass_config = hass_config  # TODO: don't think this is needed
     broker.loop_task = hass.loop.create_task(handle_exceptions(client.start()))
 
-    if hass_config[DOMAIN]["restore_client_state"]:
+    if hass_config[DOMAIN][CONF_RESTORE_STATE]:
         _LOGGER.debug("Restoring client state...")
         await broker.async_restore_client_state()
         await broker.async_update()
     else:
         _LOGGER.warning("The restore client state feature has been disabled.")
+        hass.helpers.event.async_call_later(10, broker.async_update)
+        hass.helpers.event.async_call_later(30, broker.async_update)
 
     hass.helpers.event.async_track_time_interval(
         broker.async_update, hass_config[DOMAIN][CONF_SCAN_INTERVAL]
@@ -124,7 +131,7 @@ def setup_service_functions(hass: HomeAssistantType, broker):
         await broker.async_update()  #: includes async_dispatcher_send(hass, DOMAIN)
 
     @verify_domain_control(hass, DOMAIN)
-    async def svc_reset_system(call) -> None:
+    async def svc_reset_system_mode(call) -> None:
         payload = {
             UNIQUE_ID: broker.client.evo.id,
             SERVICE: call.service,
@@ -244,7 +251,7 @@ class EvoBroker:
         sensors = [
             s
             for s in self.client.devices + [self.client.evo]
-            if any([hasattr(s, a) for a in BINARY_SENSOR_ATTRS])
+            if any(hasattr(s, a) for a in BINARY_SENSOR_ATTRS)
         ]
         return [s for s in sensors if s not in self.binary_sensors]
 
@@ -255,7 +262,7 @@ class EvoBroker:
         sensors = [
             s
             for s in self.client.devices + [self.client.evo]
-            if any([hasattr(s, a) for a in SENSOR_ATTRS])
+            if any(hasattr(s, a) for a in SENSOR_ATTRS)
         ]
         return [s for s in sensors if s not in self.sensors]
 
@@ -271,6 +278,8 @@ class EvoEntity(Entity):
         self._unique_id = self._name = None
         self._entity_state_attrs = ()
 
+        self._req_ha_state_update(delay=5)  # give time to collect entire state
+
     @callback
     def _handle_dispatch(self, *args) -> None:  # TODO: remove as unneeded?
         """Process a dispatched message.
@@ -279,6 +288,12 @@ class EvoEntity(Entity):
         """
         if not args:
             self.async_schedule_update_ha_state()
+
+    def _req_ha_state_update(self, delay=1) -> None:
+        """Update HA state after a short delay to allow system to quiesce."""
+        self._broker.hass.helpers.event.async_call_later(
+            delay, self.async_schedule_update_ha_state
+        )
 
     @property
     def should_poll(self) -> bool:
@@ -316,7 +331,7 @@ class EvoDeviceBase(EvoEntity):
         """Initialize the sensor."""
         super().__init__(broker, device)
 
-        klass = self.DEVICE_CLASS if self.DEVICE_CLASS else self.STATE_ATTR
+        klass = self.DEVICE_CLASS or self.STATE_ATTR
         self._name = f"{device.id} ({klass})"
         # if device.zone:  # not all have this attr
         #     self._name = f"{device.zone.name} ({klass})"

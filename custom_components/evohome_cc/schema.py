@@ -52,6 +52,8 @@ CONF_OVERRUN = "overrun"
 SCAN_INTERVAL_DEFAULT = td(seconds=300)
 SCAN_INTERVAL_MINIMUM = td(seconds=10)
 
+CONF_RESTORE_STATE = "restore_state"
+
 PACKET_LOG_SCHEMA = vol.Schema(
     {
         vol.Required(LOG_FILE_NAME): str,
@@ -65,7 +67,7 @@ PACKET_LOG_SCHEMA = vol.Schema(
 
 # Integration domain services for System/Controller
 SVC_REFRESH_SYSTEM = "force_refresh"
-SVC_RESET_SYSTEM = "reset_system"
+SVC_RESET_SYSTEM_MODE = "reset_system_mode"
 SVC_SEND_PACKET = "send_packet"
 SVC_SET_SYSTEM_MODE = "set_system_mode"
 
@@ -107,7 +109,7 @@ SET_SYSTEM_MODE_SCHEMA = vol.Any(
 
 DOMAIN_SERVICES = {
     SVC_REFRESH_SYSTEM: None,
-    SVC_RESET_SYSTEM: None,
+    SVC_RESET_SYSTEM_MODE: None,
     SVC_SEND_PACKET: SEND_PACKET_SCHEMA,
     SVC_SET_SYSTEM_MODE: SET_SYSTEM_MODE_SCHEMA,
 }
@@ -238,7 +240,6 @@ WATER_HEATER_SERVICES = {
     SVC_SET_DHW_PARAMS: SET_DHW_CONFIG_SCHEMA,
 }
 
-
 CONFIG_SCHEMA = vol.Schema(
     {
         DOMAIN: vol.Schema(
@@ -248,14 +249,14 @@ CONFIG_SCHEMA = vol.Schema(
                     SERIAL_CONFIG_SCHEMA.extend({vol.Required(PORT_NAME): cv.string}),
                 ),
                 vol.Optional(CONFIG, default={}): CONFIG_SCHEMA,
-                vol.Required(PACKET_LOG): vol.Any(str, PACKET_LOG_SCHEMA),
+                vol.Optional(PACKET_LOG): vol.Any(str, PACKET_LOG_SCHEMA),
                 vol.Optional(ALLOW_LIST, default=[]): FILTER_SCHEMA,
                 vol.Optional(BLOCK_LIST, default=[]): FILTER_SCHEMA,
                 vol.Required(
                     CONF_SCAN_INTERVAL, default=SCAN_INTERVAL_DEFAULT
                 ): vol.All(cv.time_period, vol.Range(min=SCAN_INTERVAL_MINIMUM)),
                 vol.Optional(SVC_SEND_PACKET): bool,
-                vol.Optional("restore_client_state", default=True): bool,
+                vol.Optional(CONF_RESTORE_STATE, default=True): bool,
             },
             extra=vol.ALLOW_EXTRA,  # will be system schemas
         )
@@ -278,7 +279,9 @@ def normalise_config_schema(config) -> Tuple[str, dict]:
     else:
         serial_port = config.pop(SERIAL_PORT)
 
-    if isinstance(config[PACKET_LOG], dict):
+    if PACKET_LOG not in config:
+        config[CONFIG][PACKET_LOG] = {}
+    elif isinstance(config[PACKET_LOG], dict):
         config[CONFIG][PACKET_LOG] = config.pop(PACKET_LOG)
     else:
         config[CONFIG][PACKET_LOG] = PACKET_LOG_SCHEMA(

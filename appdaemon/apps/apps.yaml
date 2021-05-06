@@ -143,13 +143,13 @@ febe_slaapkamer_controller_b3:
   class: LightController
   controller: slaapkamer_febe_dimmer_switch
   integration: deconz
-  light: light.febe_leds
+  light: light.febe_led_bed
   mapping:
     3001: hold_brightness_toggle
     3002:
       service: light.toggle
       data:
-        entity_id: light.febe_leds
+        entity_id: light.febe_led_bed
         brightness_pct: 100
         effect: solid
     3003: release

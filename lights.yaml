@@ -22,21 +22,13 @@
   name: Eerste Verdiep
   entities:
     - light.slaapkamer_margot
-    - light.nachttafel_margot
     - light.febe_slaapkamer
-    - light.nachttafel_febe
     - light.febe_led_bed
     - light.dressing_spots
     - light.dressing_led_strip
     - light.gang_eerste_verdiep
     - light.wc_boven
     - light.led_slaapkamer
-
-- platform: group
-  name: Febe LEDs
-  entities:
-    - light.nachttafel_febe
-    - light.febe_led_bed
 
 - platform: group
   name: Buiten
@@ -53,7 +45,6 @@
     - light.speelkamer
     - light.bureau
     - light.desk_lamp
-    - light.plank
     - light.wled_speelkamer
     - light.matrix
     - light.bureau_spot

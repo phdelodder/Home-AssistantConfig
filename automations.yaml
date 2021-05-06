@@ -74,62 +74,6 @@
   condition: []
   action:
   - service: shell_command.set_oprit_profile_day
-- id: '1578590308661'
-  alias: NachtTafel Licht Febe Aan
-  description: ''
-  trigger:
-  - device_id: aecf8a3bd0144f6f9fbbedf7e7c503dc
-    domain: deconz
-    platform: device
-    subtype: turn_on
-    type: remote_button_short_press
-  condition:
-  - condition: device
-    device_id: 9d61839836424735bb9de4c9ad91230a
-    domain: light
-    entity_id: light.nachttafel_febe
-    type: is_off
-  action:
-  - entity_id: scene.default_nachttafel_febe
-    service: scene.turn_on
-  mode: single
-- id: NachtTafel Licht Febe Uit
-  alias: NachtTafel Licht Febe Uit
-  description: ''
-  trigger:
-  - device_id: aecf8a3bd0144f6f9fbbedf7e7c503dc
-    domain: deconz
-    platform: device
-    subtype: turn_on
-    type: remote_button_short_press
-  condition:
-  - condition: device
-    device_id: 9d61839836424735bb9de4c9ad91230a
-    domain: light
-    entity_id: light.nachttafel_febe
-    type: is_on
-  action:
-  - entity_id: light.febe_leds
-    service: light.turn_off
-  mode: single
-- id: '1578590350074'
-  alias: NachtTafel Licht Margot Aan
-  description: ''
-  trigger:
-  - device_id: ed641ace598140ab84eff39005e4e6d0
-    domain: deconz
-    platform: device
-    subtype: turn_on
-    type: remote_button_short_press
-  condition:
-  - condition: device
-    device_id: 5a5791e30bae435f93fc82b4bbb5dfb8
-    domain: light
-    entity_id: light.nachttafel_margot
-    type: is_off
-  action:
-  - entity_id: scene.default_nachttafel_margot
-    service: scene.turn_on
 - id: '1586931483975'
   alias: Send Notification Afval Collection
   description: ''
@@ -195,67 +139,6 @@
       topic: cmnd/tasmotas/status
     service: mqtt.publish
   initial_state: true
-- id: '1587624008968'
-  alias: Switch Febe Shaken
-  description: ''
-  trigger:
-  - device_id: aecf8a3bd0144f6f9fbbedf7e7c503dc
-    domain: deconz
-    platform: device
-    subtype: ''
-    type: remote_gyro_activated
-  condition: []
-  action:
-  - data_template:
-      effect: '{{ state_attr("light.nachttafel_febe", "effect_list") | random }}'
-      entity_id: light.nachttafel_febe
-      rgb_color:
-      - '{{ (range(0, 255)|random) }}'
-      - '{{ (range(0, 255)|random) }}'
-      - '{{ (range(0, 255)|random) }}'
-      transition: '{{ (range(1, 3)|random) }}'
-    entity_id: light.febe_leds
-    service: light.turn_on
-  mode: single
-- id: '1587626119060'
-  alias: NachtTafel Licht Margot Uit
-  description: ''
-  trigger:
-  - device_id: ed641ace598140ab84eff39005e4e6d0
-    domain: deconz
-    platform: device
-    subtype: turn_on
-    type: remote_button_short_press
-  condition:
-  - condition: device
-    device_id: 5a5791e30bae435f93fc82b4bbb5dfb8
-    domain: light
-    entity_id: light.nachttafel_margot
-    type: is_on
-  action:
-  - data: {}
-    entity_id: light.nachttafel_margot
-    service: light.turn_off
-- id: '1587626206992'
-  alias: Switch Margot Shaken
-  description: ''
-  trigger:
-  - device_id: ed641ace598140ab84eff39005e4e6d0
-    domain: deconz
-    platform: device
-    subtype: ''
-    type: remote_gyro_activated
-  condition: []
-  action:
-  - data_template:
-      effect: '{{ state_attr("light.nachttafel_margot", "effect_list") | random }}'
-      rgb_color:
-      - '{{ (range(0, 255)|random) }}'
-      - '{{ (range(0, 255)|random) }}'
-      - '{{ (range(0, 255)|random) }}'
-      transition: '{{ (range(1, 3)|random) }}'
-    entity_id: light.nachttafel_margot
-    service: light.turn_on
 - id: Alarm Clock Febe
   alias: Alarm Clock Febe
   trigger:
@@ -275,24 +158,65 @@
     entity_id: input_boolean.febe_alarm_set
     service: input_boolean.turn_off
   mode: single
-- id: Alarm Clock Margot
-  alias: Alarm Clock Margot
+- id: '1578590308661'
+  alias: Led Febe Aan
+  description: ''
   trigger:
-  - platform: template
-    value_template: "{{ states('sensor.time') == \n    (state_attr('input_datetime.margot_next_alarm',\
-      \ 'timestamp') - 300)\n         |timestamp_custom('%H:%M', false) }}"
+  - device_id: aecf8a3bd0144f6f9fbbedf7e7c503dc
+    domain: deconz
+    platform: device
+    subtype: turn_on
+    type: remote_button_short_press
   condition:
-  - condition: state
-    entity_id: input_boolean.margot_alarm_set
-    state: 'on'
+  - condition: device
+    device_id: 9d61839836424735bb9de4c9ad91230a
+    domain: light
+    entity_id: light.febe_led_bed
+    type: is_off
   action:
-  - data:
-      wled_id: light.nachttafel_margot
-      time: 5
-    service: script.sunrise_wled
-  - data: {}
-    entity_id: input_boolean.margot_alarm_set
-    service: input_boolean.turn_off
+  - entity_id: scene.default_nachttafel_febe
+    service: scene.turn_on
+  mode: single
+- id: '1587626119060'
+  alias: Led Licht Febe Uit
+  description: ''
+  trigger:
+  - device_id: aecf8a3bd0144f6f9fbbedf7e7c503dc
+    domain: deconz
+    platform: device
+    subtype: turn_on
+    type: remote_button_short_press
+  condition:
+  - condition: device
+    device_id: 9d61839836424735bb9de4c9ad91230a
+    domain: light
+    entity_id: light.febe_led_bed
+    type: is_on
+  action:
+  - entity_id: light.febe_led_bed
+    service: light.turn_off
+  mode: single
+- id: '1587624008968'
+  alias: Switch Febe Shaken
+  description: ''
+  trigger:
+  - device_id: aecf8a3bd0144f6f9fbbedf7e7c503dc
+    domain: deconz
+    platform: device
+    subtype: ''
+    type: remote_gyro_activated
+  condition: []
+  action:
+  - data_template:
+      effect: '{{ state_attr("light.febe_led_bed", "effect_list") | random }}'
+      entity_id: light.febe_led_bed
+      rgb_color:
+      - '{{ (range(0, 255)|random) }}'
+      - '{{ (range(0, 255)|random) }}'
+      - '{{ (range(0, 255)|random) }}'
+      transition: '{{ (range(1, 3)|random) }}'
+    entity_id: light.febe_led_bed
+    service: light.turn_on
   mode: single
 - id: '1588246366774'
   alias: Aandacht Planten
@@ -600,9 +524,8 @@
     - condition: state
       entity_id: binary_sensor.no_one_home
       state: 'off'
-    - condition: numeric_state
-      entity_id: sensor.illuminance_living
-      below: '3'
+    - condition: template
+      value_template: '{{ states(''sensor.illuminance_living'') | float <= 2 }}'
   action:
   - service: scene.turn_on
     data:
@@ -640,7 +563,7 @@
     entity_id: binary_sensor.no_one_home
     to: 'off'
   - platform: template
-    value_template: '{{ states(''sensor.illuminance_living'') | float < 5 and (states(''sensor.time'')
+    value_template: '{{ states(''sensor.illuminance_living'') | float < 4 and (states(''sensor.time'')
       >= ''16:00:00'' and states(''sensor.time'') <= ''19:00:00'') }}'
   condition:
   - condition: time
@@ -651,7 +574,7 @@
     state: 'off'
   - condition: numeric_state
     entity_id: sensor.illuminance_living
-    below: '5'
+    below: '4'
   action:
   - service: scene.turn_on
     data:
@@ -667,6 +590,9 @@
   - platform: state
     entity_id: binary_sensor.no_one_home
     to: 'off'
+  - platform: template
+    value_template: '{{ states(''sensor.illuminance_living'') | float < 3 and (states(''sensor.time'')
+      >= ''19:00:00'') }}'
   condition:
   - condition: time
     after: '19:00:00'
@@ -674,6 +600,9 @@
   - condition: state
     entity_id: binary_sensor.no_one_home
     state: 'off'
+  - condition: numeric_state
+    entity_id: sensor.illuminance_living
+    below: '3'
   action:
   - service: scene.turn_on
     data:
@@ -801,13 +730,6 @@
   trigger:
   - platform: state
     entity_id:
-    - binary_sensor.voor_deur
-    - binary_sensor.achter_deur
-    - binary_sensor.keuken_deur
-    - binary_sensor.garage_deur
-    to: 'on'
-  - platform: state
-    entity_id:
     - binary_sensor.motion_wc_boven
     - binary_sensor.motion_wc_beneden
     - binary_sensor.motion_gang_eerste_2
@@ -819,9 +741,6 @@
     - binary_sensor.motion_speelkamer
     - binary_sensor.motion_living
     to: 'on'
-  - platform: state
-    entity_id: binary_sensor.zilverberkenstraat_7_away
-    to: 'off'
   condition:
   - condition: state
     entity_id: binary_sensor.no_one_home
@@ -845,22 +764,20 @@
     entity_id: input_boolean.guest_mode
   condition: []
   action:
-  - service: script.activate_guest_mode
-    data: {}
   - choose:
     - conditions:
       - condition: state
-        entity_id: binary_sensor.guest_mode
+        entity_id: input_boolean.guest_mode
         state: 'on'
       sequence:
       - service: script.activate_guest_mode
         data: {}
     - conditions:
-      - condition: device
-        device_id: ''
-        domain: ''
-        entity_id: ''
-      sequence: []
+      - condition: state
+        entity_id: input_boolean.guest_mode
+        state: 'off'
+      sequence:
+      - service: script.deactivate_guest_mode
     default: []
   mode: single
 - id: '1600870370709'
@@ -1252,8 +1169,9 @@
         - condition: template
           value_template: '{{state_attr(''calendar.delodderp_gmail_com'', ''start_time'')[0:10]
             == states(''sensor.date'') and state_attr(''calendar.delodderp_gmail_com'',
-            ''start_time'')[11:16] == ''08:00'' and state_attr(''calendar.delodderp_gmail_com'',
-            ''message'') == ''Afwezigheid : work from home'' and states(''sensor.time'')
+            ''start_time'')[11:16] == ''08:00'' and (state_attr(''calendar.delodderp_gmail_com'',
+            ''message'') == ''Afwezigheid : work from home'' or state_attr(''calendar.delodderp_gmail_com'',
+            ''message'') == ''Afwezigheid : Travaille à domicile'') and states(''sensor.time'')
             >= ''07:00''  }}'
       sequence:
       - service: climate.set_temperature
@@ -1294,8 +1212,9 @@
         - condition: template
           value_template: '{{state_attr(''calendar.delodderp_gmail_com'', ''start_time'')[0:10]
             == states(''sensor.date'') and state_attr(''calendar.delodderp_gmail_com'',
-            ''start_time'')[11:16] == ''08:00'' and state_attr(''calendar.delodderp_gmail_com'',
-            ''message'') == ''Afwezigheid : work from home'' and states(''person.isabel'')
+            ''start_time'')[11:16] == ''08:00'' and (state_attr(''calendar.delodderp_gmail_com'',
+            ''message'') == ''Afwezigheid : work from home'' or state_attr(''calendar.delodderp_gmail_com'',
+            ''message'') == ''Afwezigheid : Travaille à domicile'') and states(''person.isabel'')
             != ''home'' and states(''sensor.time'') >= ''08:00'' }}'
         - condition: and
           conditions:
@@ -1458,7 +1377,8 @@
         data:
           preset_mode: eco
         entity_id: climate.huis
-      - wait_template: '{{ is_state_attr(''climate.huis'', ''preset_mode'', ''eco'') }}'
+      - wait_template: '{{ is_state_attr(''climate.huis'', ''preset_mode'', ''eco'')
+          }}'
       - service: climate.set_temperature
         data:
           entity_id:
@@ -1476,4 +1396,26 @@
       data:
         preset_mode: None
       entity_id: climate.huis
+  mode: single
+- id: '1618987551917'
+  alias: 'Security: door opened but we are not home'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.voor_deur,binary_sensor.achter_deur,binary_sensor.keuken_deur,binary_sensor.garage_deur
+    to: 'on'
+  condition:
+  - condition: state
+    entity_id: binary_sensor.no_one_home
+    state: 'on'
+  - condition: state
+    entity_id: vacuum.xiaomi_vacuum_cleaner
+    state: docked
+  - condition: state
+    entity_id: binary_sensor.guest_mode
+    state: 'off'
+  action:
+  - service: script.motion_detected
+    data:
+      sensor: '{{ trigger.entity_id }}'
   mode: single
