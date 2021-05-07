@@ -10,7 +10,7 @@ import logging
 from datetime import timedelta as td
 from typing import Any, Dict, List, Optional
 
-import evohome_rf
+import ramses_rf
 import serial
 from homeassistant.components.binary_sensor import DOMAIN as BINARY_SENSOR
 from homeassistant.components.climate import DOMAIN as CLIMATE
@@ -70,17 +70,17 @@ async def async_setup(hass: HomeAssistantType, hass_config: ConfigType) -> bool:
             _LOGGER.error("Unable to open the serial port. Message is: %s", exc)
             raise exc
 
-    if VERSION == evohome_rf.VERSION:
+    if VERSION == ramses_rf.VERSION:
         _LOGGER.warning(
-            "evohome_cc v%s, using evohome_rf v%s - versions match (this is good)",
+            "evohome_cc v%s, using ramses_rf v%s - versions match (this is good)",
             VERSION,
-            evohome_rf.VERSION,
+            ramses_rf.VERSION,
         )
     else:
         _LOGGER.error(
-            "evohome_cc v%s, using evohome_rf v%s - versions don't match (this is bad)",
+            "evohome_cc v%s, using ramses_rf v%s - versions don't match (this is bad)",
             VERSION,
-            evohome_rf.VERSION,
+            ramses_rf.VERSION,
         )
 
     _LOGGER.debug("\r\n\nConfig =  %s\r\n", hass_config[DOMAIN])
@@ -90,7 +90,7 @@ async def async_setup(hass: HomeAssistantType, hass_config: ConfigType) -> bool:
     _LOGGER.debug("\r\n\nStore = %s\r\n", evohome_store)
 
     serial_port, kwargs = normalise_config_schema(dict(hass_config[DOMAIN]))
-    client = evohome_rf.Gateway(serial_port, loop=hass.loop, **kwargs)
+    client = ramses_rf.Gateway(serial_port, loop=hass.loop, **kwargs)
 
     hass.data[DOMAIN] = {}
     hass.data[DOMAIN][BROKER] = broker = EvoBroker(
@@ -125,6 +125,10 @@ async def async_setup(hass: HomeAssistantType, hass_config: ConfigType) -> bool:
 @callback
 def setup_service_functions(hass: HomeAssistantType, broker):
     """Set up the handlers for the system-wide services."""
+
+    @verify_domain_control(hass, DOMAIN)
+    async def svc_create_sensor(call) -> None:
+        broker.client._bind_fake_sensor()
 
     @verify_domain_control(hass, DOMAIN)
     async def svc_force_refresh(call) -> None:
@@ -219,10 +223,12 @@ class EvoBroker:
             "Status = %s", {k: v for k, v in evohome.status.items() if k != "devices"}
         )
 
+        save_updated_schema = False
         if [z for z in evohome.zones if z not in self.climates]:
             self.hass.async_create_task(
                 async_load_platform(self.hass, CLIMATE, DOMAIN, {}, self.hass_config)
             )
+            save_updated_schema = True
 
         if evohome.dhw and self.water_heater is None:
             self.hass.async_create_task(
@@ -230,11 +236,13 @@ class EvoBroker:
                     self.hass, WATER_HEATER, DOMAIN, {}, self.hass_config
                 )
             )
+            save_updated_schema = True
 
         if self.find_new_sensors():
             self.hass.async_create_task(
                 async_load_platform(self.hass, SENSOR, DOMAIN, {}, self.hass_config)
             )
+            save_updated_schema = True
 
         if self.find_new_binary_sensors():
             self.hass.async_create_task(
@@ -242,8 +250,12 @@ class EvoBroker:
                     self.hass, BINARY_SENSOR, DOMAIN, {}, self.hass_config
                 )
             )
+            save_updated_schema = True
 
-        # inform the evohome devices that state data may have changed
+        if save_updated_schema:
+            self.hass.helpers.event.async_call_later(5, self.async_save_client_state)
+
+        # inform the evohome devices that their state data may have changed
         async_dispatcher_send(self.hass, DOMAIN)
 
     def find_new_binary_sensors(self) -> list:
@@ -272,8 +284,9 @@ class EvoEntity(Entity):
 
     def __init__(self, broker, device) -> None:
         """Initialize the entity."""
-        self._device = device
+        self.hass = broker.hass
         self._broker = broker
+        self._device = device
 
         self._unique_id = self._name = None
         self._entity_state_attrs = ()
@@ -291,7 +304,7 @@ class EvoEntity(Entity):
 
     def _req_ha_state_update(self, delay=1) -> None:
         """Update HA state after a short delay to allow system to quiesce."""
-        self._broker.hass.helpers.event.async_call_later(
+        self.hass.helpers.event.async_call_later(
             delay, self.async_schedule_update_ha_state
         )
 

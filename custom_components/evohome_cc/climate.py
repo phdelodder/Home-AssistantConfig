@@ -9,7 +9,6 @@ import logging
 from datetime import datetime as dt
 from typing import Any, Dict, Optional
 
-from evohome_rf.const import SystemMode, ZoneMode
 from homeassistant.components.climate import DOMAIN as PLATFORM
 from homeassistant.components.climate import ClimateEntity
 from homeassistant.components.climate.const import (
@@ -38,6 +37,7 @@ from homeassistant.const import ATTR_TEMPERATURE
 from homeassistant.core import callback
 from homeassistant.helpers import entity_platform
 from homeassistant.helpers.typing import ConfigType, HomeAssistantType
+from ramses_rf.const import SystemMode, ZoneMode
 
 from . import EvoZoneBase
 from .const import ATTR_SETPOINT, BROKER, DATA, DOMAIN, SERVICE, UNIQUE_ID
@@ -244,7 +244,7 @@ class EvoZone(EvoZoneBase, ClimateEntity):
         else:
             self.svc_set_zone_mode(mode=ZoneMode.TEMPORARY)
 
-    def set_temperature(self, **kwargs) -> None:
+    def set_temperature(self, **kwargs) -> None:  # set_target_temp (aka setpoint)
         """Set a new target temperature."""
         self.svc_set_zone_mode(setpoint=kwargs.get(ATTR_TEMPERATURE), mode=ZoneMode.ADVANCED)
 
@@ -271,6 +271,10 @@ class EvoZone(EvoZoneBase, ClimateEntity):
             until = dt.now() + duration
         self._device.set_mode(mode=mode, setpoint=setpoint, until=until)
         self._req_ha_state_update()
+
+    def svc_set_zone_temp(self, temperature, **kwargs) -> None:  # set_current_temp
+        """Set the current (measured) temperature of the Zone sensor."""
+        self._device.sensor.temperature = temperature
 
 
 class EvoController(EvoZoneBase, ClimateEntity):
