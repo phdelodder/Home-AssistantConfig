@@ -9,6 +9,7 @@ Requires a Honeywell HGI80 (or compatible) gateway.
 import logging
 from datetime import datetime as dt
 from datetime import timedelta as td
+from threading import Lock
 from typing import Any, Dict, List, Optional
 
 import ramses_rf
@@ -29,11 +30,9 @@ from homeassistant.helpers.service import verify_domain_control
 from homeassistant.helpers.typing import ConfigType, HomeAssistantType
 
 from .const import (
-    BINARY_SENSOR_ATTRS,
     BROKER,
     DATA,
     DOMAIN,
-    SENSOR_ATTRS,
     SERVICE,
     STORAGE_KEY,
     STORAGE_VERSION,
@@ -71,18 +70,9 @@ async def async_setup(hass: HomeAssistantType, hass_config: ConfigType) -> bool:
             _LOGGER.error("Unable to open the serial port. Message is: %s", exc)
             raise exc
 
-    if VERSION == ramses_rf.VERSION:
-        _LOGGER.warning(
-            "evohome_cc v%s, using ramses_rf v%s - versions match (this is good)",
-            VERSION,
-            ramses_rf.VERSION,
-        )
-    else:
-        _LOGGER.error(
-            "evohome_cc v%s, using ramses_rf v%s - versions don't match (this is bad)",
-            VERSION,
-            ramses_rf.VERSION,
-        )
+    _LOGGER.warning(
+        "evohome_cc v%s, is using ramses_rf v%s", VERSION, ramses_rf.VERSION
+    )
 
     _LOGGER.debug("\r\n\nConfig =  %s\r\n", hass_config[DOMAIN])
 
@@ -94,21 +84,19 @@ async def async_setup(hass: HomeAssistantType, hass_config: ConfigType) -> bool:
     client = ramses_rf.Gateway(serial_port, loop=hass.loop, **kwargs)
 
     hass.data[DOMAIN] = {}
-    hass.data[DOMAIN][BROKER] = broker = EvoBroker(
-        hass, client, store, hass_config[DOMAIN]
-    )
-
-    broker.hass_config = hass_config  # TODO: don't think this is needed
-    broker.loop_task = hass.loop.create_task(handle_exceptions(client.start()))
+    hass.data[DOMAIN][BROKER] = broker = EvoBroker(hass, client, store, hass_config)
 
     if hass_config[DOMAIN][CONF_RESTORE_STATE]:
         _LOGGER.debug("Restoring client state...")
         await broker.async_restore_client_state()
         await broker.async_update()
     else:
-        _LOGGER.warning("The restore client state feature has been disabled.")
+        _LOGGER.info("The restore client state feature has not been enabled.")
         hass.helpers.event.async_call_later(10, broker.async_update)
         hass.helpers.event.async_call_later(30, broker.async_update)
+
+    # await asyncio.sleep(5)
+    broker.loop_task = hass.loop.create_task(handle_exceptions(client.start()))
 
     hass.helpers.event.async_track_time_interval(
         broker.async_update, hass_config[DOMAIN][CONF_SCAN_INTERVAL]
@@ -161,7 +149,7 @@ def setup_service_functions(hass: HomeAssistantType, broker):
         async_dispatcher_send(hass, DOMAIN)
 
     domain_service = DOMAIN_SERVICES
-    if not broker.hass_config[DOMAIN].get(SVC_SEND_PACKET):
+    if not broker.config[DOMAIN].get(SVC_SEND_PACKET):
         del domain_service[SVC_SEND_PACKET]
 
     services = {k: v for k, v in locals().items() if k.startswith("svc")}
@@ -175,14 +163,13 @@ def setup_service_functions(hass: HomeAssistantType, broker):
 class EvoBroker:
     """Container for client and data."""
 
-    def __init__(self, hass, client, store, params) -> None:
+    def __init__(self, hass, client, store, hass_config) -> None:
         """Initialize the client and its data structure(s)."""
         self.hass = hass
         self.client = client
         self._store = store
+        self.config = hass_config
 
-        self.config = None
-        self.params = params
         self.status = None
 
         self.binary_sensors = []
@@ -191,9 +178,12 @@ class EvoBroker:
         self.sensors = []
         self.services = {}
 
-        self.hass_config = None
         self.loop_task = None
         self._last_update = dt.min
+
+        self._devices = []
+        self._domains = []
+        self._lock = Lock()
 
     async def async_restore_client_state(self) -> None:
         """Save..."""
@@ -210,80 +200,87 @@ class EvoBroker:
             {"client_state": {"schema": schema, "packets": packets}}
         )
 
-    async def async_update(self, *args, **kwargs) -> None:
-        """Retrieve the latest state data..."""
-
-        dt_now = dt.now()  # HACK: workaround bug
-        if self._last_update > dt_now - td(seconds=9):
-            return
-        self._last_update = dt_now
-
-        _LOGGER.info("Devices = %s", {d.id: d.status for d in self.client.devices})
-
+    def _get_domains(self) -> bool:
         evohome = self.client.evo
         if evohome is None:
-            return
+            _LOGGER.info("Schema = %s", {})
+            return False
+
+        save_updated_schema = False
+        new_domains = [z for z in evohome.zones if z not in self.climates]
+        if new_domains:
+            self.hass.async_create_task(
+                async_load_platform(self.hass, CLIMATE, DOMAIN, {}, self.config)
+            )
+            # new_domains = {"new_domains": new_domains + [self.client.evo]}
+            # self.hass.async_create_task(
+            #     async_load_platform(self.hass, SENSOR, DOMAIN, new_domains, self.config)
+            # )
+            save_updated_schema = True
+
+        if evohome.dhw and self.water_heater is None:
+            self.hass.async_create_task(
+                async_load_platform(self.hass, WATER_HEATER, DOMAIN, {}, self.config)
+            )
+            save_updated_schema = True
 
         _LOGGER.info("Schema = %s", evohome.schema)
         _LOGGER.info("Params = %s", evohome.params)
         _LOGGER.info(
             "Status = %s", {k: v for k, v in evohome.status.items() if k != "devices"}
         )
+        return save_updated_schema
 
-        save_updated_schema = False
-        if [z for z in evohome.zones if z not in self.climates]:
-            self.hass.async_create_task(
-                async_load_platform(self.hass, CLIMATE, DOMAIN, {}, self.hass_config)
-            )
-            save_updated_schema = True
-
-        if evohome.dhw and self.water_heater is None:
-            self.hass.async_create_task(
-                async_load_platform(
-                    self.hass, WATER_HEATER, DOMAIN, {}, self.hass_config
-                )
-            )
-            save_updated_schema = True
-
-        if self.find_new_sensors():
-            self.hass.async_create_task(
-                async_load_platform(self.hass, SENSOR, DOMAIN, {}, self.hass_config)
-            )
-            save_updated_schema = True
-
-        if self.find_new_binary_sensors():
-            self.hass.async_create_task(
-                async_load_platform(
-                    self.hass, BINARY_SENSOR, DOMAIN, {}, self.hass_config
-                )
-            )
-            save_updated_schema = True
-
-        if save_updated_schema:
-            self.hass.helpers.event.async_call_later(5, self.async_save_client_state)
-
-        # inform the evohome devices that their state data may have changed
-        async_dispatcher_send(self.hass, DOMAIN)
-
-    def find_new_binary_sensors(self) -> list:
-        """Produce a list of any unknown binary sensors."""
-        sensors = [
-            s
-            for s in self.client.devices + [self.client.evo]
-            if any(hasattr(s, a) for a in BINARY_SENSOR_ATTRS)
+    def _get_devices(self) -> bool:
+        new_devices = [
+            d
+            for d in self.client.devices
+            if d not in self._devices
+            and (not self.client._include or d.id in self.client._include)
+            and d.id not in self.client._exclude
         ]
-        return [s for s in sensors if s not in self.binary_sensors]
+        self._devices.extend(new_devices)
 
-    def find_new_sensors(self) -> list:
-        """Produce a list of any unknown sensors."""
-        # if self.client.evo.heat_demands or self.client.evo.relay_demands:
-        #     x = 0
-        sensors = [
-            s
-            for s in self.client.devices + [self.client.evo]
-            if any(hasattr(s, a) for a in SENSOR_ATTRS)
-        ]
-        return [s for s in sensors if s not in self.sensors]
+        new_domains = []
+        if self.client.evo:
+            new_domains = [d for d in self.client.evo.zones if d not in self._domains]
+            if self.client.evo not in self._domains:
+                new_domains.append(self.client.evo)
+            self._domains.extend(new_domains)
+
+        if new_devices or new_domains:
+            new_devices = {"new_devices": new_devices, "new_domains": new_domains}
+            for platform in (BINARY_SENSOR, SENSOR):
+                self.hass.async_create_task(
+                    async_load_platform(
+                        self.hass, platform, DOMAIN, new_devices, self.config
+                    )
+                )
+
+        _LOGGER.info("Devices = %s", [d.id for d in self._devices])
+        return bool(new_devices)
+
+    async def async_update(self, *args, **kwargs) -> None:
+        """Retrieve the latest state data..."""
+
+        self._lock.acquire()  # HACK: workaround bug
+
+        dt_now = dt.now()
+        if self._last_update < dt_now - td(seconds=10):
+            self._last_update = dt_now
+
+            new_domains = self._get_domains()
+            new_devices = self._get_devices()
+
+            if new_domains or new_devices:
+                self.hass.helpers.event.async_call_later(
+                    5, self.async_save_client_state
+                )
+
+            # inform the evohome devices that their state data may have changed
+            async_dispatcher_send(self.hass, DOMAIN)
+
+        self._lock.release()
 
 
 class EvoEntity(Entity):
@@ -344,36 +341,34 @@ class EvoEntity(Entity):
 class EvoDeviceBase(EvoEntity):
     """Base for any evohome II-compatible entity (e.g. Climate, Sensor)."""
 
-    DEVICE_CLASS = None
-    STATE_ATTR = "enabled"
-
-    def __init__(self, broker, device) -> None:
+    def __init__(self, broker, device, state_attr, device_class) -> None:
         """Initialize the sensor."""
         super().__init__(broker, device)
 
-        klass = self.DEVICE_CLASS or self.STATE_ATTR
-        self._name = f"{device.id} ({klass})"
+        self._name = f"{device.id} ({state_attr})"
         # if device.zone:  # not all have this attr
         #     self._name = f"{device.zone.name} ({klass})"
+        self._device_class = device_class
+        self._state_attr = state_attr
 
     @property
     def available(self) -> bool:
-        """Return True if the entity is available."""
-        return getattr(self._device, self.STATE_ATTR) is not None
+        """Return True if the sensor is available."""
+        return getattr(self._device, self._state_attr) is not None
 
     @property
     def device_class(self) -> str:
         """Return the device class of the sensor."""
-        return self.DEVICE_CLASS
+        return self._device_class
 
     @property
     def device_state_attributes(self) -> Dict[str, Any]:
         """Return the integration-specific state attributes."""
         attrs = super().device_state_attributes
         attrs["device_id"] = self._device.id
-        attrs["domain_id"] = self._device._domain_id
-        if hasattr(self._device, "zone"):
-            attrs["zone"] = self._device.zone.name if self._device.zone else None
+        # attrs["domain_id"] = self._device._domain_id self.idx
+        # if hasattr(self._device, "zone"):
+        #     attrs["zone"] = self._device.zone.name if self._device.zone else None
         return attrs
 
     @property

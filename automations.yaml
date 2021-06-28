@@ -178,7 +178,7 @@
     service: scene.turn_on
   mode: single
 - id: '1587626119060'
-  alias: Led Licht Febe Uit
+  alias: Led Febe Uit
   description: ''
   trigger:
   - device_id: aecf8a3bd0144f6f9fbbedf7e7c503dc
@@ -1418,4 +1418,68 @@
   - service: script.motion_detected
     data:
       sensor: '{{ trigger.entity_id }}'
+  mode: single
+- id: '1620915049409'
+  alias: Led Margot Aan
+  description: ''
+  trigger:
+  - device_id: ed641ace598140ab84eff39005e4e6d0
+    domain: deconz
+    platform: device
+    type: remote_button_short_press
+    subtype: turn_on
+  condition:
+  - condition: device
+    device_id: ed641ace598140ab84eff39005e4e6d0
+    domain: light
+    entity_id: light.margot_led_bed
+    type: is_off
+  action:
+  - service: scene.turn_on
+    data: {}
+    target:
+      entity_id: scene.default_led_margot
+  mode: single
+- id: '1620915170554'
+  alias: Led Margot Uit
+  description: ''
+  trigger:
+  - device_id: ed641ace598140ab84eff39005e4e6d0
+    domain: deconz
+    platform: device
+    type: remote_button_short_press
+    subtype: turn_on
+  condition:
+  - condition: device
+    device_id: ed641ace598140ab84eff39005e4e6d0
+    domain: light
+    entity_id: light.margot_led_bed
+    type: is_on
+  action:
+  - service: light.turn_off
+    data: {}
+    target:
+      entity_id: light.margot_led_bed
+  mode: single
+- id: '1620915215402'
+  alias: Switch Margot Shaken
+  description: ''
+  trigger:
+  - device_id: ed641ace598140ab84eff39005e4e6d0
+    domain: deconz
+    platform: device
+    type: remote_gyro_activated
+    subtype: ''
+  condition: []
+  action:
+  - data_template:
+      effect: '{{ state_attr("light.margot_led_bed", "effect_list") | random }}'
+      entity_id: light.margot_led_bed
+      rgb_color:
+      - '{{ (range(0, 255)|random) }}'
+      - '{{ (range(0, 255)|random) }}'
+      - '{{ (range(0, 255)|random) }}'
+      transition: '{{ (range(1, 3)|random) }}'
+    entity_id: light.margot_led_bed
+    service: light.turn_on
   mode: single
