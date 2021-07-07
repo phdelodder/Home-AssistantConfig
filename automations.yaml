@@ -730,15 +730,11 @@
   trigger:
   - platform: state
     entity_id:
-    - binary_sensor.motion_wc_boven
     - binary_sensor.motion_wc_beneden
     - binary_sensor.motion_gang_eerste_2
     - binary_sensor.motion_gang_eerste_1
     - binary_sensor.motion_inkom_1
     - binary_sensor.motion_inkom_2
-    - binary_sensor.motion_gang_zolder
-    - binary_sensor.motion_dressing
-    - binary_sensor.motion_speelkamer
     - binary_sensor.motion_living
     to: 'on'
   condition:
@@ -824,16 +820,9 @@
   trigger:
   - platform: time
     at: 07:15:00
-  - platform: state
-    entity_id: binary_sensor.no_one_home
-    to: 'off'
-    for: 00:01:00
   - platform: homeassistant
     event: start
   condition:
-  - condition: state
-    entity_id: binary_sensor.no_one_home
-    state: 'off'
   - condition: time
     after: 07:15:00
     before: '21:30:00'
@@ -1482,4 +1471,19 @@
       transition: '{{ (range(1, 3)|random) }}'
     entity_id: light.margot_led_bed
     service: light.turn_on
+  mode: single
+- id: '1624886218945'
+  alias: Droogkast Aan/Uit
+  description: ''
+  trigger:
+  - device_id: 04757106488845c38a60b36c28487bc3
+    domain: deconz
+    platform: device
+    type: remote_button_short_press
+    subtype: turn_on
+  condition: []
+  action:
+  - service: switch.toggle
+    target:
+      device_id: 8a3c2cdc29991ba22e958431889b1dca
   mode: single
