@@ -623,9 +623,11 @@
   - condition: state
     entity_id: binary_sensor.no_one_home
     state: 'off'
-  - condition: state
-    entity_id: media_player.samsung_samsung_dtv_rcr
-    state: 'off'
+  - condition: not
+    conditions:
+    - condition: state
+      entity_id: media_player.samsung_samsung_dtv_rcr
+      state: 'on'
   action:
   - service: scene.turn_on
     data:
@@ -742,7 +744,7 @@
     entity_id: binary_sensor.no_one_home
     state: 'on'
   - condition: state
-    entity_id: vacuum.xiaomi_vacuum_cleaner
+    entity_id: vacuum.dalek
     state: docked
   - condition: state
     entity_id: binary_sensor.guest_mode
@@ -854,16 +856,23 @@
   - service: scene.create
     data:
       scene_id: notify_led_bureau
-      snapshot_entities:
-      - light.desk_lamp
+      snapshot_entities: light.desk_lamp
   - variables:
       effect: '{{ state_attr(''light.desk_lamp'', ''effect'')}}'
+  - service: wled.effect
+    target:
+      entity_id: light.desk_lamp
+    data:
+      effect: Police
   - service: light.turn_on
     data:
-      effect: police
       brightness_pct: 100
-    entity_id: light.desk_lamp
+    target:
+      entity_id: light.desk_lamp
   - delay: 00:01:00
+  - service: light.turn_off
+    target:
+      entity_id: light.desk_lamp
   - scene: scene.notify_led_bureau
   - service: wled.effect
     data_template:
@@ -926,9 +935,11 @@
     - condition: state
       entity_id: media_player.beneden
       state: 'off'
-    - condition: state
-      entity_id: media_player.samsung_samsung_dtv_rcr
-      state: 'off'
+    - condition: not
+      conditions:
+      - condition: state
+        entity_id: media_player.samsung_samsung_dtv_rcr
+        state: 'on'
   action:
   - service: script.radio_beneden
     data: {}
@@ -938,7 +949,7 @@
   description: ''
   trigger:
   - platform: state
-    entity_id: vacuum.xiaomi_vacuum_cleaner
+    entity_id: vacuum.dalek
     to: cleaning
   condition:
   - condition: state
@@ -1398,7 +1409,7 @@
     entity_id: binary_sensor.no_one_home
     state: 'on'
   - condition: state
-    entity_id: vacuum.xiaomi_vacuum_cleaner
+    entity_id: vacuum.dalek
     state: docked
   - condition: state
     entity_id: binary_sensor.guest_mode

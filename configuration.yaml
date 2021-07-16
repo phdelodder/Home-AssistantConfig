@@ -18,7 +18,7 @@ default_config:
 http:
   use_x_forwarded_for: true
   trusted_proxies:
-    - 192.168.0.201
+    - 192.168.0.101
 
 logger:
   default: warning                  # don't use debug
@@ -90,10 +90,10 @@ telegram_bot:
       - !secret telegram_bot_chat_id1
       - !secret telegram_bot_chat_id2
 
-vacuum:
-  - platform: xiaomi_miio
-    host: dalek.fritz.box
-    token: !secret vacuum_xiaomi_token
+#vacuum:
+#  - platform: xiaomi_miio
+#    host: dalek.fritz.box
+#    token: !secret vacuum_xiaomi_token
 
 ifttt:
   key: !secret ifttt-key  
@@ -167,6 +167,7 @@ evohome_cc:
     enforce_allowlist: true
   schema:
     controller: 01:223036
+  #restore_state: false
   allow_list:
     - 01:223036
     - 10:040239

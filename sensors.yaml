@@ -406,9 +406,9 @@
   sensors:
     vacuum_status:
       friendly_name: Status
-      value_template: 'Status: {{ states.vacuum.xiaomi_vacuum_cleaner.attributes.status }}'
+      value_template: 'Status: {{ states.vacuum.dalek.attributes.status }}'
       icon_template: >
-        {% set val =  states.vacuum.xiaomi_vacuum_cleaner.attributes.status  %}
+        {% set val =  states.vacuum.dalek.attributes.status  %}
         {% if val == 'Charging' %}
           mdi:battery-charging
         {% elif val == 'Cleaning' %}
@@ -423,47 +423,47 @@
           mdi:help-circle
         {% endif %}
     vacuum_fan_speed:
-      value_template: 'Mode: {{ states.vacuum.xiaomi_vacuum_cleaner.attributes.fan_speed }}'
+      value_template: 'Mode: {{ states.vacuum.dalek.attributes.fan_speed }}'
       icon_template: 'mdi:speedometer'
     vacuum_battery:
       friendly_name: Vacuum Battery
-      value_template: 'Battery: {{ states.vacuum.xiaomi_vacuum_cleaner.attributes.battery_level }}'
+      value_template: 'Battery: {{ states.vacuum.dalek.attributes.battery_level }}'
       unit_of_measurement: '%'
-      icon_template: '{{ states.vacuum.xiaomi_vacuum_cleaner.attributes.battery_icon }}'
+      icon_template: '{{ states.vacuum.dalek.attributes.battery_icon }}'
     vacuum_cleaning_time:
       friendly_name: Time of Last Cycle
-      value_template: '{{ states.vacuum.xiaomi_vacuum_cleaner.attributes.cleaning_time }}'
+      value_template: '{{ states.vacuum.dalek.attributes.cleaning_time }}'
       icon_template: 'mdi:timer'
     vacuum_cleaned_area:
       friendly_name: Area of Last Cycle
       unit_of_measurement: 'm ²'
-      value_template: '{{ states.vacuum.xiaomi_vacuum_cleaner.attributes.cleaned_area }}'
+      value_template: '{{ states.vacuum.dalek.attributes.cleaned_area }}'
       icon_template: 'mdi:ruler'
     vacuum_cleanmainbrush:
       friendly_name: Replace main brush
       unit_of_measurement: 'h'
-      value_template: 'Main Brush: {{ states.vacuum.xiaomi_vacuum_cleaner.attributes.main_brush_left }}'
+      value_template: 'Main Brush: {{ states.vacuum.dalek.attributes.main_brush_left }}'
       icon_template: 'mdi:screwdriver'
     vacuum_cleansidebrush:
       friendly_name: Replace side brush
       unit_of_measurement: 'h'
-      value_template: 'Side brush: {{ states.vacuum.xiaomi_vacuum_cleaner.attributes.side_brush_left }}'
+      value_template: 'Side brush: {{ states.vacuum.dalek.attributes.side_brush_left }}'
       icon_template: 'mdi:screwdriver'
     vacuum_cleanfilter:
       friendly_name: Replace filter
       unit_of_measurement: 'h'
-      value_template: 'Filter: {{ states.vacuum.xiaomi_vacuum_cleaner.attributes.filter_left }}'
+      value_template: 'Filter: {{ states.vacuum.dalek.attributes.filter_left }}'
       icon_template: 'mdi:screwdriver'
     vacuum_sensordirtyleft:
       friendly_name: Replace filter
       unit_of_measurement: 'h'
-      value_template: 'Sensor: {{ states.vacuum.xiaomi_vacuum_cleaner.attributes.sensor_dirty_left }}'
+      value_template: 'Sensor: {{ states.vacuum.dalek.attributes.sensor_dirty_left }}'
       icon_template: 'mdi:screwdriver'
     vacuum_do_not_disturb:
       friendly_name: Do Not Disturb
-      value_template: '{{ states.vacuum.xiaomi_vacuum_cleaner.attributes.do_not_disturb }}'
+      value_template: '{{ states.vacuum.dalek.attributes.do_not_disturb }}'
       icon_template: >
-        {% set val =  states.vacuum.xiaomi_vacuum_cleaner.attributes.do_not_disturb  %}
+        {% set val =  states.vacuum.dalek.attributes.do_not_disturb  %}
         {% if val == 'on' %}
           mdi:do-not-disturb
         {% else %}
@@ -531,212 +531,6 @@
   streetname: !secret ophaalkalender_streetname
   upcomingsensor: 1
   builtinicons: 1
-  
-# - platform: mqtt
-#   name: garage_temperature
-#   unit_of_measurement: "°C"
-#   state_topic: "home/OMG_Garage/OneWiretoMQTT/ds1820"
-#   value_template: "{{ value_json.temp | is_defined}}"
-#   device_class: "temperature"
-  
-# - platform: mqtt
-#   name: "Greenhouse Zone 1 Temperature"
-#   unit_of_measurement: "°C"
-#   state_topic: "home/OMG_Serre/BTtoMQTT/80EACA890274"
-#   value_template: "{{ value_json.tem | is_defined }}"
-#   device_class: "temperature"
-# - platform: mqtt
-#   unit_of_measurement: "%"
-#   name: "Greenhouse Zone 1 Moisture"
-#   state_topic: "home/OMG_Serre/BTtoMQTT/80EACA890274"
-#   value_template: "{{ value_json.moi | is_defined }}"
-#   device_class: "humidity"
-# - platform: mqtt
-#   name: "Greenhouse Zone 1 Illuminance"
-#   unit_of_measurement: "lx"
-#   state_topic: "home/OMG_Serre/BTtoMQTT/80EACA890274"
-#   value_template: "{{ value_json.lux | is_defined }}"
-#   device_class: "illuminance"
-# - platform: mqtt
-#   name: "Greenhouse Zone 1 Soil Conductivity"
-#   state_topic: "home/OMG_Serre/BTtoMQTT/80EACA890274"
-#   value_template: "{{ value_json.fer | is_defined }}"
-#   unit_of_measurement: "µS/cm"
-#   icon: mdi:flower
-  
-# - platform: mqtt
-#   name: "Greenhouse Zone 2 Temperature"
-#   unit_of_measurement: "°C"
-#   state_topic: "home/OMG_Serre/BTtoMQTT/80EACA890E95"
-#   value_template: "{{ value_json.tem| is_defined }}"
-#   device_class: "temperature"
-# - platform: mqtt
-#   name: "Greenhouse Zone 2 Moisture"
-#   unit_of_measurement: "%"
-#   state_topic: "home/OMG_Serre/BTtoMQTT/80EACA890E95"
-#   value_template: "{{ value_json.moi | is_defined }}"
-#   device_class: "humidity"
-# - platform: mqtt
-#   name: "Greenhouse Zone 2 Illuminance"
-#   unit_of_measurement: "lx"
-#   state_topic: "home/OMG_Serre/BTtoMQTT/80EACA890E95"
-#   value_template: "{{ value_json.lux | is_defined }}"
-#   device_class: "illuminance"
-# - platform: mqtt
-#   name: "greenhouse Zone 2 Soil Conductivity"
-#   state_topic: "home/OMG_Serre/BTtoMQTT/80EACA890E95"
-#   value_template: "{{ value_json.fer | is_defined }}"
-#   unit_of_measurement: "µS/cm"
-#   icon: mdi:flower
-  
-# - platform: mqtt
-#   name: "Greenhouse Zone 3 temperature"
-#   unit_of_measurement: "°C"
-#   state_topic: "home/OMG_Serre/BTtoMQTT/80EACA890EA2"
-#   value_template: "{{ value_json.tem | is_defined }}"
-#   device_class: "temperature"
-# - platform: mqtt
-#   name: "Greenhouse Zone 3 Moisture"
-#   unit_of_measurement: "%"
-#   state_topic: "home/OMG_Serre/BTtoMQTT/80EACA890EA2"
-#   value_template: "{{ value_json.moi | is_defined }}"
-#   device_class: "humidity"
-# - platform: mqtt
-#   name: "Greenhouse Zone 3 Illuminance"
-#   unit_of_measurement: "lx"
-#   state_topic: "home/OMG_Serre/BTtoMQTT/80EACA890EA2"
-#   value_template: "{{ value_json.lux | is_defined }}"
-#   device_class: "illuminance"
-# - platform: mqtt
-#   name: "Greenhouse Zone 3 Soil Conductivity"
-#   state_topic: "home/OMG_Serre/BTtoMQTT/80EACA890EA2"
-#   value_template: "{{ value_json.fer | is_defined }}"
-#   unit_of_measurement: "µS/cm"
-#   icon: mdi:flower
-
-# - platform: mqtt
-#   name: "Greenhouse Zone 4 temperature"
-#   unit_of_measurement: "°C"
-#   state_topic: "home/OMG_Serre/BTtoMQTT/80EACA8909DC"
-#   value_template: "{{ value_json.tem | is_defined }}"
-#   device_class: "temperature"
-# - platform: mqtt
-#   name: "Greenhouse Zone 4 Moisture"
-#   unit_of_measurement: "%"
-#   state_topic: "home/OMG_Serre/BTtoMQTT/80EACA8909DC"
-#   value_template: "{{ value_json.moi | is_defined }}"
-#   device_class: "humidity"
-# - platform: mqtt
-#   name: "Greenhouse Zone 4 Illuminance"
-#   unit_of_measurement: "lx"
-#   state_topic: "home/OMG_Serre/BTtoMQTT/80EACA8909DC"
-#   value_template: "{{ value_json.lux | is_defined }}"
-#   device_class: "illuminance"
-# - platform: mqtt
-#   name: "Greenhouse Zone 4 Soil Conductivity"
-#   state_topic: "home/OMG_Serre/BTtoMQTT/80EACA8909DC"
-#   value_template: "{{ value_json.fer | is_defined }}"
-#   unit_of_measurement: "µS/cm"
-#   icon: mdi:flower
-
-# - platform: mqtt
-#   name: "Olijfboom Temperature"
-#   unit_of_measurement: "°C"
-#   state_topic: "home/OMG_Garage/BTtoMQTT/80EACA890C56"
-#   value_template: "{{ value_json.tem | is_defined }}"
-#   device_class: "temperature"
-# - platform: mqtt
-#   name: "Olijfboom Moisture"
-#   unit_of_measurement: "%"
-#   state_topic: "home/OMG_Garage/BTtoMQTT/80EACA890C56"
-#   value_template: "{{ value_json.moi | is_defined }}"
-#   device_class: "humidity"
-# - platform: mqtt
-#   name: "Olijfboom Illuminance"
-#   unit_of_measurement: "lx"
-#   state_topic: "home/OMG_Garage/BTtoMQTT/80EACA890C56"
-#   value_template: "{{ value_json.lux | is_defined }}"
-#   device_class: "illuminance"
-# - platform: mqtt
-#   name: "Olijfboom Soil Conductivity"
-#   state_topic: "home/OMG_Garage/BTtoMQTT/80EACA890C56"
-#   value_template: "{{ value_json.fer | is_defined }}"
-#   unit_of_measurement: "µS/cm"
-#   icon: mdi:flower
-
-# - platform: mqtt
-#   name: "Moestuin Temperature"
-#   unit_of_measurement: "°C"
-#   state_topic: "home/OMG_Inkom/BTtoMQTT/80EACA890BFA"
-#   value_template: "{{ value_json.tem | is_defined }}"
-#   device_class: "temperature"
-# - platform: mqtt
-#   name: "Moestuin Moisture"
-#   unit_of_measurement: "%"
-#   state_topic: "home/OMG_Inkom/BTtoMQTT/80EACA890BFA"
-#   value_template: "{{ value_json.moi | is_defined }}"
-#   device_class: "humidity"
-# - platform: mqtt
-#   name: "Moestuin Illuminance"
-#   unit_of_measurement: "lx"
-#   state_topic: "home/OMG_Inkom/BTtoMQTT/80EACA890BFA"
-#   value_template: "{{ value_json.lux | is_defined }}"
-#   device_class: "illuminance"
-# - platform: mqtt
-#   name: "Moestuin Soil Conductivity"
-#   state_topic: "home/OMG_Inkom/BTtoMQTT/80EACA890BFA"
-#   value_template: "{{ value_json.fer | is_defined }}"
-#   unit_of_measurement: "µS/cm"
-#   icon: mdi:flower
-
-# - platform: mqtt
-#   name: "Rozemarijn Temperature"
-#   unit_of_measurement: "°C"
-#   state_topic: "home/OMG_Inkom/BTtoMQTT/80EACA890AB3"
-#   value_template: "{{ value_json.tem | is_defined }}"
-#   device_class: "temperature"
-# - platform: mqtt
-#   name: "Rozemarijn Moisture"
-#   unit_of_measurement: "%"
-#   state_topic: "home/OMG_Inkom/BTtoMQTT/80EACA890AB3"
-#   value_template: "{{ value_json.moi | is_defined }}"
-#   device_class: "humidity"
-# - platform: mqtt
-#   name: "Rozemarijn Illuminance"
-#   unit_of_measurement: "lx"
-#   state_topic: "home/OMG_Inkom/BTtoMQTT/80EACA890AB3"
-#   value_template: "{{ value_json.lux | is_defined }}"
-#   device_class: "illuminance"
-# - platform: mqtt
-#   name: "Rozemarijn Soil Conductivity"
-#   state_topic: "home/OMG_Inkom/BTtoMQTT/80EACA890AB3"
-#   value_template: "{{ value_json.fer | is_defined }}"
-#   unit_of_measurement: "µS/cm"
-#   icon: mdi:flower
-
-# - platform: mqtt
-#   name: "Bloempot Voordeur Temperature"
-#   unit_of_measurement: "°C"
-#   state_topic: "home/OMG_Inkom/BTtoMQTT/80EACA890CBD"
-#   value_template: "{{ value_json.tem | is_defined }}"
-#   device_class: "temperature"
-# - platform: mqtt
-#   name: "Bloempot Voordeur Moisture"
-#   unit_of_measurement: "%"
-#   state_topic: "home/OMG_Inkom/BTtoMQTT/80EACA890CBD"
-#   value_template: "{{ value_json.moi | is_defined }}"
-#   device_class: "humidity"
-# - platform: mqtt
-#   name: "Bloempot Voordeur Illuminance"
-#   unit_of_measurement: "lx"
-#   state_topic: "home/OMG_Inkom/BTtoMQTT/80EACA890CBD"
-#   value_template: "{{ value_json.lux | is_defined }}"
-#   device_class: "illuminance"
-# - platform: mqtt
-#   name: "Bloempot Voordeur Soil Conductivity"
-#   state_topic: "home/OMG_Inkom/BTtoMQTT/80EACA890CBD"
-#   value_template: "{{ value_json.fer | is_defined }}"
-#   unit_of_measurement: "µS/cm"
   
 - platform: mqtt
   name: "Water Pump Flow Rate"
