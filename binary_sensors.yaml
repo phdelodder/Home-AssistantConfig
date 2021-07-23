@@ -65,18 +65,9 @@
     school_vacation:
       friendly_name: School Vakantie
       value_template: "{{ is_state('input_boolean.school_vacation','on') }}"
-
-#- platform: mqtt
-#  name: "Oprit Camera"
-#  state_topic: "zoneminder/1"
-#  payload_on: "event_start"
-#  payload_off: "event_end"
-#  device_class: "motion"
-#  json_attributes_topic: "zoneminder/1"
-#  json_attributes_template: "{{ value_json | tojson }}"
-#  value_template: "{{ value_json.eventtype}}"
-
-#- platform: zoneminder
+    waterpomp:
+      friendly_name: Water Pomp
+      value_template: "{{ states('sensor.waterpomp') | int > 1 }}"
 
 - platform: workday
   country: BE
