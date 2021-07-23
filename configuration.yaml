@@ -24,14 +24,9 @@ logger:
   default: warning                  # don't use debug
 
   logs:
-    #homeassistant.core: debug    # Event state_changed
-    #homeassistant.loader: info   # You are using a custom integration for evohome_cc...
-    #homeassistant.setup: info    # Setting up evohome_cc
-
-    evohome_rf.packet_log: info
-
-    custom_components.evohome_cc: info
-    custom_components.evohome_cc.*: info
+    homeassistant.core: debug
+    custom_components.evohome_cc: warn
+    ramses_rf.message: info
 
 # Text to speech
 tts:
@@ -167,7 +162,7 @@ evohome_cc:
     enforce_allowlist: true
   schema:
     controller: 01:223036
-  #restore_state: false
+  restore_state: false
   allow_list:
     - 01:223036
     - 10:040239
