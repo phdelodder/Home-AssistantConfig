@@ -1528,36 +1528,36 @@
         \ 'last_period') | round (0) }} liter"
   mode: single
 - id: '1627036994004'
-  alias: 'Notify: Monitor Grill Temp Alert'
+  alias: 'Notify: Monitor Grill Temp'
   description: ''
   trigger:
   - platform: state
     entity_id: sensor.ibbq_probe_1_grill_alert_temp
-    to: Alert
     for: 00:01:00
   condition: []
   action:
-  - service: notify.mobile_app_pixel_5
-    data_template:
-      message: Grill temp outside limits. Currently {{ states('sensor.ibbq_temperature_probe_1')
-        }} °C
-      Title: Grill Alert
-  mode: single
-- id: '1627036994005'
-  alias: 'Notify: Monitor Grill Temp Normal'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: sensor.ibbq_probe_1_grill_alert_temp
-    to: Normal
-    for: 00:01:00
-  condition: []
-  action:
-  - service: notify.mobile_app_pixel_5
-    data_template:
-      message: Grill temp inside limits. Currently {{ states('sensor.ibbq_temperature_probe_1')
-        }} °C
-      title: Grill Alert
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: sensor.ibbq_probe_1_grill_alert_temp
+        state: Alert
+      sequence:
+      - service: notify.mobile_app_pixel_5
+        data_template:
+          message: Grill temp outside limits. Currently {{ states('sensor.ibbq_temperature_probe_1')
+            }} °C
+          Title: Grill Alert
+    - conditions:
+      - condition: state
+        entity_id: sensor.ibbq_probe_1_grill_alert_temp
+        state: Normaal
+      sequence:
+      - service: notify.mobile_app_pixel_5
+        data_template:
+          message: Grill temp inside limits. Currently {{ states('sensor.ibbq_temperature_probe_1')
+            }} °C
+          title: Grill Alert
+    default: []
   mode: single
 - id: '1627037302668'
   alias: 'Notify: Probe 2 Target Temp'
