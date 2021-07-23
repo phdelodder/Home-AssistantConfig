@@ -75,13 +75,13 @@
   action:
   - service: shell_command.set_oprit_profile_day
 - id: '1586931483975'
-  alias: Send Notification Afval Collection
+  alias: 'Notify: Afval Collection'
   description: ''
   trigger:
   - at: '18:00:00'
     platform: time
   condition:
-    condition: or
+  - condition: or
     conditions:
     - condition: state
       entity_id: sensor.recycleapp_morgen
@@ -95,6 +95,7 @@
   action:
   - data: {}
     service: script.notify_afval
+  mode: single
 - id: '1587360682923'
   alias: Alarm Clock Philippe
   trigger:
@@ -1497,4 +1498,109 @@
   - service: switch.toggle
     target:
       device_id: 8a3c2cdc29991ba22e958431889b1dca
+  mode: single
+- id: '1626411842297'
+  alias: 'Notify: Wekelijks Rapport Waterpomp '
+  description: ''
+  trigger:
+  - platform: time
+    at: '23:55:00'
+  condition:
+  - condition: time
+    weekday:
+    - sun
+  action:
+  - service: notify.hazilverberkenstraatbot
+    data:
+      title: 'Wekelijks Rapport Waterpomp '
+      message: "{% if ((states('sensor.waterpomp_time_last_week') |\n        float)>(states('sensor.waterpomp_time_last_week')\
+        \ | float)) -%}\n  Water verbruik is gestegen met {{(((states('sensor.waterpomp_time_last_week')\
+        \ | float)-(states('sensor.waterpomp_time_last_week') | float))*100/(states('sensor.waterpomp_time_last_week')\
+        \ | float)) | round(1)}}% vergeleken met vorige week, met {{ (states('sensor.waterpump_water_usage_weekly')\
+        \  | float - state_attr('sensor.waterpump_water_usage_weekly', 'last_period')\
+        \ | float) | round (0) }} liter\n{%- else -%}\n  Water verbruik is gedaald\
+        \ met {{(((states('sensor.waterpomp_time_last_week') | float)-(states('sensor.waterpomp_time_last_week')\
+        \ | float))*100/(states('sensor.waterpomp_time_last_week') | float)) | round(1)}}%\
+        \ vergeleken met vorige week, met {{ (state_attr('sensor.waterpump_water_usage_weekly',\
+        \ 'last_period')  | float - states('sensor.waterpump_water_usage_weekly')\
+        \ | float) | round (0) }} liter\n{%- endif %}  Deze week: {{ states('sensor.waterpump_water_usage_weekly')\
+        \ | round (0) }} liter Vorige week: {{ state_attr('sensor.waterpump_water_usage_weekly',\
+        \ 'last_period') | round (0) }} liter"
+  mode: single
+- id: '1627036994004'
+  alias: 'Notify: Monitor Grill Temp Alert'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: sensor.ibbq_probe_1_grill_alert_temp
+    to: Alert
+    for: 00:01:00
+  condition: []
+  action:
+  - service: notify.mobile_app_pixel_5
+    data_template:
+      message: Grill temp outside limits. Currently {{ states('sensor.ibbq_temperature_probe_1')
+        }} °C
+      Title: Grill Alert
+  mode: single
+- id: '1627036994005'
+  alias: 'Notify: Monitor Grill Temp Normal'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: sensor.ibbq_probe_1_grill_alert_temp
+    to: Normal
+    for: 00:01:00
+  condition: []
+  action:
+  - service: notify.mobile_app_pixel_5
+    data_template:
+      message: Grill temp inside limits. Currently {{ states('sensor.ibbq_temperature_probe_1')
+        }} °C
+      title: Grill Alert
+  mode: single
+- id: '1627037302668'
+  alias: 'Notify: Probe 2 Target Temp'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: sensor.ibbq_probe_2_target_alert_temp
+    to: Alert
+  condition: []
+  action:
+  - service: notify.mobile_app_pixel_5
+    data_template:
+      message: Probe 2 has reached the target temp. Currently {{ states('sensor.ibbq_temperature_probe_2')
+        }} °C
+      title: Grill Alert
+  mode: single
+- id: '1627037302669'
+  alias: 'Notify: Probe 3 Target Temp'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: sensor.ibbq_probe_3_target_alert_temp
+    to: Alert
+  condition: []
+  action:
+  - service: notify.mobile_app_pixel_5
+    data_template:
+      message: Probe 3 has reached the target temp. Currently {{ states('sensor.ibbq_temperature_probe_3')
+        }} °C
+      title: Grill Alert
+  mode: single
+- id: '1627037302670'
+  alias: 'Notify: Probe 4 Target Temp'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: sensor.ibbq_probe_4_target_alert_temp
+    to: Alert
+  condition: []
+  action:
+  - service: notify.mobile_app_pixel_5
+    data_template:
+      message: Probe 4 has reached the target temp. Currently {{ states('sensor.ibbq_temperature_probe_4')
+        }} °C
+      title: Grill Alert
   mode: single

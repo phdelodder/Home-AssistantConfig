@@ -72,3 +72,48 @@ vacuum_empty_bin_after_days:
   step: 1
   min: 0
   max: 100
+
+grill_alert_low:
+  name: Grill Low Temp
+  initial: 100
+  min: 50
+  max: 300
+  step: 5
+  icon: mdi:thermometer-alert
+  unit_of_measurement: "°C"
+  
+grill_alert_high:
+  name: Grill High Temp
+  initial: 150
+  min: 50
+  max: 300
+  step: 5
+  icon: mdi:thermometer-alert
+  unit_of_measurement: "°C"
+
+grill_probe_2_target:
+  name: Probe 2 Target Temp
+  initial: 70
+  min: 40
+  max: 105
+  step: 1
+  icon: mdi:target
+  unit_of_measurement: "°C"
+
+grill_probe_3_target:
+  name: Probe 3 Target Temp
+  initial: 70
+  min: 40
+  max: 105
+  step: 1
+  icon: mdi:target
+  unit_of_measurement: "°C"
+
+grill_probe_4_target:
+  name: Probe 4 Target Temp
+  initial: 70
+  min: 40
+  max: 105
+  step: 1
+  icon: mdi:target
+  unit_of_measurement: "°C"

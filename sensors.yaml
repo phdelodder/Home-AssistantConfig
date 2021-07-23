@@ -545,6 +545,24 @@
   unit_time: "h"
   method: "left"
 
+- platform: history_stats
+  name: Waterpomp time this week
+  entity_id: binary_sensor.waterpomp
+  state: "on"
+  type: time
+  end: "{{ now()}}" 
+  duration:
+    days: 7
+
+- platform: history_stats
+  name: Waterpomp time last week
+  entity_id: binary_sensor.waterpomp
+  state: "on"
+  type: time
+  end: "{{(as_timestamp(now()) - 604800)}}" 
+  duration:
+    days: 7
+
 - platform: template
   sensors:
     waterpump_cost:
@@ -788,3 +806,65 @@
   end: '{{ now().replace(hour=0, minute=0, second=0) }}'
   duration:
     days: 7
+
+- platform: template
+  sensors:
+    ibbq_probe_1_grill_alert_temp:
+      value_template: >-
+        {% if (states('sensor.ibbq_temperature_probe_1') | int) < (states('input_number.grill_alert_low') | int) or (states('sensor.ibbq_temperature_probe_1') | int)  > (states('input_number.grill_alert_high') | int) %}
+          Alert
+        {% else %}
+          Normal
+        {% endif %}
+      friendly_name: Grill (Probe 1) WTemp Alert 
+      icon_template: >-
+        {% if (states('sensor.ibbq_temperature_probe_1') | int) < (states('input_number.grill_alert_low') | int) or (states('sensor.ibbq_temperature_probe_1') | int)  > (states('input_number.grill_alert_high') | int) %}
+          mdi:alert-circle
+        {% else %}
+          mdi:alert-circle-check
+        {% endif %}
+      
+    ibbq_probe_2_target_alert_temp:
+      value_template: >-
+        {% if (states('sensor.ibbq_temperature_probe_2') | int) >= (states('input_number.grill_probe_2_target') | int) %}
+          Alert
+        {% else %}
+          Normal
+        {% endif %}
+      friendly_name: Probe 2 Target Alert
+      icon_template: >-
+        {% if (states('sensor.ibbq_temperature_probe_2') | int) >= (states('input_number.grill_probe_2_target') | int) %}
+          mdi:alert-circle
+        {% else %}
+          mdi:alert-circle-check
+        {% endif %}
+      
+    ibbq_probe_3_target_alert_temp:
+      value_template: >-
+        {% if (states('sensor.ibbq_temperature_probe_3') | int) >= (states('input_number.grill_probe_3_target') | int) %}
+          Alert
+        {% else %}
+          Normal
+        {% endif %}
+      friendly_name: Probe 3 Target Alert
+      icon_template: >-
+        {% if (states('sensor.ibbq_temperature_probe_3') | int) >= (states('input_number.grill_probe_3_target') | int) %}
+          mdi:alert-circle
+        {% else %}
+          mdi:alert-circle-check
+        {% endif %}
+      
+    ibbq_probe_4_target_alert_temp:
+      value_template: >-
+        {% if (states('sensor.ibbq_temperature_probe_4') | int) >= (states('input_number.grill_probe_4_target') | int) %}
+          Alert
+        {% else %}
+          Normal
+        {% endif %}
+      friendly_name: Probe 4 Target Alert
+      icon_template: >-
+        {% if (states('sensor.ibbq_temperature_probe_4') | int) >= (states('input_number.grill_probe_4_target') | int) %}
+          mdi:alert-circle
+        {% else %}
+          mdi:alert-circle-check
+        {% endif %}
