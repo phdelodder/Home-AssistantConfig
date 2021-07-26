@@ -545,24 +545,6 @@
   unit_time: "h"
   method: "left"
 
-- platform: history_stats
-  name: Waterpomp time this week
-  entity_id: binary_sensor.waterpomp
-  state: "on"
-  type: time
-  end: "{{ now()}}" 
-  duration:
-    days: 7
-
-- platform: history_stats
-  name: Waterpomp time last week
-  entity_id: binary_sensor.waterpomp
-  state: "on"
-  type: time
-  end: "{{(as_timestamp(now()) - 604800)}}" 
-  duration:
-    days: 7
-
 - platform: template
   sensors:
     waterpump_cost:

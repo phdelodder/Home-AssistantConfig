@@ -1513,17 +1513,19 @@
   - service: notify.hazilverberkenstraatbot
     data:
       title: 'Wekelijks Rapport Waterpomp '
-      message: "{% if ((states('sensor.waterpomp_time_last_week') |\n        float)>(states('sensor.waterpomp_time_last_week')\
-        \ | float)) -%}\n  Water verbruik is gestegen met {{(((states('sensor.waterpomp_time_last_week')\
-        \ | float)-(states('sensor.waterpomp_time_last_week') | float))*100/(states('sensor.waterpomp_time_last_week')\
+      message: "{% if ((states('sensor.waterpump_water_usage_weekly') |\n        float)>(state_attr('sensor.waterpump_water_usage_weekly',\
+        \ 'last_period') | float)) -%}\n  Water verbruik is gestegen met {{(((states('sensor.waterpump_water_usage_weekly')\
+        \ | float)-(state_attr('sensor.waterpump_water_usage_weekly', 'last_period')\
+        \ | float))*100/(state_attr('sensor.waterpump_water_usage_weekly', 'last_period')\
         \ | float)) | round(1)}}% vergeleken met vorige week, met {{ (states('sensor.waterpump_water_usage_weekly')\
         \  | float - state_attr('sensor.waterpump_water_usage_weekly', 'last_period')\
         \ | float) | round (0) }} liter\n{%- else -%}\n  Water verbruik is gedaald\
-        \ met {{(((states('sensor.waterpomp_time_last_week') | float)-(states('sensor.waterpomp_time_last_week')\
-        \ | float))*100/(states('sensor.waterpomp_time_last_week') | float)) | round(1)}}%\
-        \ vergeleken met vorige week, met {{ (state_attr('sensor.waterpump_water_usage_weekly',\
-        \ 'last_period')  | float - states('sensor.waterpump_water_usage_weekly')\
-        \ | float) | round (0) }} liter\n{%- endif %}  Deze week: {{ states('sensor.waterpump_water_usage_weekly')\
+        \ met {{(((state_attr('sensor.waterpump_water_usage_weekly', 'last_period')\
+        \ | float)-(states('sensor.waterpump_water_usage_weekly') | float))*100/(state_attr('sensor.waterpump_water_usage_weekly',\
+        \ 'last_period') | float)) | round(1)}}% vergeleken met vorige week, met {{\
+        \ (state_attr('sensor.waterpump_water_usage_weekly', 'last_period')  | float\
+        \ - states('sensor.waterpump_water_usage_weekly') | float) | round (0) }}\
+        \ liter\n{%- endif %}  Deze week: {{ states('sensor.waterpump_water_usage_weekly')\
         \ | round (0) }} liter Vorige week: {{ state_attr('sensor.waterpump_water_usage_weekly',\
         \ 'last_period') | round (0) }} liter"
   mode: single
@@ -1533,7 +1535,6 @@
   trigger:
   - platform: state
     entity_id: sensor.ibbq_probe_1_grill_alert_temp
-    for: 00:01:00
   condition: []
   action:
   - choose:
@@ -1546,11 +1547,11 @@
         data_template:
           message: Grill temp outside limits. Currently {{ states('sensor.ibbq_temperature_probe_1')
             }} °C
-          Title: Grill Alert
+          title: Grill Alert
     - conditions:
       - condition: state
         entity_id: sensor.ibbq_probe_1_grill_alert_temp
-        state: Normaal
+        state: Normal
       sequence:
       - service: notify.mobile_app_pixel_5
         data_template:
