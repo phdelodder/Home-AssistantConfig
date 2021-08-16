@@ -24,7 +24,7 @@ logger:
   default: warning                  # don't use debug
 
   logs:
-    homeassistant.core: debug
+    # homeassistant.core: debug
     custom_components.evohome_cc: warn
     ramses_rf.message: info
 

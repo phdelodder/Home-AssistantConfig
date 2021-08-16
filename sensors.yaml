@@ -4,14 +4,6 @@
       friendly_name: 'Temperature'
       value_template: '{{states("input_number.temperature") | float }}'
 
-- platform: fritzbox_netmonitor
-
-- platform: template
-  sensors: 
-    external_ip:
-      friendly_name: "External IP"
-      value_template: "{{ states.sensor.fritz_netmonitor.attributes.external_ip }}"
-
 - platform: time_date
   display_options:
     - 'time'
