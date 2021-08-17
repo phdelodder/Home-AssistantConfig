@@ -15,11 +15,20 @@
     - name: truck
 
 - platform: platerecognizer
+  scan_interval: 10000
   api_token: !secret platerecognizer_apikey
   regions:
     - be
   save_file_folder: "/config/www/snapshots/platerecognizer"
   save_timestamped_file: True
   always_save_latest_file: True
+  source:
+    - entity_id: camera.doods_oprit
+
+- platform: sighthound
+  scan_interval: 10000
+  api_key: !secret sighthound_apikey
+  save_file_folder: "/config/www/snapshots/sighthound"
+  save_timestamped_file: True
   source:
     - entity_id: camera.doods_oprit
