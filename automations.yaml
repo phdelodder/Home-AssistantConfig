@@ -832,6 +832,9 @@
   - condition: state
     entity_id: binary_sensor.workday_sensor
     state: 'on'
+  - condition: state
+    entity_id: binary_sensor.vacation_mode
+    state: 'off'
   action:
   - service: script.deactivate_night_mode
     data: {}
@@ -1604,4 +1607,26 @@
       message: Probe 4 has reached the target temp. Currently {{ states('sensor.ibbq_temperature_probe_4')
         }} °C
       title: Grill Alert
+  mode: single
+- id: '1629181945984'
+  alias: 'Night Mode: Deactivate Weekday Vacation'
+  description: ''
+  trigger:
+  - platform: time
+    at: 07:15:00
+  - platform: homeassistant
+    event: start
+  condition:
+  - condition: time
+    after: 08:30:00
+    before: '21:30:00'
+  - condition: state
+    entity_id: binary_sensor.workday_sensor
+    state: 'on'
+  - condition: state
+    entity_id: binary_sensor.vacation_mode
+    state: 'on'
+  action:
+  - service: script.deactivate_night_mode
+    data: {}
   mode: single
