@@ -833,7 +833,7 @@
     entity_id: binary_sensor.workday_sensor
     state: 'on'
   - condition: state
-    entity_id: binary_sensor.vacation_mode
+    entity_id: binary_sensor.school_vacation
     state: 'off'
   action:
   - service: script.deactivate_night_mode
@@ -1613,7 +1613,7 @@
   description: ''
   trigger:
   - platform: time
-    at: 07:15:00
+    at: 08:30:00
   - platform: homeassistant
     event: start
   condition:
@@ -1624,8 +1624,8 @@
     entity_id: binary_sensor.workday_sensor
     state: 'on'
   - condition: state
-    entity_id: binary_sensor.vacation_mode
     state: 'on'
+    entity_id: binary_sensor.school_vacation
   action:
   - service: script.deactivate_night_mode
     data: {}

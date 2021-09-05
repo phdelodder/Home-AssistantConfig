@@ -1,7 +1,7 @@
 """
 Sensor component for waste pickup dates from dutch and belgium waste collectors
 Original Author: Pippijn Stortelder
-Current Version: 4.7.22 20210601 - Pippijn Stortelder
+Current Version: 4.7.24 20210826 - Pippijn Stortelder
 20210112 - Updated date format for RD4
 20210114 - Fix error made in commit 9d720ec
 20210120 - Enabled textile for RecycleApp
@@ -19,6 +19,8 @@ Current Version: 4.7.22 20210601 - Pippijn Stortelder
 20210426 - Added support for RAD
 20210505 - Fixed Limburg.net mapping
 20210601 - Fix for ROVA
+20210816 - Changed Suez to PreZero
+20210826 - Bugfix for CirculusBerkel
 
 Example config:
 Configuration.yaml:
@@ -111,12 +113,13 @@ OPZET_COLLECTOR_URLS = {
     'middelburg-vlissingen': 'https://afvalwijzer.middelburgvlissingen.nl',
     'montfoort': 'https://afvalkalender.cyclusnv.nl',
     'peelenmaas': 'https://afvalkalender.peelenmaas.nl',
+    'prezero': 'https://inzamelwijzer.prezero.nl',
     'purmerend': 'https://afvalkalender.purmerend.nl',
     'rmn': 'https://inzamelschema.rmn.nl',
     'schouwen-duiveland': 'https://afvalkalender.schouwen-duiveland.nl',
     'spaarnelanden': 'https://afvalwijzer.spaarnelanden.nl',
     'sudwestfryslan': 'https://afvalkalender.sudwestfryslan.nl',
-    'suez': 'https://inzamelwijzer.suez.nl',
+    'suez': 'https://inzamelwijzer.prezero.nl',
     'venray': 'https://afvalkalender.venray.nl',
     'waalre': 'https://afvalkalender.waalre.nl',
     'zrd': 'https://afvalkalender.zrd.nl',
@@ -619,6 +622,8 @@ class CirculusBerkelCollector(WasteCollector):
     def __get_data(self):
         r = requests.get(self.main_url)
         cookies = r.cookies
+        session_cookie = ""
+        logged_in_cookies = ""
 
         for item in cookies.items():
             if item[0] == "CB_SESSION":
