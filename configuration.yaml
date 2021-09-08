@@ -159,11 +159,11 @@ evohome_cc:
   scan_interval: 60
   packet_log: /config/evohome_cc_packet.log
   config:
-    enforce_allowlist: true
+    enforce_known_list: true
   schema:
     controller: 01:223036
   restore_state: false
-  allow_list:
+  known_list:
     - 01:223036
     - 10:040239
     - 04:231770
