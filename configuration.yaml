@@ -113,30 +113,6 @@ stream:
 
 downloader:
   download_dir: www
-  
-shelly:
-  devices:
-    - id: "8AD925"
-      light_switch: true
-    - id: "8B191F"
-      light_switch: true
-    - id: "2BE5AF"
-      light_switch: true
-    - id: "2BD8B9"
-      light_switch: true
-    - id: "9F5B66"
-      light_switch: true
-    - id: "00C928"
-      light_switch: true
-    - id: "2C6E97"
-      light_switch: true
-      sensors: [ switch ]
-    - id: "98F4ABD0C5D0"
-      light_switch: true
-    - id: "8B1B47"
-      light_switch: true
-    - id: "8B1A71"
-      light_switch: true
 
 spotify:
   client_id: !secret spotify-clientid

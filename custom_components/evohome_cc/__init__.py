@@ -43,6 +43,7 @@ from .schema import (
     CONF_RESTORE_STATE,
     DOMAIN_SERVICES,
     SVC_SEND_PACKET,
+    WATER_HEATER_SERVICES,
     normalise_config_schema,
 )
 from .version import __version__ as VERSION
@@ -64,9 +65,7 @@ async def async_setup(hass: HomeAssistantType, hass_config: ConfigType) -> bool:
             _LOGGER.error("There is a problem with the serial port: %s", exc)
             raise exc
 
-    _LOGGER.warning(
-        "evohome_cc v%s, is using ramses_rf v%s", VERSION, ramses_rf.VERSION
-    )
+    _LOGGER.debug(f"{DOMAIN} v{VERSION}, is using ramses_rf v{ramses_rf.VERSION}")
 
     _LOGGER.debug("\r\n\nConfig =  %s\r\n", hass_config[DOMAIN])
 
@@ -110,7 +109,11 @@ def register_service_functions(hass: HomeAssistantType, broker):
 
     @verify_domain_control(hass, DOMAIN)
     async def svc_fake_device(call) -> None:
-        broker.client.fake_device(**call.data)
+        try:
+            broker.client.fake_device(**call.data)
+        except LookupError as exc:
+            _LOGGER.error("%s", exc)
+            return
         await broker.async_update()
 
     @verify_domain_control(hass, DOMAIN)
@@ -125,7 +128,7 @@ def register_service_functions(hass: HomeAssistantType, broker):
             DATA: call.data,
         }
         async_dispatcher_send(hass, DOMAIN, payload)
-        async_dispatcher_send(hass, DOMAIN)
+        # async_dispatcher_send(hass, DOMAIN)  # TODO: remove
 
     @verify_domain_control(hass, DOMAIN)
     async def svc_set_system_mode(call) -> None:
@@ -135,12 +138,26 @@ def register_service_functions(hass: HomeAssistantType, broker):
             DATA: call.data,
         }
         async_dispatcher_send(hass, DOMAIN, payload)
-        async_dispatcher_send(hass, DOMAIN)
+        # async_dispatcher_send(hass, DOMAIN)  # TODO: remove
 
     @verify_domain_control(hass, DOMAIN)
     async def svc_send_packet(call) -> None:
         broker.client.send_cmd(broker.client.make_cmd(**call.data))
-        async_dispatcher_send(hass, DOMAIN)
+        # async_dispatcher_send(hass, DOMAIN)  # TODO: remove
+
+    @verify_domain_control(hass, DOMAIN)
+    async def svc_call_dhw_svc(call) -> None:
+        payload = {
+            UNIQUE_ID: f"{broker.client.evo.id}_HW",
+            SERVICE: call.service,
+            DATA: call.data,
+        }
+        async_dispatcher_send(hass, DOMAIN, payload)
+
+    [
+        hass.services.async_register(DOMAIN, k, svc_call_dhw_svc, schema=v)
+        for k, v in WATER_HEATER_SERVICES.items()
+    ]
 
     domain_service = DOMAIN_SERVICES
     if not broker.config[DOMAIN].get(SVC_SEND_PACKET):
@@ -175,6 +192,7 @@ class EvoBroker:
         self.loop_task = None
         self._last_update = dt.min
 
+        self._hgi = None
         self._devices = []
         self._domains = []
         self._lock = Lock()
@@ -231,7 +249,13 @@ class EvoBroker:
 
     @callback
     def new_devices(self) -> bool:
-        new_devices = [
+
+        discovery_info = {}
+
+        if self._hgi is None and self.client.hgi:
+            discovery_info["gateway"] = self._hgi = self.client.hgi
+
+        if new_devices := [
             d
             for d in self.client.devices
             if d not in self._devices
@@ -240,27 +264,30 @@ class EvoBroker:
                 and d.id in self.client._include
                 or d.id not in self.client._exclude
             )
-        ]
-        self._devices.extend(new_devices)
+        ]:
+            discovery_info["devices"] = new_devices
+            self._devices.extend(new_devices)
 
         new_domains = []
         if self.client.evo:
             new_domains = [d for d in self.client.evo.zones if d not in self._domains]
             if self.client.evo not in self._domains:
                 new_domains.append(self.client.evo)
+
+        if new_domains:
+            discovery_info["domains"] = new_domains
             self._domains.extend(new_domains)
 
-        if new_devices or new_domains:
-            new_devices = {"new_devices": new_devices, "new_domains": new_domains}
+        if discovery_info:
             for platform in (BINARY_SENSOR, SENSOR):
                 self.hass.async_create_task(
                     async_load_platform(
-                        self.hass, platform, DOMAIN, new_devices, self.config
+                        self.hass, platform, DOMAIN, discovery_info, self.config
                     )
                 )
 
         _LOGGER.info("Devices = %s", [d.id for d in self._devices])
-        return bool(new_devices)
+        return bool(new_devices or new_domains)
 
     async def async_update(self, *args, **kwargs) -> None:
         """Retrieve the latest state data from the client library."""
@@ -357,7 +384,7 @@ class EvoEntity(Entity):
 
 
 class EvoDeviceBase(EvoEntity):
-    """Base for any evohome II-compatible entity (e.g. Climate, Sensor)."""
+    """Base for any evohome II-compatible entity (e.g. BinarySensor, Sensor)."""
 
     def __init__(self, broker, device, state_attr, device_class) -> None:
         """Initialize the sensor."""
@@ -384,9 +411,14 @@ class EvoDeviceBase(EvoEntity):
         """Return the integration-specific state attributes."""
         attrs = super().device_state_attributes
         attrs["device_id"] = self._device.id
-        # attrs["domain_id"] = self._device._domain_id self.idx
-        # if hasattr(self._device, "zone"):
-        #     attrs["zone"] = self._device.zone.name if self._device.zone else None
+        if hasattr(self._device, "_domain_id"):
+            attrs["domain_id"] = self._device._domain_id
+        if hasattr(self._device, "role"):
+            attrs["role"] = self._device.role
+        try:
+            attrs["domain_name"] = self._device.zone.name
+        except AttributeError:
+            pass
         return attrs
 
     @property
@@ -402,7 +434,7 @@ class EvoDeviceBase(EvoEntity):
 
 
 class EvoZoneBase(EvoEntity):
-    """Base for any evohome RF-compatible entity (e.g. Climate, Sensor)."""
+    """Base for any evohome RF-compatible entity (e.g. Controller, DHW, Zones)."""
 
     def __init__(self, broker, device) -> None:
         """Initialize the sensor."""

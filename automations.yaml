@@ -969,13 +969,13 @@
   description: Controls the fan speed depending on the temperature
   trigger:
   - platform: state
-    entity_id: sensor.cabinet_temperature
+    entity_id: sensor.bureau_temperature
   condition: []
   action:
   - choose:
     - conditions:
       - condition: numeric_state
-        entity_id: sensor.cabinet_temperature
+        entity_id: sensor.bureau_temperature
         below: 21
       sequence:
       - service: fan.turn_off
@@ -989,9 +989,9 @@
         entity_id:
         - fan.cabinet_fan_1
         - fan.cabinet_fan_2
-        speed: "{% if states('sensor.cabinet_temperature') | float > 28 %}\n  high\n\
-          {% elif states('sensor.cabinet_temperature') | float > 25 %}\n  medium\n\
-          {% elif states('sensor.cabinet_temperature') | float >= 21 %}\n  low\n{%\
+        percentage: "{% if states('sensor.bureau_temperature') | float > 28 %}\n  100\n\
+          {% elif states('sensor.bureau_temperature') | float > 25 %}\n  50\n\
+          {% elif states('sensor.bureau_temperature') | float >= 21 %}\n  25\n{%\
           \ endif %}\n"
   mode: single
 - id: '1604346606992'

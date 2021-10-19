@@ -37,13 +37,20 @@ from homeassistant.const import ATTR_TEMPERATURE
 from homeassistant.core import callback
 from homeassistant.helpers import entity_platform
 from homeassistant.helpers.typing import ConfigType, HomeAssistantType
-from ramses_rf.protocol.const import SystemMode, ZoneMode
 
 from . import EvoZoneBase
-from .const import ATTR_SETPOINT, BROKER, DATA, DOMAIN, SERVICE, UNIQUE_ID
+from .const import (
+    ATTR_SETPOINT,
+    BROKER,
+    DATA,
+    DOMAIN,
+    SERVICE,
+    UNIQUE_ID,
+    SystemMode,
+    ZoneMode,
+)
 from .schema import (
     CLIMATE_SERVICES,
-    CONF_ADVANCED_OVERRIDE,
     CONF_MODE,
     CONF_SYSTEM_MODE,
     SVC_RESET_SYSTEM_MODE,
@@ -62,8 +69,8 @@ MODE_TCS_TO_HA[SystemMode.RESET] = MODE_TCS_TO_HA[SystemMode.AUTO]
 MODE_TO_TCS = {
     HVAC_MODE_HEAT: SystemMode.AUTO,
     HVAC_MODE_OFF: SystemMode.HEAT_OFF,
+    HVAC_MODE_AUTO: SystemMode.RESET,  # not all systems support this
 }
-MODE_TO_TCS[HVAC_MODE_AUTO] = SystemMode.RESET  # not all systems support this
 
 PRESET_CUSTOM = "custom"  # NOTE: not an offical PRESET
 
@@ -249,12 +256,7 @@ class EvoZone(EvoZoneBase, ClimateEntity):
     @callback
     def set_temperature(self, **kwargs) -> None:  # set_target_temp (aka setpoint)
         """Set a new target temperature."""
-        if self._broker.config[DOMAIN][CONF_ADVANCED_OVERRIDE]:
-            self.svc_set_zone_mode(
-                mode=ZoneMode.ADVANCED, setpoint=kwargs.get(ATTR_TEMPERATURE)
-            )
-        else:
-            self.svc_set_zone_mode(setpoint=kwargs.get(ATTR_TEMPERATURE))
+        self.svc_set_zone_mode(setpoint=kwargs.get(ATTR_TEMPERATURE))
 
     @callback
     def svc_reset_zone_config(self) -> None:
@@ -290,6 +292,7 @@ class EvoZone(EvoZoneBase, ClimateEntity):
         """
         self._device.sensor._make_fake()
         self._device.sensor.temperature = temperature
+        self._device._get_temp()
         self.update_ha_state()
 
 
@@ -325,7 +328,6 @@ class EvoController(EvoZoneBase, ClimateEntity):
             "relay_demands": self._device.relay_demands,
             "system_mode": self._device.system_mode,
             "tpi_params": self._device.tpi_params,
-            "schema": self._device.schema,
         }
 
     @property
@@ -409,9 +411,13 @@ class EvoController(EvoZoneBase, ClimateEntity):
         if payload.get(UNIQUE_ID) != self.unique_id:
             return
         elif payload[SERVICE] == SVC_RESET_SYSTEM_MODE:
-            self._call_client_api(self._device.svc_reset_system_mode)
+            self._call_client_api(self._device.reset_mode)
         elif payload[SERVICE] == SVC_SET_SYSTEM_MODE:
-            self._call_client_api(self._device.svc_reset_system_mode, **payload[DATA])
+            kwargs = dict(payload[DATA])
+            kwargs["system_mode"] = kwargs.pop("mode", None)
+            until = kwargs.pop("duration", None) or kwargs.pop("period", None)
+            kwargs["until"] = (dt.now() + until) if until else None
+            self._call_client_api(self._device.set_mode, **kwargs)
 
     @callback
     def svc_reset_system_mode(self) -> None:

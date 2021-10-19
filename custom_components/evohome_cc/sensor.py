@@ -9,44 +9,62 @@ Provides support for sensors.
 import logging
 from typing import Any, Dict, Optional
 
-from homeassistant.components.sensor import STATE_CLASS_MEASUREMENT, SensorEntity
+from homeassistant.components.sensor import (
+    STATE_CLASS_MEASUREMENT,
+    SensorEntity,
+    SensorEntityDescription,
+)
 from homeassistant.const import (  # DEVICE_CLASS_BATTERY,; DEVICE_CLASS_PROBLEM,
     DEVICE_CLASS_HUMIDITY,
     DEVICE_CLASS_PRESSURE,
     DEVICE_CLASS_TEMPERATURE,
     TEMP_CELSIUS,
 )
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import ConfigType, HomeAssistantType
 
 from . import EvoDeviceBase
 from .const import ATTR_SETPOINT, BROKER, DOMAIN, PERCENTAGE
 
+SENSOR_KEY_TEMPERATURE = "temperature"
+
+SENSOR_DESCRIPTION_TEMPERATURE = SensorEntityDescription(
+    key=SENSOR_KEY_TEMPERATURE,
+    name="Temperature",
+    device_class=DEVICE_CLASS_TEMPERATURE,
+    native_unit_of_measurement=TEMP_CELSIUS,
+    state_class=STATE_CLASS_MEASUREMENT,
+)
+# sensor.entity_description = SENSOR_DESCRIPTION_TEMPERATURE
+
 _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_platform(
-    hass: HomeAssistantType, config: ConfigType, async_add_entities, discovery_info=None
+    hass: HomeAssistantType,
+    config: ConfigType,
+    async_add_entities: AddEntitiesCallback,
+    discovery_info=None,
 ) -> None:
     """Set up the evohome sensor sensor entities."""
     if discovery_info is None:
         return
 
-    new_devices = [
+    devices = [
         v.get(ENTITY_CLASS, EvoSensor)(hass.data[DOMAIN][BROKER], device, k, **v)
-        for device in discovery_info["new_devices"]
+        for device in discovery_info.get("devices", [])
         for k, v in SENSOR_ATTRS.items()
         if hasattr(device, k)
-    ]
+    ]  # and (not device._is_faked or device["fakable"])
 
-    new_domains = [
+    domains = [
         v.get(ENTITY_CLASS, EvoSensor)(hass.data[DOMAIN][BROKER], domain, k, **v)
-        for domain in discovery_info["new_domains"]
+        for domain in discovery_info.get("domains", [])
         for k, v in SENSOR_ATTRS.items()
         if k == "heat_demand" and hasattr(domain, k)
     ]
 
-    if new_devices or new_domains:
-        async_add_entities(new_devices + new_domains)
+    async_add_entities(devices + domains)
 
 
 class EvoSensor(EvoDeviceBase, SensorEntity):
@@ -87,6 +105,26 @@ class EvoHeatDemand(EvoSensor):
     def icon(self) -> str:
         """Return the icon to use in the frontend, if any."""
         return "mdi:radiator-off" if self.state == 0 else "mdi:radiator"
+
+
+class EvoModLevel(EvoSensor):
+    """Representation of a heat demand sensor."""
+
+    @property
+    def device_state_attributes(self) -> Dict[str, Any]:
+        """Return the integration-specific state attributes."""
+        attrs = super().device_state_attributes
+
+        if self._state_attr in "modulation_level":
+            attrs["status"] = {
+                self._device.ACTUATOR_CYCLE: self._device.actuator_cycle,
+                self._device.ACTUATOR_STATE: self._device.actuator_state,
+                self._device.BOILER_SETPOINT: self._device.boiler_setpoint,
+            }
+        else:  # self._state_attr == "relative_modulation_level"
+            attrs["status"] = self._device.opentherm_status
+
+        return attrs
 
 
 class EvoRelayDemand(EvoSensor):
@@ -158,6 +196,7 @@ SENSOR_ATTRS = {
     },
     "modulation_level": {  # 3EF0/3EF1
         DEVICE_UNITS: PERCENTAGE,
+        ENTITY_CLASS: EvoModLevel,
     },
     # SENSOR_ATTRS_OTB = {  # excl. actuator
     "boiler_setpoint": {  # 22D9
@@ -182,6 +221,7 @@ SENSOR_ATTRS = {
     },
     "relative_modulation_level": {  # 3200
         DEVICE_UNITS: PERCENTAGE,
+        ENTITY_CLASS: EvoModLevel,
     },
     "return_water_temperature": {  # 3220
         DEVICE_CLASS: DEVICE_CLASS_TEMPERATURE,
@@ -197,16 +237,17 @@ SENSOR_ATTRS = {
         DEVICE_CLASS: DEVICE_CLASS_TEMPERATURE,
         DEVICE_UNITS: TEMP_CELSIUS,
         ENTITY_CLASS: EvoTemperature,
-        # SENSOR_ATTRS_FAN = {
-        "boost_timer": {
-            DEVICE_UNITS: "min(s)",
-        },
-        "fan_rate": {
-            DEVICE_UNITS: PERCENTAGE,
-        },
-        "relative_humidity": {
-            DEVICE_CLASS: DEVICE_CLASS_HUMIDITY,
-            DEVICE_UNITS: PERCENTAGE,
-        },
+        "fakable": True,
+    },
+    # SENSOR_ATTRS_FAN = {
+    "boost_timer": {
+        DEVICE_UNITS: "min(s)",
+    },
+    "fan_rate": {
+        DEVICE_UNITS: PERCENTAGE,
+    },
+    "relative_humidity": {
+        DEVICE_CLASS: DEVICE_CLASS_HUMIDITY,
+        DEVICE_UNITS: PERCENTAGE,
     },
 }

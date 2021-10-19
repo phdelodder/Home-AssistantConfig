@@ -28,24 +28,32 @@ async def async_setup_platform(
     hass: HomeAssistantType, config: ConfigType, async_add_entities, discovery_info=None
 ) -> None:
     """Set up the evohome sensor entities."""
+
     if discovery_info is None:
         return
 
-    new_devices = [
+    devices = [
         v.get(ENTITY_CLASS, EvoBinarySensor)(hass.data[DOMAIN][BROKER], device, k, **v)
-        for device in discovery_info["new_devices"]
+        for device in discovery_info.get("devices", [])
         for k, v in BINARY_SENSOR_ATTRS.items()
         if hasattr(device, k)
     ]
 
-    new_systems = [
+    systems = [
         EvoSystem(hass.data[DOMAIN][BROKER], system._evo, "schema")
-        for system in discovery_info["new_devices"]
+        for system in discovery_info.get("devices", [])
         if hasattr(system, "_evo") and system._is_controller
     ]
 
-    if new_devices:
-        async_add_entities(new_devices + new_systems)
+    gateway = (
+        []
+        if not discovery_info.get("gateway")
+        else [
+            EvoGateway(hass.data[DOMAIN][BROKER], discovery_info["gateway"], "config")
+        ]
+    )
+
+    async_add_entities(devices + systems + gateway)
 
 
 class EvoBinarySensor(EvoDeviceBase, BinarySensorEntity):
@@ -87,9 +95,9 @@ class EvoBattery(EvoBinarySensor):
 
 
 class EvoSystem(EvoEntity, BinarySensorEntity):
-    """Representation of a generic sensor."""
+    """Representation of a system (a controller)."""
 
-    def __init__(self, broker, device, state_attr, device_class=None, **kwargs) -> None:
+    def __init__(self, broker, device, state_attr, **kwargs) -> None:
         """Initialize a binary sensor."""
         _LOGGER.info("Found a System (%s), id=%s", state_attr, device.id)
         super().__init__(broker, device)
@@ -99,7 +107,7 @@ class EvoSystem(EvoEntity, BinarySensorEntity):
 
     @property
     def available(self) -> bool:
-        """Return True if the controller has been seen recently."""
+        """Return True if the device has been seen recently."""
         if msg := self._device._msgs.get("1F09"):
             return dt.now() - msg.dtm < td(seconds=msg.payload["remaining_seconds"] * 2)
 
@@ -107,11 +115,49 @@ class EvoSystem(EvoEntity, BinarySensorEntity):
     def device_state_attributes(self) -> Dict[str, Any]:
         """Return the integration-specific state attributes."""
         return {
-            "schema_min": self._device._evo.schema_min,
             "schema": self._device._evo.schema,
-            "known_list": [{k: v} for k, v in self._device._gwy._include.items()],
-            "block_list": [{k: v} for k, v in self._device._gwy._exclude.items()],
-            "other_list": sorted(self._device._gwy.pkt_protocol._unwanted),
+        }
+
+    @property
+    def is_on(self) -> Optional[bool]:
+        """Return True if the controller has been seen recently."""
+        return self.available
+
+    @property
+    def name(self) -> str:
+        """Return the name of the sensor."""
+        return self._name
+
+
+class EvoGateway(EvoEntity, BinarySensorEntity):
+    """Representation of a gateway (a HGI80)."""
+
+    def __init__(self, broker, device, state_attr, **kwargs) -> None:
+        """Initialize a binary sensor."""
+        _LOGGER.info("Found a Gateway (%s), id=%s", state_attr, device.id)
+        super().__init__(broker, device)
+
+        self._name = f"{device.id} (config)"
+        self._unique_id = f"{device.id}-config"
+
+    @property
+    def available(self) -> bool:
+        """Return True if the device has been seen recently."""
+        return True
+        # if msgs := sorted(self._device._msgs):
+        #     return dt.now() - msgs[0].dtm < td(seconds=300)
+
+    @property
+    def device_state_attributes(self) -> Dict[str, Any]:
+        """Return the integration-specific state attributes."""
+        gwy = self._device._gwy
+        return {
+            "schema": gwy.evo.schema_min,
+            "config": {"enforce_known_list": gwy.config.enforce_known_list},
+            "known_list": [{k: v} for k, v in gwy._include.items()],
+            "block_list": [{k: v} for k, v in gwy._exclude.items()],
+            "other_list": sorted(gwy.pkt_protocol._unwanted),
+            "_is_evofw3": gwy.pkt_protocol._hgi80["is_evofw3"],
         }
 
     @property
@@ -133,7 +179,7 @@ BINARY_SENSOR_ATTRS = {
         DEVICE_CLASS: DEVICE_CLASS_BATTERY,
         ENTITY_CLASS: EvoBattery,
     },
-    "enabled": {
+    "active": {
         ENTITY_CLASS: EvoActuator,
     },
     "window_open": {

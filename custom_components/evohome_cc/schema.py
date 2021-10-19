@@ -11,7 +11,6 @@ from homeassistant.const import ATTR_ENTITY_ID as CONF_ENTITY_ID
 from homeassistant.const import CONF_SCAN_INTERVAL
 from homeassistant.core import callback
 from homeassistant.helpers import config_validation as cv
-from ramses_rf.protocol.const import SYSTEM_MODE_LOOKUP, SystemMode, ZoneMode
 from ramses_rf.protocol.schema import LOG_FILE_NAME, LOG_ROTATE_BYTES, LOG_ROTATE_COUNT
 from ramses_rf.schema import (
     BLOCK_LIST,
@@ -28,7 +27,7 @@ from ramses_rf.schema import (
     SERIAL_PORT,
 )
 
-from .const import DOMAIN
+from .const import DOMAIN, SYSTEM_MODE_LOOKUP, SystemMode, ZoneMode
 
 CONF_MODE = "mode"
 CONF_SYSTEM_MODE = "system_mode"
@@ -53,7 +52,6 @@ CONF_OVERRUN = "overrun"
 SCAN_INTERVAL_DEFAULT = td(seconds=300)
 SCAN_INTERVAL_MINIMUM = td(seconds=10)
 
-CONF_ADVANCED_OVERRIDE = "advanced_override"
 CONF_RESTORE_STATE = "restore_state"
 
 PACKET_LOG_SCHEMA = vol.Schema(
@@ -97,7 +95,7 @@ SET_SYSTEM_MODE_SCHEMA = vol.Schema(
 SET_SYSTEM_MODE_SCHEMA_HOURS = vol.Schema(
     {
         vol.Required(CONF_MODE): vol.In([SystemMode.ECO_BOOST]),
-        vol.Optional(CONF_DURATION_HOURS, default=td(hours=1)): vol.All(
+        vol.Optional(CONF_DURATION, default=td(hours=1)): vol.All(
             cv.time_period, vol.Range(min=td(hours=1), max=td(hours=24))
         ),
     }
@@ -219,7 +217,7 @@ CONF_DHW_MODES = (
     ZoneMode.TEMPORARY,
 )
 
-SET_DHW_BASE_SCHEMA = vol.Schema({vol.Required(CONF_ENTITY_ID): cv.entity_id})
+SET_DHW_BASE_SCHEMA = vol.Schema({})
 
 SET_DHW_MODE_SCHEMA = SET_DHW_BASE_SCHEMA.extend(
     {
@@ -273,7 +271,6 @@ CONFIG_SCHEMA = vol.Schema(
                 vol.Optional(KNOWN_LIST, default=[]): DEVICE_LIST,
                 vol.Optional(BLOCK_LIST, default=[]): DEVICE_LIST,
                 vol.Optional(CONFIG, default={}): CONFIG_SCHEMA,
-                vol.Optional(CONF_ADVANCED_OVERRIDE, default=True): bool,
                 vol.Optional(CONF_RESTORE_STATE, default=True): bool,
                 vol.Optional(
                     CONF_SCAN_INTERVAL, default=SCAN_INTERVAL_DEFAULT
@@ -311,7 +308,6 @@ def normalise_config_schema(kwargs) -> Tuple[str, dict]:
     config = dict(kwargs)
 
     del config[CONF_SCAN_INTERVAL]
-    config.pop(CONF_ADVANCED_OVERRIDE, None)
     config.pop(CONF_RESTORE_STATE, None)
     config.pop(SVC_SEND_PACKET, None)
 

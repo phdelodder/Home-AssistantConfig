@@ -554,11 +554,11 @@
   sensors:
     total_current_daily:
       friendly_name: "Total Current Daily"
-      value_template: "{{ (states('sensor.droogkast_current_usage_daily_normaal') | float + states('sensor.wasmachine_current_usage_daily_normaal') | float + states('sensor.boiler_keuken_current_usage_daily_normaal') | float + states('sensor.koelkast_vriezer_garage_current_usage_daily_normaal') | float + states('sensor.waterpump_current_usage_daily_normaal') | float + states('sensor.shelly_shdm_1_d0f117_current_usage_daily_normaal') | float + states('sensor.shelly_shsw_25_00c928_1_current_usage_daily_normaal') | float + states('sensor.shelly_shsw_25_00c928_2_current_usage_daily_normaal') | float + states('sensor.koelkast_vriezer_berging_current_usage_daily_normaal') | float + states('sensor.koelkast_keuken_current_usage_daily_normaal') | float + states('sensor.vriezer_garage_current_usage_daily_normaal') | float) | round(2) }}"
+      value_template: "{{ (states('sensor.droogkast_current_usage_daily_normaal') | float + states('sensor.wasmachine_current_usage_daily_normaal') | float + states('sensor.boiler_keuken_current_usage_daily_normaal') | float + states('sensor.koelkast_vriezer_garage_current_usage_daily_normaal') | float + states('sensor.waterpump_current_usage_daily_normaal') | float + states('sensor.verlichting_gang_eerste_verdiep_current_usage_daily_normaal') | float + states('sensor.verlichting_voordeur_current_usage_daily_normaal') | float + states('sensor.verlichting_inkom_current_usage_daily_normaal') | float + states('sensor.koelkast_vriezer_berging_current_usage_daily_normaal') | float + states('sensor.koelkast_keuken_current_usage_daily_normaal') | float + states('sensor.vriezer_garage_current_usage_daily_normaal') | float) | round(2) }}"
       unit_of_measurement: "kwh"
     total_current_yearly:
       friendly_name: "Total Current yearly"
-      value_template: "{{ (states('sensor.droogkast_current_usage_yearly_normaal') | float + states('sensor.wasmachine_current_usage_yearly_normaal') | float + states('sensor.boiler_keuken_current_usage_yearly_normaal') | float + states('sensor.koelkast_vriezer_garage_current_usage_yearly_normaal') | float + states('sensor.waterpump_current_usage_yearly_normaal') | float + states('sensor.shelly_shdm_1_d0f117_current_usage_yearly_normaal') | float + states('sensor.shelly_shsw_25_00c928_1_current_usage_yearly_normaal') | float + states('sensor.shelly_shsw_25_00c928_2_current_usage_yearly_normaal') | float + states('sensor.koelkast_vriezer_berging_current_usage_yearly_normaal') | float + states('sensor.koelkast_keuken_current_usage_yearly_normaal') | float  + states('sensor.garage_vriezer_current_usage_yearly_normaal') | float) | round(2) }}"
+      value_template: "{{ (states('sensor.droogkast_current_usage_yearly_normaal') | float + states('sensor.wasmachine_current_usage_yearly_normaal') | float + states('sensor.boiler_keuken_current_usage_yearly_normaal') | float + states('sensor.koelkast_vriezer_garage_current_usage_yearly_normaal') | float + states('sensor.waterpump_current_usage_yearly_normaal') | float + states('sensor.verlichting_gang_eerste_verdiep_current_usage_yearly_normaal') | float + states('sensor.verlichting_voordeur_current_usage_yearly_normaal') | float + states('sensor.verlichting_inkom_current_usage_yearly_normaal') | float + states('sensor.koelkast_vriezer_berging_current_usage_yearly_normaal') | float + states('sensor.koelkast_keuken_current_usage_yearly_normaal') | float  + states('sensor.garage_vriezer_current_usage_yearly_normaal') | float) | round(2) }}"
       unit_of_measurement: "kwh"  
 
 - platform: template
@@ -593,17 +593,32 @@
 
 - platform: template
   sensors:
+    computer_current_daily:
+      value_template: "{{ (states('sensor.computer_current_usage_daily_normaal') | float) | round(2) }}"
+      unit_of_measurement: "kwh"
+    computer_current_weekly:
+      value_template: "{{ (states('sensor.computer_current_usage_weekly_normaal') | float) | round(2) }}"
+      unit_of_measurement: "kwh"
+    computer_current_monthly:
+      value_template: "{{ (states('sensor.computer_current_usage_monthly_normaal') | float) | round(2) }}"
+      unit_of_measurement: "kwh"
+    computer_current_yearly:
+      value_template: "{{ (states('sensor.computer_current_usage_yearly_normaal') | float) | round(2) }}"
+      unit_of_measurement: "kwh"
+
+- platform: template
+  sensors:
     lights_current_daily:
-      value_template: "{{ (states('sensor.shelly_shdm_1_d0f117_current_usage_daily_normaal') | float + states('sensor.shelly_shsw_25_00c928_1_current_usage_daily_normaal') | float + states('sensor.shelly_shsw_25_00c928_2_current_usage_daily_normaal') | float) | round(2) }}"
+      value_template: "{{ (states('sensor.verlichting_gang_eerste_verdiep_current_usage_daily_normaal') | float + states('sensor.verlichting_voordeur_current_usage_daily_normaal') | float + states('sensor.verlichting_inkom_current_usage_daily_normaal') | float) | round(2) }}"
       unit_of_measurement: "kwh"
     lights_current_weekly:
-      value_template: "{{ (states('sensor.shelly_shdm_1_d0f117_current_usage_weekly_normaal') | float + states('sensor.shelly_shsw_25_00c928_1_current_usage_weekly_normaal') | float + states('sensor.shelly_shsw_25_00c928_2_current_usage_weekly_normaal') | float) | round(2) }}"
+      value_template: "{{ (states('sensor.verlichting_gang_eerste_verdiep_current_usage_weekly_normaal') | float + states('sensor.verlichting_voordeur_current_usage_weekly_normaal') | float + states('sensor.verlichting_inkom_current_usage_weekly_normaal') | float) | round(2) }}"
       unit_of_measurement: "kwh"
     lights_current_monthly:
-      value_template: "{{ (states('sensor.shelly_shdm_1_d0f117_current_usage_monthly_normaal') | float + states('sensor.shelly_shsw_25_00c928_1_current_usage_monthly_normaal') | float + states('sensor.shelly_shsw_25_00c928_2_current_usage_monthly_normaal') | float) | round(2) }}"
+      value_template: "{{ (states('sensor.verlichting_gang_eerste_verdiep_current_usage_monthly_normaal') | float + states('sensor.verlichting_voordeur_current_usage_monthly_normaal') | float + states('sensor.verlichting_inkom_current_usage_monthly_normaal') | float) | round(2) }}"
       unit_of_measurement: "kwh"
     lights_current_yearly:
-      value_template: "{{ (states('sensor.shelly_shdm_1_d0f117_current_usage_yearly_normaal') | float + states('sensor.shelly_shsw_25_00c928_1_current_usage_yearly_normaal') | float + states('sensor.shelly_shsw_25_00c928_2_current_usage_yearly_normaal') | float) | round(2) }}"
+      value_template: "{{ (states('sensor.verlichting_gang_eerste_verdiep_current_usage_yearly_normaal') | float + states('sensor.verlichting_voordeur_current_usage_yearly_normaal') | float + states('sensor.verlichting_inkom_current_usage_yearly_normaal') | float) | round(2) }}"
       unit_of_measurement: "kwh"
 
 - platform: template
@@ -611,17 +626,18 @@
     current_consumption:
       value_template: >
         {{
-          (states('sensor.waterpomp') | float +
-          states('sensor.shelly_shdm_1_d0f117_current_consumption') | float +
-          states('sensor.shelly_shsw_25_00c928_1_current_consumption') | float +
-          states('sensor.shelly_shsw_25_00c928_2_current_consumption') | float +
-          states('sensor.koelkast_vriezer_berging') | float +
-          states('sensor.koelkast_vriezer_garage') | float +
-          states('sensor.koelkast_keuken') | float +
-          states('sensor.vriezer_garage') | float +
-          states('sensor.boiler_keuken') | float +
-          states('sensor.wasmachine') | float +
-          states('sensor.droogkast') | float)
+          (states('sensor.waterpomp') | float(0) +
+          states('sensor.verlichting_gang_eerste_verdiep_current_consumption') | float(0) +
+          states('sensor.verlichting_inkom_power') | float(0) +
+          states('sensor.verlichting_voordeur_power') | float(0) +
+          states('sensor.koelkast_vriezer_berging') | float(0) +
+          states('sensor.koelkast_vriezer_garage') | float(0) +
+          states('sensor.koelkast_keuken') | float(0) +
+          states('sensor.vriezer_garage') | float(0) +
+          states('sensor.boiler_keuken') | float(0) +
+          states('sensor.wasmachine') | float(0) +
+          states('sensor.droogkast') | float(0) +
+          states('sensor.computer') | float(0))
         }}
       unit_of_measurement: "w"
 
@@ -739,12 +755,18 @@
     fc_heat_demand:
       friendly_name: "Boiler Demand"
       unit_of_measurement: "%"
-      value_template: "{{ state_attr('climate.huis', 'heat_demands').FC | float * 100 }}"
+      value_template: >-
+        {{ state_attr('climate.huis', 'relay_demands').FC * 100 }}
 
     fc_relay_demand:
       friendly_name: "Boiler Relay"
       unit_of_measurement: "%"
-      value_template: "{{ state_attr('climate.huis', 'relay_demands').FC | float * 100 }}"
+      value_template: >-
+        {% if state_attr('climate.huis', 'heat_demands') != None %}
+          {% if state_attr('climate.huis', 'heat_demands').get('FC') != None %}
+            {{ state_attr('climate.huis', 'heat_demands').FC * 100 }}
+          {%- endif %}
+        {%- endif %}
 
 - platform: history_stats
   name: Verwarmen Vandaag

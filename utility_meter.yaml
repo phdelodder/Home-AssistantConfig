@@ -35,65 +35,65 @@ waterpump_current_usage_yearly:
   tariffs:
     - normaal
 
-shelly_shdm_1_d0f117_current_usage_daily:
-  source: sensor.shelly_shdm_1_d0f117_total_consumption
+verlichting_gang_eerste_verdiep_current_usage_daily:
+  source: sensor.verlichting_gang_eerste_verdiep_energy
   cycle: daily
   tariffs:
     - normaal
-shelly_shdm_1_d0f117_current_usage_weekly:
-  source: sensor.shelly_shdm_1_d0f117_total_consumption
+verlichting_gang_eerste_verdiep_current_usage_weekly:
+  source: sensor.verlichting_gang_eerste_verdiep_energy
   cycle: weekly
   tariffs:
     - normaal
-shelly_shdm_1_d0f117_current_usage_monthly:
-  source: sensor.shelly_shdm_1_d0f117_total_consumption
+verlichting_gang_eerste_verdiep_current_usage_monthly:
+  source: sensor.verlichting_gang_eerste_verdiep_energy
   cycle: monthly
   tariffs:
     - normaal
-shelly_shdm_1_d0f117_current_usage_yearly:
-  source: sensor.shelly_shdm_1_d0f117_total_consumption
+verlichting_gang_eerste_verdiep_current_usage_yearly:
+  source: sensor.verlichting_gang_eerste_verdiep_energy
   cycle: yearly
   tariffs:
     - normaal
 
-shelly_shsw_25_00c928_1_current_usage_daily:
-  source: sensor.shelly_shsw_25_00c928_1_total_consumption
+verlichting_voordeur_current_usage_daily:
+  source: sensor.verlichting_voordeur_energy
   cycle: daily
   tariffs:
     - normaal
-shelly_shsw_25_00c928_1_current_usage_weekly:
-  source: sensor.shelly_shsw_25_00c928_1_total_consumption
+verlichting_voordeur_current_usage_weekly:
+  source: sensor.verlichting_voordeur_energy
   cycle: weekly
   tariffs:
     - normaal
-shelly_shsw_25_00c928_1_current_usage_monthly:
-  source: sensor.shelly_shsw_25_00c928_1_total_consumption
+verlichting_voordeur_current_usage_monthly:
+  source: sensor.verlichting_voordeur_energy
   cycle: monthly
   tariffs:
     - normaal
-shelly_shsw_25_00c928_1_current_usage_yearly:
-  source: sensor.shelly_shsw_25_00c928_1_total_consumption
+verlichting_voordeur_current_usage_yearly:
+  source: sensor.verlichting_voordeur_energy
   cycle: yearly
   tariffs:
     - normaal
 
-shelly_shsw_25_00c928_2_current_usage_daily:
-  source: sensor.shelly_shsw_25_00c928_2_total_consumption
+verlichting_inkom_current_usage_daily:
+  source: sensor.verlichting_inkom_energy
   cycle: daily
   tariffs:
     - normaal
-shelly_shsw_25_00c928_2_current_usage_weekly:
-  source: sensor.shelly_shsw_25_00c928_2_total_consumption
+verlichting_inkom_current_usage_weekly:
+  source: sensor.verlichting_inkom_energy
   cycle: weekly
   tariffs:
     - normaal
-shelly_shsw_25_00c928_2_current_usage_monthly:
-  source: sensor.shelly_shsw_25_00c928_2_total_consumption
+verlichting_inkom_current_usage_monthly:
+  source: sensor.verlichting_inkom_energy
   cycle: monthly
   tariffs:
     - normaal
-shelly_shsw_25_00c928_2_current_usage_yearly:
-  source: sensor.shelly_shsw_25_00c928_2_total_consumption
+verlichting_inkom_current_usage_yearly:
+  source: sensor.verlichting_inkom_energy
   cycle: yearly
   tariffs:
     - normaal
@@ -241,6 +241,27 @@ droogkast_current_usage_monthly:
     - normaal
 droogkast_current_usage_yearly:
   source: sensor.droogkast_consumption
+  cycle: yearly
+  tariffs:
+    - normaal
+
+computer_current_usage_daily:
+  source: sensor.computer_consumption
+  cycle: daily
+  tariffs:
+    - normaal
+computer_current_usage_weekly:
+  source: sensor.computer_consumption
+  cycle: weekly
+  tariffs:
+    - normaal
+computer_current_usage_monthly:
+  source: sensor.computer_consumption
+  cycle: monthly
+  tariffs:
+    - normaal
+computer_current_usage_yearly:
+  source: sensor.computer_consumption
   cycle: yearly
   tariffs:
     - normaal
