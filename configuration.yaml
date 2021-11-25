@@ -24,9 +24,10 @@ logger:
   default: warning                  # don't use debug
 
   logs:
-    # homeassistant.core: debug
     custom_components.evohome_cc: warn
     ramses_rf.message: info
+    ramses_rf.protocol.message: info
+    fritzconnection: info
 
 # Text to speech
 tts:
@@ -134,11 +135,13 @@ evohome_cc:
   serial_port: /dev/ttyUSB0
   scan_interval: 60
   packet_log: /config/evohome_cc_packet.log
-  config:
+  ramses_rf:
     enforce_known_list: true
   schema:
     controller: 01:223036
-  restore_state: false
+    system:
+      heating_control: 10:040239
+  restore_state: true
   known_list:
     - 01:223036
     - 10:040239

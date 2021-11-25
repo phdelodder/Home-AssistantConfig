@@ -6,6 +6,7 @@
 Requires a Honeywell HGI80 (or compatible) gateway.
 """
 
+import asyncio
 import logging
 from datetime import datetime as dt
 from datetime import timedelta as td
@@ -58,45 +59,45 @@ async def async_setup(hass: HomeAssistantType, hass_config: ConfigType) -> bool:
     """Create a Honeywell RF (RAMSES_II)-based system."""
 
     async def async_handle_exceptions(awaitable):
-        """Wrap the serial port interface to catch exceptions."""
+        """Wrap the serial port interface to catch/report exceptions."""
         try:
             return await awaitable
         except serial.SerialException as exc:
-            _LOGGER.error("There is a problem with the serial port: %s", exc)
+            _LOGGER.exception("There is a problem with the serial port: %s", exc)
             raise exc
 
     _LOGGER.debug(f"{DOMAIN} v{VERSION}, is using ramses_rf v{ramses_rf.VERSION}")
 
-    _LOGGER.debug("\r\n\nConfig =  %s\r\n", hass_config[DOMAIN])
-
     store = hass.helpers.storage.Store(STORAGE_VERSION, STORAGE_KEY)
-    evohome_store = await EvoBroker.async_load_store(store)
-    _LOGGER.debug("\r\n\nStore = %s\r\n", evohome_store)
 
-    serial_port, kwargs = normalise_config_schema(hass_config[DOMAIN])
-    client = ramses_rf.Gateway(serial_port, loop=hass.loop, **kwargs)
-
-    hass.data[DOMAIN] = {}
-    hass.data[DOMAIN][BROKER] = broker = EvoBroker(hass, client, store, hass_config)
+    app_storage = await EvoBroker.async_load_store(store)
 
     if hass_config[DOMAIN].get(CONF_RESTORE_STATE):
-        _LOGGER.debug("Restoring client state...")
-        await broker.async_load_client_state()
-        await broker.async_update()
-    else:
-        _LOGGER.info("The restore client state feature has not been enabled.")
-        hass.helpers.event.async_call_later(10, broker.async_update)
-        hass.helpers.event.async_call_later(30, broker.async_update)
+        _LOGGER.debug("Restoring the client state (schema)...")
 
-    broker.loop_task = hass.loop.create_task(async_handle_exceptions(client.start()))
-
-    hass.helpers.event.async_track_time_interval(
-        broker.async_update, hass_config[DOMAIN][CONF_SCAN_INTERVAL]
+    serial_port, config, schema = normalise_config_schema(
+        hass_config[DOMAIN], app_storage
     )
+
+    client = ramses_rf.Gateway(serial_port, loop=hass.loop, **config, **schema)
+
+    broker = EvoBroker(hass, client, store, hass_config)
+    hass.data[DOMAIN] = {BROKER: broker}
+
+    if hass_config[DOMAIN].get(CONF_RESTORE_STATE):
+        _LOGGER.debug("Restoring the client state (packets)...")
+        await broker.async_load_client_state(app_storage)
+
+    _LOGGER.debug("Starting the RF monitor...")
+    broker.loop_task = hass.loop.create_task(async_handle_exceptions(client.start()))
 
     hass.helpers.event.async_track_time_interval(
         broker.async_save_client_state, SAVE_STATE_INTERVAL
     )
+    hass.helpers.event.async_track_time_interval(
+        broker.async_update, hass_config[DOMAIN][CONF_SCAN_INTERVAL]
+    )
+    # hass.helpers.event.async_call_later(30, broker.async_update)
 
     register_service_functions(hass, broker)
 
@@ -114,11 +115,13 @@ def register_service_functions(hass: HomeAssistantType, broker):
         except LookupError as exc:
             _LOGGER.error("%s", exc)
             return
-        await broker.async_update()
+        await asyncio.sleep(1)
+        async_dispatcher_send(hass, DOMAIN)
 
     @verify_domain_control(hass, DOMAIN)
     async def svc_force_refresh(call) -> None:
-        await broker.async_update()  #: includes async_dispatcher_send(hass, DOMAIN)
+        await broker.async_update()
+        # includes: async_dispatcher_send(hass, DOMAIN)
 
     @verify_domain_control(hass, DOMAIN)
     async def svc_reset_system_mode(call) -> None:
@@ -128,7 +131,6 @@ def register_service_functions(hass: HomeAssistantType, broker):
             DATA: call.data,
         }
         async_dispatcher_send(hass, DOMAIN, payload)
-        # async_dispatcher_send(hass, DOMAIN)  # TODO: remove
 
     @verify_domain_control(hass, DOMAIN)
     async def svc_set_system_mode(call) -> None:
@@ -138,12 +140,12 @@ def register_service_functions(hass: HomeAssistantType, broker):
             DATA: call.data,
         }
         async_dispatcher_send(hass, DOMAIN, payload)
-        # async_dispatcher_send(hass, DOMAIN)  # TODO: remove
 
     @verify_domain_control(hass, DOMAIN)
     async def svc_send_packet(call) -> None:
         broker.client.send_cmd(broker.client.make_cmd(**call.data))
-        # async_dispatcher_send(hass, DOMAIN)  # TODO: remove
+        await asyncio.sleep(1)
+        async_dispatcher_send(hass, DOMAIN)
 
     @verify_domain_control(hass, DOMAIN)
     async def svc_call_dhw_svc(call) -> None:
@@ -198,15 +200,16 @@ class EvoBroker:
         self._lock = Lock()
 
     @staticmethod
-    async def async_load_store(store) -> Optional[Dict]:
-        app_storage = await store.async_load()
+    async def async_load_store(store) -> Dict:
+        """May return an empty dict."""
+        app_storage = await store.async_load()  # return None if no store
         return dict(app_storage or {})
 
-    async def async_load_client_state(self) -> None:
+    async def async_load_client_state(self, app_storage) -> None:
         """Restore the client state from the app store."""
-        app_storage = await self.async_load_store(self._store)
-        if app_storage.get("client_state"):
-            await self.client._set_state(**app_storage["client_state"])
+        # app_storage = await self.async_load_store(self._store)
+        if client_state := app_storage.get("client_state"):
+            await self.client._set_state(packets=client_state["packets"])
 
     async def async_save_client_state(self, *args, **kwargs) -> None:
         """Save the client state to the app store"""
@@ -255,7 +258,7 @@ class EvoBroker:
         if self._hgi is None and self.client.hgi:
             discovery_info["gateway"] = self._hgi = self.client.hgi
 
-        if new_devices := [
+        new_devices = [
             d
             for d in self.client.devices
             if d not in self._devices
@@ -264,7 +267,9 @@ class EvoBroker:
                 and d.id in self.client._include
                 or d.id not in self.client._exclude
             )
-        ]:
+        ]
+
+        if new_devices:
             discovery_info["devices"] = new_devices
             self._devices.extend(new_devices)
 
@@ -310,6 +315,7 @@ class EvoBroker:
 
         # inform the evohome devices that their state data may have changed
         async_dispatcher_send(self.hass, DOMAIN)
+        # TODO: no good here, as async_setup_platform will be called later
 
 
 class EvoEntity(Entity):
@@ -324,7 +330,7 @@ class EvoEntity(Entity):
         self._unique_id = self._name = None
         self._entity_state_attrs = ()
 
-        self.update_ha_state(delay=5)  # give time to collect entire state
+        # NOTE: this is bad: self.update_ha_state(delay=5)
 
     @callback
     def async_handle_dispatch(self, *args) -> None:  # TODO: remove as unneeded?
@@ -399,6 +405,11 @@ class EvoDeviceBase(EvoEntity):
     @property
     def available(self) -> bool:
         """Return True if the sensor is available."""
+        result = getattr(self._device, self._state_attr)
+        if result is None and getattr(self._device, "type", None) == "07":
+            _LOGGER.debug(self._device._msgs)
+            _LOGGER.debug(self._device._gwy.device_by_id)
+            return False
         return getattr(self._device, self._state_attr) is not None
 
     @property
@@ -411,14 +422,23 @@ class EvoDeviceBase(EvoEntity):
         """Return the integration-specific state attributes."""
         attrs = super().device_state_attributes
         attrs["device_id"] = self._device.id
+
         if hasattr(self._device, "_domain_id"):
             attrs["domain_id"] = self._device._domain_id
+        elif hasattr(self._device, "idx"):
+            attrs["domain_id"] = self._device.idx
+
+        if hasattr(self._device, "name"):
+            attrs["domain_name"] = self._device.name
+        else:
+            try:
+                attrs["domain_name"] = self._device.zone.name
+            except AttributeError:
+                pass
+
         if hasattr(self._device, "role"):
             attrs["role"] = self._device.role
-        try:
-            attrs["domain_name"] = self._device.zone.name
-        except AttributeError:
-            pass
+
         return attrs
 
     @property

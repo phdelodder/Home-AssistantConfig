@@ -88,8 +88,8 @@ class EvoSensor(EvoDeviceBase, SensorEntity):
         state = getattr(self._device, self._state_attr)
         if self.unit_of_measurement == PERCENTAGE:
             return int(state * 200) / 2 if state is not None else None
-        if self.unit_of_measurement == TEMP_CELSIUS:
-            return int(state * 200) / 200 if state is not None else None
+        # if self.unit_of_measurement == TEMP_CELSIUS:
+        #     return int(state * 200) / 200 if state is not None else None
         return state
 
     @property
@@ -199,11 +199,19 @@ SENSOR_ATTRS = {
         ENTITY_CLASS: EvoModLevel,
     },
     # SENSOR_ATTRS_OTB = {  # excl. actuator
-    "boiler_setpoint": {  # 22D9
+    "boiler_output_temp": {  # 3220
         DEVICE_CLASS: DEVICE_CLASS_TEMPERATURE,
         DEVICE_UNITS: TEMP_CELSIUS,
     },
-    "boiler_water_temperature": {  # 3220
+    "boiler_return_temp": {  # 3220
+        DEVICE_CLASS: DEVICE_CLASS_TEMPERATURE,
+        DEVICE_UNITS: TEMP_CELSIUS,
+    },
+    "boiler_setpoint": {  # 3220
+        DEVICE_CLASS: DEVICE_CLASS_TEMPERATURE,
+        DEVICE_UNITS: TEMP_CELSIUS,
+    },
+    "ch_max_setpoint": {  # 3220
         DEVICE_CLASS: DEVICE_CLASS_TEMPERATURE,
         DEVICE_UNITS: TEMP_CELSIUS,
     },
@@ -214,19 +222,21 @@ SENSOR_ATTRS = {
     "dhw_flow_rate": {  # 3220
         DEVICE_UNITS: "l/min",
     },
-    "dhw_temperature": {  # 3220
+    "dhw_setpoint": {  # 3220
         DEVICE_CLASS: DEVICE_CLASS_TEMPERATURE,
         DEVICE_UNITS: TEMP_CELSIUS,
-        ENTITY_CLASS: EvoTemperature,
     },
-    "relative_modulation_level": {  # 3200
+    "dhw_temp": {  # 3220
+        DEVICE_CLASS: DEVICE_CLASS_TEMPERATURE,
+        DEVICE_UNITS: TEMP_CELSIUS,
+    },
+    "outside_temp": {  # 3220
+        DEVICE_CLASS: DEVICE_CLASS_TEMPERATURE,
+        DEVICE_UNITS: TEMP_CELSIUS,
+    },
+    "rel_modulation_level": {  # 3200
         DEVICE_UNITS: PERCENTAGE,
         ENTITY_CLASS: EvoModLevel,
-    },
-    "return_water_temperature": {  # 3220
-        DEVICE_CLASS: DEVICE_CLASS_TEMPERATURE,
-        DEVICE_UNITS: TEMP_CELSIUS,
-        ENTITY_CLASS: EvoTemperature,
     },
     # SENSOR_ATTRS_OTH = {
     "heat_demand": {  # 3150

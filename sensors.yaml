@@ -2,7 +2,7 @@
   sensors:
     temperature_degrees:
       friendly_name: 'Temperature'
-      value_template: '{{states("input_number.temperature") | float }}'
+      value_template: '{{states("input_number.temperature") | float(0)}}'
 
 - platform: time_date
   display_options:
@@ -18,28 +18,28 @@
     zone1_time_today:
       friendly_name: Zone 1 total watering time today
       value_template: >
-        {{ states('sensor.greenhouse_valve_1_history_today') | float * 60 | round }}
+        {{ states('sensor.greenhouse_valve_1_history_today') | float(0)* 60 | round }}
       unit_of_measurement: minutes
       icon_template: mdi:water
 
     zone2_time_today:
       friendly_name: Zone 2 total watering time today
       value_template: >
-        {{ states('sensor.greenhouse_valve_2_history_today') | float * 60 | round }}
+        {{ states('sensor.greenhouse_valve_2_history_today') | float(0)* 60 | round }}
       unit_of_measurement: minutes
       icon_template: mdi:water
         
     zone3_time_today:
       friendly_name: Zone 3 total watering time today
       value_template: >
-        {{ states('sensor.greenhouse_valve_3_history_today') | float * 60 | round }}
+        {{ states('sensor.greenhouse_valve_3_history_today') | float(0)* 60 | round }}
       unit_of_measurement: minutes
       icon_template: mdi:water
         
     zone4_time_today:
       friendly_name: Zone 4 total watering time today
       value_template: >
-        {{ states('sensor.greenhouse_valve_4_history_today') | float * 60 | round }}
+        {{ states('sensor.greenhouse_valve_4_history_today') | float(0)* 60 | round }}
       unit_of_measurement: minutes
       icon_template: mdi:water
 
@@ -424,7 +424,9 @@
       icon_template: '{{ states.vacuum.dalek.attributes.battery_icon }}'
     vacuum_cleaning_time:
       friendly_name: Time of Last Cycle
-      value_template: '{{ states.vacuum.dalek.attributes.cleaning_time }}'
+      value_template: >-
+        {% set s = states('sensor.dalek_last_clean_duration')|int %}
+        {{ '%02d:%02d' % ((s/3600)|int, (s%3600)/60) }}
       icon_template: 'mdi:timer'
     vacuum_cleaned_area:
       friendly_name: Area of Last Cycle
@@ -434,22 +436,34 @@
     vacuum_cleanmainbrush:
       friendly_name: Replace main brush
       unit_of_measurement: 'h'
-      value_template: 'Main Brush: {{ states.vacuum.dalek.attributes.main_brush_left }}'
+      value_template: >-
+        Main Brush: 
+        {% set s = states('sensor.dalek_main_brush_left')|int %}
+        {{ '%02d:%02d' % ((s/3600)|int, (s%3600)/60) }}
       icon_template: 'mdi:screwdriver'
     vacuum_cleansidebrush:
       friendly_name: Replace side brush
       unit_of_measurement: 'h'
-      value_template: 'Side brush: {{ states.vacuum.dalek.attributes.side_brush_left }}'
+      value_template: >-
+        Side Brush: 
+        {% set s = states('sensor.dalek_side_brush_left')|int %}
+        {{ '%02d:%02d' % ((s/3600)|int, (s%3600)/60) }}
       icon_template: 'mdi:screwdriver'
     vacuum_cleanfilter:
       friendly_name: Replace filter
       unit_of_measurement: 'h'
-      value_template: 'Filter: {{ states.vacuum.dalek.attributes.filter_left }}'
+      value_template: >-
+        Filter: 
+        {% set s = states('sensor.dalek_filter_left')|int %}
+        {{ '%02d:%02d' % ((s/3600)|int, (s%3600)/60) }}
       icon_template: 'mdi:screwdriver'
     vacuum_sensordirtyleft:
       friendly_name: Replace filter
       unit_of_measurement: 'h'
-      value_template: 'Sensor: {{ states.vacuum.dalek.attributes.sensor_dirty_left }}'
+      value_template: >-
+        Filter: 
+        {% set s = states('sensor.dalek_sensor_dirty_left')|int %}
+        {{ '%02d:%02d' % ((s/3600)|int, (s%3600)/60) }}
       icon_template: 'mdi:screwdriver'
     vacuum_do_not_disturb:
       friendly_name: Do Not Disturb
@@ -541,54 +555,54 @@
   sensors:
     waterpump_cost:
       friendly_name: 'Waterpump Cost Yearly'
-      #value_template: "{{ (states('sensor.energy_t31_light_and_power_total')|float * states('input_number.t31_energy_cost')|float + states('input_number.t31_daily_cost')|float)|round(2) }}"
-      value_template: "{{ (states('sensor.waterpump_current_usage_yearly_normaal') | float * states('input_number.energy_cost') | float / 100) | round (2) }}"
+      #value_template: "{{ (states('sensor.energy_t31_light_and_power_total')|float(0)* states('input_number.t31_energy_cost')|float(0)+ states('input_number.t31_daily_cost')|float)|round(2) }}"
+      value_template: "{{ (states('sensor.waterpump_current_usage_yearly_normaal') | float(0)* states('input_number.energy_cost') | float(0)/ 100) | round (2) }}"
       unit_of_measurement: "€"
     energy_cost_yearly:
       friendly_name: 'Energy Cost Yearly'
-      #value_template: "{{ (states('sensor.energy_t31_light_and_power_total')|float * states('input_number.t31_energy_cost')|float + states('input_number.t31_daily_cost')|float)|round(2) }}"
-      value_template: "{{ (states('sensor.total_current_yearly') | float * states('input_number.energy_cost') | float / 100) | round (2) }}"
+      #value_template: "{{ (states('sensor.energy_t31_light_and_power_total')|float(0)* states('input_number.t31_energy_cost')|float(0)+ states('input_number.t31_daily_cost')|float)|round(2) }}"
+      value_template: "{{ (states('sensor.total_current_yearly') | float(0)* states('input_number.energy_cost') | float(0)/ 100) | round (2) }}"
       unit_of_measurement: "€"
 
 - platform: template
   sensors:
     total_current_daily:
       friendly_name: "Total Current Daily"
-      value_template: "{{ (states('sensor.droogkast_current_usage_daily_normaal') | float + states('sensor.wasmachine_current_usage_daily_normaal') | float + states('sensor.boiler_keuken_current_usage_daily_normaal') | float + states('sensor.koelkast_vriezer_garage_current_usage_daily_normaal') | float + states('sensor.waterpump_current_usage_daily_normaal') | float + states('sensor.verlichting_gang_eerste_verdiep_current_usage_daily_normaal') | float + states('sensor.verlichting_voordeur_current_usage_daily_normaal') | float + states('sensor.verlichting_inkom_current_usage_daily_normaal') | float + states('sensor.koelkast_vriezer_berging_current_usage_daily_normaal') | float + states('sensor.koelkast_keuken_current_usage_daily_normaal') | float + states('sensor.vriezer_garage_current_usage_daily_normaal') | float) | round(2) }}"
+      value_template: "{{ (states('sensor.droogkast_current_usage_daily_normaal') | float(0)+ states('sensor.wasmachine_current_usage_daily_normaal') | float(0)+ states('sensor.boiler_keuken_current_usage_daily_normaal') | float(0)+ states('sensor.koelkast_vriezer_garage_current_usage_daily_normaal') | float(0)+ states('sensor.waterpump_current_usage_daily_normaal') | float(0)+ states('sensor.verlichting_gang_eerste_verdiep_current_usage_daily_normaal') | float(0)+ states('sensor.verlichting_voordeur_current_usage_daily_normaal') | float(0)+ states('sensor.verlichting_inkom_current_usage_daily_normaal') | float(0)+ states('sensor.koelkast_vriezer_berging_current_usage_daily_normaal') | float(0)+ states('sensor.koelkast_keuken_current_usage_daily_normaal') | float(0)+ states('sensor.vriezer_garage_current_usage_daily_normaal') | float) | round(2) }}"
       unit_of_measurement: "kwh"
     total_current_yearly:
       friendly_name: "Total Current yearly"
-      value_template: "{{ (states('sensor.droogkast_current_usage_yearly_normaal') | float + states('sensor.wasmachine_current_usage_yearly_normaal') | float + states('sensor.boiler_keuken_current_usage_yearly_normaal') | float + states('sensor.koelkast_vriezer_garage_current_usage_yearly_normaal') | float + states('sensor.waterpump_current_usage_yearly_normaal') | float + states('sensor.verlichting_gang_eerste_verdiep_current_usage_yearly_normaal') | float + states('sensor.verlichting_voordeur_current_usage_yearly_normaal') | float + states('sensor.verlichting_inkom_current_usage_yearly_normaal') | float + states('sensor.koelkast_vriezer_berging_current_usage_yearly_normaal') | float + states('sensor.koelkast_keuken_current_usage_yearly_normaal') | float  + states('sensor.garage_vriezer_current_usage_yearly_normaal') | float) | round(2) }}"
+      value_template: "{{ (states('sensor.droogkast_current_usage_yearly_normaal') | float(0)+ states('sensor.wasmachine_current_usage_yearly_normaal') | float(0)+ states('sensor.boiler_keuken_current_usage_yearly_normaal') | float(0)+ states('sensor.koelkast_vriezer_garage_current_usage_yearly_normaal') | float(0)+ states('sensor.waterpump_current_usage_yearly_normaal') | float(0)+ states('sensor.verlichting_gang_eerste_verdiep_current_usage_yearly_normaal') | float(0)+ states('sensor.verlichting_voordeur_current_usage_yearly_normaal') | float(0)+ states('sensor.verlichting_inkom_current_usage_yearly_normaal') | float(0)+ states('sensor.koelkast_vriezer_berging_current_usage_yearly_normaal') | float(0)+ states('sensor.koelkast_keuken_current_usage_yearly_normaal') | float(0) + states('sensor.garage_vriezer_current_usage_yearly_normaal') | float) | round(2) }}"
       unit_of_measurement: "kwh"  
 
 - platform: template
   sensors:
     refrigeration_current_daily:
-      value_template: "{{ (states('sensor.koelkast_vriezer_garage_current_usage_daily_normaal') | float + states('sensor.koelkast_vriezer_berging_current_usage_daily_normaal') | float + states('sensor.koelkast_keuken_current_usage_daily_normaal') | float + states('sensor.vriezer_garage_current_usage_daily_normaal') | float) | round(2) }}"
+      value_template: "{{ (states('sensor.koelkast_vriezer_garage_current_usage_daily_normaal') | float(0)+ states('sensor.koelkast_vriezer_berging_current_usage_daily_normaal') | float(0)+ states('sensor.koelkast_keuken_current_usage_daily_normaal') | float(0)+ states('sensor.vriezer_garage_current_usage_daily_normaal') | float) | round(2) }}"
       unit_of_measurement: "kwh"
     refrigeration_current_weekly:
-      value_template: "{{ (states('sensor.koelkast_vriezer_garage_current_usage_weekly_normaal') | float + states('sensor.koelkast_vriezer_berging_current_usage_weekly_normaal') | float + states('sensor.koelkast_keuken_current_usage_weekly_normaal') | float + states('sensor.vriezer_garage_current_usage_weekly_normaal') | float) | round(2) }}"
+      value_template: "{{ (states('sensor.koelkast_vriezer_garage_current_usage_weekly_normaal') | float(0)+ states('sensor.koelkast_vriezer_berging_current_usage_weekly_normaal') | float(0)+ states('sensor.koelkast_keuken_current_usage_weekly_normaal') | float(0)+ states('sensor.vriezer_garage_current_usage_weekly_normaal') | float) | round(2) }}"
       unit_of_measurement: "kwh"
     refrigeration_current_monthly:
-      value_template: "{{ (states('sensor.koelkast_vriezer_garage_current_usage_monthly_normaal') | float + states('sensor.koelkast_vriezer_berging_current_usage_monthly_normaal') | float + states('sensor.koelkast_keuken_current_usage_monthly_normaal') | float + states('sensor.vriezer_garage_current_usage_monthly_normaal') | float) | round(2) }}"
+      value_template: "{{ (states('sensor.koelkast_vriezer_garage_current_usage_monthly_normaal') | float(0)+ states('sensor.koelkast_vriezer_berging_current_usage_monthly_normaal') | float(0)+ states('sensor.koelkast_keuken_current_usage_monthly_normaal') | float(0)+ states('sensor.vriezer_garage_current_usage_monthly_normaal') | float) | round(2) }}"
       unit_of_measurement: "kwh"
     refrigeration_current_yearly:
-      value_template: "{{ (states('sensor.koelkast_vriezer_garage_current_usage_yearly_normaal') | float + states('sensor.koelkast_vriezer_berging_current_usage_yearly_normaal') | float + states('sensor.koelkast_keuken_current_usage_yearly_normaal') | float + states('sensor.vriezer_garage_current_usage_yearly_normaal') | float) | round(2) }}"
+      value_template: "{{ (states('sensor.koelkast_vriezer_garage_current_usage_yearly_normaal') | float(0)+ states('sensor.koelkast_vriezer_berging_current_usage_yearly_normaal') | float(0)+ states('sensor.koelkast_keuken_current_usage_yearly_normaal') | float(0)+ states('sensor.vriezer_garage_current_usage_yearly_normaal') | float) | round(2) }}"
       unit_of_measurement: "kwh"
 
 - platform: template
   sensors:
     wash_dry_current_daily:
-      value_template: "{{ (states('sensor.wasmachine_current_usage_daily_normaal') | float + states('sensor.droogkast_current_usage_daily_normaal') | float) | round(2) }}"
+      value_template: "{{ (states('sensor.wasmachine_current_usage_daily_normaal') | float(0)+ states('sensor.droogkast_current_usage_daily_normaal') | float) | round(2) }}"
       unit_of_measurement: "kwh"
     wash_dry_current_weekly:
-      value_template: "{{ (states('sensor.wasmachine_current_usage_weekly_normaal') | float + states('sensor.droogkast_current_usage_weekly_normaal') | float) | round(2) }}"
+      value_template: "{{ (states('sensor.wasmachine_current_usage_weekly_normaal') | float(0)+ states('sensor.droogkast_current_usage_weekly_normaal') | float) | round(2) }}"
       unit_of_measurement: "kwh"
     wash_dry_current_monthly:
-      value_template: "{{ (states('sensor.wasmachine_current_usage_monthly_normaal') | float + states('sensor.droogkast_current_usage_monthly_normaal') | float) | round(2) }}"
+      value_template: "{{ (states('sensor.wasmachine_current_usage_monthly_normaal') | float(0)+ states('sensor.droogkast_current_usage_monthly_normaal') | float) | round(2) }}"
       unit_of_measurement: "kwh"
     wash_dry_current_yearly:
-      value_template: "{{ (states('sensor.wasmachine_current_usage_yearly_normaal') | float + states('sensor.droogkast_current_usage_yearly_normaal') | float) | round(2) }}"
+      value_template: "{{ (states('sensor.wasmachine_current_usage_yearly_normaal') | float(0)+ states('sensor.droogkast_current_usage_yearly_normaal') | float) | round(2) }}"
       unit_of_measurement: "kwh"
 
 - platform: template
@@ -609,16 +623,16 @@
 - platform: template
   sensors:
     lights_current_daily:
-      value_template: "{{ (states('sensor.verlichting_gang_eerste_verdiep_current_usage_daily_normaal') | float + states('sensor.verlichting_voordeur_current_usage_daily_normaal') | float + states('sensor.verlichting_inkom_current_usage_daily_normaal') | float) | round(2) }}"
+      value_template: "{{ (states('sensor.verlichting_gang_eerste_verdiep_current_usage_daily_normaal') | float(0)+ states('sensor.verlichting_voordeur_current_usage_daily_normaal') | float(0)+ states('sensor.verlichting_inkom_current_usage_daily_normaal') | float) | round(2) }}"
       unit_of_measurement: "kwh"
     lights_current_weekly:
-      value_template: "{{ (states('sensor.verlichting_gang_eerste_verdiep_current_usage_weekly_normaal') | float + states('sensor.verlichting_voordeur_current_usage_weekly_normaal') | float + states('sensor.verlichting_inkom_current_usage_weekly_normaal') | float) | round(2) }}"
+      value_template: "{{ (states('sensor.verlichting_gang_eerste_verdiep_current_usage_weekly_normaal') | float(0)+ states('sensor.verlichting_voordeur_current_usage_weekly_normaal') | float(0)+ states('sensor.verlichting_inkom_current_usage_weekly_normaal') | float) | round(2) }}"
       unit_of_measurement: "kwh"
     lights_current_monthly:
-      value_template: "{{ (states('sensor.verlichting_gang_eerste_verdiep_current_usage_monthly_normaal') | float + states('sensor.verlichting_voordeur_current_usage_monthly_normaal') | float + states('sensor.verlichting_inkom_current_usage_monthly_normaal') | float) | round(2) }}"
+      value_template: "{{ (states('sensor.verlichting_gang_eerste_verdiep_current_usage_monthly_normaal') | float(0)+ states('sensor.verlichting_voordeur_current_usage_monthly_normaal') | float(0)+ states('sensor.verlichting_inkom_current_usage_monthly_normaal') | float) | round(2) }}"
       unit_of_measurement: "kwh"
     lights_current_yearly:
-      value_template: "{{ (states('sensor.verlichting_gang_eerste_verdiep_current_usage_yearly_normaal') | float + states('sensor.verlichting_voordeur_current_usage_yearly_normaal') | float + states('sensor.verlichting_inkom_current_usage_yearly_normaal') | float) | round(2) }}"
+      value_template: "{{ (states('sensor.verlichting_gang_eerste_verdiep_current_usage_yearly_normaal') | float(0)+ states('sensor.verlichting_voordeur_current_usage_yearly_normaal') | float(0)+ states('sensor.verlichting_inkom_current_usage_yearly_normaal') | float) | round(2) }}"
       unit_of_measurement: "kwh"
 
 - platform: template
