@@ -94,15 +94,6 @@ telegram_bot:
 ifttt:
   key: !secret ifttt-key  
 
-influxdb:
-  host: a0d7b954-influxdb
-  port: 8086
-  username: !secret influxdb-user
-  password: !secret influxdb-password
-  database: !secret influxdb-database
-  max_retries: 3
-  default_measurement: state
-
 #zoneminder:
 #  - host: !secret zoneminder-host
 #    ssl: true

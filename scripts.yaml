@@ -274,8 +274,8 @@ vacuum_notify:
   - choose:
     - conditions:
       - condition: template
-        value_template: '{{ states(''input_number.vacuum_number_of_runs'') | int >=
-          states(''input_number.vacuum_empty_bin_after_days'') | int }}'
+        value_template: '{{ states(''input_number.vacuum_number_of_runs'') |int (0) >=
+          states(''input_number.vacuum_empty_bin_after_days'') |int (0) }}'
       sequence:
       - service: telegram_bot.send_message
         data_template:
@@ -550,13 +550,13 @@ sunrise_wled:
     data_template:
       entity_id: '{{ wled_id }}'
       effect: sunrise
-      speed: '{{ time | int }}'
+      speed: '{{ time |int (0) }}'
       intensity: 255
   - service: light.turn_on
     data_template:
       entity_id: '{{ wled_id }}'
       brightness_pct: 70
-  - delay: '{{ time | multiply(60) | int }}'
+  - delay: '{{ time | multiply(60) |int (0) }}'
   mode: parallel
   icon: mdi:weather-sunset-up
   max: 4

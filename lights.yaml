@@ -47,5 +47,5 @@
     - light.bureau
     - light.desk_lamp
     - light.wled_speelkamer
-    - light.matrix
+    - light.wled_matrix
     - light.bureau_spot

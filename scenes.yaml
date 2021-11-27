@@ -172,9 +172,11 @@
       effect_list:
       - None
       - Candle_Flicker
+      brightness: 255
+      effect: Candle_Flicker
       friendly_name: Led Mini Kerstboom LED
       supported_features: 45
-      state: unavailable
+      state: 'on'
     light.schouw:
       min_mireds: 153
       max_mireds: 500
@@ -348,9 +350,11 @@
       effect_list:
       - None
       - Candle_Flicker
+      brightness: 255
+      effect: None
       friendly_name: Led Mini Kerstboom LED
       supported_features: 45
-      state: unavailable
+      state: 'on'
     light.schouw:
       min_mireds: 153
       max_mireds: 500
@@ -524,9 +528,11 @@
       effect_list:
       - None
       - Candle_Flicker
+      brightness: 255
+      effect: Candle_Flicker
       friendly_name: Led Mini Kerstboom LED
       supported_features: 45
-      state: unavailable
+      state: 'on'
     light.schouw:
       min_mireds: 153
       max_mireds: 500
@@ -714,7 +720,7 @@
       - Candle_Flicker
       friendly_name: Led Mini Kerstboom LED
       supported_features: 45
-      state: unavailable
+      state: 'off'
     light.schouw:
       min_mireds: 153
       max_mireds: 500

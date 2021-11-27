@@ -714,13 +714,6 @@
   device_class: "temperature"
   icon: mdi:thermometer
 
-- platform: snmp
-  host: 192.168.0.10
-  community: public
-  name: Synology Temperature
-  baseoid: 1.3.6.1.4.1.6574.1.2.0
-  unit_of_measurement: °C
-
 - platform: template
   sensors:
     house_mode:
@@ -752,7 +745,7 @@
     oprit_last_motion_event:
       friendly_name: Oprit Last Motion Event
       value_template: >-
-        {{ "%02d" % (states('input_number.oprit_last_motion_event') | int) }}
+        {{ "%02d" % (states('input_number.oprit_last_motion_event') |int (0) ) }}
     oprit_last_cctv_motion:
       friendly_name: Oprit Last CCTV Motion
       value_template: >-
@@ -760,7 +753,7 @@
     oprit_last_cctv_motion_event:
       friendly_name: Oprit Last CCTV Motion Event
       value_template: >-
-        {{ "%02d" % (states('input_number.oprit_last_cctv_motion_event') | int) }}
+        {{ "%02d" % (states('input_number.oprit_last_cctv_motion_event') |int (0) ) }}
 
 - platform: template
   sensors:
@@ -822,14 +815,14 @@
   sensors:
     ibbq_probe_1_grill_alert_temp:
       value_template: >-
-        {% if (states('sensor.ibbq_temperature_probe_1') | int) < (states('input_number.grill_alert_low') | int) or (states('sensor.ibbq_temperature_probe_1') | int)  > (states('input_number.grill_alert_high') | int) %}
+        {% if (states('sensor.ibbq_temperature_probe_1') |int (0) ) < (states('input_number.grill_alert_low') |int (0) ) or (states('sensor.ibbq_temperature_probe_1') |int (0) )  > (states('input_number.grill_alert_high') |int (0) ) %}
           Alert
         {% else %}
           Normal
         {% endif %}
       friendly_name: Grill (Probe 1) WTemp Alert 
       icon_template: >-
-        {% if (states('sensor.ibbq_temperature_probe_1') | int) < (states('input_number.grill_alert_low') | int) or (states('sensor.ibbq_temperature_probe_1') | int)  > (states('input_number.grill_alert_high') | int) %}
+        {% if (states('sensor.ibbq_temperature_probe_1') |int (0) ) < (states('input_number.grill_alert_low') |int (0) ) or (states('sensor.ibbq_temperature_probe_1') |int (0) )  > (states('input_number.grill_alert_high') |int (0) ) %}
           mdi:alert-circle
         {% else %}
           mdi:alert-circle-check
@@ -837,14 +830,14 @@
       
     ibbq_probe_2_target_alert_temp:
       value_template: >-
-        {% if (states('sensor.ibbq_temperature_probe_2') | int) >= (states('input_number.grill_probe_2_target') | int) %}
+        {% if (states('sensor.ibbq_temperature_probe_2') |int (0) ) >= (states('input_number.grill_probe_2_target') |int (0) ) %}
           Alert
         {% else %}
           Normal
         {% endif %}
       friendly_name: Probe 2 Target Alert
       icon_template: >-
-        {% if (states('sensor.ibbq_temperature_probe_2') | int) >= (states('input_number.grill_probe_2_target') | int) %}
+        {% if (states('sensor.ibbq_temperature_probe_2') |int (0) ) >= (states('input_number.grill_probe_2_target') |int (0) ) %}
           mdi:alert-circle
         {% else %}
           mdi:alert-circle-check
@@ -852,14 +845,14 @@
       
     ibbq_probe_3_target_alert_temp:
       value_template: >-
-        {% if (states('sensor.ibbq_temperature_probe_3') | int) >= (states('input_number.grill_probe_3_target') | int) %}
+        {% if (states('sensor.ibbq_temperature_probe_3') |int (0) ) >= (states('input_number.grill_probe_3_target') |int (0) ) %}
           Alert
         {% else %}
           Normal
         {% endif %}
       friendly_name: Probe 3 Target Alert
       icon_template: >-
-        {% if (states('sensor.ibbq_temperature_probe_3') | int) >= (states('input_number.grill_probe_3_target') | int) %}
+        {% if (states('sensor.ibbq_temperature_probe_3') |int (0) ) >= (states('input_number.grill_probe_3_target') |int (0) ) %}
           mdi:alert-circle
         {% else %}
           mdi:alert-circle-check
@@ -867,14 +860,14 @@
       
     ibbq_probe_4_target_alert_temp:
       value_template: >-
-        {% if (states('sensor.ibbq_temperature_probe_4') | int) >= (states('input_number.grill_probe_4_target') | int) %}
+        {% if (states('sensor.ibbq_temperature_probe_4') |int (0) ) >= (states('input_number.grill_probe_4_target') |int (0) ) %}
           Alert
         {% else %}
           Normal
         {% endif %}
       friendly_name: Probe 4 Target Alert
       icon_template: >-
-        {% if (states('sensor.ibbq_temperature_probe_4') | int) >= (states('input_number.grill_probe_4_target') | int) %}
+        {% if (states('sensor.ibbq_temperature_probe_4') |int (0) ) >= (states('input_number.grill_probe_4_target') |int (0) ) %}
           mdi:alert-circle
         {% else %}
           mdi:alert-circle-check

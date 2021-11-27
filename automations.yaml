@@ -279,33 +279,33 @@
   action:
   - data_template:
       message: "Deze planten vragen vandaag je aandacht: {%if states('sensor.greenhouse_zone_1_moisture')\
-        \ | int < 20 %}\n  - Serre Zone 1 heeft water nodig, {{ states('sensor.greenhouse_zone_1_moisture')\
+        \ |int (0) < 20 %}\n  - Serre Zone 1 heeft water nodig, {{ states('sensor.greenhouse_zone_1_moisture')\
         \ }} %\n{%- endif %} {%- if states('sensor.greenhouse_zone_1_soil_conductivity')\
-        \ | int < 100 %}\n  - Serre Zone 1 heeft meststof nodig, {{ states('sensor.greenhouse_zone_1_soil_conductivity')\
+        \ |int (0) < 100 %}\n  - Serre Zone 1 heeft meststof nodig, {{ states('sensor.greenhouse_zone_1_soil_conductivity')\
         \ }} µS/cm\n{%- endif %} {%- if states('sensor.greenhouse_zone_2_moisture')\
-        \ | int < 20 %}\n  - Serre Zone 2 heeft water nodig, {{ states('sensor.greenhouse_zone_2_moisture')\
+        \ |int (0) < 20 %}\n  - Serre Zone 2 heeft water nodig, {{ states('sensor.greenhouse_zone_2_moisture')\
         \ }} %\n{%- endif %} {%- if states('sensor.greenhouse_zone_2_soil_conductivity')\
-        \ | int < 100 %}\n  - Serre Zone 2 heeft meststof nodig, {{ states('sensor.greenhouse_zone_2_soil_conductivity')\
+        \ |int (0) < 100 %}\n  - Serre Zone 2 heeft meststof nodig, {{ states('sensor.greenhouse_zone_2_soil_conductivity')\
         \ }} µS/cm\n{%- endif %} {%- if states('sensor.greenhouse_zone_3_moisture')\
-        \ | int < 20 %}\n  - Serre Zone 3 heeft water nodig, {{ states('sensor.greenhouse_zone_3_moisture')\
+        \ |int (0) < 20 %}\n  - Serre Zone 3 heeft water nodig, {{ states('sensor.greenhouse_zone_3_moisture')\
         \ }} %\n{%- endif %} {%- if states('sensor.greenhouse_zone_3_soil_conductivity')\
-        \ | int < 100 %}\n  - Serre Zone 3 heeft meststof nodig, {{ states('sensor.greenhouse_zone_3_soil_conductivity')\
+        \ |int (0) < 100 %}\n  - Serre Zone 3 heeft meststof nodig, {{ states('sensor.greenhouse_zone_3_soil_conductivity')\
         \ }} µS/cm\n{%- endif %} {%- if states('sensor.greenhouse_zone_4_moisture')\
-        \ | int < 20 %}\n  - Serre Zone 4 heeft water nodig, {{ states('sensor.greenhouse_zone_4_moisture')\
+        \ |int (0) < 20 %}\n  - Serre Zone 4 heeft water nodig, {{ states('sensor.greenhouse_zone_4_moisture')\
         \ }} %\n{%- endif %} {%- if states('sensor.greenhouse_zone_4_soil_conductivity')\
-        \ | int < 100 %}\n  - Serre Zone 4 heeft meststof nodig, {{ states('sensor.greenhouse_zone_4_soil_conductivity')\
-        \ }} µS/cm\n{%- endif %} {%- if states('sensor.moestuin_moisture') | int <\
-        \ 25 %}\n  - Moestuin heeft water nodig, {{ states('sensor.moestuin_moisture')\
+        \ |int (0) < 100 %}\n  - Serre Zone 4 heeft meststof nodig, {{ states('sensor.greenhouse_zone_4_soil_conductivity')\
+        \ }} µS/cm\n{%- endif %} {%- if states('sensor.moestuin_moisture') |int (0)\
+        \ < 25 %}\n  - Moestuin heeft water nodig, {{ states('sensor.moestuin_moisture')\
         \ }} %\n{%- endif %} {%- if states('sensor.moestuin_soil_conductivity') |\
         \ int < 100 %}\n  - Moestuin heeft meststof nodig, {{ states('sensor.moestuin_soil_conductivity')\
         \ }} µS/cm\n{%- endif %} {%- if states('sensor.rozemarijn_moisture') | int\
         \ < 20 %}\n  - Rozemarijn heeft water nodig, {{ states('sensor.rozemarijn_moisture')\
         \ }} %\n{%- endif %} {%- if states('sensor.rozemarijn_soil_conductivity')\
-        \ | int < 100 %}\n  - Rozemarijn heeft meststof nodig, {{ states('sensor.rozemarijn_soil_conductivity')\
+        \ |int (0) < 100 %}\n  - Rozemarijn heeft meststof nodig, {{ states('sensor.rozemarijn_soil_conductivity')\
         \ }} µS/cm\n{%- endif %} {%- if states('sensor.bloempot_voordeur_moisture')\
-        \ | int < 20 %}\n  - Bloempot voordeur heeft water nodig, {{ states('sensor.bloempot_voordeur_moisture')\
+        \ |int (0) < 20 %}\n  - Bloempot voordeur heeft water nodig, {{ states('sensor.bloempot_voordeur_moisture')\
         \ }} %\n{%- endif %} {%- if states('sensor.bloempot_voordeur_soil_conductivity')\
-        \ | int < 100 %}\n  - Bloempot voordeur heeft meststof nodig, {{ states('sensor.bloempot_voordeur_soil_conductivity')\
+        \ |int (0) < 100 %}\n  - Bloempot voordeur heeft meststof nodig, {{ states('sensor.bloempot_voordeur_soil_conductivity')\
         \ }} µS/cm\n{%- endif %} {%- if states('sensor.olijfboom_moisture') | int\
         \ < 20 %}\n  - Olijfboom voordeur heeft water nodig, {{ states('sensor.olijfboom_moisture')\
         \ }} %\n{%- endif %} {%- if states('sensor.olijfboom_soil_conductivity') |\
@@ -957,10 +957,10 @@
         entity_id:
         - fan.cabinet_fan_1
         - fan.cabinet_fan_2
-        percentage: "{% if states('sensor.temperature_bureau') | float(0)> 28 %}\n \
-          \ 100\n{% elif states('sensor.temperature_bureau') | float(0)> 25 %}\n  50\n\
-          {% elif states('sensor.temperature_bureau') | float(0)>= 21 %}\n  25\n{% endif\
-          \ %}\n"
+        percentage: "{% if states('sensor.temperature_bureau') | float(0)> 28 %}\n\
+          \  100\n{% elif states('sensor.temperature_bureau') | float(0)> 25 %}\n\
+          \  50\n{% elif states('sensor.temperature_bureau') | float(0)>= 21 %}\n\
+          \  25\n{% endif %}\n"
   mode: single
 - id: '1604346606992'
   alias: 'Security: MotionEye - Oprit'
@@ -1014,15 +1014,15 @@
           camera_id: 1
           file: '{{ (as_timestamp(states.input_datetime.oprit_last_cctv_motion.state))
             | timestamp_custom(''%Y-%m-%d'')}}/{{ ''%02d'' % states(''input_number.oprit_last_cctv_motion_event'')
-            | int }}'
+            |int (0) }}'
           event: '{{ ''%02d'' % states(''input_number.oprit_last_cctv_motion_event'')
-            | int }}'
+            |int (0) }}'
     default:
     - service: shell_command.move_event_snapshots
       data_template:
         camera_name: oprit
         event: '{{ ''%02d'' % states(''input_number.oprit_last_cctv_motion_event'')
-          | int }}'
+          |int (0) }}'
   - service: input_boolean.turn_off
     data: {}
     entity_id: input_boolean.oprit_motion
@@ -1666,19 +1666,9 @@
   action:
   - choose:
     - conditions:
-      - condition: time
-        after: '19:00'
-        before: '21:00'
-      sequence:
-      - service: light.turn_on
-        target:
-          entity_id: light.gang_eerste_verdiep
-        data:
-          brightness_pct: 10
-    - conditions:
-      - condition: time
-        after: '21:00'
-        before: 06:00
+      - condition: state
+        entity_id: binary_sensor.night_mode
+        state: 'on'
       sequence:
       - service: light.turn_on
         target:
@@ -1687,8 +1677,8 @@
           brightness_pct: 5
     - conditions:
       - condition: time
-        after: 06:00
-        before: 07:30
+        after: '19:00'
+        before: '21:00'
       sequence:
       - service: light.turn_on
         target:
@@ -1850,3 +1840,15 @@
     target:
       entity_id: light.inkom
   mode: restart
+- id: '1637833773538'
+  alias: 'Climate: Warning low water pressure'
+  description: ''
+  trigger:
+  - platform: template
+    value_template: '{{ states(''sensor.10_040239_ch_water_pressure'') < ''1,5'' }}'
+  condition: []
+  action:
+  - service: notify.hazilverberkenstraatbot_philippe
+    data:
+      message: Low Water Pressure Heating
+  mode: single
