@@ -332,11 +332,6 @@
       friendly_name: Kerstboom
       supported_features: 0
       state: 'on'
-    light.kerst_vaas:
-      restored: true
-      supported_features: 0
-      friendly_name: Kerst Vaas
-      state: unavailable
     light.lamp_barkast:
       brightness: 64
       is_deconz_group: false
@@ -506,11 +501,6 @@
       friendly_name: Staande Lamp Living
       supported_features: 43
       state: 'on'
-    light.kerst_vaas:
-      restored: true
-      supported_features: 0
-      friendly_name: Kerst Vaas
-      state: unavailable
     light.kerstboom:
       friendly_name: Kerstboom
       supported_features: 0
@@ -688,11 +678,6 @@
       friendly_name: Kerstboom
       supported_features: 0
       state: 'on'
-    light.kerst_vaas:
-      restored: true
-      supported_features: 0
-      friendly_name: Kerst Vaas
-      state: unavailable
     light.lamp_barkast:
       brightness: 209
       is_deconz_group: false
@@ -862,11 +847,6 @@
       friendly_name: Kerstboom
       supported_features: 0
       state: 'off'
-    light.kerst_vaas:
-      restored: true
-      supported_features: 0
-      friendly_name: Kerst Vaas
-      state: unavailable
     light.lamp_barkast:
       is_deconz_group: false
       friendly_name: Lamp Barkast

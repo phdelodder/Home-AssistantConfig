@@ -1071,6 +1071,15 @@
   - service: switch.turn_on
     data: {}
     entity_id: switch.verlichting_buiten_voorkant
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: '{{ trigger.platform == "sun" }}'
+      sequence:
+      - service: light.turn_on
+        target:
+          entity_id: light.rozenboom
+    default: []
   mode: single
 - id: '1607349875705'
   alias: 'Verlichting Buiten Voorkant: Off'
@@ -1086,6 +1095,9 @@
   - service: switch.turn_off
     data: {}
     entity_id: switch.verlichting_buiten_voorkant
+  - service: light.turn_off
+    target:
+      entity_id: light.rozenboom
   mode: single
 - id: '1607930433185'
   alias: 'Motion: WC Beneden'
@@ -1845,7 +1857,8 @@
   description: ''
   trigger:
   - platform: template
-    value_template: '{{ states(''sensor.10_040239_ch_water_pressure'') < ''1,5'' }}'
+    value_template: '{{ states(''sensor.10_040239_ch_water_pressure'') < ''1.5'' }}'
+    for: 00:30:00
   condition: []
   action:
   - service: notify.hazilverberkenstraatbot_philippe

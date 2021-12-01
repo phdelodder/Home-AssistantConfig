@@ -759,22 +759,24 @@
   sensors:
     operatingstate:
       value_template: "{{ state_attr('climate.huis', 'hvac_action') }}"
+      attribute_templates:
+          device_id: "{{ state_attr('binary_sensor.01_223036_schema', 'schema').system.heating_control }}"
     
     fc_heat_demand:
       friendly_name: "Boiler Demand"
       unit_of_measurement: "%"
       value_template: >-
         {{ state_attr('climate.huis', 'relay_demands').FC * 100 }}
+      attribute_templates:
+          device_id: "{{ state_attr('binary_sensor.01_223036_schema', 'schema').system.heating_control }}"
 
     fc_relay_demand:
-      friendly_name: "Boiler Relay"
+      friendly_name: "heating_control (relay_demand)"
       unit_of_measurement: "%"
       value_template: >-
-        {% if state_attr('climate.huis', 'heat_demands') != None %}
-          {% if state_attr('climate.huis', 'heat_demands').get('FC') != None %}
-            {{ state_attr('climate.huis', 'heat_demands').FC * 100 }}
-          {%- endif %}
-        {%- endif %}
+        {{ state_attr('climate.huis', 'relay_demands').FC * 100 }}
+      attribute_templates:
+        device_id: "{{ state_attr('binary_sensor.01_223036_schema', 'schema').system.heating_control }}"
 
 - platform: history_stats
   name: Verwarmen Vandaag

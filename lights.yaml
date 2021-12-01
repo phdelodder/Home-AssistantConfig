@@ -13,7 +13,6 @@
     - light.inkom
     - light.schouw
     - light.staande_lamp_living
-    - light.kerst_vaas
     - light.led_mini_kerstboom_led
     - light.kerstboom
     - light.lamp_barkast
@@ -38,6 +37,7 @@
     - light.achterdeur
     - light.garage_buiten
     - light.voortuin
+    - light.rozenboom
 
 - platform: group
   name: Zolder
