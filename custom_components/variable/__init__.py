@@ -1,7 +1,5 @@
 """variable implementation for Home Assistant."""
-import asyncio
 import logging
-import json
 
 import voluptuous as vol
 
@@ -95,33 +93,22 @@ async def async_setup(hass, config):
         force_update = variable_config.get(CONF_FORCE_UPDATE, False)
 
         entities.append(
-            Variable(variable_id, name, value,
-                     attributes, restore, force_update)
+            Variable(variable_id, name, value, attributes, restore, force_update)
         )
 
-    @asyncio.coroutine
-    def async_set_variable_service(call):
+    async def async_set_variable_service(call):
         """Handle calls to the set_variable service."""
         entity_id = ENTITY_ID_FORMAT.format(call.data.get(ATTR_VARIABLE))
         entity = component.get_entity(entity_id)
 
         if entity:
-            target_variables = [entity]
-            tasks = [
-                variable.async_set_variable(
-                    call.data.get(ATTR_VALUE),
-                    call.data.get(ATTR_ATTRIBUTES),
-                    call.data.get(ATTR_REPLACE_ATTRIBUTES, False),
-                )
-                for variable in target_variables
-            ]
-            if tasks:
-                yield from asyncio.wait(tasks, loop=hass.loop)
-
-        else:
-            _LOGGER.warning(
-                f"Failed to set unknown variable: {entity_id}"
+            await entity.async_set_variable(
+                call.data.get(ATTR_VALUE),
+                call.data.get(ATTR_ATTRIBUTES),
+                call.data.get(ATTR_REPLACE_ATTRIBUTES, False),
             )
+        else:
+            _LOGGER.warning(f"Failed to set unknown variable: {entity_id}")
 
     hass.services.async_register(
         DOMAIN,
@@ -190,8 +177,7 @@ class Variable(RestoreEntity):
         """Force update"""
         return self._force_update
 
-    @asyncio.coroutine
-    def async_set_variable(
+    async def async_set_variable(
         self,
         value,
         attributes,
@@ -219,4 +205,4 @@ class Variable(RestoreEntity):
         if updated_value is not None:
             self._value = updated_value
 
-        yield from self.async_update_ha_state()
+        await self.async_update_ha_state()
