@@ -12,8 +12,7 @@ from datetime import timedelta as td
 from typing import Any, Dict, Optional
 
 from homeassistant.components.binary_sensor import (
-    DEVICE_CLASS_BATTERY,
-    DEVICE_CLASS_WINDOW,
+    BinarySensorDeviceClass,
     BinarySensorEntity,
 )
 from homeassistant.helpers.typing import ConfigType, HomeAssistantType
@@ -33,10 +32,30 @@ async def async_setup_platform(
         return
 
     devices = [
-        v.get(ENTITY_CLASS, EvoBinarySensor)(hass.data[DOMAIN][BROKER], device, k, **v)
+        v.get(ENTITY_CLASS, EvoBinarySensor)(
+            hass.data[DOMAIN][BROKER], device, k, **v
+        )
         for device in discovery_info.get("devices", [])
         for k, v in BINARY_SENSOR_ATTRS.items()
-        if hasattr(device, k)
+        if device._klass != "OTB" and hasattr(device, k)
+    ]
+
+    devices += [
+        v.get(ENTITY_CLASS, EvoBinarySensor)(
+            hass.data[DOMAIN][BROKER], device, k, device_id=f"{device.id}_OT", **v
+        )
+        for device in discovery_info.get("devices", [])
+        for k, v in BINARY_SENSOR_ATTRS.items()
+        if device._klass == "OTB" and hasattr(device, k)
+    ]
+
+    devices += [
+        v.get(ENTITY_CLASS, EvoBinarySensor)(
+            hass.data[DOMAIN][BROKER], device, f"_{k}", attr_name=k, **v
+        )
+        for device in discovery_info.get("devices", [])
+        for k, v in BINARY_SENSOR_ATTRS.items()
+        if hasattr(device, f"_{k}")
     ]
 
     systems = [
@@ -59,12 +78,32 @@ async def async_setup_platform(
 class EvoBinarySensor(EvoDeviceBase, BinarySensorEntity):
     """Representation of a generic binary sensor."""
 
-    def __init__(self, broker, device, state_attr, device_class=None, **kwargs) -> None:
-        """Initialize a binary sensor."""
-        _LOGGER.info("Creating a Binary Sensor (%s) for %s", state_attr, device.id)
-        super().__init__(broker, device, state_attr, device_class)
+    #
 
-        self._unique_id = f"{device.id}-{state_attr}_state"
+    def __init__(
+        self,
+        broker,
+        device,
+        state_attr,
+        attr_name=None,
+        device_id=None,
+        device_class=None,
+        **kwargs,
+    ) -> None:
+        """Initialize a binary sensor."""
+        attr_name = attr_name or state_attr
+        device_id = device_id or device.id
+
+        _LOGGER.info("Creating a Binary Sensor (%s) for %s", attr_name, device_id)
+
+        super().__init__(
+            broker,
+            device,
+            device_id,
+            attr_name,
+            state_attr,
+            device_class,
+        )
 
     @property
     def is_on(self) -> bool:
@@ -85,11 +124,11 @@ class EvoBattery(EvoBinarySensor):
     """Representation of a low battery sensor; on means low."""
 
     @property
-    def device_state_attributes(self) -> Dict[str, Any]:
+    def extra_state_attributes(self) -> Dict[str, Any]:
         """Return the integration-specific state attributes."""
         state = self._device.battery_state
         return {
-            **super().device_state_attributes,
+            **super().extra_state_attributes,
             ATTR_BATTERY_LEVEL: state and state.get(ATTR_BATTERY_LEVEL),
         }
 
@@ -112,7 +151,7 @@ class EvoSystem(EvoEntity, BinarySensorEntity):
             return dt.now() - msg.dtm < td(seconds=msg.payload["remaining_seconds"] * 2)
 
     @property
-    def device_state_attributes(self) -> Dict[str, Any]:
+    def extra_state_attributes(self) -> Dict[str, Any]:
         """Return the integration-specific state attributes."""
         return {
             "schema": self._device._evo.schema,
@@ -148,7 +187,7 @@ class EvoGateway(EvoEntity, BinarySensorEntity):
         #     return dt.now() - msgs[0].dtm < td(seconds=300)
 
     @property
-    def device_state_attributes(self) -> Dict[str, Any]:
+    def extra_state_attributes(self) -> Dict[str, Any]:
         """Return the integration-specific state attributes."""
         gwy = self._device._gwy
         return {
@@ -176,13 +215,23 @@ ENTITY_CLASS = "entity_class"
 
 BINARY_SENSOR_ATTRS = {
     "battery_low": {
-        DEVICE_CLASS: DEVICE_CLASS_BATTERY,
+        DEVICE_CLASS: BinarySensorDeviceClass.BATTERY,
         ENTITY_CLASS: EvoBattery,
     },
     "active": {
         ENTITY_CLASS: EvoActuator,
     },
     "window_open": {
-        DEVICE_CLASS: DEVICE_CLASS_WINDOW,
+        DEVICE_CLASS: BinarySensorDeviceClass.WINDOW,
     },
+    "ch_active": {},
+    "ch_enabled": {},
+    "cooling_active": {},
+    "cooling_enabled": {},
+    "dhw_active": {},
+    "dhw_enabled": {},
+    "fault_present": {},
+    "flame_active": {},
+    "bit_3_7": {},
+    "bit_6_6": {},
 }

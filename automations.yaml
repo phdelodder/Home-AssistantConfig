@@ -112,10 +112,17 @@
     entity_id: person.philippe
     state: home
   action:
-  - service: script.sunrise_wled
+  - service: light.turn_on
+    target:
+      entity_id: light.led_slaapkamer
     data:
-      wled_id: light.led_slaapkamer
-      time: 5
+      brightness: 1
+      effect: solid
+  - service: select.select_option
+    target:
+      entity_id: select.led_slaapkamer_preset
+    data:
+      option: Sunrise
   mode: single
 - id: Sync Tasmota states
   alias: Sync Tasmota states
@@ -153,7 +160,7 @@
   action:
   - service: script.sunrise_wled
     data:
-      wled_id: light.febe_led_bed
+      wled_id: febe_led_bed
       time: 5
   - data: {}
     entity_id: input_boolean.febe_alarm_set
@@ -385,36 +392,6 @@
         entity_id: input_datetime.febe_next_alarm
     default: []
   mode: single
-- id: '1598594585829'
-  alias: Disable Motion Sensor Bureau
-  description: ''
-  trigger:
-  - device_id: a23a7754f95b4a88ad347941e45bfd6b
-    domain: deconz
-    platform: device
-    subtype: turn_on
-    type: remote_button_short_press
-  condition: []
-  action:
-  - data: {}
-    entity_id: input_boolean.disable_motion_trigger_light_bureau
-    service: input_boolean.turn_on
-  mode: single
-- id: '1598594636282'
-  alias: Enable Motion Sensor Bureau
-  description: ''
-  trigger:
-  - device_id: a23a7754f95b4a88ad347941e45bfd6b
-    domain: deconz
-    platform: device
-    subtype: turn_off
-    type: remote_button_short_press
-  condition: []
-  action:
-  - data: {}
-    entity_id: input_boolean.disable_motion_trigger_light_bureau
-    service: input_boolean.turn_off
-  mode: single
 - id: '1600753998896'
   alias: 'Leaving: automatically turn off'
   description: ''
@@ -424,11 +401,23 @@
     to: 'on'
     for:
       minutes: 1
+  - platform: state
+    entity_id: binary_sensor.guest_mode
+    to: 'off'
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 30
   condition:
   - condition: state
-    entity_id:
-    - input_boolean.guest_mode
+    entity_id: binary_sensor.guest_mode
     state: 'off'
+  - condition: state
+    entity_id: binary_sensor.kids_home_alone
+    state: 'off'
+  - condition: state
+    entity_id: binary_sensor.no_one_home
+    state: 'on'
   action:
   - service: script.leaving
 - id: '1600753998897'
@@ -444,6 +433,9 @@
     entity_id:
     - input_boolean.guest_mode
     state: 'off'
+  - condition: state
+    entity_id: binary_sensor.kids_home_alone
+    state: 'off'
   action:
   - service: script.vacuum_automated
   mode: single
@@ -458,11 +450,23 @@
   - platform: template
     value_template: '{{ is_state(''person.isabel'', ''Az-Sint Jan'') and is_state(''person.philippe'',
       ''Connective'') }}'
+  - platform: state
+    entity_id: binary_sensor.guest_mode
+    to: 'off'
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 30
   condition:
   - condition: state
-    entity_id:
-    - input_boolean.guest_mode
+    entity_id: binary_sensor.guest_mode
     state: 'off'
+  - condition: state
+    entity_id: binary_sensor.kids_home_alone
+    state: 'off'
+  - condition: state
+    entity_id: binary_sensor.no_one_home
+    state: 'on'
   action:
   - service: script.set_thermostat_away
   mode: single
@@ -718,6 +722,9 @@
   - condition: state
     entity_id: binary_sensor.guest_mode
     state: 'off'
+  - condition: state
+    entity_id: binary_sensor.kids_home_alone
+    state: 'off'
   action:
   - service: script.motion_detected
     data:
@@ -821,8 +828,7 @@
     to: 'on'
   condition:
   - condition: state
-    entity_id:
-    - binary_sensor.motion_detected_bureau_in_last_hour
+    entity_id: binary_sensor.motion_detected_bureau_in_last_hour
     state: 'on'
   action:
   - service: scene.create
@@ -831,14 +837,10 @@
       snapshot_entities: light.desk_lamp
   - variables:
       effect: '{{ state_attr(''light.desk_lamp'', ''effect'')}}'
-  - service: wled.effect
-    target:
-      entity_id: light.desk_lamp
-    data:
-      effect: Police
   - service: light.turn_on
     data:
       brightness_pct: 100
+      effect: Police
     target:
       entity_id: light.desk_lamp
   - delay: 00:01:00
@@ -1116,13 +1118,12 @@
   - platform: homeassistant
     event: start
   - platform: time
-    at: 07:15:00
+    at: 07:15
   - platform: state
     entity_id: binary_sensor.motion_detected_bureau_in_last_hour,switch.laptop_power,light.bureau,light.bureau_spot,sensor.house_mode
   - platform: state
     entity_id: climate.huis
     attribute: preset_mode
-    to: None
     for: 00:01:00
   condition:
   - condition: template
@@ -1178,7 +1179,10 @@
     event: start
   - platform: state
     entity_id: binary_sensor.motion_keuken
-    for: 00:10:00
+    for:
+      hours: 0
+      minutes: 15
+      seconds: 0
   - platform: state
     entity_id: climate.huis
     attribute: preset_mode
@@ -1611,7 +1615,7 @@
     data: {}
   mode: single
 - id: '1637296761179'
-  alias: 'Motion: Voordeur'
+  alias: 'Motion Detected: Voordeur'
   description: ''
   trigger:
   - type: motion
@@ -1638,19 +1642,9 @@
   - service: light.turn_on
     target:
       entity_id: light.voordeur
-  - wait_template: '{{ is_state(''binary_sensor.motion_voordeur'', ''off'') and is_state(''binary_sensor.voor_deur'',
-      ''off'') }}'
-  - delay:
-      hours: 0
-      minutes: 5
-      seconds: 0
-      milliseconds: 0
-  - service: light.turn_off
-    target:
-      entity_id: light.voordeur
   mode: restart
 - id: '1637297629968'
-  alias: 'Motion: Gang Eerste Verdiep'
+  alias: 'Motion Detected: Gang Eerste Verdiep'
   description: ''
   trigger:
   - type: motion
@@ -1669,12 +1663,14 @@
     state: 'off'
   - condition: or
     conditions:
-    - condition: numeric_state
+    - condition: state
       entity_id: sensor.gang_eerste_motion_sensor_1
-      below: '20'
-    - condition: numeric_state
+      state: false
+      attribute: daylight
+    - condition: state
       entity_id: sensor.gang_eerste_motion_sensor_2
-      below: '20'
+      state: false
+      attribute: daylight
   action:
   - choose:
     - conditions:
@@ -1703,19 +1699,9 @@
         entity_id: light.gang_eerste_verdiep
       data:
         brightness_pct: 100
-  - wait_template: '{{ is_state("binary_sensor.motion_gang_eerste_1", "off") and is_state("binary_sensor.motion_gang_eerste_2",
-      "off")}}'
-  - delay:
-      hours: 0
-      minutes: 1
-      seconds: 5
-      milliseconds: 0
-  - service: light.turn_off
-    target:
-      entity_id: light.gang_eerste_verdiep
   mode: restart
 - id: '1637308836739'
-  alias: 'Motion: Keukendeur / Achterdeur'
+  alias: 'Motion Detected: Keukendeur / Achterdeur'
   description: ''
   trigger:
   - type: opened
@@ -1739,20 +1725,9 @@
   - service: light.turn_on
     target:
       entity_id: light.achterdeur
-  - wait_template: '{{ is_state(''binary_sensor.motion_achterdeur'', ''off'') and
-      is_state(''binary_sensor.achter_deur'', ''off'')  and is_state(''binary_sensor.keuken_deur'',
-      ''off'')}}'
-  - delay:
-      hours: 0
-      minutes: 5
-      seconds: 0
-      milliseconds: 0
-  - service: light.turn_off
-    target:
-      entity_id: light.achterdeur
   mode: restart
 - id: '1637566486158'
-  alias: 'Motion: Gang Zolder'
+  alias: 'Motion Detected: Gang Zolder'
   description: ''
   trigger:
   - type: motion
@@ -1771,18 +1746,9 @@
   - service: light.turn_on
     target:
       entity_id: light.gang_zolder
-  - wait_template: '{{ is_state("binary_sensor.motion_gang_zolder", "off") }}'
-  - delay:
-      hours: 0
-      minutes: 1
-      seconds: 5
-      milliseconds: 0
-  - service: light.turn_off
-    target:
-      entity_id: light.gang_zolder
   mode: restart
 - id: '1637566756782'
-  alias: 'Motion: WC Boven'
+  alias: 'Motion Detected: WC Boven'
   description: ''
   trigger:
   - type: motion
@@ -1798,18 +1764,9 @@
   - service: light.turn_on
     target:
       entity_id: light.wc_boven
-  - wait_template: '{{ is_state("binary_sensor.motion_wc_boven", "off") }}'
-  - delay:
-      hours: 0
-      minutes: 1
-      seconds: 5
-      milliseconds: 0
-  - service: light.turn_off
-    target:
-      entity_id: light.wc_boven
   mode: restart
 - id: '1637583933082'
-  alias: 'Motion: Inkom'
+  alias: 'Motion Detected: Inkom'
   description: ''
   trigger:
   - type: motion
@@ -1841,16 +1798,6 @@
   - service: light.turn_on
     target:
       entity_id: light.inkom
-  - wait_template: '{{ is_state("binary_sensor.motion_inkom_1", "off") and is_state("binary_sensor.motion_inkom_2",
-      "off")}}'
-  - delay:
-      hours: 0
-      minutes: 1
-      seconds: 5
-      milliseconds: 0
-  - service: light.turn_off
-    target:
-      entity_id: light.inkom
   mode: restart
 - id: '1637833773538'
   alias: 'Climate: Warning low water pressure'
@@ -1864,4 +1811,191 @@
   - service: notify.hazilverberkenstraatbot_philippe
     data:
       message: Low Water Pressure Heating
+  mode: single
+- id: '1639208368937'
+  alias: Enable Kids Alone Home Mode
+  description: ''
+  trigger:
+  - device_id: a23a7754f95b4a88ad347941e45bfd6b
+    domain: deconz
+    platform: device
+    type: remote_button_short_press
+    subtype: turn_on
+  condition: []
+  action:
+  - service: input_boolean.turn_on
+    target:
+      entity_id: input_boolean.kids_home_alone
+  mode: single
+- id: '1639820224754'
+  alias: Woonkamer Remote
+  description: ''
+  use_blueprint:
+    path: EPMatt/ikea_e1524_e1810.yaml
+    input:
+      controller_device: 7b0a80ba78c1e0968aff34ec1ec2edbd
+      action_button_center_short:
+      - service: scene.turn_on
+        target:
+          entity_id: scene.woonkamer_off
+      - service: light.turn_off
+        target:
+          entity_id: light.led_stars_light_led
+      integration: deCONZ
+      action_button_up_short:
+      - service: scene.turn_on
+        target:
+          entity_id: scene.woonkamer_eve
+      action_button_down_short:
+      - service: scene.turn_on
+        target:
+          entity_id: scene.woonkamer_evening
+      helper_last_controller_event: input_text.woonkamer_remote_helper_last_controller_event
+- id: '1639822020752'
+  alias: 'Motion Clear: Gang Eerste Verdiep'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.motion_gang_eerste
+    to: 'off'
+    for:
+      hours: 0
+      minutes: 2
+      seconds: 0
+  condition: []
+  action:
+  - service: light.turn_off
+    target:
+      entity_id: light.gang_eerste_verdiep
+    data:
+      transition: 15
+  mode: single
+- id: '1639822143530'
+  alias: 'Motion Clear: Gang Zolder'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.motion_gang_zolder
+    to: 'off'
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 5
+  condition: []
+  action:
+  - service: light.turn_off
+    target:
+      entity_id: light.gang_zolder
+  mode: single
+- id: '1639822538473'
+  alias: 'Motion Clear: Inkom'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.motion_inkom
+    to: 'off'
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 5
+  condition: []
+  action:
+  - service: light.turn_off
+    target:
+      entity_id: light.inkom
+  mode: single
+- id: '1639822814602'
+  alias: 'Motion Clear: Keukendeur / Achterdeur'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.motion_achter
+    to: 'off'
+    for:
+      hours: 0
+      minutes: 5
+      seconds: 0
+  condition: []
+  action:
+  - service: light.turn_off
+    target:
+      entity_id: light.achterdeur
+  mode: single
+- id: '1639822971119'
+  alias: 'Motion Clear: Voordeur'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.motion_voor
+    for:
+      hours: 0
+      minutes: 5
+      seconds: 0
+    to: 'off'
+  condition: []
+  action:
+  - service: light.turn_off
+    target:
+      entity_id: light.voordeur
+  mode: single
+- id: '1639857515506'
+  alias: 'Motion Clear: WC Boven'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.motion_wc_boven
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 5
+  condition: []
+  action:
+  - service: light.turn_off
+    target:
+      entity_id: light.wc_boven
+  mode: single
+- id: '1639857800187'
+  alias: 'Motion Clear: Speelkamer'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.motion_speelkamer
+    for:
+      hours: 0
+      minutes: 10
+      seconds: 0
+  condition: []
+  action:
+  - service: light.turn_off
+    target:
+      entity_id:
+      - light.speelkamer
+      - light.wled_speelkamer
+  mode: single
+- id: '1639858209825'
+  alias: 'Lights: Speelkamer'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: light.speelkamer
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: light.speelkamer
+        state: 'on'
+      sequence:
+      - service: scene.turn_on
+        target:
+          entity_id: scene.default_speelkamer
+    - conditions:
+      - condition: state
+        entity_id: light.speelkamer
+        state: 'off'
+      sequence:
+      - service: light.turn_off
+        target:
+          entity_id: light.wled_speelkamer
+    default: []
   mode: single

@@ -40,6 +40,10 @@
       value_template: "{{ is_state('input_boolean.guest_mode','on') }}"
       device_class: presence
       friendly_name: "Guest Mode"
+    kids_home_alone:
+      value_template: "{{ is_state('input_boolean.kids_home_alone','on') }}"
+      device_class: presence
+      friendly_name: "Kids Home Alone"
     vacation_mode:
       value_template: "{{ is_state('input_boolean.vacation_mode','on') }}"
       device_class: presence
@@ -62,12 +66,28 @@
       value_template: >
         {{ is_state("binary_sensor.motion_gang_eerste_1", "on") or is_state("binary_sensor.motion_gang_eerste_2", "on")}}
       device_class: motion
+    motion_achter:
+      friendly_name: Motion Achter
+      value_template: >
+        {{ is_state('binary_sensor.motion_achterdeur', 'on') or is_state('binary_sensor.achter_deur', 'on')  or is_state('binary_sensor.keuken_deur', 'on')}}
+      device_class: motion
+    motion_voor:
+      friendly_name: Motion Voor
+      value_template: >
+        {{ is_state('binary_sensor.motion_voordeur', 'on') or is_state('binary_sensor.voor_deur', 'on') }}
+      device_class: motion
     school_vacation:
       friendly_name: School Vakantie
       value_template: "{{ is_state('input_boolean.school_vacation','on') }}"
     waterpomp:
       friendly_name: Water Pomp
       value_template: "{{ states('sensor.waterpomp') |int (0) > 1 }}"
+    evohome_flame_state:
+      friendly_name: Flame State
+      value_template: "{{ 'True' in states('sensor.evohome_actuator_state').split(',')[1] }}"
+    evohome_dhw_state:
+      friendly_name: DHW State
+      value_template: "{{ 'True' in states('sensor.evohome_actuator_state').split(',')[0] }}"
 
 - platform: workday
   country: BE

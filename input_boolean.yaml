@@ -37,10 +37,6 @@ disable_motion_trigger_light_gang_zolder:
   name: Disable Motion Trigger Gang Zolder
   icon: mdi:light-switch
 
-disable_motion_trigger_light_bureau:
-  name: Disable Motion Trigger Bureau
-  icon: mdi:light-switch
-
 philippe_phone_alarm_set:
   name: Philippe Phone Alarm
   icon: mdi:alarm

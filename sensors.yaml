@@ -710,7 +710,9 @@
     house_mode:
       friendly_name: House Mode
       value_template: >-
-        {% if is_state('binary_sensor.guest_mode', 'on') %}
+        {% if is_state('input_boolean.kids_home_alone', 'on') %}
+          kids home alone
+        {% elif is_state('binary_sensor.guest_mode', 'on') %}
           guest
         {% elif is_state('binary_sensor.no_one_home', 'off') %}
           home
@@ -720,8 +722,10 @@
           away
         {% endif %}
       icon_template: >-
-        {% if is_state('binary_sensor.guest_mode', 'on') %}
-          mdi:account
+        {% if is_state('input_boolean.kids_home_alone', 'on') %}
+          mdi:home-circle-outline
+        {% elif is_state('binary_sensor.guest_mode', 'on') %}
+          mdi:alpha-g
         {% elif is_state('binary_sensor.no_one_home', 'off') %}
           mdi:home
         {% elif is_state('input_boolean.vacation_mode', 'on') %}
@@ -865,3 +869,8 @@
         {% else %}
           mdi:alert-circle-check
         {% endif %}
+
+- platform: command_line
+  name: Evohome Actuator State
+  command: 'grep "|| OTB:040239 | CTL:223036 | RP | actuator_state   |      ||" /config/home-assistant.log | tail -n 1 | cut -d "|" -f 9| cut -d "," -f 12,13'
+  scan_interval: 5
