@@ -1,3 +1,19 @@
+energy_usage_hourly:
+  source: sensor.overall_consumption
+  cycle: hourly
+energy_usage_daily:
+  source: sensor.overall_consumption
+  cycle: daily
+energy_usage_weekly:
+  source: sensor.overall_consumption
+  cycle: weekly
+energy_usage_monthly:
+  source: sensor.overall_consumption
+  cycle: monthly
+energy_usage_yearly:
+  source: sensor.overall_consumption
+  cycle: yearly
+
 waterpump_water_usage_hourly:
   source: sensor.water_pump_usage
   cycle: hourly
@@ -31,69 +47,6 @@ waterpump_current_usage_monthly:
     - normaal
 waterpump_current_usage_yearly:
   source: sensor.waterpump_consumption
-  cycle: yearly
-  tariffs:
-    - normaal
-
-verlichting_gang_eerste_verdiep_current_usage_daily:
-  source: sensor.verlichting_gang_eerste_verdiep_energy
-  cycle: daily
-  tariffs:
-    - normaal
-verlichting_gang_eerste_verdiep_current_usage_weekly:
-  source: sensor.verlichting_gang_eerste_verdiep_energy
-  cycle: weekly
-  tariffs:
-    - normaal
-verlichting_gang_eerste_verdiep_current_usage_monthly:
-  source: sensor.verlichting_gang_eerste_verdiep_energy
-  cycle: monthly
-  tariffs:
-    - normaal
-verlichting_gang_eerste_verdiep_current_usage_yearly:
-  source: sensor.verlichting_gang_eerste_verdiep_energy
-  cycle: yearly
-  tariffs:
-    - normaal
-
-verlichting_voordeur_current_usage_daily:
-  source: sensor.verlichting_voordeur_energy
-  cycle: daily
-  tariffs:
-    - normaal
-verlichting_voordeur_current_usage_weekly:
-  source: sensor.verlichting_voordeur_energy
-  cycle: weekly
-  tariffs:
-    - normaal
-verlichting_voordeur_current_usage_monthly:
-  source: sensor.verlichting_voordeur_energy
-  cycle: monthly
-  tariffs:
-    - normaal
-verlichting_voordeur_current_usage_yearly:
-  source: sensor.verlichting_voordeur_energy
-  cycle: yearly
-  tariffs:
-    - normaal
-
-verlichting_inkom_current_usage_daily:
-  source: sensor.verlichting_inkom_energy
-  cycle: daily
-  tariffs:
-    - normaal
-verlichting_inkom_current_usage_weekly:
-  source: sensor.verlichting_inkom_energy
-  cycle: weekly
-  tariffs:
-    - normaal
-verlichting_inkom_current_usage_monthly:
-  source: sensor.verlichting_inkom_energy
-  cycle: monthly
-  tariffs:
-    - normaal
-verlichting_inkom_current_usage_yearly:
-  source: sensor.verlichting_inkom_energy
   cycle: yearly
   tariffs:
     - normaal

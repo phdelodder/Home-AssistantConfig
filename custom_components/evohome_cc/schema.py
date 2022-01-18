@@ -53,9 +53,9 @@ CONF_OVERRUN = "overrun"
 
 # Configuration schema
 SCAN_INTERVAL_DEFAULT = td(seconds=300)
-SCAN_INTERVAL_MINIMUM = td(seconds=10)
+SCAN_INTERVAL_MINIMUM = td(seconds=1)
 
-CONF_RESTORE_STATE = "restore_state"
+CONF_RESTORE_CACHE = "restore_cache"
 
 PACKET_LOG_SCHEMA = vol.Schema(
     {
@@ -208,6 +208,7 @@ CLIMATE_SERVICES = {
 }
 
 # WaterHeater platform services for DHW
+SVC_PUT_DHW_TEMP = "put_dhw_temp"
 SVC_RESET_DHW_MODE = "reset_dhw_mode"
 SVC_RESET_DHW_PARAMS = "reset_dhw_params"
 SVC_SET_DHW_BOOST = "set_dhw_boost"
@@ -253,16 +254,37 @@ SET_DHW_CONFIG_SCHEMA = SET_DHW_BASE_SCHEMA.extend(
     }
 )
 
+PUT_DHW_TEMP_SCHEMA = SET_ZONE_BASE_SCHEMA.extend(
+    {
+        vol.Required(CONF_TEMPERATURE): vol.All(
+            vol.Coerce(float), vol.Range(min=-20, max=99)  # TODO: check limits
+        ),
+    }
+)
+
 WATER_HEATER_SERVICES = {
     SVC_RESET_DHW_MODE: SET_DHW_BASE_SCHEMA,
     SVC_RESET_DHW_PARAMS: SET_DHW_BASE_SCHEMA,
     SVC_SET_DHW_BOOST: SET_DHW_BASE_SCHEMA,
     SVC_SET_DHW_MODE: SET_DHW_MODE_SCHEMA,
     SVC_SET_DHW_PARAMS: SET_DHW_CONFIG_SCHEMA,
+    SVC_PUT_DHW_TEMP: PUT_DHW_TEMP_SCHEMA,
 }
 
 DEVICE_LIST = vol.Schema(vol.All([vol.Any(DEVICE_ID, DEVICE_DICT)], vol.Length(min=0)))
 
+ADVANCED_FEATURES = "advanced_features"
+MESSAGE_EVENTS = "message_events"
+DEV_MODE = "dev_mode"
+UNKNOWN_CODES = "unknown_codes"
+ADVANCED_FEATURES_SCHEMA = vol.Schema(
+    {
+        vol.Optional(SVC_SEND_PACKET, default=False): bool,
+        vol.Optional(MESSAGE_EVENTS, default=False): bool,
+        vol.Optional(DEV_MODE, default=False): bool,
+        vol.Optional(UNKNOWN_CODES, default=False): bool,
+    }
+)
 CONFIG_SCHEMA = vol.Schema(
     {
         DOMAIN: vol.Schema(
@@ -275,12 +297,14 @@ CONFIG_SCHEMA = vol.Schema(
                 vol.Optional(BLOCK_LIST, default=[]): DEVICE_LIST,
                 cv.deprecated(CONFIG, "ramses_rf"): vol.Any(),
                 vol.Optional("ramses_rf", default={}): CONFIG_SCHEMA,
-                vol.Optional(CONF_RESTORE_STATE, default=True): bool,
+                cv.deprecated("restore_state", CONF_RESTORE_CACHE): vol.Any(),
+                vol.Optional(CONF_RESTORE_CACHE, default=True): vol.Any(bool),
                 vol.Optional(
                     CONF_SCAN_INTERVAL, default=SCAN_INTERVAL_DEFAULT
                 ): vol.All(cv.time_period, vol.Range(min=SCAN_INTERVAL_MINIMUM)),
                 vol.Optional(PACKET_LOG): vol.Any(str, PACKET_LOG_SCHEMA),
-                vol.Optional(SVC_SEND_PACKET): bool,
+                cv.deprecated(SVC_SEND_PACKET, ADVANCED_FEATURES): vol.Any(),
+                vol.Optional(ADVANCED_FEATURES, default={}): ADVANCED_FEATURES_SCHEMA,
             },
             extra=vol.ALLOW_EXTRA,  # will be system schemas
         )
@@ -314,28 +338,25 @@ def normalise_config_schema(config, store) -> Tuple[str, dict]:
 
     schema = {}
 
-    if config[CONF_RESTORE_STATE]:
+    if config[CONF_RESTORE_CACHE]:
         schema = store["client_state"].get("schema") if "client_state" in store else {}
-        if schema:
-            _LOGGER.warning("Using a Schema restored from cache: %s", schema)
 
-    if (
-        not schema
-        and (_schema := config.get("schema"))
-        and (ctl_id := _schema.pop("controller", None))
-    ):
-        schema = {"main_controller": ctl_id, ctl_id: _schema}
-        if schema:
-            _LOGGER.warning("Using a Schema loaded from configuration file: %s", schema)
+    if schema:
+        _LOGGER.warning("Using a Schema restored from cache: %s", schema)
 
-    if not schema:
+    elif (_sch := config.get("schema")) and (_ctl := _sch.pop("controller", None)):
+        schema = {"main_controller": _ctl, _ctl: _sch}
+        _LOGGER.warning("Using a Schema loaded from configuration file: %s", schema)
+
+    else:
         _LOGGER.warning("Using an empty Schema: %s", {})
 
     config = {
         k: v
         for k, v in config.items()
-        if k not in (
-            CONF_RESTORE_STATE,
+        if k
+        not in (
+            CONF_RESTORE_CACHE,
             CONF_SCAN_INTERVAL,
             SVC_SEND_PACKET,
             "schema",

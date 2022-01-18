@@ -869,7 +869,7 @@
   description: ''
   trigger:
   - platform: time
-    at: 08:00:00
+    at: 08:30
   - platform: state
     entity_id: binary_sensor.no_one_home
     to: 'off'
@@ -882,7 +882,7 @@
     state: 'off'
   - condition: time
     after: 08:00:00
-    before: '21:30:00'
+    before: '21:30'
   - condition: state
     entity_id: binary_sensor.workday_sensor
     state: 'off'
@@ -959,9 +959,9 @@
         entity_id:
         - fan.cabinet_fan_1
         - fan.cabinet_fan_2
-        percentage: "{% if states('sensor.temperature_bureau') | float(0)> 28 %}\n\
-          \  100\n{% elif states('sensor.temperature_bureau') | float(0)> 25 %}\n\
-          \  50\n{% elif states('sensor.temperature_bureau') | float(0)>= 21 %}\n\
+        percentage: "{% if states('sensor.temperature_bureau') | int(0)> 28 %}\n\
+          \  100\n{% elif states('sensor.temperature_bureau') | int(0)> 25 %}\n\
+          \  50\n{% elif states('sensor.temperature_bureau') | int(0)>= 21 %}\n\
           \  25\n{% endif %}\n"
   mode: single
 - id: '1604346606992'
@@ -1670,7 +1670,7 @@
     - condition: state
       entity_id: sensor.gang_eerste_motion_sensor_2
       state: false
-      attribute: daylight
+      attribute: dark
   action:
   - choose:
     - conditions:
@@ -1998,4 +1998,35 @@
         target:
           entity_id: light.wled_speelkamer
     default: []
+  mode: single
+- id: '1640150782849'
+  alias: 'Climate: Set Inkom temperature based demand of Woonkamer'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: sensor.04_231772_heat_demand
+  - platform: state
+    entity_id: climate.inkom
+    attribute: preset_mode
+    to: none
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 30
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: numeric_state
+        entity_id: sensor.04_231772_heat_demand
+        above: '45'
+      sequence:
+      - service: evohome_cc.set_zone_mode
+        data:
+          entity_id: climate.inkom
+          setpoint: 17
+    default:
+    - service: evohome_cc.reset_zone_mode
+      data:
+        entity_id: climate.inkom
   mode: single

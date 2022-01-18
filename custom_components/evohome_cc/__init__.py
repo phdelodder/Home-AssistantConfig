@@ -16,7 +16,7 @@ from typing import Any, Dict, List, Optional
 import ramses_rf
 import serial
 from homeassistant.const import CONF_SCAN_INTERVAL, TEMP_CELSIUS, Platform
-from homeassistant.core import callback
+from homeassistant.core import HomeAssistant, ServiceCall, callback
 from homeassistant.helpers.discovery import async_load_platform
 from homeassistant.helpers.dispatcher import (
     async_dispatcher_connect,
@@ -37,8 +37,10 @@ from .const import (
 )
 from .schema import CONFIG_SCHEMA  # noqa: F401
 from .schema import (
-    CONF_RESTORE_STATE,
+    ADVANCED_FEATURES,
+    CONF_RESTORE_CACHE,
     DOMAIN_SERVICES,
+    MESSAGE_EVENTS,
     SVC_SEND_PACKET,
     WATER_HEATER_SERVICES,
     normalise_config_schema,
@@ -56,7 +58,10 @@ PLATFORMS = [
 SAVE_STATE_INTERVAL = td(seconds=300)  # TODO: 5 minutes
 
 
-async def async_setup(hass: HomeAssistantType, hass_config: ConfigType) -> bool:
+async def async_setup(
+    hass: HomeAssistant,
+    hass_config: ConfigType,
+) -> bool:
     """Create a Honeywell RF (RAMSES_II)-based system."""
 
     async def async_handle_exceptions(awaitable):
@@ -73,7 +78,7 @@ async def async_setup(hass: HomeAssistantType, hass_config: ConfigType) -> bool:
 
     app_storage = await EvoBroker.async_load_store(store)
 
-    if hass_config[DOMAIN].get(CONF_RESTORE_STATE):
+    if hass_config[DOMAIN][CONF_RESTORE_CACHE]:
         _LOGGER.debug("Restoring the client state (schema)...")
 
     serial_port, config, schema = normalise_config_schema(
@@ -85,7 +90,7 @@ async def async_setup(hass: HomeAssistantType, hass_config: ConfigType) -> bool:
     broker = EvoBroker(hass, client, store, hass_config)
     hass.data[DOMAIN] = {BROKER: broker}
 
-    if hass_config[DOMAIN].get(CONF_RESTORE_STATE):
+    if hass_config[DOMAIN][CONF_RESTORE_CACHE]:
         _LOGGER.debug("Restoring the client state (packets)...")
         await broker.async_load_client_state(app_storage)
 
@@ -101,8 +106,30 @@ async def async_setup(hass: HomeAssistantType, hass_config: ConfigType) -> bool:
     # hass.helpers.event.async_call_later(30, broker.async_update)
 
     register_service_functions(hass, broker)
+    register_trigger_events(hass, broker)
 
     return True
+
+
+@callback  # TODO: add async_ to routines where required to do so
+def register_trigger_events(hass: HomeAssistantType, broker):
+    """Set up the handlers for the system-wide services."""
+
+    @callback
+    def process_message(msg):
+        event_data = {
+            "dtm": msg.dtm.isoformat(),
+            "src": msg.src.id,
+            "dst": msg.dst.id,
+            "verb": msg.verb,
+            "code": msg.code,
+            "payload": msg.payload,
+            "packet": str(msg._pkt),
+        }
+        hass.bus.async_fire(f"{DOMAIN}_message", event_data)
+
+    if broker.config[ADVANCED_FEATURES].get(MESSAGE_EVENTS):
+        broker.client.create_client(process_message)
 
 
 @callback  # TODO: add async_ to routines where required to do so
@@ -110,7 +137,7 @@ def register_service_functions(hass: HomeAssistantType, broker):
     """Set up the handlers for the system-wide services."""
 
     @verify_domain_control(hass, DOMAIN)
-    async def svc_fake_device(call) -> None:
+    async def svc_fake_device(call: ServiceCall) -> None:
         try:
             broker.client.fake_device(**call.data)
         except LookupError as exc:
@@ -120,12 +147,12 @@ def register_service_functions(hass: HomeAssistantType, broker):
         async_dispatcher_send(hass, DOMAIN)
 
     @verify_domain_control(hass, DOMAIN)
-    async def svc_force_refresh(call) -> None:
+    async def svc_force_refresh(call: ServiceCall) -> None:
         await broker.async_update()
         # includes: async_dispatcher_send(hass, DOMAIN)
 
     @verify_domain_control(hass, DOMAIN)
-    async def svc_reset_system_mode(call) -> None:
+    async def svc_reset_system_mode(call: ServiceCall) -> None:
         payload = {
             UNIQUE_ID: broker.client.evo.id,
             SERVICE: call.service,
@@ -134,7 +161,7 @@ def register_service_functions(hass: HomeAssistantType, broker):
         async_dispatcher_send(hass, DOMAIN, payload)
 
     @verify_domain_control(hass, DOMAIN)
-    async def svc_set_system_mode(call) -> None:
+    async def svc_set_system_mode(call: ServiceCall) -> None:
         payload = {
             UNIQUE_ID: broker.client.evo.id,
             SERVICE: call.service,
@@ -143,13 +170,13 @@ def register_service_functions(hass: HomeAssistantType, broker):
         async_dispatcher_send(hass, DOMAIN, payload)
 
     @verify_domain_control(hass, DOMAIN)
-    async def svc_send_packet(call) -> None:
+    async def svc_send_packet(call: ServiceCall) -> None:
         broker.client.send_cmd(broker.client.make_cmd(**call.data))
         await asyncio.sleep(1)
         async_dispatcher_send(hass, DOMAIN)
 
     @verify_domain_control(hass, DOMAIN)
-    async def svc_call_dhw_svc(call) -> None:
+    async def svc_call_dhw_svc(call: ServiceCall) -> None:
         payload = {
             UNIQUE_ID: f"{broker.client.evo.id}_HW",
             SERVICE: call.service,
@@ -163,7 +190,7 @@ def register_service_functions(hass: HomeAssistantType, broker):
     ]
 
     domain_service = DOMAIN_SERVICES
-    if not broker.config[DOMAIN].get(SVC_SEND_PACKET):
+    if not broker.config[ADVANCED_FEATURES].get(SVC_SEND_PACKET):
         del domain_service[SVC_SEND_PACKET]
 
     services = {k: v for k, v in locals().items() if k.startswith("svc")}
@@ -177,12 +204,13 @@ def register_service_functions(hass: HomeAssistantType, broker):
 class EvoBroker:
     """Container for client and data."""
 
-    def __init__(self, hass, client, store, hass_config) -> None:
+    def __init__(self, hass, client, store, config) -> None:
         """Initialize the client and its data structure(s)."""
         self.hass = hass
         self.client = client
         self._store = store
-        self.config = hass_config
+        self.hass_config = config
+        self.config = config[DOMAIN]
 
         self.status = None
 
@@ -231,7 +259,7 @@ class EvoBroker:
         if new_domains:
             self.hass.async_create_task(
                 async_load_platform(
-                    self.hass, Platform.CLIMATE, DOMAIN, {}, self.config
+                    self.hass, Platform.CLIMATE, DOMAIN, {}, self.hass_config
                 )
             )
             # new_domains = {"new_domains": new_domains + [self.client.evo]}
@@ -243,7 +271,7 @@ class EvoBroker:
         if evohome.dhw and self.water_heater is None:
             self.hass.async_create_task(
                 async_load_platform(
-                    self.hass, Platform.WATER_HEATER, DOMAIN, {}, self.config
+                    self.hass, Platform.WATER_HEATER, DOMAIN, {}, self.hass_config
                 )
             )
             save_updated_schema = True
@@ -292,7 +320,7 @@ class EvoBroker:
             for platform in (Platform.BINARY_SENSOR, Platform.SENSOR):
                 self.hass.async_create_task(
                     async_load_platform(
-                        self.hass, platform, DOMAIN, discovery_info, self.config
+                        self.hass, platform, DOMAIN, discovery_info, self.hass_config
                     )
                 )
 
@@ -410,18 +438,15 @@ class EvoDeviceBase(EvoEntity):
         super().__init__(broker, device)
 
         self._unique_id = f"{device_id}-{attr_name}"
-        self._name = f"{device_id} ({attr_name})"
+
         self._device_class = device_class
+        self._device_id = device_id
         self._state_attr = state_attr
+        self._state_attr_friendly_name = attr_name
 
     @property
     def available(self) -> bool:
         """Return True if the sensor is available."""
-        result = getattr(self._device, self._state_attr)
-        if result is None and getattr(self._device, "type", None) == "07":
-            _LOGGER.debug(self._device._msgs)
-            _LOGGER.debug(self._device._gwy.device_by_id)
-            return False
         return getattr(self._device, self._state_attr) is not None
 
     @property
@@ -456,13 +481,9 @@ class EvoDeviceBase(EvoEntity):
     @property
     def name(self) -> str:
         """Return the name of the sensor."""
-        return self._name
-        # klass = self.DEVICE_CLASS if self.DEVICE_CLASS else self.STATE_ATTR
-        # self._name = f"{self._device.id} ({klass})"
-        # if getattr(self._device, "zone", None):
-        #     return f"{self._device.zone.name} ({klass})"
-        # else:
-        # return f"{self._device.id} ({klass})"
+        if hasattr(self._device, "name"):
+            return f"{self._device.name} {self._state_attr_friendly_name}"
+        return f"{self._device_id} {self._state_attr_friendly_name}"
 
 
 class EvoZoneBase(EvoEntity):

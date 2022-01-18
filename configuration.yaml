@@ -76,6 +76,7 @@ plant: !include plant.yaml
 rest_command: !include rest_command.yaml
 utility_meter: !include utility_meter.yaml
 image_processing: !include image_processing.yaml
+template: !include template.yaml
 
 python_script:
 
@@ -132,7 +133,7 @@ evohome_cc:
     controller: 01:223036
     system:
       heating_control: 10:040239
-  restore_state: true
+  restore_cache: true
   known_list:
     - 01:223036
     - 10:040239

@@ -118,6 +118,7 @@ set_thermostat_away:
       - climate.bureau
       - climate.speelkamer
       - climate.inkom
+      - climate.keuken
       temperature: 10
   mode: single
   icon: mdi:thermostat

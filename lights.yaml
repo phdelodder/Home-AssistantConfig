@@ -39,6 +39,8 @@
     - light.garage_buiten
     - light.voortuin
     - light.rozenboom
+    - light.verlichting_garage_voorkant
+    - light.verlichting_garage_zijkant
 
 - platform: group
   name: Zolder
@@ -50,3 +52,9 @@
     - light.wled_speelkamer
     - light.wled_matrix
     - light.bureau_spot
+
+- platform: group
+  name: Garage
+  entities:
+    - light.verlichting_garage_gelijkvloers
+    - light.verlichting_garage_zolder

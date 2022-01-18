@@ -15,12 +15,18 @@ from homeassistant.components.sensor import (
     SensorEntityDescription,
     SensorStateClass,
 )
-from homeassistant.const import TEMP_CELSIUS
+from homeassistant.const import (
+    CONCENTRATION_PARTS_PER_MILLION,
+    PERCENTAGE,
+    TEMP_CELSIUS,
+    TIME_MINUTES,
+)
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.typing import ConfigType, HomeAssistantType
+from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 
 from . import EvoDeviceBase
-from .const import ATTR_SETPOINT, BROKER, DOMAIN, PERCENTAGE
+from .const import ATTR_SETPOINT, BROKER, DOMAIN, VOLUME_FLOW_RATE_LITERS_PER_MINUTE
 
 SENSOR_KEY_TEMPERATURE = "temperature"
 
@@ -37,12 +43,13 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_platform(
-    hass: HomeAssistantType,
+    hass: HomeAssistant,
     config: ConfigType,
     async_add_entities: AddEntitiesCallback,
-    discovery_info=None,
+    discovery_info: DiscoveryInfoType = None,
 ) -> None:
     """Set up the evohome sensor sensor entities."""
+
     if discovery_info is None:
         return
 
@@ -50,7 +57,25 @@ async def async_setup_platform(
         v.get(ENTITY_CLASS, EvoSensor)(hass.data[DOMAIN][BROKER], device, k, **v)
         for device in discovery_info.get("devices", [])
         for k, v in SENSOR_ATTRS.items()
-        if hasattr(device, k)
+        if device._klass != "OTB" and hasattr(device, k)
+    ]  # and (not device._is_faked or device["fakable"])
+
+    devices += [
+        v.get(ENTITY_CLASS, EvoSensor)(
+            hass.data[DOMAIN][BROKER], device, k, device_id=f"{device.id}_OT", **v
+        )
+        for device in discovery_info.get("devices", [])
+        for k, v in SENSOR_ATTRS.items()
+        if device._klass == "OTB" and hasattr(device, k)
+    ]  # and (not device._is_faked or device["fakable"])
+
+    devices += [
+        v.get(ENTITY_CLASS, EvoSensor)(
+            hass.data[DOMAIN][BROKER], device, f"_{k}", attr_name=k, **v
+        )
+        for device in discovery_info.get("devices", [])
+        for k, v in SENSOR_ATTRS.items()
+        if hasattr(device, f"_{k}")
     ]  # and (not device._is_faked or device["fakable"])
 
     domains = [
@@ -59,14 +84,6 @@ async def async_setup_platform(
         for k, v in SENSOR_ATTRS.items()
         if k == "heat_demand" and hasattr(domain, k)
     ]
-
-    # if otb := [d for d in devices if d._klass == "OTB"]:
-    #     EvoSensor(
-    #         hass.data[DOMAIN][BROKER],
-    #         domain,
-    #         k,
-    #         **v
-    #     )
 
     async_add_entities(devices + domains)
 
@@ -85,7 +102,7 @@ class EvoSensor(EvoDeviceBase, SensorEntity):
         device_id=None,
         device_class=None,
         device_units=None,
-        **kwargs
+        **kwargs,
     ) -> None:
         """Initialize a sensor."""
         attr_name = attr_name or state_attr
@@ -109,7 +126,7 @@ class EvoSensor(EvoDeviceBase, SensorEntity):
         """Return the state of the sensor."""
         state = getattr(self._device, self._state_attr)
         if self.unit_of_measurement == PERCENTAGE:
-            return int(state * 200) / 2 if state is not None else None
+            return state * 100 if state is not None else None
         # if self.unit_of_measurement == TEMP_CELSIUS:
         #     return int(state * 200) / 200 if state is not None else None
         return state
@@ -211,6 +228,14 @@ DEVICE_UNITS = "device_units"
 ENTITY_CLASS = "entity_class"
 
 SENSOR_ATTRS = {
+    # Special projects
+    "percent": {  # 2401
+        DEVICE_UNITS: PERCENTAGE,
+        ENTITY_CLASS: EvoRelayDemand,
+    },
+    "value": {  # 2401
+        DEVICE_UNITS: "units",
+    },
     # SENSOR_ATTRS_BDR = {  # incl: actuator
     "relay_demand": {  # 0008
         DEVICE_UNITS: PERCENTAGE,
@@ -237,12 +262,16 @@ SENSOR_ATTRS = {
         DEVICE_CLASS: SensorDeviceClass.TEMPERATURE,
         DEVICE_UNITS: TEMP_CELSIUS,
     },
+    "ch_setpoint": {  # 3EF0
+        DEVICE_CLASS: SensorDeviceClass.TEMPERATURE,
+        DEVICE_UNITS: TEMP_CELSIUS,
+    },
     "ch_water_pressure": {  # 3220
         DEVICE_CLASS: SensorDeviceClass.PRESSURE,
         DEVICE_UNITS: "bar",
     },
     "dhw_flow_rate": {  # 3220
-        DEVICE_UNITS: "l/min",
+        DEVICE_UNITS: VOLUME_FLOW_RATE_LITERS_PER_MINUTE,
     },
     "dhw_setpoint": {  # 3220
         DEVICE_CLASS: SensorDeviceClass.TEMPERATURE,
@@ -251,6 +280,10 @@ SENSOR_ATTRS = {
     "dhw_temp": {  # 3220
         DEVICE_CLASS: SensorDeviceClass.TEMPERATURE,
         DEVICE_UNITS: TEMP_CELSIUS,
+    },
+    "max_rel_modulation": {  # 3200
+        DEVICE_UNITS: PERCENTAGE,
+        ENTITY_CLASS: EvoModLevel,
     },
     "outside_temp": {  # 3220
         DEVICE_CLASS: SensorDeviceClass.TEMPERATURE,
@@ -273,13 +306,17 @@ SENSOR_ATTRS = {
     },
     # SENSOR_ATTRS_FAN = {
     "boost_timer": {
-        DEVICE_UNITS: "min(s)",
+        DEVICE_UNITS: TIME_MINUTES,
     },
     "fan_rate": {
         DEVICE_UNITS: PERCENTAGE,
     },
-    "relative_humidity": {
+    "indoor_humidity": {
         DEVICE_CLASS: SensorDeviceClass.HUMIDITY,
         DEVICE_UNITS: PERCENTAGE,
+    },
+    "co2_level": {
+        DEVICE_CLASS: SensorDeviceClass.CO2,
+        DEVICE_UNITS: CONCENTRATION_PARTS_PER_MILLION,
     },
 }

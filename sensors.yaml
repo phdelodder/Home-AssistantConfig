@@ -546,26 +546,16 @@
   sensors:
     waterpump_cost:
       friendly_name: 'Waterpump Cost Yearly'
-      #value_template: "{{ (states('sensor.energy_t31_light_and_power_total')|float(0) * states('input_number.t31_energy_cost')|float(0) + states('input_number.t31_daily_cost')|float(0) )|round(2) }}"
-      value_template: "{{ (states('sensor.waterpump_current_usage_yearly_normaal') | float(0) * states('input_number.energy_cost') | float(0) / 100) | round (2) }}"
+      value_template: "{{ (states('sensor.waterpump_current_usage_yearly_normaal') | float(0) * states('input_number.energy_price') | float(0) / 100) | round (2) }}"
       unit_of_measurement: "€"
     energy_cost_yearly:
       friendly_name: 'Energy Cost Yearly'
-      #value_template: "{{ (states('sensor.energy_t31_light_and_power_total')|float(0) * states('input_number.t31_energy_cost')|float(0) + states('input_number.t31_daily_cost')|float(0) )|round(2) }}"
-      value_template: "{{ (states('sensor.total_current_yearly') | float(0) * states('input_number.energy_cost') | float(0) / 100) | round (2) }}"
+      value_template: "{{ (states('sensor.energy_usage_yearly') | float(0) * states('input_number.energy_price') | float(0) / 100) | round (2) }}"
       unit_of_measurement: "€"
-
-- platform: template
-
-  sensors:
-    total_current_daily:
-      friendly_name: "Total Current Daily"
-      value_template: "{{ (states('sensor.droogkast_current_usage_daily_normaal') | float(0) + states('sensor.wasmachine_current_usage_daily_normaal') | float(0) + states('sensor.boiler_keuken_current_usage_daily_normaal') | float(0) + states('sensor.koelkast_vriezer_garage_current_usage_daily_normaal') | float(0) + states('sensor.waterpump_current_usage_daily_normaal') | float(0) + states('sensor.verlichting_gang_eerste_verdiep_current_usage_daily_normaal') | float(0) + states('sensor.verlichting_voordeur_current_usage_daily_normaal') | float(0) + states('sensor.verlichting_inkom_current_usage_daily_normaal') | float(0) + states('sensor.koelkast_vriezer_berging_current_usage_daily_normaal') | float(0) + states('sensor.koelkast_keuken_current_usage_daily_normaal') | float(0) + states('sensor.vriezer_garage_current_usage_daily_normaal') | float(0) ) | round(2) }}"
-      unit_of_measurement: "kwh"
-    total_current_yearly:
-      friendly_name: "Total Current yearly"
-      value_template: "{{ (states('sensor.droogkast_current_usage_yearly_normaal') | float(0) + states('sensor.wasmachine_current_usage_yearly_normaal') | float(0) + states('sensor.boiler_keuken_current_usage_yearly_normaal') | float(0) + states('sensor.koelkast_vriezer_garage_current_usage_yearly_normaal') | float(0) + states('sensor.waterpump_current_usage_yearly_normaal') | float(0) + states('sensor.verlichting_gang_eerste_verdiep_current_usage_yearly_normaal') | float(0) + states('sensor.verlichting_voordeur_current_usage_yearly_normaal') | float(0) + states('sensor.verlichting_inkom_current_usage_yearly_normaal') | float(0) + states('sensor.koelkast_vriezer_berging_current_usage_yearly_normaal') | float(0) + states('sensor.koelkast_keuken_current_usage_yearly_normaal') | float(0) + states('sensor.garage_vriezer_current_usage_yearly_normaal') | float(0) ) | round(2) }}"
-      unit_of_measurement: "kwh"  
+    energy_price_kwh:
+      friendly_name: 'Energy Price/kWh'
+      value_template: "{{ states('input_number.energy_price') | float (0) / 100 }}"
+      unit_of_measurement: "€/kWh"
 
 - platform: template
   sensors:
@@ -614,26 +604,12 @@
 
 - platform: template
   sensors:
-    lights_current_daily:
-      value_template: "{{ (states('sensor.verlichting_gang_eerste_verdiep_current_usage_daily_normaal') | float(0) + states('sensor.verlichting_voordeur_current_usage_daily_normaal') | float(0) + states('sensor.verlichting_inkom_current_usage_daily_normaal') | float(0) ) | round(2) }}"
-      unit_of_measurement: "kwh"
-    lights_current_weekly:
-      value_template: "{{ (states('sensor.verlichting_gang_eerste_verdiep_current_usage_weekly_normaal') | float(0) + states('sensor.verlichting_voordeur_current_usage_weekly_normaal') | float(0) + states('sensor.verlichting_inkom_current_usage_weekly_normaal') | float(0) ) | round(2) }}"
-      unit_of_measurement: "kwh"
-    lights_current_monthly:
-      value_template: "{{ (states('sensor.verlichting_gang_eerste_verdiep_current_usage_monthly_normaal') | float(0) + states('sensor.verlichting_voordeur_current_usage_monthly_normaal') | float(0) + states('sensor.verlichting_inkom_current_usage_monthly_normaal') | float(0) ) | round(2) }}"
-      unit_of_measurement: "kwh"
-    lights_current_yearly:
-      value_template: "{{ (states('sensor.verlichting_gang_eerste_verdiep_current_usage_yearly_normaal') | float(0) + states('sensor.verlichting_voordeur_current_usage_yearly_normaal') | float(0) + states('sensor.verlichting_inkom_current_usage_yearly_normaal') | float(0) ) | round(2) }}"
-      unit_of_measurement: "kwh"
-
-- platform: template
-  sensors:
     current_consumption:
       value_template: >
         {{
-          (states('sensor.waterpomp') | float(0) +
-          states('sensor.verlichting_gang_eerste_verdiep_current_consumption') | float(0) +
+          (
+          states('sensor.waterpomp') | float(0) +
+          states('sensor.verlichting_gang_eerste_verdiep_power') | float(0) +
           states('sensor.verlichting_inkom_power') | float(0) +
           states('sensor.verlichting_voordeur_power') | float(0) +
           states('sensor.koelkast_vriezer_berging') | float(0) +
@@ -643,7 +619,12 @@
           states('sensor.boiler_keuken') | float(0) +
           states('sensor.wasmachine') | float(0) +
           states('sensor.droogkast') | float(0) +
-          states('sensor.computer') | float(0))
+          states('sensor.computer') | float(0) +
+          states('sensor.verlichting_garage_gelijkvloers_power') | float(0) +
+          states('sensor.verlichting_garage_zolder_power') | float(0) +
+          states('sensor.verlichting_garage_voorkant_power') | float(0) +
+          states('sensor.verlichting_garage_zijkant_power') | float(0)
+          )
         }}
       unit_of_measurement: "w"
 
