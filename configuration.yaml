@@ -19,14 +19,15 @@ http:
   use_x_forwarded_for: true
   trusted_proxies:
     - 192.168.0.101
+    - 192.168.0.21
 
 logger:
   default: warning                  # don't use debug
 
   logs:
-    custom_components.evohome_cc: warn
-    ramses_rf.message: info
-    ramses_rf.protocol.message: info
+    #custom_components.evohome_cc: warn
+    #ramses_rf.message: info
+    #ramses_rf.protocol.message: info
     fritzconnection: info
 
 # Text to speech
@@ -113,20 +114,12 @@ spotify:
 
 browser_mod:
 
-google:
-  client_id: !secret google-client_id
-  client_secret: !secret google-client_secret
-
-#fallback for evohome_cc
-#evohome:
-#  username: !secret international.mytotalconnectcomfort.com-username
-#  password: !secret international.mytotalconnectcomfort.com-password
-#  scan_interval: 120
-
 evohome_cc:
   serial_port: /dev/ttyUSB0
   scan_interval: 60
-  packet_log: /config/evohome_cc_packet.log
+  packet_log:
+    file_name: /config/evohome_cc_packet.log
+    rotate_backups: 5
   ramses_rf:
     enforce_known_list: true
   schema:

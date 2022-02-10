@@ -520,10 +520,13 @@
 - platform: afvalbeheer
   wastecollector: RecycleApp
   resources:
-    - restafval
+    - gft
+    - groenafval
+    - grofvuil
+    - kga mobiel
     - papier
     - pmd
-    - groenafval
+    - restafval
   postcode: !secret ophaalkalender_postcode
   streetname: !secret ophaalkalender_streetname
   upcomingsensor: 1
@@ -544,66 +547,10 @@
 
 - platform: template
   sensors:
-    waterpump_cost:
-      friendly_name: 'Waterpump Cost Yearly'
-      value_template: "{{ (states('sensor.waterpump_current_usage_yearly_normaal') | float(0) * states('input_number.energy_price') | float(0) / 100) | round (2) }}"
-      unit_of_measurement: "€"
-    energy_cost_yearly:
-      friendly_name: 'Energy Cost Yearly'
-      value_template: "{{ (states('sensor.energy_usage_yearly') | float(0) * states('input_number.energy_price') | float(0) / 100) | round (2) }}"
-      unit_of_measurement: "€"
     energy_price_kwh:
       friendly_name: 'Energy Price/kWh'
       value_template: "{{ states('input_number.energy_price') | float (0) / 100 }}"
       unit_of_measurement: "€/kWh"
-
-- platform: template
-  sensors:
-    refrigeration_current_daily:
-      value_template: "{{ (states('sensor.koelkast_vriezer_garage_current_usage_daily_normaal') | float(0) + states('sensor.koelkast_vriezer_berging_current_usage_daily_normaal') | float(0) + states('sensor.koelkast_keuken_current_usage_daily_normaal') | float(0) + states('sensor.vriezer_garage_current_usage_daily_normaal') | float(0) ) | round(2) }}"
-      unit_of_measurement: "kwh"
-    refrigeration_current_weekly:
-      value_template: "{{ (states('sensor.koelkast_vriezer_garage_current_usage_weekly_normaal') | float(0) + states('sensor.koelkast_vriezer_berging_current_usage_weekly_normaal') | float(0) + states('sensor.koelkast_keuken_current_usage_weekly_normaal') | float(0) + states('sensor.vriezer_garage_current_usage_weekly_normaal') | float(0) ) | round(2) }}"
-      unit_of_measurement: "kwh"
-    refrigeration_current_monthly:
-      value_template: "{{ (states('sensor.koelkast_vriezer_garage_current_usage_monthly_normaal') | float(0) + states('sensor.koelkast_vriezer_berging_current_usage_monthly_normaal') | float(0) + states('sensor.koelkast_keuken_current_usage_monthly_normaal') | float(0) + states('sensor.vriezer_garage_current_usage_monthly_normaal') | float(0) ) | round(2) }}"
-      unit_of_measurement: "kwh"
-    refrigeration_current_yearly:
-      value_template: "{{ (states('sensor.koelkast_vriezer_garage_current_usage_yearly_normaal') | float(0) + states('sensor.koelkast_vriezer_berging_current_usage_yearly_normaal') | float(0) + states('sensor.koelkast_keuken_current_usage_yearly_normaal') | float(0) + states('sensor.vriezer_garage_current_usage_yearly_normaal') | float(0) ) | round(2) }}"
-      unit_of_measurement: "kwh"
-
-- platform: template
-  sensors:
-    wash_dry_current_daily:
-      value_template: "{{ (states('sensor.wasmachine_current_usage_daily_normaal') | float(0) + states('sensor.droogkast_current_usage_daily_normaal') | float(0) ) | round(2) }}"
-      unit_of_measurement: "kwh"
-    wash_dry_current_weekly:
-      value_template: "{{ (states('sensor.wasmachine_current_usage_weekly_normaal') | float(0) + states('sensor.droogkast_current_usage_weekly_normaal') | float(0) ) | round(2) }}"
-      unit_of_measurement: "kwh"
-    wash_dry_current_monthly:
-      value_template: "{{ (states('sensor.wasmachine_current_usage_monthly_normaal') | float(0) + states('sensor.droogkast_current_usage_monthly_normaal') | float(0) ) | round(2) }}"
-      unit_of_measurement: "kwh"
-    wash_dry_current_yearly:
-      value_template: "{{ (states('sensor.wasmachine_current_usage_yearly_normaal') | float(0) + states('sensor.droogkast_current_usage_yearly_normaal') | float(0) ) | round(2) }}"
-      unit_of_measurement: "kwh"
-
-- platform: template
-  sensors:
-    computer_current_daily:
-      value_template: "{{ (states('sensor.computer_current_usage_daily_normaal') | float(0) ) | round(2) }}"
-      unit_of_measurement: "kwh"
-    computer_current_weekly:
-      value_template: "{{ (states('sensor.computer_current_usage_weekly_normaal') | float(0) ) | round(2) }}"
-      unit_of_measurement: "kwh"
-    computer_current_monthly:
-      value_template: "{{ (states('sensor.computer_current_usage_monthly_normaal') | float(0) ) | round(2) }}"
-      unit_of_measurement: "kwh"
-    computer_current_yearly:
-      value_template: "{{ (states('sensor.computer_current_usage_yearly_normaal') | float(0) ) | round(2) }}"
-      unit_of_measurement: "kwh"
-
-- platform: template
-  sensors:
     current_consumption:
       value_template: >
         {{
@@ -620,6 +567,7 @@
           states('sensor.wasmachine') | float(0) +
           states('sensor.droogkast') | float(0) +
           states('sensor.computer') | float(0) +
+          states('sensor.vaatwas') | float(0) +
           states('sensor.verlichting_garage_gelijkvloers_power') | float(0) +
           states('sensor.verlichting_garage_zolder_power') | float(0) +
           states('sensor.verlichting_garage_voorkant_power') | float(0) +
@@ -627,64 +575,6 @@
           )
         }}
       unit_of_measurement: "w"
-
-- platform: mqtt
-  name: PVE CPU Usage
-  state_topic: "pve/cpu_usage"
-  unit_of_measurement: "%"
-  icon: mdi:memory
-- platform: mqtt
-  name: PVE RAM Usage
-  state_topic: "pve/ram_usage"
-  unit_of_measurement: "%"
-  icon: mdi:memory
-- platform: mqtt
-  name: PVE SWAP Usage
-  state_topic: "pve/swap_usage"
-  unit_of_measurement: "%"
-  icon: mdi:memory
-- platform: mqtt
-  name: PVE CPU Temperature
-  state_topic: "pve/cpu_temp"
-  unit_of_measurement: "°C"
-  device_class: "temperature"
-  icon: mdi:thermometer
-- platform: mqtt
-  name: PVE SYS Temperature
-  state_topic: "pve/sys_temp"
-  unit_of_measurement: "°C"
-  device_class: "temperature"
-  icon: mdi:thermometer
-- platform: mqtt
-  name: PVE Disk NVME0 Temperature
-  state_topic: "pve/disk/nvme0_temp"
-  unit_of_measurement: "°C"
-  device_class: "temperature"
-  icon: mdi:thermometer
-- platform: mqtt
-  name: PVE Disk SDA Temperature
-  state_topic: "pve/disk/sda_temp"
-  unit_of_measurement: "°C"
-  device_class: "temperature"
-  icon: mdi:thermometer
-- platform: mqtt
-  name: PVE Disk SDB Temperature
-  state_topic: "pve/disk/sdb_temp"
-  unit_of_measurement: "°C"
-  device_class: "temperature"
-  icon: mdi:thermometer
-- platform: mqtt
-  name: PVE Disk SDC Temperature
-  state_topic: "pve/disk/sdc_temp"
-  unit_of_measurement: "°C"
-  device_class: "temperature"
-  icon: mdi:thermometer
-- platform: mqtt
-  name: PVE Disk SDD Temperature
-  state_topic: "pve/disk/sdd_temp"
-  unit_of_measurement: "°C"
-  device_class: "temperature"
-  icon: mdi:thermometer
 
 - platform: template
   sensors:
@@ -851,7 +741,22 @@
           mdi:alert-circle-check
         {% endif %}
 
-- platform: command_line
-  name: Evohome Actuator State
-  command: 'grep "|| OTB:040239 | CTL:223036 | RP | actuator_state   |      ||" /config/home-assistant.log | tail -n 1 | cut -d "|" -f 9| cut -d "," -f 12,13'
-  scan_interval: 5
+- platform: rest
+  name: Glances - Bulldog - Uptime
+  value_template: '{{ value_json }}'
+  resource: http://bulldog.fritz.box:61208/api/3/uptime
+
+- platform: rest
+  name: Glances - Gastro - Uptime
+  value_template: '{{ value_json }}'
+  resource: http://gastro.fritz.box:61208/api/3/uptime
+
+- platform: rest
+  name: Glances - Xgin - Uptime
+  value_template: '{{ value_json }}'
+  resource: http://xgin.fritz.box:61208/api/3/uptime
+
+- platform: rest
+  name: Glances - Hentho - Uptime
+  value_template: '{{ value_json }}'
+  resource: http://hentho.fritz.box:61208/api/3/uptime

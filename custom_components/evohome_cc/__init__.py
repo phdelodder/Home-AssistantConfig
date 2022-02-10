@@ -116,7 +116,7 @@ def register_trigger_events(hass: HomeAssistantType, broker):
     """Set up the handlers for the system-wide services."""
 
     @callback
-    def process_message(msg):
+    def process_msg(msg, *args, **kwargs):  # process_msg(msg, prev_msg=None)
         event_data = {
             "dtm": msg.dtm.isoformat(),
             "src": msg.src.id,
@@ -129,7 +129,7 @@ def register_trigger_events(hass: HomeAssistantType, broker):
         hass.bus.async_fire(f"{DOMAIN}_message", event_data)
 
     if broker.config[ADVANCED_FEATURES].get(MESSAGE_EVENTS):
-        broker.client.create_client(process_message)
+        broker.client.create_client(process_msg)
 
 
 @callback  # TODO: add async_ to routines where required to do so
@@ -171,7 +171,7 @@ def register_service_functions(hass: HomeAssistantType, broker):
 
     @verify_domain_control(hass, DOMAIN)
     async def svc_send_packet(call: ServiceCall) -> None:
-        broker.client.send_cmd(broker.client.make_cmd(**call.data))
+        broker.client.send_cmd(broker.client.create_cmd(**call.data))
         await asyncio.sleep(1)
         async_dispatcher_send(hass, DOMAIN)
 
@@ -440,7 +440,7 @@ class EvoDeviceBase(EvoEntity):
         self._unique_id = f"{device_id}-{attr_name}"
 
         self._device_class = device_class
-        self._device_id = device_id
+        self._device_id = device.id  # e.g. 10:123456_alt
         self._state_attr = state_attr
         self._state_attr_friendly_name = attr_name
 
@@ -480,10 +480,10 @@ class EvoDeviceBase(EvoEntity):
 
     @property
     def name(self) -> str:
-        """Return the name of the sensor."""
-        if hasattr(self._device, "name"):
-            return f"{self._device.name} {self._state_attr_friendly_name}"
-        return f"{self._device_id} {self._state_attr_friendly_name}"
+        """Return the name of the binary_sensor/sensor."""
+        if not hasattr(self._device, "name") or not self._device.name:
+            return f"{self._device_id} {self._state_attr_friendly_name}"
+        return f"{self._device.name} {self._state_attr_friendly_name}"
 
 
 class EvoZoneBase(EvoEntity):
@@ -504,8 +504,8 @@ class EvoZoneBase(EvoEntity):
 
     @property
     def name(self) -> str:
-        """Return the name of the entity."""
-        return self._device.name
+        """Return the name of the climate/water_heater entity."""
+        return self._device.name or self._device.id
 
     @property
     def supported_features(self) -> int:
@@ -532,8 +532,7 @@ class EvoZoneBase(EvoEntity):
         """Return the integration-specific state attributes."""
         return {
             **super().extra_state_attributes,
-            "zone_idx": self._device.idx,
-            "config": self._device.config,
-            "heat_demand": self._device.heat_demand,
-            "mode": self._device.mode,
+            "schema": self._device.schema,
+            "params": self._device.params,
+            # "schedule": self._device.schedule,
         }

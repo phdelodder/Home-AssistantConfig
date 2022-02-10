@@ -5,6 +5,7 @@ import logging
 
 from homeassistant.components.device_tracker import SOURCE_TYPE_GPS
 from homeassistant.components.device_tracker.config_entry import TrackerEntity
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.util import slugify
 
@@ -13,18 +14,14 @@ from . import DATA, DATA_KEY, DOMAIN, SIGNAL_STATE_UPDATED, VolkswagenEntity
 _LOGGER = logging.getLogger(__name__)
 
 
-async def async_setup_entry(hass, entry, async_add_devices):
+async def async_setup_entry(hass: HomeAssistant, entry, async_add_devices):
     data = hass.data[DOMAIN][entry.entry_id][DATA]
     coordinator = data.coordinator
     if coordinator.data is not None:
         async_add_devices(
-            VolkswagenDeviceTracker(
-                data, coordinator.vin, instrument.component, instrument.attr
-            )
+            VolkswagenDeviceTracker(data, coordinator.vin, instrument.component, instrument.attr)
             for instrument in (
-                instrument
-                for instrument in data.instruments
-                if instrument.component == "device_tracker"
+                instrument for instrument in data.instruments if instrument.component == "device_tracker"
             )
         )
 

@@ -2,6 +2,7 @@
 Support for Volkswagen WeConnect Platform
 """
 import logging
+from typing import Any
 
 from homeassistant.components.lock import LockEntity
 
@@ -11,7 +12,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
-    """ Setup the volkswagen lock """
+    """Setup the volkswagen lock"""
     if discovery_info is None:
         return
 
@@ -24,11 +25,7 @@ async def async_setup_entry(hass, entry, async_add_devices):
     if coordinator.data is not None:
         async_add_devices(
             VolkswagenLock(data, coordinator.vin, instrument.component, instrument.attr)
-            for instrument in (
-                instrument
-                for instrument in data.instruments
-                if instrument.component == "lock"
-            )
+            for instrument in (instrument for instrument in data.instruments if instrument.component == "lock")
         )
 
     return True
@@ -36,6 +33,15 @@ async def async_setup_entry(hass, entry, async_add_devices):
 
 class VolkswagenLock(VolkswagenEntity, LockEntity):
     """Represents a Volkswagen WeConnect Lock."""
+
+    def lock(self, **kwargs: Any) -> None:
+        raise NotImplementedError("Use async_lock instead")
+
+    def unlock(self, **kwargs: Any) -> None:
+        raise NotImplementedError("Use async_unlock instead")
+
+    def open(self, **kwargs: Any) -> None:
+        raise NotImplementedError
 
     @property
     def is_locked(self):

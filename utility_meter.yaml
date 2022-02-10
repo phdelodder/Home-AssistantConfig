@@ -1,220 +1,25 @@
-energy_usage_hourly:
-  source: sensor.overall_consumption
-  cycle: hourly
-energy_usage_daily:
-  source: sensor.overall_consumption
-  cycle: daily
-energy_usage_weekly:
-  source: sensor.overall_consumption
-  cycle: weekly
-energy_usage_monthly:
-  source: sensor.overall_consumption
-  cycle: monthly
-energy_usage_yearly:
-  source: sensor.overall_consumption
-  cycle: yearly
-
 waterpump_water_usage_hourly:
   source: sensor.water_pump_usage
   cycle: hourly
+  tariffs:
+    - normaal
 waterpump_water_usage_daily:
   source: sensor.water_pump_usage
   cycle: daily
+  tariffs:
+    - normaal
 waterpump_water_usage_weekly:
   source: sensor.water_pump_usage
   cycle: weekly
+  tariffs:
+    - normaal
 waterpump_water_usage_monthly:
   source: sensor.water_pump_usage
   cycle: monthly
+  tariffs:
+    - normaal
 waterpump_water_usage_yearly:
   source: sensor.water_pump_usage
-  cycle: yearly
-
-waterpump_current_usage_daily:
-  source: sensor.waterpump_consumption
-  cycle: daily
-  tariffs:
-    - normaal
-waterpump_current_usage_weekly:
-  source: sensor.waterpump_consumption
-  cycle: weekly
-  tariffs:
-    - normaal
-waterpump_current_usage_monthly:
-  source: sensor.waterpump_consumption
-  cycle: monthly
-  tariffs:
-    - normaal
-waterpump_current_usage_yearly:
-  source: sensor.waterpump_consumption
-  cycle: yearly
-  tariffs:
-    - normaal
-
-koelkast_vriezer_berging_current_usage_daily:
-  source: sensor.koelkast_vriezer_berging_consumption
-  cycle: daily
-  tariffs:
-    - normaal
-koelkast_vriezer_berging_current_usage_weekly:
-  source: sensor.koelkast_vriezer_berging_consumption
-  cycle: weekly
-  tariffs:
-    - normaal
-koelkast_vriezer_berging_current_usage_monthly:
-  source: sensor.koelkast_vriezer_berging_consumption
-  cycle: monthly
-  tariffs:
-    - normaal
-koelkast_vriezer_berging_current_usage_yearly:
-  source: sensor.koelkast_vriezer_berging_consumption
-  cycle: yearly
-  tariffs:
-    - normaal
-
-koelkast_keuken_current_usage_daily:
-  source: sensor.koelkast_keuken_consumption
-  cycle: daily
-  tariffs:
-    - normaal
-koelkast_keuken_current_usage_weekly:
-  source: sensor.koelkast_keuken_consumption
-  cycle: weekly
-  tariffs:
-    - normaal
-koelkast_keuken_current_usage_monthly:
-  source: sensor.koelkast_keuken_consumption
-  cycle: monthly
-  tariffs:
-    - normaal
-koelkast_keuken_current_usage_yearly:
-  source: sensor.koelkast_keuken_consumption
-  cycle: yearly
-  tariffs:
-    - normaal
-
-vriezer_garage_current_usage_daily:
-  source: sensor.vriezer_garage_consumption
-  cycle: daily
-  tariffs:
-    - normaal
-vriezer_garage_current_usage_weekly:
-  source: sensor.vriezer_garage_consumption
-  cycle: weekly
-  tariffs:
-    - normaal
-vriezer_garage_current_usage_monthly:
-  source: sensor.vriezer_garage_consumption
-  cycle: monthly
-  tariffs:
-    - normaal
-vriezer_garage_current_usage_yearly:
-  source: sensor.vriezer_garage_consumption
-  cycle: yearly
-  tariffs:
-    - normaal
-
-koelkast_vriezer_garage_current_usage_daily:
-  source: sensor.koelkast_vriezer_garage_consumption
-  cycle: daily
-  tariffs:
-    - normaal
-koelkast_vriezer_garage_current_usage_weekly:
-  source: sensor.koelkast_vriezer_garage_consumption
-  cycle: weekly
-  tariffs:
-    - normaal
-koelkast_vriezer_garage_current_usage_monthly:
-  source: sensor.koelkast_vriezer_garage_consumption
-  cycle: monthly
-  tariffs:
-    - normaal
-koelkast_vriezer_garage_current_usage_yearly:
-  source: sensor.koelkast_vriezer_garage_consumption
-  cycle: yearly
-  tariffs:
-    - normaal
-
-boiler_keuken_current_usage_daily:
-  source: sensor.boiler_keuken_consumption
-  cycle: daily
-  tariffs:
-    - normaal
-boiler_keuken_current_usage_weekly:
-  source: sensor.boiler_keuken_consumption
-  cycle: weekly
-  tariffs:
-    - normaal
-boiler_keuken_current_usage_monthly:
-  source: sensor.boiler_keuken_consumption
-  cycle: monthly
-  tariffs:
-    - normaal
-boiler_keuken_current_usage_yearly:
-  source: sensor.boiler_keuken_consumption
-  cycle: yearly
-  tariffs:
-    - normaal
-
-wasmachine_current_usage_daily:
-  source: sensor.wasmachine_consumption
-  cycle: daily
-  tariffs:
-    - normaal
-wasmachine_current_usage_weekly:
-  source: sensor.wasmachine_consumption
-  cycle: weekly
-  tariffs:
-    - normaal
-wasmachine_current_usage_monthly:
-  source: sensor.wasmachine_consumption
-  cycle: monthly
-  tariffs:
-    - normaal
-wasmachine_current_usage_yearly:
-  source: sensor.wasmachine_consumption
-  cycle: yearly
-  tariffs:
-    - normaal
-
-droogkast_current_usage_daily:
-  source: sensor.droogkast_consumption
-  cycle: daily
-  tariffs:
-    - normaal
-droogkast_current_usage_weekly:
-  source: sensor.droogkast_consumption
-  cycle: weekly
-  tariffs:
-    - normaal
-droogkast_current_usage_monthly:
-  source: sensor.droogkast_consumption
-  cycle: monthly
-  tariffs:
-    - normaal
-droogkast_current_usage_yearly:
-  source: sensor.droogkast_consumption
-  cycle: yearly
-  tariffs:
-    - normaal
-
-computer_current_usage_daily:
-  source: sensor.computer_consumption
-  cycle: daily
-  tariffs:
-    - normaal
-computer_current_usage_weekly:
-  source: sensor.computer_consumption
-  cycle: weekly
-  tariffs:
-    - normaal
-computer_current_usage_monthly:
-  source: sensor.computer_consumption
-  cycle: monthly
-  tariffs:
-    - normaal
-computer_current_usage_yearly:
-  source: sensor.computer_consumption
   cycle: yearly
   tariffs:
     - normaal

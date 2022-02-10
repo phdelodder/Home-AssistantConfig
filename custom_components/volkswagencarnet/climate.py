@@ -14,18 +14,16 @@ from homeassistant.const import (
     ATTR_TEMPERATURE,
     STATE_UNKNOWN,
     TEMP_CELSIUS,
-    TEMP_FAHRENHEIT,
 )
-
-SUPPORT_HVAC = [HVAC_MODE_COOL, HVAC_MODE_HEAT, HVAC_MODE_OFF]
 
 from . import DATA, DATA_KEY, DOMAIN, VolkswagenEntity
 
+SUPPORT_HVAC = [HVAC_MODE_COOL, HVAC_MODE_HEAT, HVAC_MODE_OFF]
 _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
-    """ Setup the volkswagen climate."""
+    """Setup the volkswagen climate."""
     if discovery_info is None:
         return
     async_add_entities([VolkswagenClimate(hass.data[DATA_KEY], *discovery_info)])
@@ -36,14 +34,8 @@ async def async_setup_entry(hass, entry, async_add_devices):
     coordinator = data.coordinator
     if coordinator.data is not None:
         async_add_devices(
-            VolkswagenClimate(
-                data, coordinator.vin, instrument.component, instrument.attr
-            )
-            for instrument in (
-                instrument
-                for instrument in data.instruments
-                if instrument.component == "climate"
-            )
+            VolkswagenClimate(data, coordinator.vin, instrument.component, instrument.attr)
+            for instrument in (instrument for instrument in data.instruments if instrument.component == "climate")
         )
 
     return True
@@ -51,6 +43,30 @@ async def async_setup_entry(hass, entry, async_add_devices):
 
 class VolkswagenClimate(VolkswagenEntity, ClimateEntity):
     """Representation of a Volkswagen WeConnect Climate."""
+
+    def set_temperature(self, **kwargs) -> None:
+        raise NotImplementedError("Use async_set_temperature instead")
+
+    def set_humidity(self, humidity: int) -> None:
+        raise NotImplementedError
+
+    def set_fan_mode(self, fan_mode: str) -> None:
+        raise NotImplementedError
+
+    def set_hvac_mode(self, hvac_mode: str) -> None:
+        raise NotImplementedError("Use async_set_hvac_mode instead")
+
+    def set_swing_mode(self, swing_mode: str) -> None:
+        raise NotImplementedError
+
+    def set_preset_mode(self, preset_mode: str) -> None:
+        raise NotImplementedError
+
+    def turn_aux_heat_on(self) -> None:
+        raise NotImplementedError
+
+    def turn_aux_heat_off(self) -> None:
+        raise NotImplementedError
 
     @property
     def supported_features(self):

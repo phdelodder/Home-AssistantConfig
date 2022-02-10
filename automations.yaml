@@ -88,7 +88,7 @@
       state: papier, pmd
     - condition: state
       entity_id: sensor.recycleapp_morgen
-      state: restafval
+      state: restafval, gft
     - condition: state
       entity_id: sensor.recycleapp_morgen
       state: groenafval
@@ -592,14 +592,14 @@
   condition:
   - condition: time
     after: '22:00:00'
-    before: 06:00:00
+    before: 06:00
   - condition: state
     entity_id: binary_sensor.no_one_home
     state: 'off'
   - condition: not
     conditions:
     - condition: state
-      entity_id: media_player.samsung_samsung_dtv_rcr
+      entity_id: media_player.tv
       state: 'on'
   action:
   - service: scene.turn_on
@@ -622,8 +622,8 @@
   action:
   - choose:
     - conditions:
-        condition: state
-        entity_id: media_player.samsung_samsung_dtv_rcr
+      - condition: state
+        entity_id: media_player.tv
         state: 'on'
       sequence:
       - wait_for_trigger:
@@ -773,7 +773,7 @@
   description: ''
   trigger:
   - platform: time
-    at: '21:30:00'
+    at: input_datetime.night_mode_start
   - platform: state
     entity_id: binary_sensor.no_one_home
     to: 'off'
@@ -785,8 +785,8 @@
     entity_id: binary_sensor.no_one_home
     state: 'off'
   - condition: time
-    after: '21:30:00'
-    before: 07:15:00
+    after: input_datetime.night_mode_start
+    before: input_datetime.night_mode_weekday_end
   action:
   - service: input_boolean.turn_on
     data: {}
@@ -797,13 +797,19 @@
   description: ''
   trigger:
   - platform: time
-    at: 07:15:00
+    at: input_datetime.night_mode_weekday_end
   - platform: homeassistant
     event: start
   condition:
   - condition: time
-    after: 07:15:00
-    before: '21:30:00'
+    after: input_datetime.night_mode_weekday_end
+    before: input_datetime.night_mode_start
+    weekday:
+    - mon
+    - tue
+    - wed
+    - thu
+    - fri
   - condition: state
     entity_id: binary_sensor.workday_sensor
     state: 'on'
@@ -869,7 +875,7 @@
   description: ''
   trigger:
   - platform: time
-    at: 08:30
+    at: input_datetime.night_mode_weekend_end
   - platform: state
     entity_id: binary_sensor.no_one_home
     to: 'off'
@@ -881,8 +887,8 @@
     entity_id: binary_sensor.no_one_home
     state: 'off'
   - condition: time
-    after: 08:00:00
-    before: '21:30'
+    after: input_datetime.night_mode_weekend_end
+    before: input_datetime.night_mode_start
   - condition: state
     entity_id: binary_sensor.workday_sensor
     state: 'off'
@@ -959,10 +965,18 @@
         entity_id:
         - fan.cabinet_fan_1
         - fan.cabinet_fan_2
-        percentage: "{% if states('sensor.temperature_bureau') | int(0)> 28 %}\n\
-          \  100\n{% elif states('sensor.temperature_bureau') | int(0)> 25 %}\n\
-          \  50\n{% elif states('sensor.temperature_bureau') | int(0)>= 21 %}\n\
-          \  25\n{% endif %}\n"
+        percentage: 100
+    - alias: Wait 5s
+      delay: 5
+    - service: fan.turn_on
+      data_template:
+        entity_id:
+        - fan.cabinet_fan_1
+        - fan.cabinet_fan_2
+        percentage: "{% if states('sensor.temperature_bureau') | int(0)> 28 %}\n \
+          \ 100\n{% elif states('sensor.temperature_bureau') | int(0)> 25 %}\n  50\n\
+          {% elif states('sensor.temperature_bureau') | int(0)>= 21 %}\n  25\n{% endif\
+          \ %}\n"
   mode: single
 - id: '1604346606992'
   alias: 'Security: MotionEye - Oprit'
@@ -1597,13 +1611,19 @@
   description: ''
   trigger:
   - platform: time
-    at: 08:30:00
+    at: input_datetime.night_mode_weekday_vacation_end
   - platform: homeassistant
     event: start
   condition:
   - condition: time
-    after: 08:30:00
-    before: '21:30:00'
+    after: input_datetime.night_mode_weekday_vacation_end
+    before: input_datetime.night_mode_start
+    weekday:
+    - mon
+    - tue
+    - wed
+    - thu
+    - fri
   - condition: state
     entity_id: binary_sensor.workday_sensor
     state: 'on'
@@ -2030,3 +2050,29 @@
       data:
         entity_id: climate.inkom
   mode: single
+- id: '1643664917297'
+  alias: 'Webhook: Mealie'
+  description: ''
+  trigger:
+  - platform: webhook
+    webhook_id: mealie
+  condition: []
+  action:
+  - service: input_text.set_value
+    data:
+      value: '{{ trigger.json["name"] }}'
+    target:
+      entity_id: input_text.mealie_meal_of_the_day
+  mode: single
+- id: '1644522944966'
+  alias: Garbage reminder
+  description: ''
+  use_blueprint:
+    path: westenberg/garbage-reminder.yaml
+    input:
+      day_offset: '1'
+      notifier: notify.hazilverberkenstraatbot
+      garbage_sensor_1: sensor.recycleapp_gft
+      garbage_sensor_2: sensor.recycleapp_pmd
+      garbage_sensor_3: sensor.recycleapp_groenafval
+      garbage_sensor_4: sensor.recycleapp_restafval

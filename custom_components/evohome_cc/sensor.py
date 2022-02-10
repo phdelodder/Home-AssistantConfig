@@ -57,26 +57,17 @@ async def async_setup_platform(
         v.get(ENTITY_CLASS, EvoSensor)(hass.data[DOMAIN][BROKER], device, k, **v)
         for device in discovery_info.get("devices", [])
         for k, v in SENSOR_ATTRS.items()
-        if device._klass != "OTB" and hasattr(device, k)
+        if hasattr(device, k)
     ]  # and (not device._is_faked or device["fakable"])
 
     devices += [
         v.get(ENTITY_CLASS, EvoSensor)(
-            hass.data[DOMAIN][BROKER], device, k, device_id=f"{device.id}_OT", **v
+            hass.data[DOMAIN][BROKER], device, f"{k}_ot", **v
         )
         for device in discovery_info.get("devices", [])
         for k, v in SENSOR_ATTRS.items()
-        if device._klass == "OTB" and hasattr(device, k)
-    ]  # and (not device._is_faked or device["fakable"])
-
-    devices += [
-        v.get(ENTITY_CLASS, EvoSensor)(
-            hass.data[DOMAIN][BROKER], device, f"_{k}", attr_name=k, **v
-        )
-        for device in discovery_info.get("devices", [])
-        for k, v in SENSOR_ATTRS.items()
-        if hasattr(device, f"_{k}")
-    ]  # and (not device._is_faked or device["fakable"])
+        if device._klass == "OTB" and hasattr(device, f"{k}_ot")
+    ]
 
     domains = [
         v.get(ENTITY_CLASS, EvoSensor)(hass.data[DOMAIN][BROKER], domain, k, **v)
@@ -91,7 +82,7 @@ async def async_setup_platform(
 class EvoSensor(EvoDeviceBase, SensorEntity):
     """Representation of a generic sensor."""
 
-    _attr_state_class = SensorStateClass.MEASUREMENT
+    # _attr_state_class = SensorStateClass.MEASUREMENT  # oem_code is not a measurement
 
     def __init__(
         self,
@@ -119,16 +110,16 @@ class EvoSensor(EvoDeviceBase, SensorEntity):
             device_class,
         )
 
-        self._unit_of_measurement = device_units or PERCENTAGE
+        self._unit_of_measurement = device_units  # or PERCENTAGE
 
     @property
     def state(self) -> Optional[Any]:  # int or float
         """Return the state of the sensor."""
         state = getattr(self._device, self._state_attr)
         if self.unit_of_measurement == PERCENTAGE:
-            return state * 100 if state is not None else None
+            return None if state is None else state * 100
         # if self.unit_of_measurement == TEMP_CELSIUS:
-        #     return int(state * 200) / 200 if state is not None else None
+        #     return None if state is None else int(state * 200) / 200
         return state
 
     @property
@@ -154,14 +145,11 @@ class EvoModLevel(EvoSensor):
         """Return the integration-specific state attributes."""
         attrs = super().extra_state_attributes
 
-        if self._state_attr in "modulation_level":
-            attrs["status"] = {
-                self._device.ACTUATOR_CYCLE: self._device.actuator_cycle,
-                self._device.ACTUATOR_STATE: self._device.actuator_state,
-                self._device.BOILER_SETPOINT: self._device.boiler_setpoint,
-            }
-        else:  # self._state_attr == "relative_modulation_level"
-            attrs["status"] = self._device.opentherm_status
+        if self._state_attr[-3:] == "_ot":
+            attrs.update(self._device.opentherm_status)
+        else:
+            attrs.update(self._device.ramses_status)
+        attrs.pop("rel_modulation_level")
 
         return attrs
 
@@ -229,6 +217,9 @@ ENTITY_CLASS = "entity_class"
 
 SENSOR_ATTRS = {
     # Special projects
+    "oem_code": {  # 3220/73
+        DEVICE_UNITS: None,
+    },
     "percent": {  # 2401
         DEVICE_UNITS: PERCENTAGE,
         ENTITY_CLASS: EvoRelayDemand,
@@ -238,6 +229,10 @@ SENSOR_ATTRS = {
     },
     # SENSOR_ATTRS_BDR = {  # incl: actuator
     "relay_demand": {  # 0008
+        DEVICE_UNITS: PERCENTAGE,
+        ENTITY_CLASS: EvoRelayDemand,
+    },
+    "relay_demand_fa": {  # 0008
         DEVICE_UNITS: PERCENTAGE,
         ENTITY_CLASS: EvoRelayDemand,
     },

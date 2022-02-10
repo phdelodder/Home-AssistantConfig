@@ -40,25 +40,14 @@ async def async_setup_platform(
         v.get(ENTITY_CLASS, EvoBinarySensor)(hass.data[DOMAIN][BROKER], device, k, **v)
         for device in discovery_info.get("devices", [])
         for k, v in BINARY_SENSOR_ATTRS["devices"].items()
-        if device._klass != "OTB" and hasattr(device, k)
+        if hasattr(device, k)
     ]
 
-    devices += [
-        v.get(ENTITY_CLASS, EvoBinarySensor)(
-            hass.data[DOMAIN][BROKER], device, k, device_id=f"{device.id}_OT", **v
-        )
-        for device in discovery_info.get("devices", [])
+    domains = [
+        v.get(ENTITY_CLASS, EvoBinarySensor)(hass.data[DOMAIN][BROKER], domain, k, **v)
+        for domain in discovery_info.get("domains", [])
         for k, v in BINARY_SENSOR_ATTRS["devices"].items()
-        if device._klass == "OTB" and hasattr(device, k)
-    ]
-
-    devices += [
-        v.get(ENTITY_CLASS, EvoBinarySensor)(
-            hass.data[DOMAIN][BROKER], device, f"_{k}", attr_name=k, **v
-        )
-        for device in discovery_info.get("devices", [])
-        for k, v in BINARY_SENSOR_ATTRS["devices"].items()
-        if hasattr(device, f"_{k}")
+        if k == "window_open" and hasattr(domain, k)
     ]
 
     systems = [
@@ -84,7 +73,7 @@ async def async_setup_platform(
         ]
     )
 
-    async_add_entities(devices + systems + gateway)
+    async_add_entities(devices + domains + systems + gateway)
 
 
 class EvoBinarySensor(EvoDeviceBase, BinarySensorEntity):
@@ -203,6 +192,11 @@ class EvoGateway(EvoBinarySensor):
     def extra_state_attributes(self) -> Dict[str, Any]:
         """Return the integration-specific state attributes."""
 
+        # {% set device_id = state_attr("binary_sensor.01_145038_active_fault", "active_fault")[5] %}
+        # {% for state in state_attr("binary_sensor.18_140805_gateway", "known_list") %}
+        #   {%- if device_id in state %}{{ state[device_id].get('class') }}{% endif %}
+        # {%- endfor -%}
+
         def shrink(device_hints) -> dict:
             result = device_hints
             for key in ("alias", "class", "faked"):
@@ -277,5 +271,10 @@ BINARY_SENSOR_ATTRS = {
         },
         "bit_3_7": {},
         "bit_6_6": {},
+    },
+    "domains": {
+        "window_open": {
+            DEVICE_CLASS: BinarySensorDeviceClass.WINDOW,
+        },
     },
 }
