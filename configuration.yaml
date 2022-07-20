@@ -18,7 +18,7 @@ default_config:
 http:
   use_x_forwarded_for: true
   trusted_proxies:
-    - 192.168.0.101
+    - 192.168.0.201
     - 192.168.0.21
 
 logger:
@@ -108,25 +108,21 @@ stream:
 downloader:
   download_dir: www
 
-spotify:
-  client_id: !secret spotify-clientid
-  client_secret: !secret spotify-client_secret
-
 browser_mod:
 
-evohome_cc:
+ramses_cc:
   serial_port: /dev/ttyUSB0
-  scan_interval: 60
+  restore_cache: true
   packet_log:
-    file_name: /config/evohome_cc_packet.log
-    rotate_backups: 5
+    file_name: /config/ramses_cc_packet.log
+    rotate_bytes: null
+    rotate_backups: 7
   ramses_rf:
+    enable_eavesdrop: false
     enforce_known_list: true
+
   schema:
     controller: 01:223036
-    system:
-      heating_control: 10:040239
-  restore_cache: true
   known_list:
     - 01:223036
     - 10:040239

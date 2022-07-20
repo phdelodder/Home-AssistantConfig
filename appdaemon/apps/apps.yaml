@@ -168,3 +168,65 @@ febe_slaapkamer_controller_b4:
         entity_id: light.slaapkamer_febe_kleerkast
         brightness_pct: 100
     4003: release
+
+
+margot_slaapkamer_controller_b1:
+  module: controllerx
+  class: LightController
+  controller: slaapkamer_margot_dimmer_switch
+  integration: deconz
+  light: light.margot_slaapkamer
+  mapping:
+    1001: hold_brightness_toggle
+    1002: 
+      service: light.toggle
+      data:
+        entity_id: light.margot_slaapkamer
+        brightness_pct: 100
+    1003: release
+
+margot_slaapkamer_controller_b2:
+  module: controllerx
+  class: LightController
+  controller: slaapkamer_margot_dimmer_switch
+  integration: deconz
+  light: light.slaapkamer_margot_bureau
+  mapping:
+    2001: hold_brightness_toggle
+    2002:
+      service: light.toggle
+      data:
+        entity_id: light.slaapkamer_margot_bureau
+        brightness_pct: 100
+    2003: release
+
+margot_slaapkamer_controller_b3:
+  module: controllerx
+  class: LightController
+  controller: slaapkamer_margot_dimmer_switch
+  integration: deconz
+  light: light.margot_led_bed
+  mapping:
+    3001: hold_brightness_toggle
+    3002:
+      service: light.toggle
+      data:
+        entity_id: light.margot_led_bed
+        brightness_pct: 100
+        effect: solid
+    3003: release
+
+margot_slaapkamer_controller_b4:
+  module: controllerx
+  class: LightController
+  controller: slaapkamer_margot_dimmer_switch
+  integration: deconz
+  light: light.slaapkamer_margot_kleerkast
+  mapping:
+    4001: hold_brightness_toggle
+    4002:
+      service: light.toggle
+      data:
+        entity_id: light.slaapkamer_margot_kleerkast
+        brightness_pct: 100
+    4003: release

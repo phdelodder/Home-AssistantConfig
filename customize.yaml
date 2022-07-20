@@ -27,14 +27,6 @@ calendar.werk_philippe:
   hidden: true
 calendar.werk_uren_sintjan:
   hidden: true
-device_tracker.xgin:
-  icon: mdi:raspberrypi
-device_tracker.hp80bb6w:
-  icon: mdi:printer
-device_tracker.isabel_smartphone:
-  icon: mdi:cellphone-android
-device_tracker.philippe_smartphone:
-  icon: mdi:cellphone-android
 group.Family:
   hidden: true
 group.PortableDevices:
@@ -148,26 +140,11 @@ sensor.battery_febe_tablet_sensor:
   friendly_name: Febe Tablet Battery
 binary_sensor.weatherstation_status:
   friendly_name: Weatherstation
-sensor.illumination_7811dcb9c836:
-  friendly_name: Living
-zwave.slaapkamer_margot_verlichting:
-  friendly_name: Slaapkamer Margot verlichting
-  node_name: Slaapkamer Margot verlichting
 light.magichome2:
   friendly_name: Sfeerverlichting schouw
 light.magichome1:
   friendly_name: sfeerverlichting slaapkamer
 input_boolean.cycle1_enable: {}
-sensor.lightlevel_3:
-  device_class: illuminance
-sensor.lightlevel_7:
-  device_class: illuminance
-sensor.lightlevel_13:
-  device_class: illuminance
-sensor.lightlevel_15:
-  device_class: illuminance
-sensor.lightlevel_11:
-  device_class: illuminance
 sensor.afval_ophaal_dag:
   icon: mdi:calendar-today
 binary_sensor.voor_deur:

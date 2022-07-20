@@ -551,30 +551,35 @@
       friendly_name: 'Energy Price/kWh'
       value_template: "{{ states('input_number.energy_price') | float (0) / 100 }}"
       unit_of_measurement: "€/kWh"
+    gas_price_kwh:
+      friendly_name: 'Gas Price/kWh'
+      value_template: "{{ states('input_number.gas_price') | float (0) / 100 }}"
+      unit_of_measurement: "€/kWh"
     current_consumption:
       value_template: >
         {{
           (
-          states('sensor.waterpomp') | float(0) +
-          states('sensor.verlichting_gang_eerste_verdiep_power') | float(0) +
-          states('sensor.verlichting_inkom_power') | float(0) +
-          states('sensor.verlichting_voordeur_power') | float(0) +
-          states('sensor.koelkast_vriezer_berging') | float(0) +
-          states('sensor.koelkast_vriezer_garage') | float(0) +
-          states('sensor.koelkast_keuken') | float(0) +
-          states('sensor.vriezer_garage') | float(0) +
-          states('sensor.boiler_keuken') | float(0) +
-          states('sensor.wasmachine') | float(0) +
-          states('sensor.droogkast') | float(0) +
-          states('sensor.computer') | float(0) +
-          states('sensor.vaatwas') | float(0) +
-          states('sensor.verlichting_garage_gelijkvloers_power') | float(0) +
-          states('sensor.verlichting_garage_zolder_power') | float(0) +
-          states('sensor.verlichting_garage_voorkant_power') | float(0) +
-          states('sensor.verlichting_garage_zijkant_power') | float(0)
+          states('sensor.shellyem3_c45bbe797bfc_channel_a_power') | float(0) +
+          states('sensor.shellyem3_c45bbe797bfc_channel_b_power') | float(0) +
+          states('sensor.shellyem3_c45bbe797bfc_channel_c_power') | float(0)
           )
         }}
       unit_of_measurement: "w"
+      icon_template: mdi:home-lightning-bolt
+
+- platform: statistics
+  name: "Current Consumption max over last 24 hours"
+  entity_id: sensor.current_consumption
+  state_characteristic: value_max
+  max_age:
+    hours: 24
+
+- platform: statistics
+  name: "Current Consumption min over last 24 hours"
+  entity_id: sensor.current_consumption
+  state_characteristic: value_min
+  max_age:
+    hours: 24
 
 - platform: template
   sensors:
@@ -760,3 +765,11 @@
   name: Glances - Hentho - Uptime
   value_template: '{{ value_json }}'
   resource: http://hentho.fritz.box:61208/api/3/uptime
+
+- platform: min_max
+  name: "Buiten Gemiddelde Temperatuur"
+  type: mean
+  round_digits: 1
+  entity_ids:
+    - sensor.motion_garagepoort_temperature
+    - sensor.motion_voordeur_temperature

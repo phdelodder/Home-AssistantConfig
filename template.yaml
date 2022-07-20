@@ -1,0 +1,13 @@
+- sensor:
+  - name: Gas Meter
+    state_class: total_increasing
+    icon: mdi:counter
+    unit_of_measurement: kWh
+    #aftrekken van 12767 voor 0 correctie
+    state: "{{ (states('input_number.gas_meter') | float(0) - 12767) | float(0) * states('input_number.gas_conversion_factor') | float(0) }}"
+    device_class: energy
+- binary_sensor:
+  - name: Buiten Warmer
+    state: '{{ float(states("sensor.buiten_gemiddelde_temperatuur")) + float(0.5) > float(states("sensor.gang_eerste_temperature")) }}'
+  - name: Buiten Kouder
+    state: '{{ float(states("sensor.buiten_gemiddelde_temperatuur")) - float(1) < float(states("sensor.gang_eerste_temperature")) }}'

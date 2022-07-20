@@ -30,7 +30,7 @@
     - binary_sensor.motion_bureau
     - binary_sensor.motion_dressing
     - binary_sensor.motion_speelkamer
-    - binary_sensor.motion_living
+    - binary_sensor.motion_woonkamer
     - binary_sensor.motion_keuken
     to: 'on'
   action:
@@ -151,8 +151,8 @@
   alias: Alarm Clock Febe
   trigger:
   - platform: template
-    value_template: "{{ states('sensor.time') == \n    (state_attr('input_datetime.febe_next_alarm',\
-      \ 'timestamp') - 300)\n         |timestamp_custom('%H:%M', false) }}"
+    value_template: "{{ states('sensor.time') == \n    (state_attr('input_datetime.febe_next_alarm',
+      'timestamp') - 300)\n         |timestamp_custom('%H:%M', false) }}"
   condition:
   - condition: state
     entity_id: input_boolean.febe_alarm_set
@@ -285,39 +285,39 @@
       entity_id: sensor.olijfboom_soil_conductivity
   action:
   - data_template:
-      message: "Deze planten vragen vandaag je aandacht: {%if states('sensor.greenhouse_zone_1_moisture')\
-        \ |int (0) < 20 %}\n  - Serre Zone 1 heeft water nodig, {{ states('sensor.greenhouse_zone_1_moisture')\
-        \ }} %\n{%- endif %} {%- if states('sensor.greenhouse_zone_1_soil_conductivity')\
-        \ |int (0) < 100 %}\n  - Serre Zone 1 heeft meststof nodig, {{ states('sensor.greenhouse_zone_1_soil_conductivity')\
-        \ }} µS/cm\n{%- endif %} {%- if states('sensor.greenhouse_zone_2_moisture')\
-        \ |int (0) < 20 %}\n  - Serre Zone 2 heeft water nodig, {{ states('sensor.greenhouse_zone_2_moisture')\
-        \ }} %\n{%- endif %} {%- if states('sensor.greenhouse_zone_2_soil_conductivity')\
-        \ |int (0) < 100 %}\n  - Serre Zone 2 heeft meststof nodig, {{ states('sensor.greenhouse_zone_2_soil_conductivity')\
-        \ }} µS/cm\n{%- endif %} {%- if states('sensor.greenhouse_zone_3_moisture')\
-        \ |int (0) < 20 %}\n  - Serre Zone 3 heeft water nodig, {{ states('sensor.greenhouse_zone_3_moisture')\
-        \ }} %\n{%- endif %} {%- if states('sensor.greenhouse_zone_3_soil_conductivity')\
-        \ |int (0) < 100 %}\n  - Serre Zone 3 heeft meststof nodig, {{ states('sensor.greenhouse_zone_3_soil_conductivity')\
-        \ }} µS/cm\n{%- endif %} {%- if states('sensor.greenhouse_zone_4_moisture')\
-        \ |int (0) < 20 %}\n  - Serre Zone 4 heeft water nodig, {{ states('sensor.greenhouse_zone_4_moisture')\
-        \ }} %\n{%- endif %} {%- if states('sensor.greenhouse_zone_4_soil_conductivity')\
-        \ |int (0) < 100 %}\n  - Serre Zone 4 heeft meststof nodig, {{ states('sensor.greenhouse_zone_4_soil_conductivity')\
-        \ }} µS/cm\n{%- endif %} {%- if states('sensor.moestuin_moisture') |int (0)\
-        \ < 25 %}\n  - Moestuin heeft water nodig, {{ states('sensor.moestuin_moisture')\
-        \ }} %\n{%- endif %} {%- if states('sensor.moestuin_soil_conductivity') |\
-        \ int < 100 %}\n  - Moestuin heeft meststof nodig, {{ states('sensor.moestuin_soil_conductivity')\
-        \ }} µS/cm\n{%- endif %} {%- if states('sensor.rozemarijn_moisture') | int\
-        \ < 20 %}\n  - Rozemarijn heeft water nodig, {{ states('sensor.rozemarijn_moisture')\
-        \ }} %\n{%- endif %} {%- if states('sensor.rozemarijn_soil_conductivity')\
-        \ |int (0) < 100 %}\n  - Rozemarijn heeft meststof nodig, {{ states('sensor.rozemarijn_soil_conductivity')\
-        \ }} µS/cm\n{%- endif %} {%- if states('sensor.bloempot_voordeur_moisture')\
-        \ |int (0) < 20 %}\n  - Bloempot voordeur heeft water nodig, {{ states('sensor.bloempot_voordeur_moisture')\
-        \ }} %\n{%- endif %} {%- if states('sensor.bloempot_voordeur_soil_conductivity')\
-        \ |int (0) < 100 %}\n  - Bloempot voordeur heeft meststof nodig, {{ states('sensor.bloempot_voordeur_soil_conductivity')\
-        \ }} µS/cm\n{%- endif %} {%- if states('sensor.olijfboom_moisture') | int\
-        \ < 20 %}\n  - Olijfboom voordeur heeft water nodig, {{ states('sensor.olijfboom_moisture')\
-        \ }} %\n{%- endif %} {%- if states('sensor.olijfboom_soil_conductivity') |\
-        \ int < 100 %}\n  - Olijfboom voordeur heeft meststof nodig, {{ states('sensor.olijfboom_soil_conductivity')\
-        \ }} µS/cm\n{%- endif %}"
+      message: "Deze planten vragen vandaag je aandacht: {%if states('sensor.greenhouse_zone_1_moisture')
+        |int (0) < 20 %}\n  - Serre Zone 1 heeft water nodig, {{ states('sensor.greenhouse_zone_1_moisture')
+        }} %\n{%- endif %} {%- if states('sensor.greenhouse_zone_1_soil_conductivity')
+        |int (0) < 100 %}\n  - Serre Zone 1 heeft meststof nodig, {{ states('sensor.greenhouse_zone_1_soil_conductivity')
+        }} µS/cm\n{%- endif %} {%- if states('sensor.greenhouse_zone_2_moisture')
+        |int (0) < 20 %}\n  - Serre Zone 2 heeft water nodig, {{ states('sensor.greenhouse_zone_2_moisture')
+        }} %\n{%- endif %} {%- if states('sensor.greenhouse_zone_2_soil_conductivity')
+        |int (0) < 100 %}\n  - Serre Zone 2 heeft meststof nodig, {{ states('sensor.greenhouse_zone_2_soil_conductivity')
+        }} µS/cm\n{%- endif %} {%- if states('sensor.greenhouse_zone_3_moisture')
+        |int (0) < 20 %}\n  - Serre Zone 3 heeft water nodig, {{ states('sensor.greenhouse_zone_3_moisture')
+        }} %\n{%- endif %} {%- if states('sensor.greenhouse_zone_3_soil_conductivity')
+        |int (0) < 100 %}\n  - Serre Zone 3 heeft meststof nodig, {{ states('sensor.greenhouse_zone_3_soil_conductivity')
+        }} µS/cm\n{%- endif %} {%- if states('sensor.greenhouse_zone_4_moisture')
+        |int (0) < 20 %}\n  - Serre Zone 4 heeft water nodig, {{ states('sensor.greenhouse_zone_4_moisture')
+        }} %\n{%- endif %} {%- if states('sensor.greenhouse_zone_4_soil_conductivity')
+        |int (0) < 100 %}\n  - Serre Zone 4 heeft meststof nodig, {{ states('sensor.greenhouse_zone_4_soil_conductivity')
+        }} µS/cm\n{%- endif %} {%- if states('sensor.moestuin_moisture') |int (0)
+        < 25 %}\n  - Moestuin heeft water nodig, {{ states('sensor.moestuin_moisture')
+        }} %\n{%- endif %} {%- if states('sensor.moestuin_soil_conductivity') | int
+        < 100 %}\n  - Moestuin heeft meststof nodig, {{ states('sensor.moestuin_soil_conductivity')
+        }} µS/cm\n{%- endif %} {%- if states('sensor.rozemarijn_moisture') | int <
+        20 %}\n  - Rozemarijn heeft water nodig, {{ states('sensor.rozemarijn_moisture')
+        }} %\n{%- endif %} {%- if states('sensor.rozemarijn_soil_conductivity') |int
+        (0) < 100 %}\n  - Rozemarijn heeft meststof nodig, {{ states('sensor.rozemarijn_soil_conductivity')
+        }} µS/cm\n{%- endif %} {%- if states('sensor.bloempot_voordeur_moisture')
+        |int (0) < 20 %}\n  - Bloempot voordeur heeft water nodig, {{ states('sensor.bloempot_voordeur_moisture')
+        }} %\n{%- endif %} {%- if states('sensor.bloempot_voordeur_soil_conductivity')
+        |int (0) < 100 %}\n  - Bloempot voordeur heeft meststof nodig, {{ states('sensor.bloempot_voordeur_soil_conductivity')
+        }} µS/cm\n{%- endif %} {%- if states('sensor.olijfboom_moisture') | int <
+        20 %}\n  - Olijfboom voordeur heeft water nodig, {{ states('sensor.olijfboom_moisture')
+        }} %\n{%- endif %} {%- if states('sensor.olijfboom_soil_conductivity') | int
+        < 100 %}\n  - Olijfboom voordeur heeft meststof nodig, {{ states('sensor.olijfboom_soil_conductivity')
+        }} µS/cm\n{%- endif %}"
     service: notify.hazilverberkenstraatbot
 - id: '1588439093079'
   alias: Enable Alarm Margot
@@ -486,19 +486,20 @@
   description: ''
   trigger:
   - platform: state
-    entity_id: binary_sensor.motion_living
+    entity_id: binary_sensor.motion_woonkamer
     to: 'on'
   condition:
   - condition: and
     conditions:
     - condition: time
-      after: '6:00:00'
-      before: '9:30:00'
+      after: '6:00'
+      before: '9:30'
     - condition: state
       entity_id: binary_sensor.no_one_home
       state: 'off'
-    - condition: template
-      value_template: '{{ states(''sensor.illuminance_living'') | float(0)<= 2 }}'
+    - condition: numeric_state
+      entity_id: sensor.woonkamer_motion_sensor
+      below: '5'
   action:
   - service: scene.turn_on
     data:
@@ -510,19 +511,20 @@
   description: ''
   trigger:
   - platform: template
-    value_template: '{{ states(''sensor.illuminance_living'') | float(0)> 2 and (states(''sensor.time'')
-      >= ''06:00:00'' and states(''sensor.time'') <= ''09:29:55'') }}'
+    value_template: '{{ states(''sensor.woonkamer_motion_sensor'') | float(0)> 25
+      and (states(''sensor.time'') >= ''06:00:00'' and states(''sensor.time'') <=
+      ''09:29:55'') }}'
   - platform: time
-    at: 09:29:55
+    at: 09:29
   - platform: state
-    entity_id: binary_sensor.motion_living
+    entity_id: binary_sensor.motion_woonkamer
     to: 'off'
     for: 00:30:00
     from: 'on'
   condition:
   - condition: time
-    after: 06:00:00
-    before: 09:30:00
+    after: 06:00
+    before: 09:30
   action:
   - scene: scene.woonkamer_off
   mode: single
@@ -531,23 +533,22 @@
   description: ''
   trigger:
   - platform: time
-    at: '16:00:00'
+    at: '16:00'
   - platform: state
     entity_id: binary_sensor.no_one_home
     to: 'off'
-  - platform: template
-    value_template: '{{ states(''sensor.illuminance_living'') | float(0)< 4 and (states(''sensor.time'')
-      >= ''16:00:00'' and states(''sensor.time'') <= ''19:00:00'') }}'
+  - platform: state
+    entity_id: sensor.woonkamer_motion_sensor
   condition:
   - condition: time
     after: '16:00:00'
-    before: '19:00:00'
+    before: '19:00'
   - condition: state
     entity_id: binary_sensor.no_one_home
     state: 'off'
   - condition: numeric_state
-    entity_id: sensor.illuminance_living
-    below: '4'
+    entity_id: sensor.woonkamer_motion_sensor
+    below: '25'
   action:
   - service: scene.turn_on
     data:
@@ -559,23 +560,23 @@
   description: ''
   trigger:
   - platform: time
-    at: '19:00:00'
+    at: '19:00'
   - platform: state
     entity_id: binary_sensor.no_one_home
     to: 'off'
   - platform: template
-    value_template: '{{ states(''sensor.illuminance_living'') | float(0)< 3 and (states(''sensor.time'')
-      >= ''19:00:00'') }}'
+    value_template: '{{ states(''sensor.woonkamer_motion_sensor'') | float(0)< 25
+      and (states(''sensor.time'') >= ''19:00:00'') }}'
   condition:
   - condition: time
     after: '19:00:00'
-    before: '22:00:00'
+    before: '22:00'
   - condition: state
     entity_id: binary_sensor.no_one_home
     state: 'off'
   - condition: numeric_state
-    entity_id: sensor.illuminance_living
-    below: '3'
+    entity_id: sensor.woonkamer_motion_sensor
+    below: '25'
   action:
   - service: scene.turn_on
     data:
@@ -587,11 +588,11 @@
   description: ''
   trigger:
   - platform: state
-    entity_id: binary_sensor.motion_living
     to: 'on'
+    entity_id: binary_sensor.motion_woonkamer
   condition:
   - condition: time
-    after: '22:00:00'
+    after: '22:00'
     before: 06:00
   - condition: state
     entity_id: binary_sensor.no_one_home
@@ -628,15 +629,16 @@
       sequence:
       - wait_for_trigger:
           platform: state
-          entity_id: media_player.samsung_samsung_dtv_rcr
+          entity_id: media_player.tv
           for:
             minutes: 5
           to: 'off'
+    default: []
   - service: scene.turn_on
     data:
       entity_id: scene.woonkamer_off
       transition: 60
-  mode: single
+  mode: restart
 - id: '1600846307260'
   alias: Reset Daily Inputs
   description: ''
@@ -710,7 +712,7 @@
     - binary_sensor.motion_gang_eerste_1
     - binary_sensor.motion_inkom_1
     - binary_sensor.motion_inkom_2
-    - binary_sensor.motion_living
+    - binary_sensor.motion_woonkamer
     to: 'on'
   condition:
   - condition: state
@@ -901,7 +903,7 @@
   description: Radio aansteken, 's morgens (beweging), door de dag op presence
   trigger:
   - platform: state
-    entity_id: binary_sensor.motion_living
+    entity_id: binary_sensor.motion_woonkamer
     to: 'on'
   - platform: state
     entity_id: binary_sensor.no_one_home
@@ -973,10 +975,9 @@
         entity_id:
         - fan.cabinet_fan_1
         - fan.cabinet_fan_2
-        percentage: "{% if states('sensor.temperature_bureau') | int(0)> 28 %}\n \
-          \ 100\n{% elif states('sensor.temperature_bureau') | int(0)> 25 %}\n  50\n\
-          {% elif states('sensor.temperature_bureau') | int(0)>= 21 %}\n  25\n{% endif\
-          \ %}\n"
+        percentage: "{% if states('sensor.temperature_bureau') | int(0)> 28 %}\n  100\n{%
+          elif states('sensor.temperature_bureau') | int(0)> 25 %}\n  50\n{% elif
+          states('sensor.temperature_bureau') | int(0)>= 21 %}\n  25\n{% endif %}\n"
   mode: single
 - id: '1604346606992'
   alias: 'Security: MotionEye - Oprit'
@@ -1330,7 +1331,7 @@
           value_template: '{% set time = states(''sensor.time'') %} {{ ''16:10'' <=
             time < ''17:30'' and (now().weekday() == 1 or now().weekday() == 3 ) }}'
       sequence:
-      - service: evohome_cc.set_zone_mode
+      - service: ramses_cc.set_zone_mode
         data:
           entity_id: climate.febe
           mode: temporary_override
@@ -1363,11 +1364,9 @@
   - condition: template
     value_template: '{{ is_state(''sensor.house_mode'', ''home'') or is_state(''sensor.house_mode'',
       ''guest'')  }}'
-  - condition: not
-    conditions:
-    - condition: state
-      entity_id: climate.huis
-      state: 'off'
+  - condition: template
+    value_template: '{{ is_state(''climate.huis'', ''heat'') or  is_state(''climate.huis'',
+      ''auto'') }}'
   action:
   - choose:
     - conditions:
@@ -1514,21 +1513,20 @@
   - service: notify.hazilverberkenstraatbot
     data:
       title: 'Wekelijks Rapport Waterpomp '
-      message: "{% if ((states('sensor.waterpump_water_usage_weekly') |\n        float)>(state_attr('sensor.waterpump_water_usage_weekly',\
-        \ 'last_period') | float)) -%}\n  Water verbruik is gestegen met {{(((states('sensor.waterpump_water_usage_weekly')\
-        \ | float)-(state_attr('sensor.waterpump_water_usage_weekly', 'last_period')\
-        \ | float))*100/(state_attr('sensor.waterpump_water_usage_weekly', 'last_period')\
-        \ | float)) | round(1)}}% vergeleken met vorige week, met {{ (states('sensor.waterpump_water_usage_weekly')\
-        \  | float(0)- state_attr('sensor.waterpump_water_usage_weekly', 'last_period')\
-        \ | float) | round (0) }} liter\n{%- else -%}\n  Water verbruik is gedaald\
-        \ met {{(((state_attr('sensor.waterpump_water_usage_weekly', 'last_period')\
-        \ | float)-(states('sensor.waterpump_water_usage_weekly') | float))*100/(state_attr('sensor.waterpump_water_usage_weekly',\
-        \ 'last_period') | float)) | round(1)}}% vergeleken met vorige week, met {{\
-        \ (state_attr('sensor.waterpump_water_usage_weekly', 'last_period')  | float\
-        \ - states('sensor.waterpump_water_usage_weekly') | float) | round (0) }}\
-        \ liter\n{%- endif %}  Deze week: {{ states('sensor.waterpump_water_usage_weekly')\
-        \ | round (0) }} liter Vorige week: {{ state_attr('sensor.waterpump_water_usage_weekly',\
-        \ 'last_period') | round (0) }} liter"
+      message: "{% if ((states('sensor.waterpump_water_usage_weekly') |\n        float)>(state_attr('sensor.waterpump_water_usage_weekly',
+        'last_period') | float)) -%}\n  Water verbruik is gestegen met {{(((states('sensor.waterpump_water_usage_weekly')
+        | float)-(state_attr('sensor.waterpump_water_usage_weekly', 'last_period')
+        | float))*100/(state_attr('sensor.waterpump_water_usage_weekly', 'last_period')
+        | float)) | round(1)}}% vergeleken met vorige week, met {{ (states('sensor.waterpump_water_usage_weekly')
+        \ | float(0)- state_attr('sensor.waterpump_water_usage_weekly', 'last_period')
+        | float) | round (0) }} liter\n{%- else -%}\n  Water verbruik is gedaald met
+        {{(((state_attr('sensor.waterpump_water_usage_weekly', 'last_period') | float)-(states('sensor.waterpump_water_usage_weekly')
+        | float))*100/(state_attr('sensor.waterpump_water_usage_weekly', 'last_period')
+        | float)) | round(1)}}% vergeleken met vorige week, met {{ (state_attr('sensor.waterpump_water_usage_weekly',
+        'last_period')  | float - states('sensor.waterpump_water_usage_weekly') |
+        float) | round (0) }} liter\n{%- endif %}  Deze week: {{ states('sensor.waterpump_water_usage_weekly')
+        | round (0) }} liter Vorige week: {{ state_attr('sensor.waterpump_water_usage_weekly',
+        'last_period') | round (0) }} liter"
   mode: single
 - id: '1627036994004'
   alias: 'Notify: Monitor Grill Temp'
@@ -1689,7 +1687,7 @@
       attribute: daylight
     - condition: state
       entity_id: sensor.gang_eerste_motion_sensor_2
-      state: false
+      state: true
       attribute: dark
   action:
   - choose:
@@ -1780,10 +1778,15 @@
   - condition: state
     entity_id: binary_sensor.night_mode
     state: 'off'
+  - condition: state
+    entity_id: sensor.gang_eerste_motion_sensor_2
+    attribute: dark
+    state: true
   action:
   - service: light.turn_on
     target:
       entity_id: light.wc_boven
+    data: {}
   mode: restart
 - id: '1637583933082'
   alias: 'Motion Detected: Inkom'
@@ -1945,18 +1948,17 @@
   alias: 'Motion Clear: Voordeur'
   description: ''
   trigger:
-  - platform: state
-    entity_id: binary_sensor.motion_voor
-    for:
-      hours: 0
-      minutes: 5
-      seconds: 0
-    to: 'off'
+  - type: no_motion
+    platform: device
+    device_id: 65962faa56765255f81eb0cdd734dbbb
+    entity_id: binary_sensor.motion_voordeur
+    domain: binary_sensor
   condition: []
   action:
   - service: light.turn_off
     target:
       entity_id: light.voordeur
+    data: {}
   mode: single
 - id: '1639857515506'
   alias: 'Motion Clear: WC Boven'
@@ -1973,6 +1975,7 @@
   - service: light.turn_off
     target:
       entity_id: light.wc_boven
+    data: {}
   mode: single
 - id: '1639857800187'
   alias: 'Motion Clear: Speelkamer'
@@ -2041,12 +2044,12 @@
         entity_id: sensor.04_231772_heat_demand
         above: '45'
       sequence:
-      - service: evohome_cc.set_zone_mode
+      - service: ramses_cc.set_zone_mode
         data:
           entity_id: climate.inkom
           setpoint: 17
     default:
-    - service: evohome_cc.reset_zone_mode
+    - service: ramses_cc.reset_zone_mode
       data:
         entity_id: climate.inkom
   mode: single
@@ -2064,15 +2067,127 @@
     target:
       entity_id: input_text.mealie_meal_of_the_day
   mode: single
-- id: '1644522944966'
-  alias: Garbage reminder
+- id: '1655755800020'
+  alias: 'Motion Detected: Garage'
   description: ''
-  use_blueprint:
-    path: westenberg/garbage-reminder.yaml
-    input:
-      day_offset: '1'
-      notifier: notify.hazilverberkenstraatbot
-      garbage_sensor_1: sensor.recycleapp_gft
-      garbage_sensor_2: sensor.recycleapp_pmd
-      garbage_sensor_3: sensor.recycleapp_groenafval
-      garbage_sensor_4: sensor.recycleapp_restafval
+  trigger:
+  - type: motion
+    platform: device
+    device_id: 3fc7bc82e3c92c43eab4d08be8e949f0
+    entity_id: binary_sensor.motion_garagepoort
+    domain: binary_sensor
+  condition:
+  - condition: or
+    conditions:
+    - condition: state
+      entity_id: sensor.motion_garagepoort_lux
+      state: true
+      attribute: dark
+    - condition: state
+      entity_id: sun.sun
+      state: below_horizon
+  action:
+  - service: light.turn_on
+    target:
+      entity_id:
+      - light.verlichting_garage_voorkant
+    data: {}
+  mode: restart
+- id: '1655755894345'
+  alias: 'Motion Clear: Garage'
+  description: ''
+  trigger:
+  - type: no_motion
+    platform: device
+    device_id: 3fc7bc82e3c92c43eab4d08be8e949f0
+    entity_id: binary_sensor.motion_garagepoort
+    domain: binary_sensor
+  condition: []
+  action:
+  - service: light.turn_off
+    target:
+      entity_id:
+      - light.verlichting_garage_voorkant
+    data: {}
+  mode: single
+- id: '1657607886471'
+  alias: 'Night: Turn Off Kitchen Boiler'
+  description: ''
+  trigger:
+  - platform: time
+    at: '22:30:00'
+  condition: []
+  action:
+  - type: turn_off
+    device_id: e320212e0e87257b4adb85daa6e25dc3
+    entity_id: switch.boiler_keuken
+    domain: switch
+  mode: single
+- id: '1657607909826'
+  alias: 'Night: Turn On Kitchen Boiler'
+  description: ''
+  trigger:
+  - platform: time
+    at: 05:30:00
+  condition: []
+  action:
+  - type: turn_on
+    device_id: e320212e0e87257b4adb85daa6e25dc3
+    entity_id: switch.boiler_keuken
+    domain: switch
+  mode: single
+- id: '1658228894697'
+  alias: 'Notify: Temperatuur verschil'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.buiten_kouder
+    - binary_sensor.buiten_warmer
+    for:
+      hours: 0
+      minutes: 5
+      seconds: 0
+  condition: []
+  action:
+  - if:
+    - condition: state
+      entity_id: binary_sensor.buiten_warmer
+      state: 'on'
+    - condition: state
+      entity_id: input_boolean.temperatuur_buiten_warmer
+      state: 'off'
+    then:
+    - service: input_boolean.turn_on
+      data: {}
+      target:
+        entity_id:
+        - input_boolean.temperatuur_buiten_warmer
+    - service: script.notify_temperatuur_verschil_hoger
+      data: {}
+    - service: input_boolean.turn_off
+      data: {}
+      target:
+        entity_id:
+        - input_boolean.temperatuur_buiten_kouder
+  - if:
+    - condition: state
+      entity_id: binary_sensor.buiten_kouder
+      state: 'on'
+    - condition: state
+      entity_id: input_boolean.temperatuur_buiten_kouder
+      state: 'off'
+    then:
+    - service: input_boolean.turn_on
+      data: {}
+      target:
+        entity_id:
+        - input_boolean.temperatuur_buiten_kouder
+    - service: script.notify_temperatuur_verschil_lager
+      data: {}
+    - service: input_boolean.turn_off
+      data: {}
+      target:
+        entity_id:
+        - input_boolean.temperatuur_buiten_warmer
+  mode: single

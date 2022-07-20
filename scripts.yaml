@@ -22,6 +22,7 @@ turn_off_indoor_lights:
     - light.zolder
     - light.gelijkvloers
     - light.eerste_verdiep
+    - light.garage
   icon: mdi:lightbulb
   mode: single
 turn_off_switches_and_store_states:
@@ -226,6 +227,22 @@ notify_afval:
   - service: notify.hazilverberkenstraatbot
     data_template:
       message: '{{ states(''sensor.recycleapp_morgen'') }} morgen buiten zetten!'
+notify_temperatuur_verschil_hoger:
+  alias: Notify Temperatuur Verschil Warmer
+  sequence:
+  - service: notify.hazilverberkenstraatbot
+    data_template:
+      message: SLUITEN! Momenteel is de temperatuur buiten gemiddeld {{ states('sensor.buiten_gemiddelde_temperatuur')
+        }} en de gang eerste verdiep {{ states("sensor.gang_eerste_temperature") }}
+  mode: single
+notify_temperatuur_verschil_lager:
+  alias: Notify Temperatuur Verschil Kouder
+  sequence:
+  - service: notify.hazilverberkenstraatbot
+    data_template:
+      message: OPEN! Momenteel is de temperatuur buiten gemiddeld {{ states('sensor.buiten_gemiddelde_temperatuur')
+        }} en de gang eerste verdiep {{ states("sensor.gang_eerste_temperature") }}
+  mode: single
 motion_detected:
   alias: Motion Detected
   mode: parallel
@@ -333,7 +350,7 @@ vacuum_automated:
       - input_boolean.disable_daily_vacuum
       state: 'off'
     - condition: time
-      after: 07:00:00
+      after: 06:00:00
       before: '19:00:00'
   - service: vacuum.start
     data:
@@ -669,7 +686,7 @@ motioneye_test_car_object:
 set_temperature_zone:
   alias: Set Temperature Zone
   sequence:
-  - service: evohome_cc.set_zone_mode
+  - service: ramses_cc.set_zone_mode
     data:
       entity_id: climate.{{ states('input_select.verwarmingszone') }}
       setpoint: '{{ states(''input_number.verwarmingszone_temperature'') | float (0)

@@ -24,7 +24,7 @@
             or is_state("binary_sensor.motion_bureau", "on")
             or is_state("binary_sensor.motion_dressing", "on")
             or is_state("binary_sensor.motion_speelkamer", "on")
-            or is_state("binary_sensor.motion_living", "on")
+            or is_state("binary_sensor.motion_woonkamer", "on")
             or is_state("binary_sensor.motion_keuken", "on") }}
     motion_detected_indoor_in_last_hour:
       friendly_name: Any indoor motion detected in last hour
@@ -82,12 +82,6 @@
     waterpomp:
       friendly_name: Water Pomp
       value_template: "{{ states('sensor.waterpomp') |int (0) > 1 }}"
-    evohome_flame_state:
-      friendly_name: Flame State
-      value_template: "{{ 'True' in states('sensor.evohome_actuator_state').split(',')[1] }}"
-    evohome_dhw_state:
-      friendly_name: DHW State
-      value_template: "{{ 'True' in states('sensor.evohome_actuator_state').split(',')[0] }}"
 
 - platform: workday
   country: BE
