@@ -48,5 +48,15 @@
     "name": "Tortellini hesp",
     "id": "ae49ddbb2a13438ebab423cb13f37e63",
     "complete": true
+  },
+  {
+    "name": "Swiffer doekjes",
+    "id": "5f78f27c6a5b4766a2ed0a9c31c967c0",
+    "complete": false
+  },
+  {
+    "name": "Wc blokjes",
+    "id": "0a3ab2e45a474d64a2e14c18aa3d2418",
+    "complete": false
   }
 ]

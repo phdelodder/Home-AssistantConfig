@@ -773,3 +773,4 @@
   entity_ids:
     - sensor.motion_garagepoort_temperature
     - sensor.motion_voordeur_temperature
+    - sensor.achterdeur_buiten_temperature
