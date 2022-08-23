@@ -8,9 +8,25 @@ set_variable:
     # Key of the field
     variable:
       description: string (required) The name of the variable to update
+      example: test_counter
     value:
       description: any (optional) New value to set
+      example: 9
     attributes:
       description: dictionary (optional) Attributes to set or update
     replace_attributes:
-      description: boolean ( optional ) Replace or merge current attributes (default false = merge)
+      description: boolean (optional) Replace or merge current attributes (default false = merge)
+
+set_entity:
+  description: Update an entity value and/or its attributes.
+  fields:
+    entity:
+      description: string (required) The id of the entity to update
+      example: sensor.test_sensor
+    value:
+      description: any (optional) New value to set
+      example: 9
+    attributes:
+      description: dictionary (optional) Attributes to set or update
+    replace_attributes:
+      description: boolean (optional) Replace or merge current attributes (default false = merge)

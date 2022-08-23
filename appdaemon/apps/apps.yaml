@@ -230,3 +230,20 @@ margot_slaapkamer_controller_b4:
         entity_id: light.slaapkamer_margot_kleerkast
         brightness_pct: 100
     4003: release
+
+margot_slaapkamer_controller_button:
+  module: controllerx
+  class: Controller
+  controller: slaapkamer_margot
+  integration: deconz
+  light: light.margot_slaapkamer
+  mapping:
+    1002:
+      service: light.turn_on
+      data:
+        entity_id: light.margot_slaapkamer
+        brightness_pct: 20 
+    2002:
+      service: light.turn_off
+      data:
+        entity_id: light.margot_slaapkamer

@@ -28,3 +28,4 @@ tts/
 .cloud/
 .vscode/
 google_calendars.yaml
+.shopping_list.json

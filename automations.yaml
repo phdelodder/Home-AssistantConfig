@@ -927,7 +927,7 @@
     data: {}
   mode: single
 - id: '1602686644196'
-  alias: Vacuum Started Cleaning
+  alias: 'Vacuum: Started Cleaning'
   description: ''
   trigger:
   - platform: state
@@ -939,6 +939,7 @@
     state: Selecteer Kamer
   action:
   - service: script.vacuum_record_run
+    data: {}
   - service: script.vacuum_notify
     data: {}
   mode: single
@@ -1513,19 +1514,21 @@
   - service: notify.hazilverberkenstraatbot
     data:
       title: 'Wekelijks Rapport Waterpomp '
-      message: "{% if ((states('sensor.waterpump_water_usage_weekly') |\n        float)>(state_attr('sensor.waterpump_water_usage_weekly',
-        'last_period') | float)) -%}\n  Water verbruik is gestegen met {{(((states('sensor.waterpump_water_usage_weekly')
-        | float)-(state_attr('sensor.waterpump_water_usage_weekly', 'last_period')
-        | float))*100/(state_attr('sensor.waterpump_water_usage_weekly', 'last_period')
-        | float)) | round(1)}}% vergeleken met vorige week, met {{ (states('sensor.waterpump_water_usage_weekly')
-        \ | float(0)- state_attr('sensor.waterpump_water_usage_weekly', 'last_period')
+      message: "{% if ((states('sensor.waterpump_water_usage_weekly_normaal') |\n
+        \       float)>(state_attr('sensor.waterpump_water_usage_weekly_normaal',
+        'last_period') | float)) -%}\n  Water verbruik is gestegen met {{(((states('sensor.waterpump_water_usage_weekly_normaal')
+        | float)-(state_attr('sensor.waterpump_water_usage_weekly_normaal', 'last_period')
+        | float))*100/(state_attr('sensor.waterpump_water_usage_weekly_normaal', 'last_period')
+        | float)) | round(1)}}% vergeleken met vorige week, met {{ (states('sensor.waterpump_water_usage_weekly_normaal')
+        \ | float(0)- state_attr('sensor.waterpump_water_usage_weekly_normaal', 'last_period')
         | float) | round (0) }} liter\n{%- else -%}\n  Water verbruik is gedaald met
-        {{(((state_attr('sensor.waterpump_water_usage_weekly', 'last_period') | float)-(states('sensor.waterpump_water_usage_weekly')
-        | float))*100/(state_attr('sensor.waterpump_water_usage_weekly', 'last_period')
-        | float)) | round(1)}}% vergeleken met vorige week, met {{ (state_attr('sensor.waterpump_water_usage_weekly',
-        'last_period')  | float - states('sensor.waterpump_water_usage_weekly') |
-        float) | round (0) }} liter\n{%- endif %}  Deze week: {{ states('sensor.waterpump_water_usage_weekly')
-        | round (0) }} liter Vorige week: {{ state_attr('sensor.waterpump_water_usage_weekly',
+        {{(((state_attr('sensor.waterpump_water_usage_weekly_normaal', 'last_period')
+        | float)-(states('sensor.waterpump_water_usage_weekly_normaal') | float))*100/(state_attr('sensor.waterpump_water_usage_weekly_normaal',
+        'last_period') | float)) | round(1)}}% vergeleken met vorige week, met {{
+        (state_attr('sensor.waterpump_water_usage_weekly_normaal', 'last_period')
+        \ | float - states('sensor.waterpump_water_usage_weekly_normaal') | float)
+        | round (0) }} liter\n{%- endif %}  Deze week: {{ states('sensor.waterpump_water_usage_weekly_normaal')
+        | round (0) }} liter Vorige week: {{ state_attr('sensor.waterpump_water_usage_weekly_normaal',
         'last_period') | round (0) }} liter"
   mode: single
 - id: '1627036994004'
@@ -2144,11 +2147,18 @@
     entity_id:
     - binary_sensor.buiten_kouder
     - binary_sensor.buiten_warmer
+    - sensor.house_mode
     for:
       hours: 0
       minutes: 5
       seconds: 0
-  condition: []
+  condition:
+  - condition: numeric_state
+    entity_id: sensor.gang_eerste_temperature
+    above: '21'
+  - condition: state
+    entity_id: sensor.house_mode
+    state: home
   action:
   - if:
     - condition: state
@@ -2190,4 +2200,41 @@
       target:
         entity_id:
         - input_boolean.temperatuur_buiten_warmer
+  mode: single
+- id: '1661058012382'
+  alias: 'Vacuum: Notify Error detected'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - vacuum.dalek
+    to: Error
+  condition: []
+  action:
+  - service: notify.hazilverberkenstraatbot
+    data_template:
+      message: 'Dalek heeft een fout:  {{ state_attr(''vacuum.dalek'', ''error'')
+        }} '
+  mode: single
+- id: '1661058134854'
+  alias: 'Vacuum: Notify Inactive'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - vacuum.dalek
+    to: Inactive
+    for:
+      hours: 0
+      minutes: 15
+      seconds: 0
+  condition: []
+  action:
+  - service: vacuum.return_to_base
+    data: {}
+    target:
+      entity_id: vacuum.dalek
+  - service: notify.hazilverberkenstraatbot
+    data:
+      message: Dalek is inactive - proberen terug te plaatsen naar het station
   mode: single

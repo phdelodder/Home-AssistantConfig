@@ -8,6 +8,6 @@
     device_class: energy
 - binary_sensor:
   - name: Buiten Warmer
-    state: '{{ float(states("sensor.buiten_gemiddelde_temperatuur")) + float(0.5) > float(states("sensor.gang_eerste_temperature")) }}'
+    state: '{{ float(states("sensor.buiten_gemiddelde_temperatuur")) - float(0.5) > float(states("sensor.gang_eerste_temperature")) }}'
   - name: Buiten Kouder
-    state: '{{ float(states("sensor.buiten_gemiddelde_temperatuur")) - float(1) < float(states("sensor.gang_eerste_temperature")) }}'
+    state: '{{ float(states("sensor.buiten_gemiddelde_temperatuur")) + float(1) < float(states("sensor.gang_eerste_temperature")) }}'
