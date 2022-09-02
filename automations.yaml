@@ -480,6 +480,7 @@
   condition: []
   action:
   - service: script.arriving
+    data: {}
   mode: single
 - id: '1600756948650'
   alias: Woonkamer Lights Morning On
@@ -855,10 +856,12 @@
   - service: light.turn_off
     target:
       entity_id: light.desk_lamp
+    data: {}
   - scene: scene.notify_led_bureau
-  - service: wled.effect
-    data_template:
+  - service: light.turn_on
+    data:
       effect: '{{ effect }}'
+    target:
       entity_id: light.desk_lamp
   mode: single
 - id: '1600928588299'
