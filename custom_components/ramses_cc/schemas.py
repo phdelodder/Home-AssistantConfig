@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 """Support for Honeywell's RAMSES-II RF protocol, as used by CH/DHW & HVAC."""
+from __future__ import annotations
 
 import logging
 from copy import deepcopy
@@ -13,34 +14,26 @@ from homeassistant.const import CONF_SCAN_INTERVAL
 from homeassistant.core import callback
 from homeassistant.helpers import config_validation as cv
 from ramses_rf.const import SZ_DEVICE_ID
-from ramses_rf.helpers import shrink
+from ramses_rf.helpers import merge, shrink
 from ramses_rf.protocol.schemas import (
-    SZ_LOG_FILE_NAME,
-    SZ_LOG_ROTATE_BACKUPS,
-    SZ_LOG_ROTATE_BYTES,
-    SZ_PORT_NAME,
+    SZ_PORT_CONFIG,
     SZ_SERIAL_PORT,
+    extract_serial_port,
+    sch_global_traits_dict_factory,
+    sch_packet_log_dict_factory,
+    sch_serial_port_dict_factory,
 )
 from ramses_rf.schemas import (
-    SCH_CONFIG,
-    SCH_DEVICE,
-    SCH_DEVICE_ANY,
-    SCH_SERIAL_CONFIG,
-    SCH_TCS,
-    SZ_BLOCK_LIST,
+    SCH_DEVICE_ID_ANY,
+    SCH_GATEWAY_DICT,
+    SCH_GLOBAL_SCHEMAS_DICT,
+    SCH_RESTORE_CACHE_DICT,
     SZ_CONFIG,
-    SZ_CONTROLLER,
-    SZ_EVOFW_FLAG,
-    SZ_KNOWN_LIST,
-    SZ_MAIN_CONTROLLER,
-    SZ_ORPHANS_HEAT,
-    SZ_ORPHANS_HVAC,
-    SZ_PACKET_LOG,
-    SZ_SCHEMA,
-    SZ_SERIAL_CONFIG,
+    SZ_RESTORE_CACHE,
+    SZ_RESTORE_SCHEMA,
 )
 
-from .const import DOMAIN, SYSTEM_MODE_LOOKUP, SystemMode, ZoneMode
+from .const import SYSTEM_MODE_LOOKUP, SystemMode, ZoneMode
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -63,25 +56,11 @@ CONF_ACTIVE = "active"
 CONF_DIFFERENTIAL = "differential"
 CONF_OVERRUN = "overrun"
 
-# Configuration schema
-SCAN_INTERVAL_DEFAULT = td(seconds=300)
-SCAN_INTERVAL_MINIMUM = td(seconds=1)
-
-SCH_PACKET_LOG = vol.Schema(
-    {
-        vol.Required(SZ_LOG_FILE_NAME): str,
-        vol.Optional(SZ_LOG_ROTATE_BYTES, default=None): vol.Any(None, int),
-        vol.Optional(SZ_LOG_ROTATE_BACKUPS, default=7): int,
-    },
-    extra=vol.PREVENT_EXTRA,
-)
-
-# Integration domain services for System/Controller
+#
+# Integration/domain generic services
 SVC_FAKE_DEVICE = "fake_device"
 SVC_REFRESH_SYSTEM = "refresh_system"
-SVC_RESET_SYSTEM_MODE = "reset_system_mode"
 SVC_SEND_PACKET = "send_packet"
-SVC_SET_SYSTEM_MODE = "set_system_mode"
 
 SCH_FAKE_DEVICE = vol.Schema(
     {
@@ -98,6 +77,18 @@ SCH_SEND_PACKET = vol.Schema(
         vol.Required("payload"): vol.Match(r"^[0-9A-F]{1,48}$"),
     }
 )
+
+SVCS_DOMAIN = {
+    SVC_FAKE_DEVICE: SCH_FAKE_DEVICE,
+    SVC_REFRESH_SYSTEM: None,
+    SVC_SEND_PACKET: SCH_SEND_PACKET,
+}
+
+#
+# Integration/domain services for TCS
+SVC_RESET_SYSTEM_MODE = "reset_system_mode"
+SVC_SET_SYSTEM_MODE = "set_system_mode"
+
 SCH_SYSTEM_MODE = vol.Schema(
     {
         vol.Required(CONF_MODE): vol.In(SYSTEM_MODE_LOOKUP),  # incl. DAY_OFF_ECO
@@ -123,17 +114,12 @@ SCH_SYSTEM_MODE_DAYS = vol.Schema(
 )
 SCH_SYSTEM_MODE = vol.Any(SCH_SYSTEM_MODE, SCH_SYSTEM_MODE_HOURS, SCH_SYSTEM_MODE_DAYS)
 
-SVCS_DOMAIN = {
-    SVC_FAKE_DEVICE: SCH_FAKE_DEVICE,
-    SVC_REFRESH_SYSTEM: None,
-    SVC_SEND_PACKET: SCH_SEND_PACKET,
-}
-
 SVCS_DOMAIN_EVOHOME = {
     SVC_RESET_SYSTEM_MODE: None,
     SVC_SET_SYSTEM_MODE: SCH_SYSTEM_MODE,
 }
 
+#
 # Climate platform services for Zone
 SVC_PUT_ZONE_TEMP = "put_zone_temp"
 SVC_RESET_ZONE_CONFIG = "reset_zone_config"
@@ -216,6 +202,7 @@ SVCS_CLIMATE_EVOHOME = {
     SVC_PUT_ZONE_TEMP: SCH_PUT_ZONE_TEMP,
 }
 
+#
 # WaterHeater platform services for DHW
 SVC_PUT_DHW_TEMP = "put_dhw_temp"
 SVC_RESET_DHW_MODE = "reset_dhw_mode"
@@ -280,9 +267,54 @@ SVCS_WATER_HEATER_EVOHOME = {
     SVC_PUT_DHW_TEMP: SCH_PUT_DHW_TEMP,
 }
 
-SCH_DEVICE_LIST = vol.Schema(
-    vol.All([vol.Any(SCH_DEVICE_ANY, SCH_DEVICE)], vol.Length(min=0))
+#
+# WaterHeater platform services for HVAC sensors
+SZ_CO2_LEVEL = "co2_level"
+SZ_INDOOR_HUMIDITY = "indoor_humidity"
+SZ_PRESENCE_DETECTED = "presence_detected"
+SVC_PUT_CO2_LEVEL = f"put_{SZ_CO2_LEVEL}"
+SVC_PUT_INDOOR_HUMIDITY = f"put_{SZ_INDOOR_HUMIDITY}"
+SVC_PUT_PRESENCE_DETECT = f"put_{SZ_PRESENCE_DETECTED}"
+
+SCH_PUT_SENSOR_BASE = vol.Schema({vol.Required(CONF_ENTITY_ID): cv.entity_id})
+
+SCH_PUT_CO2_LEVEL = SCH_PUT_SENSOR_BASE.extend(
+    {
+        vol.Required(SZ_CO2_LEVEL): vol.All(
+            cv.positive_int,
+            vol.Range(min=0, max=16384),
+        ),
+    }
 )
+
+SCH_PUT_INDOOR_HUMIDITY = SCH_PUT_SENSOR_BASE.extend(
+    {
+        vol.Required(SZ_INDOOR_HUMIDITY): vol.All(
+            cv.positive_float,
+            vol.Range(min=0, max=100),
+        ),
+    }
+)
+
+SCH_PUT_PRESENCE_DETECT = SCH_PUT_SENSOR_BASE.extend(
+    {
+        vol.Required(SZ_PRESENCE_DETECTED): cv.boolean,
+    }
+)
+
+SVCS_BINARY_SENSOR = {
+    SVC_PUT_PRESENCE_DETECT: SCH_PUT_PRESENCE_DETECT,
+}
+
+SVCS_SENSOR = {
+    SVC_PUT_CO2_LEVEL: SCH_PUT_CO2_LEVEL,
+    SVC_PUT_INDOOR_HUMIDITY: SCH_PUT_INDOOR_HUMIDITY,
+}
+
+#
+# Configuration schema
+SCAN_INTERVAL_DEFAULT = td(seconds=300)
+SCAN_INTERVAL_MINIMUM = td(seconds=1)
 
 SZ_ADVANCED_FEATURES = "advanced_features"
 SZ_MESSAGE_EVENTS = "message_events"
@@ -298,45 +330,30 @@ SCH_ADVANCED_FEATURES = vol.Schema(
     }
 )
 
-SZ_RESTORE_CACHE = "restore_cache"
-SZ_RESTORE_SCHEMA = "restore_schema"
-SZ_RESTORE_STATE = "restore_state"
-
-SCH_RESTORE_CACHE = vol.Schema(
-    {
-        vol.Optional(SZ_RESTORE_SCHEMA, default=True): bool,
-        vol.Optional(SZ_RESTORE_STATE, default=True): bool,
-    }
+SCH_GLOBAL_TRAITS_DICT, SCH_TRAITS = sch_global_traits_dict_factory(
+    hvac_traits={vol.Optional("commands"): dict}
 )
+SCH_DEVICE_LIST = vol.Schema(
+    [{vol.Optional(SCH_DEVICE_ID_ANY): SCH_TRAITS}],  # vol.Length(min=0)
+    extra=vol.PREVENT_EXTRA,
+)  # TODO: what is this for?
 
-# SCH_SCHEMA = SCH_TCS.extend({vol.Required(SZ_CONTROLLER): cv.string})
-SCH_CONFIG = vol.Schema(
-    {
-        DOMAIN: vol.Schema(
-            {
-                vol.Required(SZ_SERIAL_PORT): vol.Any(
-                    cv.string,
-                    SCH_SERIAL_CONFIG.extend({vol.Required(SZ_PORT_NAME): cv.string}),
-                ),
-                vol.Optional(SZ_KNOWN_LIST, default=[]): SCH_DEVICE_LIST,
-                vol.Optional(SZ_BLOCK_LIST, default=[]): SCH_DEVICE_LIST,
-                cv.deprecated(SZ_CONFIG, "ramses_rf"): vol.Any(),
-                vol.Optional("ramses_rf", default={}): SCH_CONFIG,
-                cv.deprecated(SZ_RESTORE_STATE, SZ_RESTORE_CACHE): vol.Any(),
-                vol.Optional(SZ_RESTORE_CACHE, default=True): vol.Any(
-                    bool, SCH_RESTORE_CACHE
-                ),
-                vol.Optional(
-                    CONF_SCAN_INTERVAL, default=SCAN_INTERVAL_DEFAULT
-                ): vol.All(cv.time_period, vol.Range(min=SCAN_INTERVAL_MINIMUM)),
-                vol.Optional(SZ_PACKET_LOG): vol.Any(str, SCH_PACKET_LOG),
-                cv.deprecated(SVC_SEND_PACKET, SZ_ADVANCED_FEATURES): vol.Any(),
-                vol.Optional(SZ_ADVANCED_FEATURES, default={}): SCH_ADVANCED_FEATURES,
-            },
-            extra=vol.ALLOW_EXTRA,  # will be system, orphan schemas for ramses_rf
-        )
-    },
-    extra=vol.ALLOW_EXTRA,
+SCH_DOMAIN_CONFIG = (
+    vol.Schema(
+        {
+            vol.Optional("ramses_rf", default={}): SCH_GATEWAY_DICT,
+            vol.Optional(CONF_SCAN_INTERVAL, default=SCAN_INTERVAL_DEFAULT): vol.All(
+                cv.time_period, vol.Range(min=SCAN_INTERVAL_MINIMUM)
+            ),
+            vol.Optional(SZ_ADVANCED_FEATURES, default={}): SCH_ADVANCED_FEATURES,
+        },
+        extra=vol.PREVENT_EXTRA,  # will be system, orphan schemas for ramses_rf
+    )
+    .extend(SCH_GLOBAL_SCHEMAS_DICT)
+    .extend(SCH_GLOBAL_TRAITS_DICT)
+    .extend(sch_packet_log_dict_factory(default_backups=7))
+    .extend(SCH_RESTORE_CACHE_DICT)
+    .extend(sch_serial_port_dict_factory())
 )
 
 
@@ -355,110 +372,30 @@ def _is_subset(subset, superset) -> bool:  # TODO: move to ramses_rf?
     return subset == superset  # not dict, list nor set
 
 
-def _merge(src: dict, dst: dict, _dc: bool = None) -> dict:  # TODO: move to ramses_rf?
-    """Merge src dict (precident) into the dst dict and return the result.
-
-    run me with nosetests --with-doctest file.py
-
-    >>> a = {'first': {'all_rows': {'pass': 'dog', 'number': '1'}}}
-    >>> b = {'first': {'all_rows': {'fail': 'cat', 'number': '5'}}}
-    >>> _merge(b, a) == {'first': {'all_rows': {'pass': 'dog', 'fail': 'cat', 'number': '5'}}}
-    True
-    """
-
-    new_dst = dst if _dc else deepcopy(dst)  # start with copy of dst, merge src into it
-    for key, value in src.items():  # values are only: dict, list, value or None
-
-        if isinstance(value, dict):  # is dict
-            node = new_dst.setdefault(key, {})  # get node or create one
-            _merge(value, node, _dc=True)
-
-        elif not isinstance(value, list):  # is value
-            new_dst[key] = value  # src takes precidence, assert will fail
-
-        elif key not in new_dst or not isinstance(new_dst[key], list):  # is list
-            new_dst[key] = src[key]  # shouldn't happen: assert will fail
-
-        else:
-            new_dst[key] = list(set(src[key] + new_dst[key]))  # will sort
-
-    # assert _is_subset(shrink(src), shrink(new_dst))
-    return new_dst
-
-
 @callback
 def normalise_config(config: dict) -> tuple[str, dict, dict]:
-    """Return a port/config/schema for the library."""
+    """Return a port/client_config/broker_config for the library."""
+
+    config = deepcopy(config)
 
     config[SZ_CONFIG] = config.pop("ramses_rf")
 
-    if isinstance(config[SZ_SERIAL_PORT], dict):
-        serial_port = config[SZ_SERIAL_PORT].pop(SZ_PORT_NAME)
-        config[SZ_CONFIG][SZ_EVOFW_FLAG] = config[SZ_SERIAL_PORT].pop(
-            SZ_EVOFW_FLAG, None
-        )
-        config[SZ_CONFIG][SZ_SERIAL_CONFIG] = config.pop(SZ_SERIAL_PORT)
-    else:
-        serial_port = config.pop(SZ_SERIAL_PORT)
+    port_name, port_config = extract_serial_port(config.pop(SZ_SERIAL_PORT))
 
-    config[SZ_KNOWN_LIST] = _normalise_device_list(config[SZ_KNOWN_LIST])
-    config[SZ_BLOCK_LIST] = _normalise_device_list(config[SZ_BLOCK_LIST])
-
-    if SZ_PACKET_LOG not in config:
-        config[SZ_CONFIG][SZ_PACKET_LOG] = {}
-    elif isinstance(config[SZ_PACKET_LOG], dict):
-        config[SZ_CONFIG][SZ_PACKET_LOG] = config.pop(SZ_PACKET_LOG)
-    else:
-        config[SZ_CONFIG][SZ_PACKET_LOG] = {SZ_LOG_FILE_NAME: config.pop(SZ_PACKET_LOG)}
-
-    if isinstance(config[SZ_RESTORE_CACHE], bool):
-        config[SZ_RESTORE_CACHE] = {
-            SZ_RESTORE_SCHEMA: config[SZ_RESTORE_CACHE],
-            SZ_RESTORE_STATE: config[SZ_RESTORE_CACHE],
-        }
-
-    config[SZ_SCHEMA] = _normalise_schema(config.pop(SZ_SCHEMA, {}))
+    remote_commands = {
+        k: v.pop("commands")
+        for k, v in config["known_list"].items()
+        if v.get("commands")
+    }
 
     broker_keys = (CONF_SCAN_INTERVAL, SZ_ADVANCED_FEATURES, SZ_RESTORE_CACHE)
     return (
-        serial_port,
-        {k: v for k, v in config.items() if k not in broker_keys},
-        {k: v for k, v in config.items() if k in broker_keys},
+        port_name,
+        {k: v for k, v in config.items() if k not in broker_keys}
+        | {SZ_PORT_CONFIG: port_config},
+        {k: v for k, v in config.items() if k in broker_keys}
+        | {"remotes": remote_commands},
     )
-
-
-@callback
-def _normalise_device_list(device_list) -> dict:
-    """Convert a device_list schema into a ramses_rf format."""
-    # convert: ['01:123456',    {'03:123456': None}, {'18:123456': {'a': 1, 'b': 2}}]
-    #    into: {'01:123456': {}, '03:123456': {},     '18:123456': {'a': 1, 'b': 2}}
-    if isinstance(device_list, list):
-        result = [
-            {k: v for k, v in x.items()} if isinstance(x, dict) else {x: None}
-            for x in device_list
-        ]
-        return {k: v or {} for d in result for k, v in d.items()}
-
-    # elif isinstance(device_list, dict):
-    return {k: v or {} for k, v in device_list.items()}
-
-
-@callback
-def _normalise_schema(config_schema: dict) -> dict:
-    """Normalise a config schema to a ramses_rf-compatible schema."""
-
-    orphans_heat = config_schema.pop(SZ_ORPHANS_HEAT, [])
-    orphans_hvac = config_schema.pop(SZ_ORPHANS_HVAC, [])
-
-    if _ctl := config_schema.pop(SZ_CONTROLLER, None):
-        result = {SZ_MAIN_CONTROLLER: _ctl, _ctl: SCH_TCS(config_schema)}
-    else:
-        result = config_schema  # would usually be be {}
-
-    result[SZ_ORPHANS_HEAT] = orphans_heat
-    result[SZ_ORPHANS_HVAC] = orphans_hvac
-
-    return result
 
 
 @callback
@@ -493,7 +430,7 @@ def merge_schemas(merge_cache: bool, config_schema: dict, cached_schema: dict) -
             "the config": config_schema,
         }  # maybe cached = config
 
-    merged_schema = _merge(config_schema, cached_schema)  # config takes precidence
+    merged_schema = merge(config_schema, cached_schema)  # config takes precidence
     _LOGGER.debug("Created a merged schema: %s", merged_schema)
 
     if not _is_subset(shrink(config_schema), shrink(merged_schema)):

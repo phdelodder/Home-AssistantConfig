@@ -5,18 +5,23 @@
 
 Requires a Honeywell HGI80 (or compatible) gateway.
 """
+from __future__ import annotations
 
 import asyncio
 import logging
-from copy import deepcopy
 from datetime import datetime as dt
 from datetime import timedelta as td
-from threading import Lock
-from typing import Any, Dict, List, Optional
+from threading import Lock, Semaphore
+from typing import Any
 
 import ramses_rf
 import serial
-from homeassistant.const import CONF_SCAN_INTERVAL, TEMP_CELSIUS, Platform
+import voluptuous as vol
+
+#
+from homeassistant.const import (
+    CONF_SCAN_INTERVAL, PRECISION_TENTHS, TEMP_CELSIUS, Platform
+)
 from homeassistant.core import HomeAssistant, ServiceCall, callback
 from homeassistant.helpers.discovery import async_load_platform
 from homeassistant.helpers.dispatcher import (
@@ -27,7 +32,15 @@ from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.service import verify_domain_control
 from homeassistant.helpers.typing import ConfigType, HomeAssistantType
 from ramses_rf import Gateway
-from ramses_rf.device import HvacVentilator
+from ramses_rf.device.hvac import HvacRemoteBase, HvacVentilator
+from ramses_rf.helpers import merge
+from ramses_rf.schemas import (
+    SZ_RESTORE_CACHE,
+    SZ_RESTORE_SCHEMA,
+    SZ_RESTORE_STATE,
+    SZ_SCHEMA,
+    extract_schema,
+)
 
 from .const import (
     BROKER,
@@ -38,24 +51,23 @@ from .const import (
     STORAGE_VERSION,
     UNIQUE_ID,
 )
-from .schemas import SCH_CONFIG as CONFIG_SCHEMA  # noqa: F401
 from .schemas import (
+    SCH_DOMAIN_CONFIG,
     SVC_SEND_PACKET,
     SVCS_DOMAIN,
     SVCS_DOMAIN_EVOHOME,
     SVCS_WATER_HEATER_EVOHOME,
     SZ_ADVANCED_FEATURES,
     SZ_MESSAGE_EVENTS,
-    SZ_RESTORE_CACHE,
-    SZ_RESTORE_SCHEMA,
-    SZ_RESTORE_STATE,
-    SZ_SCHEMA,
     merge_schemas,
     normalise_config,
 )
 from .version import __version__ as VERSION
 
 _LOGGER = logging.getLogger(__name__)
+
+
+CONFIG_SCHEMA = vol.Schema({DOMAIN: SCH_DOMAIN_CONFIG}, extra=vol.ALLOW_EXTRA)
 
 PLATFORMS = [
     Platform.BINARY_SENSOR,
@@ -83,7 +95,7 @@ async def async_setup(
     _LOGGER.info(f"{DOMAIN} v{VERSION}, is using ramses_rf v{ramses_rf.VERSION}")
     _LOGGER.debug("\r\n\nConfig = %s\r\n", hass_config[DOMAIN])
 
-    broker = EvoBroker(hass, hass_config)
+    broker = RamsesBroker(hass, hass_config)
 
     if _LOGGER.isEnabledFor(logging.DEBUG):
         app_storage = await broker.async_load_storage()
@@ -121,6 +133,12 @@ def register_trigger_events(hass: HomeAssistantType, broker):
 
     @callback
     def process_msg(msg, *args, **kwargs):  # process_msg(msg, prev_msg=None)
+        if (
+            not broker.config[SZ_ADVANCED_FEATURES][SZ_MESSAGE_EVENTS]
+            and broker._sem._value == broker.MAX_SEMAPHORE_LOCKS  # HACK
+        ):
+            return
+
         event_data = {
             "dtm": msg.dtm.isoformat(),
             "src": msg.src.id,
@@ -132,8 +150,7 @@ def register_trigger_events(hass: HomeAssistantType, broker):
         }
         hass.bus.async_fire(f"{DOMAIN}_message", event_data)
 
-    if broker.config[SZ_ADVANCED_FEATURES][SZ_MESSAGE_EVENTS]:
-        broker.client.create_client(process_msg)
+    broker.client.create_client(process_msg)
 
 
 @callback  # TODO: add async_ to routines where required to do so
@@ -206,8 +223,10 @@ def register_service_functions(hass: HomeAssistantType, broker):
     ]
 
 
-class EvoBroker:
+class RamsesBroker:
     """Container for client and data."""
+
+    MAX_SEMAPHORE_LOCKS: int = 3
 
     def __init__(self, hass, hass_config) -> None:
         """Initialize the client and its data structure(s)."""
@@ -217,42 +236,54 @@ class EvoBroker:
 
         self.hass_config = hass_config
         self._ser_name, self._client_config, self.config = normalise_config(
-            deepcopy(hass_config[DOMAIN])
+            hass_config[DOMAIN]
         )
 
         self.status = None
         self.client: Gateway = None  # type: ignore[assignment]
         self._services = {}
+        self._entities = {}  # domain entities
+        self._known_commands = self.config["remotes"]
 
-        self.loop_task = None
-        self._last_update = dt.min
-
+        # Discovered client entities...
         self._hgi = None  # HGI, is distinct from devices (has no intrinsic sensors)
-        self._devices = []  # TRVs, FANs, OTBs, CTLs, CO2s, etc.
-        self._domains = []  # TCS, DHW, Zones
         self._tcs = None
         self._dhw = None
         self._zones = []
-        self._fans = []
+        self._objects: dict[str, list] = {
+            "devices": [],
+            "domains": [],
+            "fans": [],
+            "remotes": [],
+        }
 
+        self.loop_task = None
+        self._last_update = dt.min
         self._lock = Lock()
+        self._sem = Semaphore(value=self.MAX_SEMAPHORE_LOCKS)
 
     async def create_client(self) -> None:
         """Create a client with an initial schema, possibly a cached schema."""
 
         storage = await self.async_load_storage()
+        self._known_commands = merge(self._known_commands, storage.get("remotes", {}))
+
+        schema = extract_schema(**self._client_config)
+        config = {k: v for k, v in self._client_config.items() if k not in schema}
 
         schemas = merge_schemas(
             self.config[SZ_RESTORE_CACHE][SZ_RESTORE_SCHEMA],
-            self._client_config[SZ_SCHEMA],
+            schema,
             storage.get("client_state", {}).get(SZ_SCHEMA, {}),
         )
         for msg, schema in schemas.items():
             try:
                 self.client = Gateway(
-                    self._ser_name, loop=self.hass.loop, **self._client_config, **schema
+                    self._ser_name, loop=self.hass.loop, **config, **schema
                 )
-            except LookupError as exc:  # ...in the schema, but also in the block_list
+            except (LookupError, vol.MultipleInvalid) as exc:
+                # LookupError:     ...in the schema, but also in the block_list
+                # MultipleInvalid: ...extra keys not allowed @ data['???']
                 _LOGGER.warning(f"Failed to initialise with {msg} schema: %s", exc)
             else:
                 _LOGGER.info(f"Success initialising with {msg} schema: %s", schema)
@@ -289,9 +320,17 @@ class EvoBroker:
         """Save the client state to the application store."""
 
         _LOGGER.info("Saving the client state cache (packets, schema)...")
+
         (schema, packets) = self.client._get_state()
+        remote_commands = self._known_commands | {
+            k: v._commands for k, v in self._entities.items() if hasattr(v, "_commands")
+        }
+
         await self._store.async_save(
-            {"client_state": {"schema": schema, "packets": packets}}
+            {
+                "client_state": {"schema": schema, "packets": packets},
+                "remotes": remote_commands,
+            }
         )
 
     @callback
@@ -299,58 +338,79 @@ class EvoBroker:
         """Discover & instantiate Climate & WaterHeater entities (Heat)."""
 
         if self.client.tcs is None:  # assumes the primary TCS is the only TCS
-            _LOGGER.debug("GWY Schema = %s", self.client.schema)
             return False
 
         discovery_info = {}
 
         if not self._tcs:
-            discovery_info["tcs"] = self._tcs = self.client.tcs
-
-        if self.client.tcs.dhw and self._dhw is None:
-            discovery_info["dhw"] = self._dhw = self.client.tcs.dhw
+            self._tcs = discovery_info["tcs"] = self.client.tcs
 
         if new_zones := [z for z in self.client.tcs.zones if z not in self._zones]:
-            discovery_info["zones"] = new_zones
             self._zones.extend(new_zones)
+            discovery_info["zones"] = new_zones
 
         if discovery_info:
-            for platform in (Platform.CLIMATE, Platform.WATER_HEATER):
-                self.hass.async_create_task(
-                    async_load_platform(
-                        self.hass, platform, DOMAIN, discovery_info, self.hass_config
-                    )
+            self.hass.async_create_task(
+                async_load_platform(
+                    self.hass,
+                    Platform.CLIMATE,
+                    DOMAIN,
+                    discovery_info,
+                    self.hass_config,
                 )
+            )
 
-        _LOGGER.debug("TCS Schema = %s", self.client.tcs.schema)
-        _LOGGER.debug("TCS Params = %s", self.client.tcs.params)
-        _LOGGER.debug("TCS Status = %s", self.client.tcs.status)
+        if self.client.tcs.dhw and self._dhw is None:
+            self._dhw = discovery_info["dhw"] = self.client.tcs.dhw
+            self.hass.async_create_task(
+                async_load_platform(
+                    self.hass,
+                    Platform.WATER_HEATER,
+                    DOMAIN,
+                    {"dhw": self._dhw},
+                    self.hass_config,
+                )
+            )
+
         return bool(discovery_info)
 
     @callback
     def new_hvac_entities(self) -> bool:
-        """Discover & instantiate Climate entities (HVAC)."""
-
-        discovery_info = {}
+        """Discover & instantiate HVAC entities (Climate, Remote)."""
 
         if new_fans := [
             f
             for f in self.client.devices
-            if isinstance(f, HvacVentilator) and f not in self._fans
+            if isinstance(f, HvacVentilator) and f not in self._objects["fans"]
         ]:
-            discovery_info["fans"] = new_fans
-            self._fans.extend(new_fans)
-
-        if discovery_info:
-            for platform in (Platform.CLIMATE, Platform.FAN):
-                self.hass.async_create_task(
-                    async_load_platform(
-                        self.hass, platform, DOMAIN, discovery_info, self.hass_config
-                    )
+            self._objects["fans"].extend(new_fans)
+            self.hass.async_create_task(
+                async_load_platform(
+                    self.hass,
+                    Platform.CLIMATE,
+                    DOMAIN,
+                    {"fans": new_fans},
+                    self.hass_config,
                 )
+            )
 
-        _LOGGER.debug("GWY Devices = %s", [d.id for d in self._devices])
-        return bool(discovery_info)
+        if new_remotes := [
+            f
+            for f in self.client.devices
+            if isinstance(f, HvacRemoteBase) and f not in self._objects["remotes"]
+        ]:
+            self._objects["remotes"].extend(new_remotes)
+            self.hass.async_create_task(
+                async_load_platform(
+                    self.hass,
+                    Platform.REMOTE,
+                    DOMAIN,
+                    {"remotes": new_remotes},
+                    self.hass_config,
+                )
+            )
+
+        return bool(new_fans or new_remotes)
 
     @callback
     def new_sensors(self) -> bool:
@@ -359,27 +419,29 @@ class EvoBroker:
         discovery_info = {}
 
         if not self._hgi and self.client.hgi:  # TODO: check HGI is added as a device
-            discovery_info["gateway"] = self._hgi = self.client.hgi
+            self._hgi = discovery_info["gateway"] = self.client.hgi
 
-        new_devices = [d for d in self.client.devices if d not in self._devices]
-
-        if new_devices:
+        if new_devices := [
+            d for d in self.client.devices if d not in self._objects["devices"]
+        ]:
+            self._objects["devices"].extend(new_devices)
             discovery_info["devices"] = new_devices
-            self._devices.extend(new_devices)
 
         new_domains = []
         if self.client.tcs:  # assumes the primary TCS is the only TCS
-            new_domains = [d for d in self.client.tcs.zones if d not in self._domains]
-            if self.client.tcs not in self._domains:
+            new_domains = [
+                d for d in self.client.tcs.zones if d not in self._objects["domains"]
+            ]
+            if self.client.tcs not in self._objects["domains"]:
                 new_domains.append(self.client.tcs)
-            if self.client.tcs.dhw and self.client.tcs.dhw not in self._domains:
-                new_domains.append(self.client.tcs.dhw)
+            if (dhw := self.client.tcs.dhw) and dhw not in self._objects["domains"]:
+                new_domains.append(dhw)
             # for domain in ("F9", "FA", "FC"):
             #     if f"{self.client.tcs}_{domain}" not in
 
         if new_domains:
+            self._objects["domains"].extend(new_domains)
             discovery_info["domains"] = new_domains
-            self._domains.extend(new_domains)
 
         if discovery_info:
             for platform in (Platform.BINARY_SENSOR, Platform.SENSOR):
@@ -389,8 +451,7 @@ class EvoBroker:
                     )
                 )
 
-        _LOGGER.debug("GWY Devices = %s", [d.id for d in self._devices])
-        return bool(new_devices or new_domains)
+        return bool(discovery_info)
 
     async def async_update(self, *args, **kwargs) -> None:
         """Retrieve the latest state data from the client library."""
@@ -417,8 +478,26 @@ class EvoBroker:
         async_dispatcher_send(self.hass, DOMAIN)
 
 
-class EvoEntity(Entity):
+class RamsesEntity(Entity):
     """Base for any RAMSES II-compatible entity (e.g. Climate, Sensor)."""
+
+    entity_id: str = None  # type: ignore[assignment]
+    # _attr_assumed_state: bool = False
+    # _attr_attribution: str | None = None
+    # _attr_context_recent_time: timedelta = timedelta(seconds=5)
+    # _attr_device_info: DeviceInfo | None = None
+    # _attr_entity_category: EntityCategory | None
+    # _attr_has_entity_name: bool
+    # _attr_entity_picture: str | None = None
+    # _attr_entity_registry_enabled_default: bool
+    # _attr_entity_registry_visible_default: bool
+    # _attr_extra_state_attributes: MutableMapping[str, Any]
+    # _attr_force_update: bool
+    _attr_icon: str | None
+    _attr_name: str | None
+    _attr_should_poll: bool = True
+    _attr_unique_id: str | None = None
+    # _attr_unit_of_measurement: str | None
 
     def __init__(self, broker, device) -> None:
         """Initialize the entity."""
@@ -426,54 +505,14 @@ class EvoEntity(Entity):
         self._broker = broker
         self._device = device
 
-        self._unique_id = self._name = None
+        self._attr_should_poll = False
+
         self._entity_state_attrs = ()
 
         # NOTE: this is bad: self.update_ha_state(delay=5)
 
-    @callback
-    def async_handle_dispatch(self, *args) -> None:  # TODO: remove as unneeded?
-        """Process a dispatched message.
-
-        Data validation is not required, it will have been done upstream.
-        This routine is threadsafe.
-        """
-        if not args:
-            self.update_ha_state()
-
-    @callback
-    def update_ha_state(self, delay=1) -> None:
-        """Update HA state after a short delay to allow system to quiesce.
-
-        This routine is threadsafe.
-        """
-        args = (delay, self.async_schedule_update_ha_state)
-        self.hass.loop.call_soon_threadsafe(
-            self.hass.helpers.event.async_call_later, *args
-        )  # HACK: call_soon_threadsafe should not be needed
-
-    @callback  # TODO: WIP
-    def _call_client_api(self, func, *args, **kwargs) -> None:
-        """Wrap client APIs to make them threadsafe."""
-        # self.hass.loop.call_soon_threadsafe(
-        #     func(*args, **kwargs)
-        # )  # HACK: call_soon_threadsafe should not be needed
-
-        func(*args, **kwargs)
-        self.update_ha_state()
-
     @property
-    def should_poll(self) -> bool:
-        """Entities should not be polled."""
-        return False
-
-    @property
-    def unique_id(self) -> Optional[str]:
-        """Return a unique ID."""
-        return self._unique_id
-
-    @property
-    def extra_state_attributes(self) -> Dict[str, Any]:
+    def extra_state_attributes(self) -> dict[str, Any]:
         """Return the integration-specific state attributes."""
         attrs = {
             a: getattr(self._device, a)
@@ -486,30 +525,60 @@ class EvoEntity(Entity):
 
     async def async_added_to_hass(self) -> None:
         """Run when entity about to be added to hass."""
+        self._broker._entities[self.unique_id] = self
         async_dispatcher_connect(self.hass, DOMAIN, self.async_handle_dispatch)
 
+    @callback  # TODO: WIP
+    def _call_client_api(self, func, *args, **kwargs) -> None:
+        """Wrap client APIs to make them threadsafe."""
+        # self.hass.loop.call_soon_threadsafe(
+        #     func(*args, **kwargs)
+        # )  # HACK: call_soon_threadsafe should not be needed
 
-class EvoDeviceBase(EvoEntity):
+        func(*args, **kwargs)
+        self.update_ha_state()
+
+    @callback
+    def async_handle_dispatch(self, *args) -> None:  # TODO: remove as unneeded?
+        """Process a dispatched message.
+
+        Data validation is not required, it will have been done upstream.
+        This routine is threadsafe.
+        """
+        if not args:
+            self.update_ha_state()
+
+    @callback
+    def update_ha_state(self, delay=3) -> None:
+        """Update HA state after a short delay to allow system to quiesce.
+
+        This routine is threadsafe.
+        """
+        args = (delay, self.async_schedule_update_ha_state)
+        self.hass.loop.call_soon_threadsafe(
+            self.hass.helpers.event.async_call_later, *args
+        )  # HACK: call_soon_threadsafe should not be needed
+
+
+class RamsesDeviceBase(RamsesEntity):
     """Base for any RAMSES II-compatible entity (e.g. BinarySensor, Sensor)."""
 
     def __init__(
         self,
         broker,
         device,
-        device_id,
-        attr_name,
         state_attr,
-        device_class,
+        device_class=None,
     ) -> None:
         """Initialize the sensor."""
         super().__init__(broker, device)
 
-        self._unique_id = f"{device_id}-{attr_name}"
+        self.entity_id = f"{DOMAIN}.{device.id}-{state_attr}"
 
-        self._device_class = device_class
-        self._device_id = device.id  # e.g. 10:123456_alt
+        self._attr_device_class = device_class
+        self._attr_unique_id = f"{device.id}-{state_attr}"  # dont include domain (ramses_cc) / platform (binary_sesnor/sensor)
+
         self._state_attr = state_attr
-        self._state_attr_friendly_name = attr_name
 
     @property
     def available(self) -> bool:
@@ -517,87 +586,34 @@ class EvoDeviceBase(EvoEntity):
         return getattr(self._device, self._state_attr) is not None
 
     @property
-    def device_class(self) -> str:
-        """Return the device class of the sensor."""
-        return self._device_class
-
-    @property
-    def extra_state_attributes(self) -> Dict[str, Any]:
-        """Return the integration-specific state attributes."""
-        attrs = super().extra_state_attributes
-        attrs["device_id"] = self._device.id
-
-        if hasattr(self._device, "_domain_id"):
-            attrs["domain_id"] = self._device._domain_id
-        elif hasattr(self._device, "idx"):
-            attrs["domain_id"] = self._device.idx
-
-        if hasattr(self._device, "name"):
-            attrs["domain_name"] = self._device.name
-        else:
-            try:
-                attrs["domain_name"] = self._device.zone.name
-            except AttributeError:
-                pass
-
-        if hasattr(self._device, "role"):
-            attrs["role"] = self._device.role
-
-        return attrs
-
-    @property
     def name(self) -> str:
         """Return the name of the binary_sensor/sensor."""
         if not hasattr(self._device, "name") or not self._device.name:
-            return f"{self._device_id} {self._state_attr_friendly_name}"
-        return f"{self._device.name} {self._state_attr_friendly_name}"
+            return f"{self._device.id} {self._state_attr}"
+        return f"{self._device.name} {self._state_attr}"
 
 
-class EvoZoneBase(EvoEntity):
+class EvohomeZoneBase(RamsesEntity):
     """Base for any RAMSES RF-compatible entity (e.g. Controller, DHW, Zones)."""
+
+    _attr_precision: float = PRECISION_TENTHS
+    _attr_temperature_unit: str = TEMP_CELSIUS
 
     def __init__(self, broker, device) -> None:
         """Initialize the sensor."""
         super().__init__(broker, device)
 
-        self._unique_id = device.id
-
-        self._hvac_modes = None
-        self._preset_modes = None
-        self._supported_features = None
+        self._attr_unique_id = (
+            device.id
+        )  # dont include domain (ramses_cc) / platform (climate)
 
     @property
-    def current_temperature(self) -> Optional[float]:
+    def current_temperature(self) -> float | None:
         """Return the current temperature."""
         return self._device.temperature
 
     @property
-    def name(self) -> str:
-        """Return the name of the climate/water_heater entity."""
-        return self._device.name or self._device.id
-
-    @property
-    def supported_features(self) -> int:
-        """Return the list of supported features."""
-        return self._supported_features
-
-    @property
-    def temperature_unit(self) -> str:
-        """Return the unit of measurement used by the platform."""
-        return TEMP_CELSIUS
-
-    @property
-    def hvac_modes(self) -> List[str]:
-        """Return the list of available hvac operation modes."""
-        return self._hvac_modes
-
-    @property
-    def preset_modes(self) -> Optional[List[str]]:
-        """Return a list of available preset modes."""
-        return self._preset_modes
-
-    @property
-    def extra_state_attributes(self) -> Dict[str, Any]:
+    def extra_state_attributes(self) -> dict[str, Any]:
         """Return the integration-specific state attributes."""
         return {
             **super().extra_state_attributes,
@@ -605,3 +621,8 @@ class EvoZoneBase(EvoEntity):
             "params": self._device.params,
             # "schedule": self._device.schedule,
         }
+
+    @property
+    def name(self) -> str | None:
+        """Return the name of the climate/water_heater entity."""
+        return self._device.name

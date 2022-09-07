@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 """Support for Honeywell's RAMSES-II RF protocol, as used by CH/DHW & HVAC."""
+from __future__ import annotations
 
 from types import SimpleNamespace
 
@@ -30,7 +31,7 @@ ATTR_BATTERY_LEVEL = "battery_level"
 ATTR_SETPOINT = "setpoint"
 
 VOLUME_FLOW_RATE_LITERS_PER_MINUTE = "L/min"
-
+VOLUME_FLOW_RATE_LITERS_PER_SECOND = "L/s"
 
 DATA = "data"
 SERVICE = "service"

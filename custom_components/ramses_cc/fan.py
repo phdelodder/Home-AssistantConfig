@@ -8,7 +8,7 @@ Provides support for fan entities.
 from __future__ import annotations
 
 import logging
-from typing import Any, Dict
+from typing import Any
 
 from homeassistant.components.climate.const import (
     FAN_AUTO,
@@ -21,7 +21,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 
-from . import EvoEntity
+from . import RamsesEntity
 from .const import BROKER, DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
@@ -48,7 +48,7 @@ async def async_setup_platform(
         async_add_entities(new_entities)
 
 
-class RamsesFan(EvoEntity, FanEntity):
+class RamsesFan(RamsesEntity, FanEntity):
     """Base for a Honeywell HVAC unit (Fan, HRU, MVHR, PIV, etc)."""
 
     # Entity attrs...
@@ -69,9 +69,11 @@ class RamsesFan(EvoEntity, FanEntity):
         self._unique_id = device.id
 
     @property
-    def preset_mode(self) -> str | None:
-        """Return the current preset mode, e.g., auto, smart, interval, favorite."""
-        return FAN_AUTO
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return the integration-specific state attributes."""
+        return {
+            **super().extra_state_attributes,
+        }
 
     @property
     def name(self) -> str:
@@ -79,8 +81,6 @@ class RamsesFan(EvoEntity, FanEntity):
         return self._device.id
 
     @property
-    def extra_state_attributes(self) -> Dict[str, Any]:
-        """Return the integration-specific state attributes."""
-        return {
-            **super().extra_state_attributes,
-        }
+    def preset_mode(self) -> str | None:
+        """Return the current preset mode, e.g., auto, smart, interval, favorite."""
+        return FAN_AUTO

@@ -5,24 +5,25 @@
 
 Provides support for sensors.
 """
+from __future__ import annotations
 
 import logging
-from typing import Any, Dict, Optional
+from typing import Any
 
+from homeassistant.components.sensor import DOMAIN as PLATFORM
 from homeassistant.components.sensor import (
+    TEMP_CELSIUS,
     SensorDeviceClass,
     SensorEntity,
-    SensorEntityDescription,
     SensorStateClass,
 )
 from homeassistant.const import (
     CONCENTRATION_PARTS_PER_MILLION,
     PERCENTAGE,
-    TEMP_CELSIUS,
     TIME_MINUTES,
 )
-from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers.entity_platform import AddEntitiesCallback, current_platform
 from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 
 #
@@ -46,21 +47,32 @@ from ramses_rf.protocol.const import (
     SZ_SUPPLY_FLOW,
     SZ_SUPPLY_TEMPERATURE,
 )
-
-from . import EvoDeviceBase
-from .const import ATTR_SETPOINT, BROKER, DOMAIN, VOLUME_FLOW_RATE_LITERS_PER_MINUTE
-from .helpers import migrate_to_ramses_rf
-
-SENSOR_KEY_TEMPERATURE = "temperature"
-
-SENSOR_DESCRIPTION_TEMPERATURE = SensorEntityDescription(
-    key=SENSOR_KEY_TEMPERATURE,
-    name="Temperature",
-    device_class=SensorDeviceClass.TEMPERATURE,
-    native_unit_of_measurement=TEMP_CELSIUS,
-    state_class=SensorStateClass.MEASUREMENT,
+from ramses_rf.device.heat import (
+    SZ_BOILER_OUTPUT_TEMP,
+    SZ_BOILER_RETURN_TEMP,
+    SZ_BOILER_SETPOINT,
+    SZ_CH_MAX_SETPOINT,
+    SZ_CH_SETPOINT,
+    SZ_CH_WATER_PRESSURE,
+    SZ_DHW_FLOW_RATE,
+    SZ_DHW_SETPOINT,
+    SZ_DHW_TEMP,
+    SZ_MAX_REL_MODULATION,
+    SZ_OEM_CODE,
+    SZ_OUTSIDE_TEMP,
+    SZ_REL_MODULATION_LEVEL,
 )
-# sensor.entity_description = SENSOR_DESCRIPTION_TEMPERATURE
+
+from . import RamsesDeviceBase as RamsesDeviceBase
+from .const import (
+    ATTR_SETPOINT,
+    BROKER,
+    DOMAIN,
+    VOLUME_FLOW_RATE_LITERS_PER_MINUTE,
+    VOLUME_FLOW_RATE_LITERS_PER_SECOND,
+)
+from .helpers import migrate_to_ramses_rf
+from .schemas import SVCS_SENSOR
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -81,7 +93,7 @@ async def async_setup_platform(
 
     def entity_factory(broker, device, attr, *, entity_class=None, **kwargs):
         migrate_to_ramses_rf(hass, "sensor", f"{device.id}-{attr}")
-        return (entity_class or EvoSensor)(broker, device, attr, **kwargs)
+        return (entity_class or RamsesSensor)(broker, device, attr, **kwargs)
 
     if discovery_info is None:
         return
@@ -109,57 +121,72 @@ async def async_setup_platform(
 
     async_add_entities(new_sensors)
 
+    if not broker._services.get(PLATFORM) and new_sensors:
+        broker._services[PLATFORM] = True
 
-class EvoSensor(EvoDeviceBase, SensorEntity):
+        register_svc = current_platform.get().async_register_entity_service
+        [register_svc(k, v, f"svc_{k}") for k, v in SVCS_SENSOR.items()]
+
+
+class RamsesSensor(RamsesDeviceBase, SensorEntity):
     """Representation of a generic sensor."""
 
-    # _attr_state_class = SensorStateClass.MEASUREMENT  # oem_code is not a measurement
+    # Strictly: fan_info, oem_code are not a measurements
+    # _attr_native_unit_of_measurement: str = PERCENTAGE  # most common
+    _attr_state_class: SensorStateClass = SensorStateClass.MEASUREMENT  # all but 2
 
     def __init__(
         self,
-        broker,
-        device,
-        state_attr,
-        attr_name=None,
-        device_id=None,
-        device_class=None,
-        device_units=None,
-        **kwargs,
+        broker,  # ramses_cc broker
+        device,  # ramses_rf device
+        state_attr,  # key of attr_dict +/- _ot suffix
+        device_class=None,  # attr_dict value
+        device_units=None,  # attr_dict value
+        state_class=SensorStateClass.MEASUREMENT,  # attr_dict value, maybe None
+        **kwargs,  # leftover attr_dict values
     ) -> None:
         """Initialize a sensor."""
-        attr_name = attr_name or state_attr
-        device_id = device_id or device.id
 
-        _LOGGER.info("Found a Sensor for %s: %s", device_id, attr_name)
+        _LOGGER.info("Found a Sensor for %s: %s", device.id, state_attr)
 
         super().__init__(
             broker,
             device,
-            device_id,
-            attr_name,
             state_attr,
-            device_class,
+            device_class=device_class,
         )
 
-        self._unit_of_measurement = device_units  # or PERCENTAGE
+        self._attr_native_unit_of_measurement = device_units
+        self._attr_state_class = state_class
 
     @property
-    def state(self) -> Optional[Any]:  # int or float
+    def native_value(self) -> Any | None:  # int or float
         """Return the state of the sensor."""
         state = getattr(self._device, self._state_attr)
-        if self.unit_of_measurement == PERCENTAGE:
+        if self._attr_native_unit_of_measurement == PERCENTAGE:
             return None if state is None else state * 100
-        # if self.unit_of_measurement == TEMP_CELSIUS:
-        #     return None if state is None else int(state * 200) / 200
         return state
 
-    @property
-    def unit_of_measurement(self) -> str:
-        """Return the unit of measurement of the sensor."""
-        return self._unit_of_measurement
+
+class RamsesCo2Sensor(RamsesSensor):
+    """Representation of a generic sensor."""
+
+    @callback
+    def svc_put_co2_level(self, co2_level: int = None, **kwargs) -> None:
+        """Set the state of the Sensor."""
+        self._device.co2_level = co2_level
 
 
-class EvoHeatDemand(EvoSensor):
+class RamsesIndoorHumidity(RamsesSensor):
+    """Representation of a generic sensor."""
+
+    @callback
+    def svc_put_indoor_humidity(self, indoor_humidity: float = None, **kwargs) -> None:
+        """Set the state of the Sensor."""
+        self._device.indoor_humidity = indoor_humidity / 100
+
+
+class RamsesHeatDemand(RamsesSensor):
     """Representation of a heat demand sensor."""
 
     @property
@@ -168,11 +195,11 @@ class EvoHeatDemand(EvoSensor):
         return "mdi:radiator-off" if self.state == 0 else "mdi:radiator"
 
 
-class EvoModLevel(EvoSensor):
+class RamsesModLevel(RamsesSensor):
     """Representation of a heat demand sensor."""
 
     @property
-    def extra_state_attributes(self) -> Dict[str, Any]:
+    def extra_state_attributes(self) -> dict[str, Any]:
         """Return the integration-specific state attributes."""
         attrs = super().extra_state_attributes
 
@@ -185,7 +212,7 @@ class EvoModLevel(EvoSensor):
         return attrs
 
 
-class EvoRelayDemand(EvoSensor):
+class RamsesRelayDemand(RamsesSensor):
     """Representation of a relay demand sensor."""
 
     @property
@@ -194,11 +221,11 @@ class EvoRelayDemand(EvoSensor):
         return "mdi:power-plug" if self.state else "mdi:power-plug-off"
 
 
-class EvoTemperature(EvoSensor):
+class RamsesTemperature(RamsesSensor):
     """Representation of a temperature sensor (incl. DHW sensor)."""
 
     @property
-    def extra_state_attributes(self) -> Dict[str, Any]:
+    def extra_state_attributes(self) -> dict[str, Any]:
         """Return the integration-specific state attributes."""
         attrs = super().extra_state_attributes
         if hasattr(self._device, ATTR_SETPOINT):
@@ -206,7 +233,7 @@ class EvoTemperature(EvoSensor):
         return attrs
 
 
-class EvoFaultLog(EvoDeviceBase):
+class RamsesFaultLog(RamsesDeviceBase):
     """Representation of a system's fault log."""
 
     # DEVICE_CLASS = DEVICE_CLASS_PROBLEM
@@ -224,12 +251,12 @@ class EvoFaultLog(EvoDeviceBase):
         return self._device._fault_log._fault_log_done
 
     @property
-    def state(self) -> int:
+    def native_value(self) -> int:
         """Return the number of issues."""
         return len(self._fault_log)
 
     @property
-    def extra_state_attributes(self) -> Dict[str, Any]:
+    def extra_state_attributes(self) -> dict[str, Any]:
         """Return the device state attributes."""
         return {
             **super().extra_state_attributes,
@@ -242,125 +269,129 @@ class EvoFaultLog(EvoDeviceBase):
         pass
 
 
-DEVICE_CLASS = "device_class"
-DEVICE_UNITS = "device_units"
-ENTITY_CLASS = "entity_class"
+DEVICE_CLASS = "device_class"  # _attr_device_class
+DEVICE_UNITS = "device_units"  # _attr_native_unit_of_measurement
+ENTITY_CLASS = "entity_class"  # subclass of RamsesSensor
+STATE_CLASS = "state_class"  # _attr_state_class
+
+# These are all: SensorStateClass.MEASUREMENT
 
 SENSOR_ATTRS_HEAT = {
     # Special projects
-    "oem_code": {  # 3220/73
-        DEVICE_UNITS: None,
-    },
-    "percent": {  # 2401
+    SZ_OEM_CODE: {STATE_CLASS: None},  # 3220/73
+    "percent": {  # TODO: 2401
         DEVICE_UNITS: PERCENTAGE,
-        ENTITY_CLASS: EvoRelayDemand,
+        ENTITY_CLASS: RamsesRelayDemand,
     },
-    "value": {  # 2401
+    "value": {  # TODO: 2401
         DEVICE_UNITS: "units",
     },
     # SENSOR_ATTRS_BDR = {  # incl: actuator
     "relay_demand": {  # 0008
         DEVICE_UNITS: PERCENTAGE,
-        ENTITY_CLASS: EvoRelayDemand,
+        ENTITY_CLASS: RamsesRelayDemand,
     },
     "relay_demand_fa": {  # 0008
         DEVICE_UNITS: PERCENTAGE,
-        ENTITY_CLASS: EvoRelayDemand,
+        ENTITY_CLASS: RamsesRelayDemand,
     },
     "modulation_level": {  # 3EF0/3EF1
         DEVICE_UNITS: PERCENTAGE,
-        ENTITY_CLASS: EvoModLevel,
+        ENTITY_CLASS: RamsesModLevel,
     },
     # SENSOR_ATTRS_OTB = {  # excl. actuator
-    "boiler_output_temp": {  # 3200, 3220|19
+    SZ_BOILER_OUTPUT_TEMP: {  # 3200, 3220|19
         DEVICE_CLASS: SensorDeviceClass.TEMPERATURE,
         DEVICE_UNITS: TEMP_CELSIUS,
     },
-    "boiler_return_temp": {  # 3210, 3220|1C
+    SZ_BOILER_RETURN_TEMP: {  # 3210, 3220|1C
         DEVICE_CLASS: SensorDeviceClass.TEMPERATURE,
         DEVICE_UNITS: TEMP_CELSIUS,
     },
-    "boiler_setpoint": {  # 22D9, 3220|01
+    SZ_BOILER_SETPOINT: {  # 22D9, 3220|01
         DEVICE_CLASS: SensorDeviceClass.TEMPERATURE,
         DEVICE_UNITS: TEMP_CELSIUS,
     },
-    "ch_max_setpoint": {  # 1081, 3220|39
+    SZ_CH_MAX_SETPOINT: {  # 1081, 3220|39
         DEVICE_CLASS: SensorDeviceClass.TEMPERATURE,
         DEVICE_UNITS: TEMP_CELSIUS,
     },
-    "ch_setpoint": {  # 3EF0
+    SZ_CH_SETPOINT: {  # 3EF0
         DEVICE_CLASS: SensorDeviceClass.TEMPERATURE,
         DEVICE_UNITS: TEMP_CELSIUS,
     },
-    "ch_water_pressure": {  # 1300, 3220|12
+    SZ_CH_WATER_PRESSURE: {  # 1300, 3220|12
         DEVICE_CLASS: SensorDeviceClass.PRESSURE,
         DEVICE_UNITS: "bar",
     },
-    "dhw_flow_rate": {  # 12F0, 3220|13
+    SZ_DHW_FLOW_RATE: {  # 12F0, 3220|13
         DEVICE_UNITS: VOLUME_FLOW_RATE_LITERS_PER_MINUTE,
     },
-    "dhw_setpoint": {  # 10A0, 3220|38
+    SZ_DHW_SETPOINT: {  # 10A0, 3220|38
         DEVICE_CLASS: SensorDeviceClass.TEMPERATURE,
         DEVICE_UNITS: TEMP_CELSIUS,
     },
-    "dhw_temp": {  # 1290, 3220|1A
+    SZ_DHW_TEMP: {  # 1290, 3220|1A
         DEVICE_CLASS: SensorDeviceClass.TEMPERATURE,
         DEVICE_UNITS: TEMP_CELSIUS,
     },
-    "max_rel_modulation": {  # 3200|0E
+    SZ_MAX_REL_MODULATION: {  # 3200|0E
         DEVICE_UNITS: PERCENTAGE,
-        ENTITY_CLASS: EvoModLevel,
+        ENTITY_CLASS: RamsesModLevel,
     },
-    "outside_temp": {  # 1290, 3220|1B
+    SZ_OUTSIDE_TEMP: {  # 1290, 3220|1B
         DEVICE_CLASS: SensorDeviceClass.TEMPERATURE,
         DEVICE_UNITS: TEMP_CELSIUS,
     },
-    "rel_modulation_level": {  # 3EFx, 3200|11
+    SZ_REL_MODULATION_LEVEL: {  # 3EFx, 3200|11
         DEVICE_UNITS: PERCENTAGE,
-        ENTITY_CLASS: EvoModLevel,
+        ENTITY_CLASS: RamsesModLevel,
     },
     # SENSOR_ATTRS_OTH = {
     "heat_demand": {  # 3150
         DEVICE_UNITS: PERCENTAGE,
-        ENTITY_CLASS: EvoHeatDemand,
+        ENTITY_CLASS: RamsesHeatDemand,
     },
     "temperature": {
         DEVICE_CLASS: SensorDeviceClass.TEMPERATURE,
         DEVICE_UNITS: TEMP_CELSIUS,
-        ENTITY_CLASS: EvoTemperature,
+        ENTITY_CLASS: RamsesTemperature,
         "fakable": True,
     },
 }
+
 
 SENSOR_ATTRS_HVAC = {
     # "boost_timer": {DEVICE_UNITS: TIME_MINUTES,},
     # "fan_rate":    {DEVICE_UNITS: PERCENTAGE,},
     SZ_AIR_QUALITY: {
         DEVICE_UNITS: PERCENTAGE,
+        # DEVICE_CLASS: SensorDeviceClass.AQI,
     },
     SZ_AIR_QUALITY_BASE: {
         DEVICE_UNITS: PERCENTAGE,
+        # DEVICE_CLASS: SensorDeviceClass.AQI,
     },
     SZ_CO2_LEVEL: {
         DEVICE_CLASS: SensorDeviceClass.CO2,
         DEVICE_UNITS: CONCENTRATION_PARTS_PER_MILLION,
+        ENTITY_CLASS: RamsesCo2Sensor,
     },
     SZ_EXHAUST_FAN_SPEED: {
         DEVICE_UNITS: PERCENTAGE,
     },
     SZ_EXHAUST_FLOW: {
-        DEVICE_UNITS: None,
+        DEVICE_UNITS: VOLUME_FLOW_RATE_LITERS_PER_SECOND,
     },
     SZ_EXHAUST_TEMPERATURE: {
         DEVICE_CLASS: SensorDeviceClass.TEMPERATURE,
         DEVICE_UNITS: TEMP_CELSIUS,
     },
-    SZ_FAN_INFO: {
-        DEVICE_UNITS: None,
-    },
+    SZ_FAN_INFO: {STATE_CLASS: None},
     SZ_INDOOR_HUMIDITY: {
         DEVICE_CLASS: SensorDeviceClass.HUMIDITY,
         DEVICE_UNITS: PERCENTAGE,
+        ENTITY_CLASS: RamsesIndoorHumidity,
     },
     SZ_INDOOR_TEMPERATURE: {
         DEVICE_CLASS: SensorDeviceClass.TEMPERATURE,
@@ -382,6 +413,7 @@ SENSOR_ATTRS_HVAC = {
     },
     SZ_REMAINING_TIME: {
         DEVICE_UNITS: TIME_MINUTES,
+        # DEVICE_CLASS: SensorDeviceClass.DURATION,
     },
     SZ_SPEED_CAP: {
         DEVICE_UNITS: "units",
@@ -390,7 +422,7 @@ SENSOR_ATTRS_HVAC = {
         DEVICE_UNITS: PERCENTAGE,
     },
     SZ_SUPPLY_FLOW: {
-        DEVICE_UNITS: None,
+        DEVICE_UNITS: VOLUME_FLOW_RATE_LITERS_PER_SECOND,
     },
     SZ_SUPPLY_TEMPERATURE: {
         DEVICE_CLASS: SensorDeviceClass.TEMPERATURE,
