@@ -32,6 +32,7 @@
     - binary_sensor.motion_speelkamer
     - binary_sensor.motion_woonkamer
     - binary_sensor.motion_keuken
+    - binary_sensor.motion_garagepoort
     to: 'on'
   action:
   - service: variable.set_variable
@@ -923,7 +924,7 @@
     - condition: not
       conditions:
       - condition: state
-        entity_id: media_player.samsung_samsung_dtv_rcr
+        entity_id: media_player.tv
         state: 'on'
   action:
   - service: script.radio_beneden
@@ -1139,15 +1140,36 @@
   - platform: time
     at: 07:15
   - platform: state
-    entity_id: binary_sensor.motion_detected_bureau_in_last_hour,switch.laptop_power,light.bureau,light.bureau_spot,sensor.house_mode
+    entity_id:
+    - binary_sensor.motion_detected_bureau_in_last_hour
+    - switch.laptop_power
+    - light.bureau
+    - light.bureau_spot
+    - sensor.house_mode
+    for:
+      hours: 0
+      minutes: 5
+      seconds: 0
   - platform: state
-    entity_id: climate.huis
+    entity_id:
+    - climate.huis
     attribute: preset_mode
-    for: 00:01:00
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
+  - platform: numeric_state
+    entity_id: climate.bureau
+    attribute: current_temperature
+    below: 19
   condition:
   - condition: template
     value_template: '{{ is_state(''sensor.house_mode'', ''home'') or is_state(''sensor.house_mode'',
       ''guest'')  }}'
+  - condition: numeric_state
+    entity_id: climate.bureau
+    attribute: current_temperature
+    below: 19
   action:
   - choose:
     - conditions:
@@ -1167,25 +1189,9 @@
         data:
           temperature: 19
           entity_id: climate.bureau
-    - conditions:
-      - condition: or
-        conditions:
-        - condition: template
-          value_template: '{{state_attr(''calendar.delodderp_gmail_com'', ''start_time'')[0:10]
-            == states(''sensor.date'') and state_attr(''calendar.delodderp_gmail_com'',
-            ''start_time'')[11:16] == ''08:00'' and (state_attr(''calendar.delodderp_gmail_com'',
-            ''message'') == ''Afwezigheid : work from home'' or state_attr(''calendar.delodderp_gmail_com'',
-            ''message'') == ''Afwezigheid : Travaille à domicile'') and states(''sensor.time'')
-            >= ''07:00''  }}'
-      sequence:
-      - service: climate.set_temperature
-        data:
-          temperature: 17
-          entity_id: climate.bureau
     default:
-    - service: climate.set_preset_mode
+    - service: ramses_cc.reset_zone_mode
       data:
-        preset_mode: None
         entity_id: climate.bureau
   mode: single
 - id: '1612258410918'
@@ -1203,26 +1209,30 @@
       minutes: 15
       seconds: 0
   - platform: state
-    entity_id: climate.huis
+    entity_id:
+    - climate.huis
     attribute: preset_mode
     to: None
-    for: 00:01:00
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
   condition:
   - condition: template
     value_template: '{{ is_state(''sensor.house_mode'', ''home'') or is_state(''sensor.house_mode'',
       ''guest'')  }}'
+  - condition: state
+    entity_id: climate.huis
+    state: heat
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
   action:
   - choose:
     - conditions:
       - condition: or
         conditions:
-        - condition: template
-          value_template: '{{state_attr(''calendar.delodderp_gmail_com'', ''start_time'')[0:10]
-            == states(''sensor.date'') and state_attr(''calendar.delodderp_gmail_com'',
-            ''start_time'')[11:16] == ''08:00'' and (state_attr(''calendar.delodderp_gmail_com'',
-            ''message'') == ''Afwezigheid : work from home'' or state_attr(''calendar.delodderp_gmail_com'',
-            ''message'') == ''Afwezigheid : Travaille à domicile'') and states(''person.isabel'')
-            != ''home'' and states(''sensor.time'') >= ''08:00'' }}'
         - condition: and
           conditions:
           - condition: state
@@ -1231,15 +1241,26 @@
           - condition: template
             value_template: '{% set time = states(''sensor.time'') %}{{ ''08:00''
               < time < ''17:00'' }}'
+        - condition: and
+          conditions:
+          - condition: state
+            entity_id: person.philippe
+            state: home
+          - condition: not
+            conditions:
+            - condition: state
+              entity_id: person.isabel
+              state: home
+          - condition: time
+            after: 00:08:00
       sequence:
       - service: climate.set_temperature
         data:
           temperature: 16
           entity_id: climate.keuken
     default:
-    - service: climate.set_preset_mode
+    - service: ramses_cc.reset_zone_mode
       data:
-        preset_mode: None
         entity_id: climate.keuken
   mode: single
 - id: '1612538972636'
@@ -1312,10 +1333,14 @@
   - platform: state
     entity_id: sensor.house_mode
   - platform: state
-    entity_id: climate.huis
+    entity_id:
+    - climate.huis
     attribute: preset_mode
     to: None
-    for: 00:01:00
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
   condition:
   - condition: state
     entity_id: binary_sensor.school_vacation
@@ -1343,9 +1368,8 @@
           duration:
             minutes: 60
     default:
-    - service: climate.set_preset_mode
+    - service: ramses_cc.reset_zone_mode
       data:
-        preset_mode: None
         entity_id: climate.febe
   mode: single
 - id: '1614091814826'
@@ -1959,6 +1983,10 @@
     device_id: 65962faa56765255f81eb0cdd734dbbb
     entity_id: binary_sensor.motion_voordeur
     domain: binary_sensor
+    for:
+      hours: 0
+      minutes: 5
+      seconds: 0
   condition: []
   action:
   - service: light.turn_off
@@ -2035,14 +2063,22 @@
   - platform: state
     entity_id: sensor.04_231772_heat_demand
   - platform: state
-    entity_id: climate.inkom
+    entity_id:
+    - climate.inkom
     attribute: preset_mode
     to: none
     for:
       hours: 0
       minutes: 0
       seconds: 30
-  condition: []
+  condition:
+  - condition: state
+    entity_id: climate.huis
+    state: heat
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
   action:
   - choose:
     - conditions:
@@ -2083,15 +2119,23 @@
     entity_id: binary_sensor.motion_garagepoort
     domain: binary_sensor
   condition:
-  - condition: or
+  - condition: and
     conditions:
+    - condition: numeric_state
+      entity_id: sensor.motion_garagepoort_temperature
+      below: 25
+    - condition: or
+      conditions:
+      - condition: state
+        entity_id: sun.sun
+        state: below_horizon
+      - condition: state
+        entity_id: sensor.motion_garagepoort_lux
+        state: true
+        attribute: dark
     - condition: state
-      entity_id: sensor.motion_garagepoort_lux
-      state: true
-      attribute: dark
-    - condition: state
-      entity_id: sun.sun
-      state: below_horizon
+      entity_id: switch.garage_terras_verlichting_relay1
+      state: 'off'
   action:
   - service: light.turn_on
     target:
@@ -2108,6 +2152,10 @@
     device_id: 3fc7bc82e3c92c43eab4d08be8e949f0
     entity_id: binary_sensor.motion_garagepoort
     domain: binary_sensor
+    for:
+      hours: 0
+      minutes: 5
+      seconds: 0
   condition: []
   action:
   - service: light.turn_off
@@ -2240,4 +2288,56 @@
   - service: notify.hazilverberkenstraatbot
     data:
       message: Dalek is inactive - proberen terug te plaatsen naar het station
+  mode: single
+- id: '1662971324263'
+  alias: 'Climate: Set Margot slaapkamer temperature'
+  description: ''
+  trigger:
+  - platform: template
+    value_template: '{% set time = states(''sensor.time'') %} {{ (''15:30'' == time
+      and (now().weekday() == 0 )) or (''16:10'' == time and (now().weekday() == 1
+      or now().weekday() == 3 )) }}'
+  - platform: homeassistant
+    event: start
+  - platform: state
+    entity_id: sensor.house_mode
+  - platform: state
+    entity_id:
+    - climate.huis
+    attribute: preset_mode
+    to: None
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
+  condition:
+  - condition: state
+    entity_id: binary_sensor.school_vacation
+    state: 'off'
+  - condition: template
+    value_template: '{{ is_state(''sensor.house_mode'', ''home'') or is_state(''sensor.house_mode'',
+      ''guest'')  }}'
+  action:
+  - choose:
+    - conditions:
+      - condition: or
+        conditions:
+        - condition: template
+          value_template: '{% set time = states(''sensor.time'') %} {{ ''15:30'' <=
+            time < ''17:30'' and (now().weekday() == 0 ) }}'
+        - condition: template
+          value_template: '{% set time = states(''sensor.time'') %} {{ ''16:10'' <=
+            time < ''17:30'' and (now().weekday() == 1 or now().weekday() == 3 ) }}'
+      sequence:
+      - service: ramses_cc.set_zone_mode
+        data:
+          entity_id: climate.margot
+          mode: temporary_override
+          setpoint: 18
+          duration:
+            minutes: 60
+    default:
+    - service: ramses_cc.reset_zone_mode
+      data:
+        entity_id: climate.margot
   mode: single

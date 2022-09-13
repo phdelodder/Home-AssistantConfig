@@ -42,7 +42,7 @@ turn_off_switches_and_store_states:
     - switch.boiler_keuken
   - service: media_player.turn_off
     entity_id:
-    - media_player.samsung_samsung_dtv_rcr
+    - media_player.tv
     - media_player.keuken
     - media_player.woonkamer
     - media_player.bureau

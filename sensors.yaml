@@ -398,9 +398,9 @@
   sensors:
     vacuum_status:
       friendly_name: Status
-      value_template: 'Status: {{ states.vacuum.dalek.attributes.status }}'
+      value_template: 'Status: {{ state_attr("vacuum.dalek", "status") }}'
       icon_template: >
-        {% set val =  states.vacuum.dalek.attributes.status  %}
+        {% set val =  state_attr("vacuum.dalek", "status")  %}
         {% if val == 'Charging' %}
           mdi:battery-charging
         {% elif val == 'Cleaning' %}
@@ -415,13 +415,13 @@
           mdi:help-circle
         {% endif %}
     vacuum_fan_speed:
-      value_template: 'Mode: {{ states.vacuum.dalek.attributes.fan_speed }}'
+      value_template: 'Mode: {{ state_attr("vacuum.dalek", "fan_speed") }}'
       icon_template: 'mdi:speedometer'
     vacuum_battery:
       friendly_name: Vacuum Battery
-      value_template: 'Battery: {{ states.vacuum.dalek.attributes.battery_level }}'
+      value_template: 'Battery: {{ state_attr("vacuum.dalek", "battery_level") }}'
       unit_of_measurement: '%'
-      icon_template: '{{ states.vacuum.dalek.attributes.battery_icon }}'
+      icon_template: '{{ state_attr("vacuum.dalek", "battery_icon") }}'
     vacuum_cleaning_time:
       friendly_name: Time of Last Cycle
       value_template: >-
@@ -431,7 +431,7 @@
     vacuum_cleaned_area:
       friendly_name: Area of Last Cycle
       unit_of_measurement: 'm ²'
-      value_template: '{{ states.vacuum.dalek.attributes.cleaned_area }}'
+      value_template: '{{ state_attr("vacuum.dalek", "cleaned_area") }}'
       icon_template: 'mdi:ruler'
     vacuum_cleanmainbrush:
       friendly_name: Replace main brush
@@ -467,9 +467,9 @@
       icon_template: 'mdi:screwdriver'
     vacuum_do_not_disturb:
       friendly_name: Do Not Disturb
-      value_template: '{{ states.vacuum.dalek.attributes.do_not_disturb }}'
+      value_template: '{{ state_attr("vacuum.dalek", "do_not_disturb") }}'
       icon_template: >
-        {% set val =  states.vacuum.dalek.attributes.do_not_disturb  %}
+        {% set val =  state_attr("vacuum.dalek", "do_not_disturb")  %}
         {% if val == 'on' %}
           mdi:do-not-disturb
         {% else %}
@@ -531,13 +531,6 @@
   streetname: !secret ophaalkalender_streetname
   upcomingsensor: 1
   builtinicons: 1
-  
-- platform: mqtt
-  name: "Water Pump Flow Rate"
-  unit_of_measurement: "L/h"
-  state_topic: "smarthouse/water/flow-meter/1"
-  value_template: "{{ value_json.mL_per_min * 0.06 }}"
-  icon: mdi:water-pump
   
 - platform: integration
   source: sensor.water_pump_flow_rate

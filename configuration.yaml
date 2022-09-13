@@ -78,6 +78,7 @@ rest_command: !include rest_command.yaml
 utility_meter: !include utility_meter.yaml
 image_processing: !include image_processing.yaml
 template: !include template.yaml
+mqtt: !include mqtt.yaml
 
 python_script:
 
@@ -113,6 +114,7 @@ browser_mod:
 ramses_cc:
   serial_port: /dev/ttyUSB0
   restore_cache: true
+  scan_interval: 180
   packet_log:
     file_name: /config/ramses_cc_packet.log
     rotate_bytes: null
@@ -120,9 +122,9 @@ ramses_cc:
   ramses_rf:
     enable_eavesdrop: false
     enforce_known_list: true
-  01:223036: 
-    system:
-      appliance_control: 10:040239  # an OTB 
+  01:223036:
+    zones:
+      "00": {sensor: 01:223036}
   known_list:
     01:223036:
     10:040239:

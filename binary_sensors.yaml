@@ -96,15 +96,6 @@
       friendly_name: "Oprit Known Plate"
       value_template: !secret known_car_plate_template
 
-- platform: mqtt
-  name: "Oprit CCTV Motion"
-  state_topic: "cctv/oprit/motion"
-  device_class: motion
-  json_attributes_topic: "cctv/oprit/motion"
-  value_template: '{{ value_json.motion }}'
-  payload_off: "off"
-  payload_on: "on"
-
 - platform: template
   sensors:
     plant_attention:
