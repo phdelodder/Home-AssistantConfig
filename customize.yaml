@@ -1,7 +1,3 @@
-binary_sensor.Voordeur_bewegingssensor_sensor:
-  friendly_name: Voordeur bewegingssensor
-  device_class: motion
-  icon: mdi:walk
 binary_sensor.camera_garage_motion_sensor:
   friendly_name: Camera Garage bewegingssenor
   hidden: true
@@ -147,14 +143,6 @@ light.magichome1:
 input_boolean.cycle1_enable: {}
 sensor.afval_ophaal_dag:
   icon: mdi:calendar-today
-binary_sensor.voor_deur:
-  icon: mdi:door-closed
-binary_sensor.achter_deur:
-  icon: mdi:door-closed
-binary_sensor.keuken_deur:
-  icon: mdi:door-closed
-binary_sensor.garage_deur:
-  icon: mdi:door-closed
 sensor.dining_room_nest_protect_smoke_status:
   icon: mdi:fire
 sensor.dining_room_nest_protect_battery_health:
@@ -195,11 +183,6 @@ binary_sensor.inkom_nest_protect_online:
   icon: mdi:smoke-detector
 sensor.inkom_nest_protect_co_status:
   icon: mdi:skull-crossbones
-binary_sensor.motion_achterdeur:
-  device_class: motion
-  icon: ''
-person.philippe:
-  icon: /local/philippe-2.jpg?v=1
 binary_sensor.motion_achterdeur_mqtt:
   device_class: motion
 switch.oprit_motion_detection:

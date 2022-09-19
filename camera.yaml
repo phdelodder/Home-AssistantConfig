@@ -3,3 +3,19 @@
 - platform: generic
   name: Doods Oprit
   still_image_url: http://192.168.0.104:8123/local/snapshots/oprit_latest.jpg
+
+- platform: xiaomi_cloud_map_extractor
+  host: !secret xiaomi_vacuum_host
+  token: !secret xiaomi_vacuum_token
+  username: !secret xiaomi_cloud_username
+  password: !secret xiaomi_cloud_password
+  draw: ['all']
+  attributes:
+    - calibration_points
+  map_transformation:
+    scale: 1.5
+    trim: 
+      left: 20
+      right: 20
+      top: 15
+      bottom: 15

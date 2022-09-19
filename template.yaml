@@ -1,3 +1,14 @@
+- binary_sensor:
+  - name: Buiten Warmer
+    state: '{{ float(states("sensor.buiten_gemiddelde_temperatuur")) - float(0.5) > float(states("sensor.gang_eerste_temperature")) }}'
+  - name: Buiten Kouder
+    state: '{{ float(states("sensor.buiten_gemiddelde_temperatuur")) + float(1) < float(states("sensor.gang_eerste_temperature")) }}'
+  - name: Trash Collection Tomorrow Today
+    state: >-
+      {{ states('sensor.recycleapp_tomorrow') != 'None' or states('sensor.recycleapp_today') != 'None' }}
+  - name: Vacuum Empty Bin
+    state: >- 
+      {{ states('input_number.vacuum_number_of_runs') |int (0) >= states('input_number.vacuum_empty_bin_after_days') |int (0) }}
 - sensor:
   - name: Gas Meter
     state_class: total_increasing
@@ -6,8 +17,92 @@
     #aftrekken van 12767 voor 0 correctie
     state: "{{ (states('input_number.gas_meter') | float(0) - 12767) | float(0) * states('input_number.gas_conversion_factor') | float(0) }}"
     device_class: energy
-- binary_sensor:
-  - name: Buiten Warmer
-    state: '{{ float(states("sensor.buiten_gemiddelde_temperatuur")) - float(0.5) > float(states("sensor.gang_eerste_temperature")) }}'
-  - name: Buiten Kouder
-    state: '{{ float(states("sensor.buiten_gemiddelde_temperatuur")) + float(1) < float(states("sensor.gang_eerste_temperature")) }}'
+  - name: Number of Lights On
+    unique_id: number_of_lights_on
+    state: >- 
+      {{ states.light 
+        | rejectattr('attributes.is_deconz_group', 'eq', true)
+        | rejectattr('attributes.entity_id', 'defined') 
+        | selectattr('state', 'eq', 'on')
+        | list | count }}
+    icon: mdi:lightbulb-group
+  - name: Number of Doors Open
+    unique_id: number_of_doors_open
+    state: >-
+      {{ states | selectattr('entity_id','in',state_attr('group.all_doors','entity_id')) | selectattr('state','eq','on') | list | count | int}}
+    icon: mdi:door-open
+  - name: Number of Motion Sensors On
+    unique_id: number_of_motion_sensors_on
+    state: >-
+      {{ states | selectattr('entity_id','in',state_attr('group.all_motion_sensors','entity_id')) | selectattr('state','eq','on') | list | count | int}}
+    icon: mdi:motion-sensor
+  - name: Number of Climate Active
+    unique_id: number_of_climate_active
+    state: >-
+      {{ states | selectattr('entity_id','in',state_attr('group.all_climate_rooms','entity_id')) | selectattr('attributes.hvac_action', 'eq', 'heating') | list | count | int}}
+    icon: mdi:motion-sensor
+      # Aggregates emergency status from across all nest protects (CO and Smoke)
+  - name: Nest Protect Emergency Status
+    state: >-
+      {%  set sensors = [
+        states.sensor.dining_room_nest_protect_co_status,
+        states.sensor.inkom_nest_protect_co_status,
+        states.sensor.attic_nest_protect_co_status,
+        states.sensor.hallway_nest_protect_co_status,
+        states.sensor.dining_room_nest_protect_smoke_status,
+        states.sensor.inkom_nest_protect_smoke_status,
+        states.sensor.attic_nest_protect_smoke_status,
+        states.sensor.hallway_nest_protect_smoke_status] %}
+      {% if sensors | selectattr('state', 'eq', 'Emergency') | list | count > 0 %}
+        emergency
+      {% elif sensors | selectattr('state', 'eq', 'Warning') | list | count > 0 %}
+        warning
+      {% else %}
+        none
+      {% endif %}
+    icon: >-
+      {% if is_state('sensor.home_emergency', 'emergency') %}
+        mdi:alert-decagram
+      {% elif is_state('sensor.home_emergency', 'warning') %}
+        mdi:smoke-detector-alert
+      {% else %}
+        mdi:smoke-detector
+      {% endif %}
+- trigger:
+  - platform: state
+    entity_id: 
+      - binary_sensor.bureau_motion
+      - binary_sensor.speelkamer_motion
+      - binary_sensor.motion_achterdeur
+      - binary_sensor.oprit_camera
+      - binary_sensor.voordeur
+      - binary_sensor.achterdeur
+      - binary_sensor.keukendeur
+      - binary_sensor.garagedeur
+      - binary_sensor.motion_wc_boven
+      - binary_sensor.motion_wc_beneden
+      - binary_sensor.motion_gang_eerste_2
+      - binary_sensor.motion_gang_eerste_1
+      - binary_sensor.motion_inkom_1
+      - binary_sensor.motion_inkom_2
+      - binary_sensor.motion_gang_zolder
+      - binary_sensor.motion_voordeur
+      - binary_sensor.motion_bureau
+      - binary_sensor.motion_dressing
+      - binary_sensor.motion_speelkamer
+      - binary_sensor.motion_woonkamer
+      - binary_sensor.motion_keuken
+      - binary_sensor.motion_garagepoort
+      - binary_sensor.garagepoort_input
+    to: "on"
+  sensor: 
+    - name: Last Motion
+      unique_id: last_motion
+      icon: mdi:motion-sensor
+      state: >-
+        {{trigger.to_state.name.split(' sensor Motion')[0]}} - {{as_timestamp(trigger.to_state.last_changed)| timestamp_custom('%X') }}
+      attributes:
+        entity_id: >-
+          {{trigger.entity_id}}
+        last_detected: >-
+          {{as_timestamp(trigger.to_state.last_changed)| timestamp_custom('%X') }}

@@ -305,9 +305,9 @@ vacuum_notify:
       minutes: '{{ (total_time|float(0)/ 60) | round(0) }}'
   - choose:
     - conditions:
-      - condition: template
-        value_template: '{{ states(''input_number.vacuum_number_of_runs'') |int (0)
-          >= states(''input_number.vacuum_empty_bin_after_days'') |int (0) }}'
+      - condition: state
+        entity_id: binary_sensor.vacuum_empty_bin
+        state: 'on'
       sequence:
       - service: telegram_bot.send_message
         data_template:

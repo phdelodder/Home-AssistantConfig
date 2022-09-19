@@ -583,6 +583,8 @@
           kids home alone
         {% elif is_state('binary_sensor.guest_mode', 'on') %}
           guest
+        {% elif is_state('binary_sensor.night_mode', 'on') %}
+          night
         {% elif is_state('binary_sensor.no_one_home', 'off') %}
           home
         {% elif is_state('input_boolean.vacation_mode', 'on') %}
@@ -595,6 +597,8 @@
           mdi:home-circle-outline
         {% elif is_state('binary_sensor.guest_mode', 'on') %}
           mdi:alpha-g
+        {% elif is_state('binary_sensor.night_mode', 'on') %}
+          mdi:weather-night
         {% elif is_state('binary_sensor.no_one_home', 'off') %}
           mdi:home
         {% elif is_state('input_boolean.vacation_mode', 'on') %}

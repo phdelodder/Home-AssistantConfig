@@ -64,7 +64,6 @@ input_boolean: !include input_boolean.yaml
 input_number: !include input_number.yaml
 input_datetime: !include input_datetime.yaml
 notify: !include notify.yaml
-variable: !include variable.yaml
 sensor: !include sensors.yaml
 binary_sensor: !include binary_sensors.yaml
 media_player: !include media_players.yaml
@@ -92,7 +91,7 @@ telegram_bot:
 #vacuum:
 #  - platform: xiaomi_miio
 #    host: dalek.fritz.box
-#    token: !secret vacuum_xiaomi_token
+#    token: !secret xiaomi_vacuum_token
 
 ifttt:
   key: !secret ifttt-key  
@@ -108,8 +107,6 @@ stream:
 
 downloader:
   download_dir: www
-
-browser_mod:
 
 ramses_cc:
   serial_port: /dev/ttyUSB0

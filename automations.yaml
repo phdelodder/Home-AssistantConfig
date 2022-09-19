@@ -6,57 +6,6 @@
   action:
   - service: script.turn_on
     entity_id: script.start_up_home_assistant
-- id: Update Last Motion
-  alias: Update Last Motion
-  trigger:
-  - platform: state
-    entity_id:
-    - binary_sensor.bureau_motion
-    - binary_sensor.speelkamer_motion
-    - binary_sensor.motion_achterdeur
-    - binary_sensor.oprit_camera
-    - binary_sensor.voor_deur
-    - binary_sensor.achter_deur
-    - binary_sensor.keuken_deur
-    - binary_sensor.garage_deur
-    - binary_sensor.motion_wc_boven
-    - binary_sensor.motion_wc_beneden
-    - binary_sensor.motion_gang_eerste_2
-    - binary_sensor.motion_gang_eerste_1
-    - binary_sensor.motion_inkom_1
-    - binary_sensor.motion_inkom_2
-    - binary_sensor.motion_gang_zolder
-    - binary_sensor.motion_voordeur
-    - binary_sensor.motion_bureau
-    - binary_sensor.motion_dressing
-    - binary_sensor.motion_speelkamer
-    - binary_sensor.motion_woonkamer
-    - binary_sensor.motion_keuken
-    - binary_sensor.motion_garagepoort
-    to: 'on'
-  action:
-  - service: variable.set_variable
-    data:
-      variable: last_motion
-      attributes:
-        history_1: '{{ trigger.to_state.attributes.friendly_name|replace(''motion
-          sensor'','''') }}'
-        history_2: '{{ states.variable.last_motion.attributes.history_1 }}'
-        history_3: '{{ states.variable.last_motion.attributes.history_2 }}'
-        history_4: '{{ states.variable.last_motion.attributes.history_3 }}'
-        history_5: '{{ states.variable.last_motion.attributes.history_4 }}'
-        history_6: '{{ states.variable.last_motion.attributes.history_5 }}'
-        history_7: '{{ states.variable.last_motion.attributes.history_6 }}'
-        history_8: '{{ states.variable.last_motion.attributes.history_7 }}'
-        history_9: '{{ states.variable.last_motion.attributes.history_8 }}'
-        history_10: '{{ states.variable.last_motion.attributes.history_9 }}'
-      value: '{{ trigger.to_state.attributes.friendly_name|replace(''motion sensor'','''')
-        }}: {{as_timestamp(states.variable.last_motion.last_changed)| timestamp_custom(''%X'')
-        }}
-
-        '
-  initial_state: true
-  mode: single
 - id: '1575277594428'
   alias: Set night profile for oprit camera
   description: ''
@@ -85,13 +34,13 @@
   - condition: or
     conditions:
     - condition: state
-      entity_id: sensor.recycleapp_morgen
+      entity_id: sensor.recycleapp_tomorrow
       state: papier, pmd
     - condition: state
-      entity_id: sensor.recycleapp_morgen
+      entity_id: sensor.recycleapp_tomorrow
       state: restafval, gft
     - condition: state
-      entity_id: sensor.recycleapp_morgen
+      entity_id: sensor.recycleapp_tomorrow
       state: groenafval
   action:
   - data: {}
@@ -830,10 +779,11 @@
   trigger:
   - platform: state
     entity_id:
-    - binary_sensor.voor_deur
-    - binary_sensor.keuken_deur
-    - binary_sensor.achter_deur
-    - binary_sensor.garage_deur
+    - binary_sensor.voordeur
+    - binary_sensor.keukendeur
+    - binary_sensor.achterdeur
+    - binary_sensor.garagedeur
+    - binary_sensor.garagepoort_input
     from: 'off'
     to: 'on'
   condition:
@@ -847,10 +797,18 @@
       snapshot_entities: light.desk_lamp
   - variables:
       effect: '{{ state_attr(''light.desk_lamp'', ''effect'')}}'
+      notify_effect: Police
+  - if:
+    - condition: state
+      entity_id: trigger.entity_id
+      state: binary_sensor.garagepoort_input
+    then:
+    - variables:
+        notify_effect: Glitter
   - service: light.turn_on
     data:
       brightness_pct: 100
-      effect: Police
+      effect: '{{ notify_effect }}'
     target:
       entity_id: light.desk_lamp
   - delay: 00:01:00
@@ -1334,9 +1292,9 @@
     entity_id: sensor.house_mode
   - platform: state
     entity_id:
-    - climate.huis
+    - climate.febe
     attribute: preset_mode
-    to: None
+    to: none
     for:
       hours: 0
       minutes: 1
@@ -1348,6 +1306,9 @@
   - condition: template
     value_template: '{{ is_state(''sensor.house_mode'', ''home'') or is_state(''sensor.house_mode'',
       ''guest'')  }}'
+  - condition: state
+    entity_id: climate.febe
+    state: heat
   action:
   - choose:
     - conditions:
@@ -1377,12 +1338,12 @@
   description: ''
   trigger:
   - platform: state
-    entity_id: group.doordetection
+    entity_id: group.hourse_doors
     from: 'on'
     to: 'off'
     for: 00:05:00
   - platform: state
-    entity_id: group.doordetection
+    entity_id: group.hourse_doors
     from: 'off'
     to: 'on'
     for: 00:10:00
@@ -1399,7 +1360,7 @@
   - choose:
     - conditions:
       - condition: state
-        entity_id: group.doordetection
+        entity_id: group.hourse_doors
         state: 'on'
       sequence:
       - service: climate.set_preset_mode
@@ -1431,7 +1392,7 @@
   description: ''
   trigger:
   - platform: state
-    entity_id: binary_sensor.voor_deur,binary_sensor.achter_deur,binary_sensor.keuken_deur,binary_sensor.garage_deur
+    entity_id: groups.all_doors
     to: 'on'
   condition:
   - condition: state
@@ -1513,7 +1474,7 @@
     service: light.turn_on
   mode: single
 - id: '1624886218945'
-  alias: Droogkast Aan/Uit
+  alias: Garagepoort open/dicht
   description: ''
   trigger:
   - device_id: 04757106488845c38a60b36c28487bc3
@@ -1521,11 +1482,14 @@
     platform: device
     type: remote_button_short_press
     subtype: turn_on
+  - platform: tag
+    tag_id: 330a6459-b36f-4037-b948-01a2905886e5
   condition: []
   action:
-  - service: switch.toggle
+  - service: cover.toggle
+    data: {}
     target:
-      device_id: 8a3c2cdc29991ba22e958431889b1dca
+      entity_id: cover.garagepoort
   mode: single
 - id: '1626411842297'
   alias: 'Notify: Wekelijks Rapport Waterpomp '
@@ -1674,7 +1638,7 @@
   - type: opened
     platform: device
     device_id: 1ac8659c00be40d5bd1b34917eff12ff
-    entity_id: binary_sensor.voor_deur
+    entity_id: binary_sensor.voordeur
     domain: binary_sensor
   condition:
   - condition: or
@@ -1755,12 +1719,12 @@
   - type: opened
     platform: device
     device_id: 001630fa334040cbb0b0c8a42f35ab8c
-    entity_id: binary_sensor.achter_deur
+    entity_id: binary_sensor.achterdeur
     domain: binary_sensor
   - type: opened
     platform: device
     device_id: 051e5a9302f34036b5f10fe9276bdb14
-    entity_id: binary_sensor.keuken_deur
+    entity_id: binary_sensor.keukendeur
     domain: binary_sensor
   - platform: state
     entity_id: binary_sensor.motion_achterdeur
@@ -2303,9 +2267,9 @@
     entity_id: sensor.house_mode
   - platform: state
     entity_id:
-    - climate.huis
+    - climate.margot
     attribute: preset_mode
-    to: None
+    to: none
     for:
       hours: 0
       minutes: 1
@@ -2317,6 +2281,9 @@
   - condition: template
     value_template: '{{ is_state(''sensor.house_mode'', ''home'') or is_state(''sensor.house_mode'',
       ''guest'')  }}'
+  - condition: state
+    entity_id: climate.margot
+    state: heat
   action:
   - choose:
     - conditions:
@@ -2340,4 +2307,38 @@
     - service: ramses_cc.reset_zone_mode
       data:
         entity_id: climate.margot
+  mode: single
+- id: '1663239985985'
+  alias: 'Light: Toggle Garage Terras Verlichting'
+  description: ''
+  trigger:
+  - platform: tag
+    tag_id: aa6ea6da-b5e4-4125-a96c-af4166d850ee
+  condition: []
+  action:
+  - service: light.toggle
+    data: {}
+    target:
+      entity_id: light.garage_terras_verlichting_relay1
+  - service: light.turn_off
+    data: {}
+    target:
+      entity_id: light.verlichting_garage_voorkant
+  mode: single
+- id: '1663572727704'
+  alias: 'WFH: toggle'
+  description: ''
+  trigger:
+  - platform: tag
+    tag_id: 24afda90-94bf-44c5-8d44-3cf67ee94569
+  condition: []
+  action:
+  - service: input_boolean.toggle
+    data: {}
+    target:
+      entity_id: input_boolean.working_from_home
+  - service: switch.toggle
+    data: {}
+    target:
+      entity_id: switch.laptop_power
   mode: single

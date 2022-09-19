@@ -1,1 +1,29 @@
-
+- platform: template
+  covers:
+    garagepoort:
+      device_class: garage
+      friendly_name: "Garage Door"
+      value_template: >-
+        {% if is_state('binary_sensor.garagepoort_input','on') %}
+        Open
+        {% else %}
+        Closed
+        {% endif %}
+      open_cover:
+        service: switch.turn_on
+        data:
+          entity_id: switch.garagepoort
+      close_cover:
+        service: switch.turn_on
+        data:
+          entity_id: switch.garagepoort
+      stop_cover:
+        service: switch.turn_on
+        data:
+          entity_id: switch.garagepoort
+      icon_template: >-
+        {% if is_state('binary_sensor.garagepoort_input','on') %}
+        mdi:garage-open
+        {% else %}
+        mdi:garage
+        {% endif %}

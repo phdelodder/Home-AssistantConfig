@@ -4,12 +4,54 @@ Proximity:
      - proximity.philippe_home
      - proximity.isabel_home
 
-DoorDetection:
-  name: Door Detection
+house_doors:
+  name: House Doors
   entities:
-    - binary_sensor.voor_deur
-    - binary_sensor.keuken_deur
-    - binary_sensor.achter_deur
+    - binary_sensor.voordeur
+    - binary_sensor.keukendeur
+    - binary_sensor.achterdeur
+
+all_doors:
+  name: All Doors
+  entities:
+    - binary_sensor.voordeur
+    - binary_sensor.keukendeur
+    - binary_sensor.achterdeur
+    - binary_sensor.garagedeur
+    - binary_sensor.garagepoort_input
+
+all_motion_sensors:
+  name: All Motion Sensors
+  entities:
+    - binary_sensor.motion_achterdeur
+    - binary_sensor.motion_wc_boven
+    - binary_sensor.motion_wc_beneden
+    - binary_sensor.motion_gang_eerste_2
+    - binary_sensor.motion_gang_eerste_1
+    - binary_sensor.motion_inkom_1
+    - binary_sensor.motion_inkom_2
+    - binary_sensor.motion_gang_zolder
+    - binary_sensor.motion_voordeur
+    - binary_sensor.motion_bureau
+    - binary_sensor.motion_dressing
+    - binary_sensor.motion_speelkamer
+    - binary_sensor.motion_woonkamer
+    - binary_sensor.motion_keuken
+    - binary_sensor.motion_garagepoort
+
+all_climate_rooms:
+  name: All Climate Rooms
+  entities:
+    - climate.keuken
+    - climate.woonkamer
+    - climate.badkamer
+    - climate.bureau
+    - climate.dressing
+    - climate.slaapkamer
+    - climate.febe
+    - climate.inkom
+    - climate.margot
+    - climate.speelkamer
 
 persons:
   name: People

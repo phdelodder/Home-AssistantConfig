@@ -69,12 +69,12 @@
     motion_achter:
       friendly_name: Motion Achter
       value_template: >
-        {{ is_state('binary_sensor.motion_achterdeur', 'on') or is_state('binary_sensor.achter_deur', 'on')  or is_state('binary_sensor.keuken_deur', 'on')}}
+        {{ is_state('binary_sensor.motion_achterdeur', 'on') or is_state('binary_sensor.achterdeur', 'on')  or is_state('binary_sensor.keukendeur', 'on')}}
       device_class: motion
     motion_voor:
       friendly_name: Motion Voor
       value_template: >
-        {{ is_state('binary_sensor.motion_voordeur', 'on') or is_state('binary_sensor.voor_deur', 'on') }}
+        {{ is_state('binary_sensor.motion_voordeur', 'on') or is_state('binary_sensor.voordeur', 'on') }}
       device_class: motion
     school_vacation:
       friendly_name: School Vakantie
