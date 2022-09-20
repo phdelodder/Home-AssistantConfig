@@ -1526,82 +1526,6 @@
         | round (0) }} liter Vorige week: {{ state_attr('sensor.waterpump_water_usage_weekly_normaal',
         'last_period') | round (0) }} liter"
   mode: single
-- id: '1627036994004'
-  alias: 'Notify: Monitor Grill Temp'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: sensor.ibbq_probe_1_grill_alert_temp
-  condition: []
-  action:
-  - choose:
-    - conditions:
-      - condition: state
-        entity_id: sensor.ibbq_probe_1_grill_alert_temp
-        state: Alert
-      sequence:
-      - service: notify.mobile_app_pixel_5
-        data_template:
-          message: Grill temp outside limits. Currently {{ states('sensor.ibbq_temperature_probe_1')
-            }} °C
-          title: Grill Alert
-    - conditions:
-      - condition: state
-        entity_id: sensor.ibbq_probe_1_grill_alert_temp
-        state: Normal
-      sequence:
-      - service: notify.mobile_app_pixel_5
-        data_template:
-          message: Grill temp inside limits. Currently {{ states('sensor.ibbq_temperature_probe_1')
-            }} °C
-          title: Grill Alert
-    default: []
-  mode: single
-- id: '1627037302668'
-  alias: 'Notify: Probe 2 Target Temp'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: sensor.ibbq_probe_2_target_alert_temp
-    to: Alert
-  condition: []
-  action:
-  - service: notify.mobile_app_pixel_5
-    data_template:
-      message: Probe 2 has reached the target temp. Currently {{ states('sensor.ibbq_temperature_probe_2')
-        }} °C
-      title: Grill Alert
-  mode: single
-- id: '1627037302669'
-  alias: 'Notify: Probe 3 Target Temp'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: sensor.ibbq_probe_3_target_alert_temp
-    to: Alert
-  condition: []
-  action:
-  - service: notify.mobile_app_pixel_5
-    data_template:
-      message: Probe 3 has reached the target temp. Currently {{ states('sensor.ibbq_temperature_probe_3')
-        }} °C
-      title: Grill Alert
-  mode: single
-- id: '1627037302670'
-  alias: 'Notify: Probe 4 Target Temp'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: sensor.ibbq_probe_4_target_alert_temp
-    to: Alert
-  condition: []
-  action:
-  - service: notify.mobile_app_pixel_5
-    data_template:
-      message: Probe 4 has reached the target temp. Currently {{ states('sensor.ibbq_temperature_probe_4')
-        }} °C
-      title: Grill Alert
-  mode: single
 - id: '1629181945984'
   alias: 'Night Mode: Deactivate Weekday Vacation'
   description: ''
@@ -2349,4 +2273,30 @@
     data: {}
     target:
       entity_id: switch.laptop_power
+  mode: single
+- id: '1663664817431'
+  alias: 'Notify: BBQ Alert'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - sensor.ibbq_probe_1_grill_alert_temp
+    - sensor.ibbq_probe_2_target_alert_temp
+    - sensor.ibbq_temperature_probe_3
+    - sensor.ibbq_temperature_probe_4
+    to: Alert
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
+  condition: []
+  action:
+  - service: notify.mobile_app_pixel_5
+    data:
+      message: Grill needs your attention.
+      data:
+        actions:
+        - action: URI
+          title: Open BBQ View
+          uri: /overzicht-v2/bbq
   mode: single

@@ -743,26 +743,6 @@
           mdi:alert-circle-check
         {% endif %}
 
-- platform: rest
-  name: Glances - Bulldog - Uptime
-  value_template: '{{ value_json }}'
-  resource: http://bulldog.fritz.box:61208/api/3/uptime
-
-- platform: rest
-  name: Glances - Gastro - Uptime
-  value_template: '{{ value_json }}'
-  resource: http://gastro.fritz.box:61208/api/3/uptime
-
-- platform: rest
-  name: Glances - Xgin - Uptime
-  value_template: '{{ value_json }}'
-  resource: http://xgin.fritz.box:61208/api/3/uptime
-
-- platform: rest
-  name: Glances - Hentho - Uptime
-  value_template: '{{ value_json }}'
-  resource: http://hentho.fritz.box:61208/api/3/uptime
-
 - platform: min_max
   name: "Buiten Gemiddelde Temperatuur"
   type: mean
