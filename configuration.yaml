@@ -111,7 +111,7 @@ downloader:
 ramses_cc:
   serial_port: /dev/ttyUSB0
   restore_cache: true
-  scan_interval: 180
+  scan_interval: 60
   packet_log:
     file_name: /config/ramses_cc_packet.log
     rotate_bytes: null

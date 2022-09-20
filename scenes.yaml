@@ -172,16 +172,16 @@
       effect_list:
       - None
       - Candle_Flicker
-      brightness: 255
-      effect: Candle_Flicker
+      supported_color_modes:
+      - brightness
+      icon: mdi:string-lights
       friendly_name: Led Mini Kerstboom LED
-      supported_features: 45
-      state: 'on'
+      supported_features: 44
+      state: unavailable
     light.schouw:
-      min_mireds: 153
-      max_mireds: 500
       effect_list:
       - Android
+      - Aurora
       - Blends
       - Blink
       - Blink Rainbow
@@ -192,12 +192,13 @@
       - Candle Multi
       - Candy Cane
       - Chase
+      - Chase 2
+      - Chase 3
       - Chase Flash
       - Chase Flash Rnd
       - Chase Rainbow
       - Chase Random
       - Chunchun
-      - Circus
       - Colorful
       - Colorloop
       - Colortwinkles
@@ -207,7 +208,10 @@
       - Dissolve Rnd
       - Drip
       - Dynamic
+      - Dynamic Smooth
       - Fade
+      - Fairy
+      - Fairytwinkle
       - Fill Noise
       - Fire 2012
       - Fire Flicker
@@ -226,7 +230,6 @@
       - Lighthouse
       - Lightning
       - Loading
-      - Merry Christmas
       - Meteor
       - Meteor Smooth
       - Multi Comet
@@ -243,7 +246,6 @@
       - Phased Noise
       - Plasma
       - Police
-      - Police All
       - Popcorn
       - Pride 2015
       - Railway
@@ -251,11 +253,10 @@
       - Rainbow
       - Rainbow Runner
       - Random Colors
-      - Red & Blue
       - Ripple
       - Ripple Rainbow
       - Running
-      - Running 2
+      - Running Dual
       - Saw
       - Scan
       - Scan Dual
@@ -282,21 +283,27 @@
       - Sunrise
       - Sweep
       - Sweep Random
+      - TV Simulator
+      - Tetrix
       - Theater
       - Theater Rainbow
       - Traffic Light
-      - Tri Chase
       - Tri Fade
       - Tri Wipe
       - Twinkle
       - Twinklecat
       - Twinklefox
       - Twinkleup
-      - Two Areas
       - Two Dots
       - Washing Machine
       - Wipe
       - Wipe Random
+      supported_color_modes:
+      - rgb
+      icon: mdi:led-strip-variant
+      friendly_name: Schouw
+      supported_features: 36
+      color_mode: rgb
       brightness: 84
       hs_color:
       - 46.23
@@ -309,35 +316,54 @@
       - 0.515
       - 0.455
       effect: Solid
-      intensity: 128
-      palette: Default
-      playlist:
-      preset:
-      reverse: false
-      speed: 128
-      friendly_name: Schouw
-      icon: mdi:led-strip-variant
-      supported_features: 55
       state: 'on'
     light.staande_lamp_living:
       min_mireds: 140
       max_mireds: 650
+      supported_color_modes:
+      - color_temp
+      is_deconz_group: false
+      icon: mdi:floor-lamp
+      friendly_name: Staande Lamp Living
+      supported_features: 40
+      color_mode: color_temp
       brightness: 89
       color_temp: 425
-      is_deconz_group: false
-      friendly_name: Staande Lamp Living
-      supported_features: 43
+      hs_color:
+      - 29.294
+      - 78.165
+      rgb_color:
+      - 255
+      - 152
+      - 55
+      xy_color:
+      - 0.564
+      - 0.389
       state: 'on'
     light.kerstboom:
+      supported_color_modes:
+      - onoff
+      icon: mdi:pine-tree
       friendly_name: Kerstboom
       supported_features: 0
+      color_mode: onoff
       state: 'on'
     light.lamp_barkast:
-      brightness: 64
+      supported_color_modes:
+      - brightness
       is_deconz_group: false
       friendly_name: Lamp Barkast
-      supported_features: 41
+      supported_features: 40
+      color_mode: brightness
+      brightness: 64
       state: 'on'
+    input_boolean.woonkamer_scene:
+      editable: true
+      friendly_name: Woonkamer Scene On
+      state: 'on'
+  metadata:
+    input_boolean.woonkamer_scene:
+      entity_only: true
 - id: '157443790044'
   name: Woonkamer Morning
   entities:
@@ -345,16 +371,16 @@
       effect_list:
       - None
       - Candle_Flicker
-      brightness: 255
-      effect: None
+      supported_color_modes:
+      - brightness
+      icon: mdi:string-lights
       friendly_name: Led Mini Kerstboom LED
-      supported_features: 45
-      state: 'on'
+      supported_features: 44
+      state: unavailable
     light.schouw:
-      min_mireds: 153
-      max_mireds: 500
       effect_list:
       - Android
+      - Aurora
       - Blends
       - Blink
       - Blink Rainbow
@@ -365,12 +391,13 @@
       - Candle Multi
       - Candy Cane
       - Chase
+      - Chase 2
+      - Chase 3
       - Chase Flash
       - Chase Flash Rnd
       - Chase Rainbow
       - Chase Random
       - Chunchun
-      - Circus
       - Colorful
       - Colorloop
       - Colortwinkles
@@ -380,7 +407,10 @@
       - Dissolve Rnd
       - Drip
       - Dynamic
+      - Dynamic Smooth
       - Fade
+      - Fairy
+      - Fairytwinkle
       - Fill Noise
       - Fire 2012
       - Fire Flicker
@@ -399,7 +429,6 @@
       - Lighthouse
       - Lightning
       - Loading
-      - Merry Christmas
       - Meteor
       - Meteor Smooth
       - Multi Comet
@@ -416,7 +445,6 @@
       - Phased Noise
       - Plasma
       - Police
-      - Police All
       - Popcorn
       - Pride 2015
       - Railway
@@ -424,11 +452,10 @@
       - Rainbow
       - Rainbow Runner
       - Random Colors
-      - Red & Blue
       - Ripple
       - Ripple Rainbow
       - Running
-      - Running 2
+      - Running Dual
       - Saw
       - Scan
       - Scan Dual
@@ -455,21 +482,27 @@
       - Sunrise
       - Sweep
       - Sweep Random
+      - TV Simulator
+      - Tetrix
       - Theater
       - Theater Rainbow
       - Traffic Light
-      - Tri Chase
       - Tri Fade
       - Tri Wipe
       - Twinkle
       - Twinklecat
       - Twinklefox
       - Twinkleup
-      - Two Areas
       - Two Dots
       - Washing Machine
       - Wipe
       - Wipe Random
+      supported_color_modes:
+      - rgb
+      icon: mdi:led-strip-variant
+      friendly_name: Schouw
+      supported_features: 36
+      color_mode: rgb
       brightness: 84
       hs_color:
       - 46.23
@@ -482,35 +515,54 @@
       - 0.515
       - 0.455
       effect: Solid
-      intensity: 128
-      palette: Default
-      playlist:
-      preset:
-      reverse: false
-      speed: 128
-      friendly_name: Schouw
-      icon: mdi:led-strip-variant
-      supported_features: 55
       state: 'on'
     light.staande_lamp_living:
       min_mireds: 140
       max_mireds: 650
+      supported_color_modes:
+      - color_temp
+      is_deconz_group: false
+      icon: mdi:floor-lamp
+      friendly_name: Staande Lamp Living
+      supported_features: 40
+      color_mode: color_temp
       brightness: 184
       color_temp: 425
-      is_deconz_group: false
-      friendly_name: Staande Lamp Living
-      supported_features: 43
+      hs_color:
+      - 29.294
+      - 78.165
+      rgb_color:
+      - 255
+      - 152
+      - 55
+      xy_color:
+      - 0.564
+      - 0.389
       state: 'on'
     light.kerstboom:
+      supported_color_modes:
+      - onoff
+      icon: mdi:pine-tree
       friendly_name: Kerstboom
       supported_features: 0
+      color_mode: onoff
       state: 'on'
     light.lamp_barkast:
-      brightness: 120
+      supported_color_modes:
+      - brightness
       is_deconz_group: false
       friendly_name: Lamp Barkast
-      supported_features: 41
+      supported_features: 40
+      color_mode: brightness
+      brightness: 120
       state: 'on'
+    input_boolean.woonkamer_scene:
+      editable: true
+      friendly_name: Woonkamer Scene On
+      state: 'on'
+  metadata:
+    input_boolean.woonkamer_scene:
+      entity_only: true
 - id: '157443790054'
   name: Woonkamer Eve
   entities:
@@ -518,16 +570,16 @@
       effect_list:
       - None
       - Candle_Flicker
-      brightness: 255
-      effect: Candle_Flicker
+      supported_color_modes:
+      - brightness
+      icon: mdi:string-lights
       friendly_name: Led Mini Kerstboom LED
-      supported_features: 45
-      state: 'on'
+      supported_features: 44
+      state: unavailable
     light.schouw:
-      min_mireds: 153
-      max_mireds: 500
       effect_list:
       - Android
+      - Aurora
       - Blends
       - Blink
       - Blink Rainbow
@@ -538,12 +590,13 @@
       - Candle Multi
       - Candy Cane
       - Chase
+      - Chase 2
+      - Chase 3
       - Chase Flash
       - Chase Flash Rnd
       - Chase Rainbow
       - Chase Random
       - Chunchun
-      - Circus
       - Colorful
       - Colorloop
       - Colortwinkles
@@ -553,7 +606,10 @@
       - Dissolve Rnd
       - Drip
       - Dynamic
+      - Dynamic Smooth
       - Fade
+      - Fairy
+      - Fairytwinkle
       - Fill Noise
       - Fire 2012
       - Fire Flicker
@@ -572,7 +628,6 @@
       - Lighthouse
       - Lightning
       - Loading
-      - Merry Christmas
       - Meteor
       - Meteor Smooth
       - Multi Comet
@@ -589,7 +644,6 @@
       - Phased Noise
       - Plasma
       - Police
-      - Police All
       - Popcorn
       - Pride 2015
       - Railway
@@ -597,11 +651,10 @@
       - Rainbow
       - Rainbow Runner
       - Random Colors
-      - Red & Blue
       - Ripple
       - Ripple Rainbow
       - Running
-      - Running 2
+      - Running Dual
       - Saw
       - Scan
       - Scan Dual
@@ -628,21 +681,27 @@
       - Sunrise
       - Sweep
       - Sweep Random
+      - TV Simulator
+      - Tetrix
       - Theater
       - Theater Rainbow
       - Traffic Light
-      - Tri Chase
       - Tri Fade
       - Tri Wipe
       - Twinkle
       - Twinklecat
       - Twinklefox
       - Twinkleup
-      - Two Areas
       - Two Dots
       - Washing Machine
       - Wipe
       - Wipe Random
+      supported_color_modes:
+      - rgb
+      icon: mdi:led-strip-variant
+      friendly_name: Schouw
+      supported_features: 36
+      color_mode: rgb
       brightness: 255
       hs_color:
       - 46.23
@@ -655,47 +714,87 @@
       - 0.515
       - 0.455
       effect: Solid
-      intensity: 128
-      palette: Default
-      playlist:
-      preset:
-      reverse: false
-      speed: 128
-      friendly_name: Schouw
-      icon: mdi:led-strip-variant
-      supported_features: 55
       state: 'on'
     light.staande_lamp_living:
       min_mireds: 140
       max_mireds: 650
+      supported_color_modes:
+      - color_temp
+      is_deconz_group: false
+      icon: mdi:floor-lamp
+      friendly_name: Staande Lamp Living
+      supported_features: 40
+      color_mode: color_temp
       brightness: 234
       color_temp: 425
-      is_deconz_group: false
-      friendly_name: Staande Lamp Living
-      supported_features: 43
+      hs_color:
+      - 29.294
+      - 78.165
+      rgb_color:
+      - 255
+      - 152
+      - 55
+      xy_color:
+      - 0.564
+      - 0.389
       state: 'on'
     light.kerstboom:
+      supported_color_modes:
+      - onoff
+      icon: mdi:pine-tree
       friendly_name: Kerstboom
       supported_features: 0
+      color_mode: onoff
       state: 'on'
     light.lamp_barkast:
-      brightness: 209
+      supported_color_modes:
+      - brightness
       is_deconz_group: false
       friendly_name: Lamp Barkast
-      supported_features: 41
+      supported_features: 40
+      color_mode: brightness
+      brightness: 209
       state: 'on'
+    input_boolean.woonkamer_scene:
+      editable: true
+      friendly_name: Woonkamer Scene On
+      state: 'on'
+  metadata:
+    input_boolean.woonkamer_scene:
+      entity_only: true
 - id: '157443790543'
   name: Woonkamer Night
   entities:
     light.staande_lamp_living:
       min_mireds: 140
       max_mireds: 650
-      brightness: 254
-      color_temp: 140
+      supported_color_modes:
+      - color_temp
       is_deconz_group: false
+      icon: mdi:floor-lamp
       friendly_name: Staande Lamp Living
-      supported_features: 43
+      supported_features: 40
+      color_mode: color_temp
+      brightness: 254
+      color_temp: 250
+      hs_color:
+      - 26.812
+      - 34.87
+      rgb_color:
+      - 255
+      - 205
+      - 166
+      xy_color:
+      - 0.421
+      - 0.364
       state: 'on'
+    input_boolean.woonkamer_scene:
+      editable: true
+      friendly_name: Woonkamer Scene On
+      state: 'on'
+  metadata:
+    input_boolean.woonkamer_scene:
+      entity_only: true
 - id: '157443790045'
   name: Woonkamer Off
   entities:
@@ -703,14 +802,16 @@
       effect_list:
       - None
       - Candle_Flicker
+      supported_color_modes:
+      - brightness
+      icon: mdi:string-lights
       friendly_name: Led Mini Kerstboom LED
-      supported_features: 45
-      state: 'off'
+      supported_features: 44
+      state: unavailable
     light.schouw:
-      min_mireds: 153
-      max_mireds: 500
       effect_list:
       - Android
+      - Aurora
       - Blends
       - Blink
       - Blink Rainbow
@@ -721,12 +822,13 @@
       - Candle Multi
       - Candy Cane
       - Chase
+      - Chase 2
+      - Chase 3
       - Chase Flash
       - Chase Flash Rnd
       - Chase Rainbow
       - Chase Random
       - Chunchun
-      - Circus
       - Colorful
       - Colorloop
       - Colortwinkles
@@ -736,7 +838,10 @@
       - Dissolve Rnd
       - Drip
       - Dynamic
+      - Dynamic Smooth
       - Fade
+      - Fairy
+      - Fairytwinkle
       - Fill Noise
       - Fire 2012
       - Fire Flicker
@@ -755,7 +860,6 @@
       - Lighthouse
       - Lightning
       - Loading
-      - Merry Christmas
       - Meteor
       - Meteor Smooth
       - Multi Comet
@@ -772,7 +876,6 @@
       - Phased Noise
       - Plasma
       - Police
-      - Police All
       - Popcorn
       - Pride 2015
       - Railway
@@ -780,11 +883,10 @@
       - Rainbow
       - Rainbow Runner
       - Random Colors
-      - Red & Blue
       - Ripple
       - Ripple Rainbow
       - Running
-      - Running 2
+      - Running Dual
       - Saw
       - Scan
       - Scan Dual
@@ -811,47 +913,58 @@
       - Sunrise
       - Sweep
       - Sweep Random
+      - TV Simulator
+      - Tetrix
       - Theater
       - Theater Rainbow
       - Traffic Light
-      - Tri Chase
       - Tri Fade
       - Tri Wipe
       - Twinkle
       - Twinklecat
       - Twinklefox
       - Twinkleup
-      - Two Areas
       - Two Dots
       - Washing Machine
       - Wipe
       - Wipe Random
-      intensity: 128
-      palette: Default
-      playlist:
-      preset:
-      reverse: false
-      speed: 128
-      friendly_name: Schouw
+      supported_color_modes:
+      - rgb
       icon: mdi:led-strip-variant
-      supported_features: 55
+      friendly_name: Schouw
+      supported_features: 36
       state: 'off'
     light.staande_lamp_living:
       min_mireds: 140
       max_mireds: 650
+      supported_color_modes:
+      - color_temp
       is_deconz_group: false
+      icon: mdi:floor-lamp
       friendly_name: Staande Lamp Living
-      supported_features: 43
+      supported_features: 40
       state: 'off'
     light.kerstboom:
+      supported_color_modes:
+      - onoff
+      icon: mdi:pine-tree
       friendly_name: Kerstboom
       supported_features: 0
       state: 'off'
     light.lamp_barkast:
+      supported_color_modes:
+      - brightness
       is_deconz_group: false
       friendly_name: Lamp Barkast
-      supported_features: 41
+      supported_features: 40
       state: 'off'
+    input_boolean.woonkamer_scene:
+      editable: true
+      friendly_name: Woonkamer Scene On
+      state: 'off'
+  metadata:
+    input_boolean.woonkamer_scene:
+      entity_only: true
 - id: '1587621898182'
   name: Default Led Febe
   entities:

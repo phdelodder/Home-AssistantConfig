@@ -29,17 +29,17 @@
   - name: Number of Doors Open
     unique_id: number_of_doors_open
     state: >-
-      {{ states | selectattr('entity_id','in',state_attr('group.all_doors','entity_id')) | selectattr('state','eq','on') | list | count | int}}
+      {{ expand('group.all_doors') | selectattr('state','eq','on') | list | count | int }}
     icon: mdi:door-open
   - name: Number of Motion Sensors On
     unique_id: number_of_motion_sensors_on
     state: >-
-      {{ states | selectattr('entity_id','in',state_attr('group.all_motion_sensors','entity_id')) | selectattr('state','eq','on') | list | count | int}}
+      {{ expand('group.all_motion_sensors') | selectattr('state','eq','on') | list | count | int }}
     icon: mdi:motion-sensor
   - name: Number of Climate Active
     unique_id: number_of_climate_active
     state: >-
-      {{ states | selectattr('entity_id','in',state_attr('group.all_climate_rooms','entity_id')) | selectattr('attributes.hvac_action', 'eq', 'heating') | list | count | int}}
+      {{ expand('group.all_climate_rooms') | selectattr('attributes.hvac_action', 'eq', 'heating') | list | count | int }}
     icon: mdi:motion-sensor
       # Aggregates emergency status from across all nest protects (CO and Smoke)
   - name: Nest Protect Emergency Status

@@ -1309,6 +1309,10 @@
   - condition: state
     entity_id: climate.febe
     state: heat
+  - condition: numeric_state
+    entity_id: climate.febe
+    attribute: current_temperature
+    below: 16
   action:
   - choose:
     - conditions:
@@ -2284,6 +2288,10 @@
   - condition: state
     entity_id: climate.margot
     state: heat
+  - condition: numeric_state
+    entity_id: climate.margot
+    attribute: current_temperature
+    below: 16
   action:
   - choose:
     - conditions:

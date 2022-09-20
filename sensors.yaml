@@ -690,7 +690,7 @@
         {% else %}
           Normal
         {% endif %}
-      friendly_name: Grill (Probe 1) WTemp Alert 
+      friendly_name: Grill (Probe 1) Target Alert 
       icon_template: >-
         {% if (states('sensor.ibbq_temperature_probe_1') |int (0) ) < (states('input_number.grill_alert_low') |int (0) ) or (states('sensor.ibbq_temperature_probe_1') |int (0) )  > (states('input_number.grill_alert_high') |int (0) ) %}
           mdi:alert-circle
