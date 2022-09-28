@@ -47,7 +47,8 @@
     service: script.notify_afval
   mode: single
 - id: '1587360682923'
-  alias: Alarm Clock Philippe
+  alias: 'Alarm Clock: Trigger - Philippe'
+  description: ''
   trigger:
   - platform: template
     value_template: '{% set alarm_time = as_timestamp(states(''sensor.pixel_5_volgende_alarm''),
@@ -98,7 +99,8 @@
     service: mqtt.publish
   initial_state: true
 - id: Alarm Clock Febe
-  alias: Alarm Clock Febe
+  alias: 'Alarm Clock: Trigger - Febe'
+  description: ''
   trigger:
   - platform: template
     value_template: "{{ states('sensor.time') == \n    (state_attr('input_datetime.febe_next_alarm',
@@ -270,12 +272,18 @@
         }} µS/cm\n{%- endif %}"
     service: notify.hazilverberkenstraatbot
 - id: '1588439093079'
-  alias: Enable Alarm Margot
+  alias: 'Alarm Clock: Enable - Margot'
   description: ''
   trigger:
   - at: '18:00:00'
     platform: time
-  condition: []
+  condition:
+  - condition: state
+    entity_id: binary_sensor.school_vacation
+    state: 'off'
+  - condition: state
+    entity_id: binary_sensor.schooldag
+    state: 'on'
   action:
   - data: {}
     entity_id: input_boolean.margot_alarm_set
@@ -306,12 +314,18 @@
         entity_id: input_datetime.margot_next_alarm
     default: []
 - id: '1588439142845'
-  alias: Enable Alarm Febe
+  alias: 'Alarm Clock: Enable - Febe'
   description: ''
   trigger:
   - at: '18:00:00'
     platform: time
-  condition: []
+  condition:
+  - condition: state
+    entity_id: binary_sensor.school_vacation
+    state: 'off'
+  - condition: state
+    entity_id: binary_sensor.schooldag
+    state: 'on'
   action:
   - data: {}
     entity_id: input_boolean.febe_alarm_set
@@ -658,12 +672,12 @@
   trigger:
   - platform: state
     entity_id:
-    - binary_sensor.motion_wc_beneden
     - binary_sensor.motion_gang_eerste_2
     - binary_sensor.motion_gang_eerste_1
     - binary_sensor.motion_inkom_1
     - binary_sensor.motion_inkom_2
     - binary_sensor.motion_woonkamer
+    - binary_sensor.motion_keuken
     to: 'on'
   condition:
   - condition: state
@@ -741,9 +755,8 @@
     after: input_datetime.night_mode_start
     before: input_datetime.night_mode_weekday_end
   action:
-  - service: input_boolean.turn_on
+  - service: script.activate_night_mode
     data: {}
-    entity_id: input_boolean.night_mode
   mode: single
 - id: '1600927587299'
   alias: 'Night Mode: Deactivate Weekday'
@@ -799,9 +812,8 @@
       effect: '{{ state_attr(''light.desk_lamp'', ''effect'')}}'
       notify_effect: Police
   - if:
-    - condition: state
-      entity_id: trigger.entity_id
-      state: binary_sensor.garagepoort_input
+    - condition: template
+      value_template: '{{ trigger.entity_id == "binary_sensor.garagepoort_input" }}'
     then:
     - variables:
         notify_effect: Glitter
@@ -817,11 +829,6 @@
       entity_id: light.desk_lamp
     data: {}
   - scene: scene.notify_led_bureau
-  - service: light.turn_on
-    data:
-      effect: '{{ effect }}'
-    target:
-      entity_id: light.desk_lamp
   mode: single
 - id: '1600928588299'
   alias: 'Night Mode: Toggle'
@@ -938,9 +945,10 @@
         entity_id:
         - fan.cabinet_fan_1
         - fan.cabinet_fan_2
-        percentage: "{% if states('sensor.temperature_bureau') | int(0)> 28 %}\n  100\n{%
-          elif states('sensor.temperature_bureau') | int(0)> 25 %}\n  50\n{% elif
-          states('sensor.temperature_bureau') | int(0)>= 21 %}\n  25\n{% endif %}\n"
+        percentage: "{% if states('sensor.temperature_bureau') | int(0) > 28 %}\n
+          \ 100\n{% elif states('sensor.temperature_bureau') | int(0) > 25 %}\n  50\n{%
+          elif states('sensor.temperature_bureau') | int(0) >= 21 %}\n  25\n{% else
+          %}\n  10\n{% endif %}\n"
   mode: single
 - id: '1604346606992'
   alias: 'Security: MotionEye - Oprit'
@@ -1110,7 +1118,7 @@
       seconds: 0
   - platform: state
     entity_id:
-    - climate.huis
+    - climate.controller
     attribute: preset_mode
     for:
       hours: 0
@@ -1168,7 +1176,7 @@
       seconds: 0
   - platform: state
     entity_id:
-    - climate.huis
+    - climate.controller
     attribute: preset_mode
     to: None
     for:
@@ -1180,7 +1188,7 @@
     value_template: '{{ is_state(''sensor.house_mode'', ''home'') or is_state(''sensor.house_mode'',
       ''guest'')  }}'
   - condition: state
-    entity_id: climate.huis
+    entity_id: climate.controller
     state: heat
     for:
       hours: 0
@@ -1233,7 +1241,7 @@
   - platform: homeassistant
     event: start
   - platform: state
-    entity_id: climate.huis
+    entity_id: climate.controller
     attribute: preset_mode
     to: None
     for: 00:01:00
@@ -1358,7 +1366,7 @@
     value_template: '{{ is_state(''sensor.house_mode'', ''home'') or is_state(''sensor.house_mode'',
       ''guest'')  }}'
   - condition: template
-    value_template: '{{ is_state(''climate.huis'', ''heat'') or  is_state(''climate.huis'',
+    value_template: '{{ is_state(''climate.controller'', ''heat'') or  is_state(''climate.controller'',
       ''auto'') }}'
   action:
   - choose:
@@ -1370,9 +1378,9 @@
       - service: climate.set_preset_mode
         data:
           preset_mode: eco
-        entity_id: climate.huis
-      - wait_template: '{{ is_state_attr(''climate.huis'', ''preset_mode'', ''eco'')
-          }}'
+        entity_id: climate.controller
+      - wait_template: '{{ is_state_attr(''climate.controller'', ''preset_mode'',
+          ''eco'') }}'
       - service: climate.set_temperature
         data:
           entity_id:
@@ -1389,24 +1397,25 @@
     - service: climate.set_preset_mode
       data:
         preset_mode: None
-      entity_id: climate.huis
+      entity_id: climate.controller
   mode: single
 - id: '1618987551917'
   alias: 'Security: door opened but we are not home'
   description: ''
   trigger:
   - platform: state
-    entity_id: groups.all_doors
+    entity_id:
+    - groups.all_doors
     to: 'on'
   condition:
   - condition: state
     entity_id: binary_sensor.no_one_home
     state: 'on'
   - condition: state
-    entity_id: vacuum.dalek
-    state: docked
-  - condition: state
     entity_id: binary_sensor.guest_mode
+    state: 'off'
+  - condition: state
+    entity_id: binary_sensor.kids_home_alone
     state: 'off'
   action:
   - service: script.motion_detected
@@ -1965,7 +1974,7 @@
       seconds: 30
   condition:
   - condition: state
-    entity_id: climate.huis
+    entity_id: climate.controller
     state: heat
     for:
       hours: 0
@@ -2300,3 +2309,130 @@
           title: Open BBQ View
           uri: /overzicht-v2/bbq
   mode: single
+- id: '1663698242510'
+  alias: 'Calendar: School Vakantie ON'
+  description: ''
+  trigger:
+  - platform: calendar
+    event: start
+    offset: -0:0:0
+    entity_id: calendar.belgie_feestdagen_schoolvakanties_www_feestdagen_belgie_be
+  condition:
+  - condition: template
+    value_template: '{{ ''vakantie'' in trigger.calender_event.summary }}'
+  action:
+  - service: input_boolean.turn_on
+    data: {}
+    target:
+      entity_id: input_boolean.school_vacation
+  mode: single
+- id: '1663698518517'
+  alias: 'Calendar: School Vakantie OFF'
+  description: ''
+  trigger:
+  - platform: calendar
+    event: end
+    offset: -0:0:0
+    entity_id: calendar.belgie_feestdagen_schoolvakanties_www_feestdagen_belgie_be
+  condition:
+  - condition: template
+    value_template: '{{ ''vakantie'' in trigger.calender_event.summary }}'
+  action:
+  - service: input_boolean.turn_off
+    data: {}
+    target:
+      entity_id: input_boolean.school_vacation
+  mode: single
+- id: '1663758876615'
+  alias: 'Alarm Clock: Trigger - Margot'
+  description: ''
+  trigger:
+  - platform: template
+    value_template: "{{ states('sensor.time') == \n    (state_attr('input_datetime.margot_next_alarm',
+      'timestamp') - 300)\n         |timestamp_custom('%H:%M', false) }}"
+  condition:
+  - condition: state
+    entity_id: input_boolean.margot_alarm_set
+    state: 'on'
+  action:
+  - service: script.sunrise_wled
+    data:
+      wled_id: febe_led_bed
+      time: 5
+  - data: {}
+    entity_id: input_boolean.febe_alarm_set
+    service: input_boolean.turn_off
+  mode: single
+- id: '1663931907621'
+  alias: 'Notify: WFH still active'
+  description: ''
+  trigger:
+  - platform: time
+    at: '19:00:00'
+  condition:
+  - condition: state
+    entity_id: input_boolean.working_from_home
+    state: 'on'
+  action:
+  - variables:
+      action_off: '{{ ''OFF_'' ~ context.id }}'
+  - service: notify.mobile_app_pixel_5
+    data:
+      message: WFH is still on. Do you want to turn it off?
+      data:
+        actions:
+        - action: '{{ action_off }}'
+          title: Open
+  - wait_for_trigger:
+    - platform: event
+      event_type: mobile_app_notification_action
+      event_data:
+        action: '{{ action_off }}'
+    timeout:
+      hours: 0
+      minutes: 15
+      seconds: 0
+      milliseconds: 0
+  - alias: Perform the action
+    choose:
+    - conditions:
+      - condition: template
+        value_template: '{{ wait.trigger.event.data.action == action_off }}'
+      sequence:
+      - service: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.working_from_home
+        data: {}
+  mode: single
+- id: entities_with_low_battery_notification
+  alias: 'Notify: Entities with Low Battery Notification'
+  description: Create persistent notification if entities with low battery, dismiss
+    if none.
+  trigger:
+  - platform: state
+    entity_id: sensor.entities_with_low_battery
+    attribute: entity_id
+  condition:
+  - condition: template
+    value_template: '{{ ( trigger.to_state.state | float (0) ) is number and ( trigger.from_state.state
+      | float(0) ) is number }}'
+  action:
+  - if:
+    - condition: numeric_state
+      entity_id: sensor.entities_with_low_battery
+      below: 1
+    then:
+    - service: persistent_notification.dismiss
+      data:
+        notification_id: entities_with_low_battery
+    else:
+    - service: persistent_notification.create
+      data:
+        notification_id: entities_with_low_battery
+        title: Entities with Low Battery
+        message: "{% set ns = namespace(result=[]) %} {% for s in expand(state_attr('sensor.entities_with_low_battery',
+          'entity_id')) %} {% set ns.result = ns.result + [\n      \"**\" ~ s.name
+          ~ \"**\\n\"\n      ~ \"- *entity_id*: \" ~ s.entity_id ~ \"\\n\"\n      ~
+          \"- *state*: \" ~ s.state ~ \"\\n\"\n    ]\n  %}\n{% endfor %} {% set ns.result
+          = ns.result | sort %}\n  {{ ns.result | join('\\n') }}"
+  mode: restart

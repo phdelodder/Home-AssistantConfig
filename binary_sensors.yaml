@@ -79,12 +79,16 @@
     school_vacation:
       friendly_name: School Vakantie
       value_template: "{{ is_state('input_boolean.school_vacation','on') }}"
-    waterpomp:
-      friendly_name: Water Pomp
-      value_template: "{{ states('sensor.waterpomp') |int (0) > 1 }}"
 
 - platform: workday
   country: BE
+
+- platform: workday
+  name: Schooldag
+  country: BE
+  add_holidays:
+    - "2022-10-03"
+    - "2022-10-05"
 
 - platform: template
   sensors:

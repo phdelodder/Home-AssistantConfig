@@ -58,3 +58,7 @@ persons:
   entities:
     - person.philippe
     - person.isabel
+
+ignored_unavailable_entities:
+  entities:
+    - sensor.my_ignored_sensor

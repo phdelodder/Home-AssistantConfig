@@ -23,6 +23,10 @@ turn_off_indoor_lights:
     - light.gelijkvloers
     - light.eerste_verdiep
     - light.garage
+  - service: scene.turn_on
+    data: {}
+    target:
+      entity_id: scene.woonkamer_off
   icon: mdi:lightbulb
   mode: single
 turn_off_switches_and_store_states:
@@ -47,6 +51,7 @@ turn_off_switches_and_store_states:
     - media_player.woonkamer
     - media_player.bureau
   icon: mdi:light-switch
+  mode: single
 arriving:
   alias: Arriving at our house
   sequence:
@@ -104,9 +109,9 @@ set_thermostat_away:
   sequence:
   - data:
       preset_mode: away
-      entity_id: climate.huis
+      entity_id: climate.controller
     service: climate.set_preset_mode
-  - wait_template: '{{ is_state_attr(''climate.huis'', ''preset_mode'', ''away'')
+  - wait_template: '{{ is_state_attr(''climate.controller'', ''preset_mode'', ''away'')
       }}'
   - service: climate.set_temperature
     data:
@@ -129,8 +134,8 @@ set_thermostat_home:
   - data:
       preset_mode: Auto
     service: climate.set_preset_mode
-    entity_id: climate.huis
-  - wait_template: '{{ is_state(''climate.huis'', ''heat'') }}'
+    entity_id: climate.controller
+  - wait_template: '{{ is_state(''climate.controller'', ''heat'') }}'
   - data:
       entity_id:
       - climate.bureau
@@ -226,7 +231,8 @@ notify_afval:
   sequence:
   - service: notify.hazilverberkenstraatbot
     data_template:
-      message: '{{ states(''sensor.recycleapp_morgen'') }} morgen buiten zetten!'
+      message: '{{ states(''sensor.recycleapp_tomorrow'') }} morgen buiten zetten!'
+  mode: single
 notify_temperatuur_verschil_hoger:
   alias: Notify Temperatuur Verschil Warmer
   sequence:
@@ -455,10 +461,8 @@ vacuum_bin_feedback:
       - condition: template
         value_template: '{{ command == ''vacuumemptybindone'' }}'
       sequence:
-      - service: input_number.set_value
-        data:
-          entity_id: input_number.vacuum_number_of_runs
-          value: 0
+      - service: script.vacuum_empty_bin
+        data: {}
   - service: telegram_bot.answer_callback_query
     data_template:
       callback_query_id: '{{ callback_id }}'
@@ -504,18 +508,6 @@ guest_mode_feedback:
       message: '{% if (command == ''yesguest'') %} Guest Mode is active {% elif (command
         == ''noguest'') %} Guest Mode is not active {% endif %}'
   mode: single
-low_battery_notification:
-  sequence:
-  - service: persistent_notification.create
-    data_template:
-      title: Low Battery Device
-      message: '{{name}} has only {{battery}}% left!'
-      notification_id: lowbatterydevice{{entity_id}}
-dismiss_low_battery_notification:
-  sequence:
-  - service: persistent_notification.dismiss
-    data_template:
-      notification_id: lowbatterydevice{{entity_id}}
 wakeup_light_sunrise:
   alias: Wakeup Light Sunrise
   sequence:
@@ -599,6 +591,7 @@ activate_night_mode:
   - service: input_boolean.turn_on
     data:
       entity_id: input_boolean.night_mode
+  mode: single
 deactivate_night_mode:
   alias: Deactivate Night Mode
   sequence:
@@ -694,3 +687,13 @@ set_temperature_zone:
       duration:
         minutes: '{{ states(''input_number.verwarmingszone_looptijd'') | int (0) }}'
   mode: single
+vacuum_empty_bin:
+  alias: Vacuum Empty Bin
+  sequence:
+  - service: input_number.set_value
+    data:
+      value: 0
+    target:
+      entity_id: input_number.vacuum_number_of_runs
+  mode: single
+  icon: mdi:robot-vacuum

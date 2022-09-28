@@ -623,32 +623,9 @@
       value_template: >-
         {{ "%02d" % (states('input_number.oprit_last_cctv_motion_event') |int (0) ) }}
 
-- platform: template
-  sensors:
-    operatingstate:
-      value_template: "{{ state_attr('climate.huis', 'hvac_action') }}"
-      attribute_templates:
-          device_id: "{{ state_attr('binary_sensor.01_223036_schema', 'schema').system.heating_control }}"
-    
-    fc_heat_demand:
-      friendly_name: "Boiler Demand"
-      unit_of_measurement: "%"
-      value_template: >-
-        {{ state_attr('climate.huis', 'relay_demands').FC * 100 }}
-      attribute_templates:
-          device_id: "{{ state_attr('binary_sensor.01_223036_schema', 'schema').system.heating_control }}"
-
-    fc_relay_demand:
-      friendly_name: "heating_control (relay_demand)"
-      unit_of_measurement: "%"
-      value_template: >-
-        {{ state_attr('climate.huis', 'relay_demands').FC * 100 }}
-      attribute_templates:
-        device_id: "{{ state_attr('binary_sensor.01_223036_schema', 'schema').system.heating_control }}"
-
 - platform: history_stats
   name: Verwarmen Vandaag
-  entity_id: sensor.operatingstate
+  entity_id: sensor.operating_state
   state: 'heating'
   type: time
   start: '{{ now().replace(hour=0).replace(minute=0).replace(second=0) }}'
@@ -656,7 +633,7 @@
 
 - platform: history_stats
   name: Verwarmen Gisteren
-  entity_id: sensor.operatingstate
+  entity_id: sensor.operating_state
   state: 'heating'
   type: time
   end: '{{ now().replace(hour=0).replace(minute=0).replace(second=0) }}'
@@ -665,7 +642,7 @@
 
 - platform: history_stats
   name: Verwarmen 2 Dagen Geleden
-  entity_id: sensor.operatingstate
+  entity_id: sensor.operating_state
   state: 'heating'
   type: time
   end: '{{ as_timestamp( now().replace(hour=0).replace(minute=0).replace(second=0) ) - 86400 }}'
@@ -674,18 +651,108 @@
 
 - platform: history_stats
   name: Verwarmen Voorbij Week
-  entity_id: sensor.operatingstate
+  entity_id: sensor.operating_state
   state: 'heating'
   type: time
   end: '{{ now().replace(hour=0, minute=0, second=0) }}'
   duration:
     days: 7
+- platform: history_stats
+  name: flame_active_history_today
+  entity_id: binary_sensor.10_040239_flame_active
+  state: 'on'
+  type: time
+  start: '{{ now().replace(hour=0).replace(minute=0).replace(second=0) }}'
+  end: '{{ now() }}'
+- platform: history_stats
+  name: flame_active_history_yesterday
+  entity_id: binary_sensor.10_040239_flame_active
+  state: 'on'
+  type: time
+  end: '{{ now().replace(hour=0, minute=0, second=0) }}'
+  duration:
+    hours: 25
+- platform: history_stats
+  name: flame_active_history_week
+  entity_id: binary_sensor.10_040239_flame_active
+  state: 'on'
+  type: time
+  end: '{{ now().replace(hour=0, minute=0, second=0) }}'
+  duration:
+    days: 7
+- platform: history_stats
+  name: flame_active_history_month
+  entity_id: binary_sensor.10_040239_flame_active
+  state: 'on'
+  type: time
+  end: '{{ now().replace(hour=0, minute=0, second=0) }}'
+  duration:
+    days: 30
+- platform: history_stats
+  name: flame_active_history_year
+  entity_id: binary_sensor.10_040239_flame_active
+  state: 'on'
+  type: time
+  start: '{{ now().replace(month=1).replace(day=1).replace(hour=0).replace(minute=0).replace(second=0) }}'
+  end: '{{ now() }}'
+- platform: history_stats
+  name: flame_active_history_alltime
+  entity_id: binary_sensor.10_040239_flame_active
+  state: 'on'
+  type: time
+  start: '{{ 0 }}'
+  end: '{{ now() }}'  
+- platform: history_stats
+  name: heating_history_today
+  entity_id: sensor.operating_state
+  state: 'heating'
+  type: time
+  start: '{{ now().replace(hour=0).replace(minute=0).replace(second=0) }}'
+  end: '{{ now() }}'
+- platform: history_stats
+  name: heating_history_yesterday
+  entity_id: sensor.operating_state
+  state: 'heating'
+  type: time
+  end: '{{ now().replace(hour=0, minute=0, second=0) }}'
+  duration:
+    hours: 25
+- platform: history_stats
+  name: heating_history_week
+  entity_id: sensor.operating_state
+  state: 'heating'
+  type: time
+  end: '{{ now().replace(hour=0, minute=0, second=0) }}'
+  duration:
+    days: 7
+- platform: history_stats
+  name: heating_history_month
+  entity_id: sensor.operating_state
+  state: 'heating'
+  type: time
+  end: '{{ now().replace(hour=0, minute=0, second=0) }}'
+  duration:
+    days: 30
+- platform: history_stats
+  name: heating_history_year
+  entity_id: sensor.operating_state
+  state: 'heating'
+  type: time
+  start: '{{ now().replace(month=1).replace(day=1).replace(hour=0).replace(minute=0).replace(second=0) }}'
+  end: '{{ now() }}'
+- platform: history_stats
+  name: heating_history_alltime
+  entity_id: sensor.operating_state
+  state: 'heating'
+  type: time
+  start: '{{ 0 }}'
+  end: '{{ now() }}'
 
 - platform: template
   sensors:
     ibbq_probe_1_grill_alert_temp:
       value_template: >-
-        {% if (states('sensor.ibbq_temperature_probe_1') |int (0) ) < (states('input_number.grill_alert_low') |int (0) ) or (states('sensor.ibbq_temperature_probe_1') |int (0) )  > (states('input_number.grill_alert_high') |int (0) ) %}
+        {% if (states('sensor.ibbq_temperature_probe_1') | int > 0) and (states('sensor.ibbq_temperature_probe_1') |int (0) ) < (states('input_number.grill_alert_low') |int (0) ) or (states('sensor.ibbq_temperature_probe_1') |int (0) )  > (states('input_number.grill_alert_high') |int (0) ) %}
           Alert
         {% else %}
           Normal

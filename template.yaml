@@ -1,22 +1,48 @@
 - binary_sensor:
   - name: Buiten Warmer
-    state: '{{ float(states("sensor.buiten_gemiddelde_temperatuur")) - float(0.5) > float(states("sensor.gang_eerste_temperature")) }}'
+    state: '{{ float(states("sensor.buiten_gemiddelde_temperatuur") | default) - float(0.5) > float(states("sensor.gang_eerste_temperature") | default) }}'
   - name: Buiten Kouder
-    state: '{{ float(states("sensor.buiten_gemiddelde_temperatuur")) + float(1) < float(states("sensor.gang_eerste_temperature")) }}'
+    state: '{{ float(states("sensor.buiten_gemiddelde_temperatuur") | default) + float(1) < float(states("sensor.gang_eerste_temperature") | default) }}'
   - name: Trash Collection Tomorrow Today
     state: >-
       {{ states('sensor.recycleapp_tomorrow') != 'None' or states('sensor.recycleapp_today') != 'None' }}
   - name: Vacuum Empty Bin
     state: >- 
       {{ states('input_number.vacuum_number_of_runs') |int (0) >= states('input_number.vacuum_empty_bin_after_days') |int (0) }}
+  - name: WFH
+    state: >-
+      {{ is_state('binary_sensor.workday_sensor', 'on') 
+          and states('calendar.delodderp_gmail_com') | lower != 'verlof' 
+          and states('proximity.philippe_home') | int < 10 }}
+  - name: wasmachine
+    unique_id: wasmachine
+    state: "{{ states('sensor.wasmachine') | float(0) >= 3 }}"
+    delay_off:
+      minutes: 5
+    icon: mdi:washing-machine
+    device_class: running
+  - name: droogkast
+    unique_id: droogkast
+    state: "{{ states('sensor.droogkast') | float(0) >= 3 }}"
+    delay_off:
+      minutes: 5
+    icon: mdi:tumble-dryer
+    device_class: running
+  - name: vaatwas
+    unique_id: vaatwas
+    state: "{{ states('sensor.vaatwas') | float(0) >= 3 }}"
+    delay_off:
+      minutes: 5
+    icon: mdi:dishwasher
+    device_class: running
+  - name: waterpomp
+    unique_id: waterpomp
+    state: "{{ states('sensor.waterpomp') | float(0) > 1 or states('sensor.water_pump_flow_rate') | float(0) > 0 }}"
+    delay_off:
+      seconds: 15
+    icon: mdi:pump
+    device_class: running
 - sensor:
-  - name: Gas Meter
-    state_class: total_increasing
-    icon: mdi:counter
-    unit_of_measurement: kWh
-    #aftrekken van 12767 voor 0 correctie
-    state: "{{ (states('input_number.gas_meter') | float(0) - 12767) | float(0) * states('input_number.gas_conversion_factor') | float(0) }}"
-    device_class: energy
   - name: Number of Lights On
     unique_id: number_of_lights_on
     state: >- 
@@ -68,6 +94,74 @@
       {% else %}
         mdi:smoke-detector
       {% endif %}
+  - name: "Unavailable Entities"
+    unique_id: unavailable_entities
+    icon: "{{ iif(states(this.entity_id)|int(0) > 0,'mdi:alert-circle','mdi:check-circle') }}"
+    unit_of_measurement: entities
+    state: >
+      {% set entities = state_attr(this.entity_id,'entity_id') %}
+      {% if entities != none %} {{ entities|count }} {% endif %}
+    attributes:
+      entity_id: >
+        {% set ignore_seconds = 60 %}
+        {% set ignored = state_attr('group.ignored_unavailable_entities','entity_id') %}
+        {% set ignore_ts = (now().timestamp() - ignore_seconds)|as_datetime %}
+        {% set entities = states|rejectattr('domain','eq','group')
+            |rejectattr('last_changed','ge',ignore_ts)
+            |selectattr('state','in',['unavailable','unknown']) %}
+        {% if ignored != none %}
+          {% set entities =  entities|rejectattr('entity_id','in',ignored) %}
+        {% endif %}
+        {{ entities|map(attribute='entity_id')|list }}
+  - name: "Entities with Low Battery"
+    unique_id: entities_with_low_battery
+    unit_of_measurement: entities
+    state: >
+      {% set entities = state_attr(this.entity_id,'entity_id') %}
+      {% if entities != none %} {{ entities|count }} {% endif %}
+    attributes:
+      entity_id: >-
+        {% set ignore_entities = [] %}
+
+        {% set entities = states.sensor
+        | selectattr('attributes.device_class', 'defined')
+        | selectattr('attributes.device_class', 'eq', 'battery')
+        | rejectattr('entity_id', 'in', ignore_entities)
+        | rejectattr('state','in',['unavailable','unknown']) %}
+
+        {% set ns = namespace(low_entities=[]) %}
+        {% for x in entities %}
+          {% if x.state|int < 30 %}
+            {% set ns.low_entities = ns.low_entities + [x.entity_id] %}
+          {% endif -%}
+        {% endfor %}
+        {{ ns.low_entities | list }}
+    icon: >-
+      {% if is_state('sensor.entities_with_low_battery', '0') %}
+        mdi:battery-check
+      {% else %}
+        mdi:battery-alert
+      {% endif %}
+
+      - platform: template
+
+  - name: "Operating State"
+    unique_id: "operating_state"
+    state: >-
+      {% if state_attr('climate.controller', 'hvac_action') != None %}
+        {{ state_attr('climate.controller', 'hvac_action') }}
+      {% endif %}
+  
+  - name: "Heat Demands"
+    unique_id: fc_heat_demand
+    unit_of_measurement: "%"
+    state: >-
+      {% if state_attr('climate.controller', 'heat_demands') != None %}
+        {% if state_attr('climate.controller', 'heat_demands').get('FC') != None %}
+          {{ state_attr('climate.controller', 'heat_demands').FC * 100 }}
+        {% endif %}
+      {% endif %}
+
 - trigger:
   - platform: state
     entity_id: 

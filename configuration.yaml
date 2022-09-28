@@ -10,6 +10,7 @@ homeassistant:
       trusted_networks:
         - 192.168.0.0/24
         - fd00::/8
+  external_url: !secret external_url
 
 # Configure a default setup of Home Assistant (frontend, api, etc)
 default_config:
@@ -34,10 +35,11 @@ logger:
 tts:
   - platform: google_translate
     language: nl
-    base_url: https://ha.delodder.be
 
 frontend:
   themes: !include_dir_merge_named themes
+  extra_module_url:
+    - /local/card-mod.js
 
 recorder:
   db_url: !secret db_url
@@ -119,11 +121,12 @@ ramses_cc:
     enable_eavesdrop: false
     enforce_known_list: true
   01:223036:
+    system:
+      appliance_control: 10:040239 
     zones:
       "00": {sensor: 01:223036}
   known_list:
-    01:223036:
-    10:040239:
+    01:223036:                            # Evohome (Temperature control system)
     04:231770:
     04:231772:
     04:231774:
@@ -137,3 +140,5 @@ ramses_cc:
     04:155551:
     04:155533:
     04:155537:
+    10:040239:                            # OTB
+    18:005567:                            # Honeywell HGI80
