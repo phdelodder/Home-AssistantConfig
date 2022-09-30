@@ -1405,7 +1405,7 @@
   trigger:
   - platform: state
     entity_id:
-    - groups.all_doors
+    - group.all_doors
     to: 'on'
   condition:
   - condition: state

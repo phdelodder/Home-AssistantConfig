@@ -261,16 +261,23 @@ motion_detected:
     data_template:
       entity_id: camera.oprit
       filename: /config/www/snapshots/camera.oprit.jpg
+    enabled: false
   - variables:
       friendly_name: '{{ state_attr(sensor, ''friendly_name'') }}'
   - service: notify.hazilverberkenstraatbot
-    data_template:
+    data:
       message: Buiten beweging gedetecteerd, {{ friendly_name }}
       data:
         photo:
         - file: /config/www/snapshots/camera.oprit.jpg
           caption: Beweging gedecteerd door {{ friendly_name }}
+    enabled: false
+  - service: notify.hazilverberkenstraatbot
+    data:
+      message: Beweging gedetecteerd, {{ friendly_name }}
   - service: script.ask_to_active_guest_mode
+    data: {}
+  max: 10
 vacuum_notify:
   alias: Vacuum Notify
   mode: single
