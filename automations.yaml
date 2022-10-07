@@ -1130,8 +1130,7 @@
     below: 19
   condition:
   - condition: template
-    value_template: '{{ is_state(''sensor.house_mode'', ''home'') or is_state(''sensor.house_mode'',
-      ''guest'')  }}'
+    value_template: '{{ states(''sensor.house_mode'') != ''away'' }}'
   - condition: numeric_state
     entity_id: climate.bureau
     attribute: current_temperature
@@ -1236,8 +1235,6 @@
   - platform: state
     entity_id: binary_sensor.motion_speelkamer
     for: 00:10:00
-  - platform: state
-    entity_id: light.speelkamer
   - platform: homeassistant
     event: start
   - platform: state
@@ -1247,6 +1244,9 @@
     for: 00:01:00
   - platform: state
     entity_id: sensor.house_mode
+  - platform: state
+    entity_id:
+    - light.speelkamer
   condition:
   - condition: template
     value_template: '{{ is_state(''sensor.house_mode'', ''home'') or is_state(''sensor.house_mode'',
@@ -1420,7 +1420,8 @@
   action:
   - service: script.motion_detected
     data:
-      sensor: '{{ trigger.entity_id }}'
+      sensor: "{{ ( expand('group.all_doors')\n  | sort(reverse=true, attribute='last_changed')\n
+        \ | map(attribute='name')\n  | list )[0] }}"
   mode: single
 - id: '1620915049409'
   alias: Led Margot Aan
@@ -1613,13 +1614,13 @@
   - condition: or
     conditions:
     - condition: state
-      entity_id: sensor.gang_eerste_motion_sensor_1
-      state: false
-      attribute: daylight
-    - condition: state
       entity_id: sensor.gang_eerste_motion_sensor_2
-      state: true
       attribute: dark
+      state: true
+    - condition: state
+      entity_id: sensor.gang_eerste_motion_sensor_1
+      attribute: daylight
+      state: false
   action:
   - choose:
     - conditions:
@@ -2272,16 +2273,24 @@
   trigger:
   - platform: tag
     tag_id: 24afda90-94bf-44c5-8d44-3cf67ee94569
+  - platform: state
+    entity_id:
+    - input_boolean.working_from_home
   condition: []
   action:
-  - service: input_boolean.toggle
-    data: {}
-    target:
-      entity_id: input_boolean.working_from_home
   - service: switch.toggle
     data: {}
     target:
       entity_id: switch.laptop_power
+  - if:
+    - condition: template
+      value_template: '{{ trigger.entity_id != ''input_boolean.working_from_home''
+        }}'
+    then:
+    - service: input_boolean.toggle
+      data: {}
+      target:
+        entity_id: input_boolean.working_from_home
   mode: single
 - id: '1663664817431'
   alias: 'Notify: BBQ Alert'

@@ -540,42 +540,6 @@
 
 - platform: template
   sensors:
-    energy_price_kwh:
-      friendly_name: 'Energy Price/kWh'
-      value_template: "{{ states('input_number.energy_price') | float (0) / 100 }}"
-      unit_of_measurement: "€/kWh"
-    gas_price_kwh:
-      friendly_name: 'Gas Price/kWh'
-      value_template: "{{ states('input_number.gas_price') | float (0) / 100 }}"
-      unit_of_measurement: "€/kWh"
-    current_consumption:
-      value_template: >
-        {{
-          (
-          states('sensor.shellyem3_c45bbe797bfc_channel_a_power') | float(0) +
-          states('sensor.shellyem3_c45bbe797bfc_channel_b_power') | float(0) +
-          states('sensor.shellyem3_c45bbe797bfc_channel_c_power') | float(0)
-          )
-        }}
-      unit_of_measurement: "w"
-      icon_template: mdi:home-lightning-bolt
-
-- platform: statistics
-  name: "Current Consumption max over last 24 hours"
-  entity_id: sensor.current_consumption
-  state_characteristic: value_max
-  max_age:
-    hours: 24
-
-- platform: statistics
-  name: "Current Consumption min over last 24 hours"
-  entity_id: sensor.current_consumption
-  state_characteristic: value_min
-  max_age:
-    hours: 24
-
-- platform: template
-  sensors:
     house_mode:
       friendly_name: House Mode
       value_template: >-

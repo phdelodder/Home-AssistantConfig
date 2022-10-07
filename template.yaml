@@ -12,7 +12,7 @@
   - name: WFH
     state: >-
       {{ is_state('binary_sensor.workday_sensor', 'on') 
-          and states('calendar.delodderp_gmail_com') | lower != 'verlof' 
+          and state_attr('calendar.delodderp_gmail_com', 'message') | lower != 'verlof' 
           and states('proximity.philippe_home') | int < 10 }}
   - name: wasmachine
     unique_id: wasmachine
@@ -142,8 +142,6 @@
       {% else %}
         mdi:battery-alert
       {% endif %}
-
-      - platform: template
 
   - name: "Operating State"
     unique_id: "operating_state"
