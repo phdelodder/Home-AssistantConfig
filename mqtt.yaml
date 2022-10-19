@@ -6,10 +6,3 @@ binary_sensor:
     value_template: '{{ value_json.motion }}'
     payload_off: "off"
     payload_on: "on"
-
-sensor:
-  - name: "Water Pump Flow Rate"
-    unit_of_measurement: "L/h"
-    state_topic: "smarthouse/water/flow-meter/1"
-    value_template: "{{ value_json.mL_per_min * 0.06 }}"
-    icon: mdi:water-pump

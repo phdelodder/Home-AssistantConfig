@@ -1168,10 +1168,11 @@
   - platform: homeassistant
     event: start
   - platform: state
-    entity_id: binary_sensor.motion_keuken
+    entity_id:
+    - binary_sensor.motion_keuken
     for:
       hours: 0
-      minutes: 15
+      minutes: 10
       seconds: 0
   - platform: state
     entity_id:
@@ -1421,7 +1422,7 @@
   - service: script.motion_detected
     data:
       sensor: "{{ ( expand('group.all_doors')\n  | sort(reverse=true, attribute='last_changed')\n
-        \ | map(attribute='name')\n  | list )[0] }}"
+        \ | map(attribute='entity_id')\n  | list )[0] }}"
   mode: single
 - id: '1620915049409'
   alias: Led Margot Aan
@@ -1614,13 +1615,12 @@
   - condition: or
     conditions:
     - condition: state
-      entity_id: sensor.gang_eerste_motion_sensor_2
-      attribute: dark
-      state: true
-    - condition: state
       entity_id: sensor.gang_eerste_motion_sensor_1
       attribute: daylight
       state: false
+    - condition: numeric_state
+      entity_id: sensor.gang_eerste_motion_sensor_2
+      below: 10
   action:
   - choose:
     - conditions:

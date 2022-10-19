@@ -142,3 +142,12 @@ ramses_cc:
     04:155537:
     10:040239:                            # OTB
     18:005567:                            # Honeywell HGI80
+
+influxdb:
+  host: a0d7b954-influxdb
+  port: 8086
+  database: homeassistant
+  username: !secret influxdb-username
+  password: !secret influxdb-password
+  max_retries: 3
+  default_measurement: state

@@ -293,8 +293,9 @@ vacuum_notify:
   - variables:
       start_time: '{{ as_timestamp(now()) }}'
   - wait_for_trigger:
-      platform: template
+    - platform: template
       value_template: '{{ is_state(''vacuum.dalek'', ''docked'') }}'
+      enabled: true
     timeout: 02:00:00
     continue_on_timeout: false
   - variables:
@@ -350,6 +351,8 @@ vacuum_record_run:
     entity_id: input_number.vacuum_number_of_runs
   - service: input_boolean.turn_on
     entity_id: input_boolean.daily_vacuum_first_run
+  - service: timer.start
+    entity_id: timer.vacuum_run_duration
   icon: mdi:robot-vacuum
 vacuum_automated:
   alias: Vacuum Automated

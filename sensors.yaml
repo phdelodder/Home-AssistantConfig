@@ -531,12 +531,6 @@
   streetname: !secret ophaalkalender_streetname
   upcomingsensor: 1
   builtinicons: 1
-  
-- platform: integration
-  source: sensor.water_pump_flow_rate
-  name: "Water Pump Usage"
-  unit_time: "h"
-  method: "left"
 
 - platform: template
   sensors:
@@ -781,3 +775,30 @@
   entity_ids:
     - sensor.motion_voordeur_temperature
     - sensor.achterdeur_buiten_temperature
+
+- platform: statistics
+  name: "Current Consumption Avg Over Last 1 Hour"
+  entity_id: sensor.current_consumption
+  state_characteristic: mean
+  max_age:
+    hours: 1
+  sampling_size: 300
+  precision: 3
+
+- platform: statistics
+  name: "Current Consumption Avg Over Last 24 Hours"
+  entity_id: sensor.current_consumption
+  state_characteristic: mean
+  max_age:
+    hours: 24
+  sampling_size: 300
+  precision: 3
+
+- platform: statistics
+  name: "Current Consumption Avg Over Last 7 Days"
+  entity_id: sensor.current_consumption
+  state_characteristic: mean
+  max_age:
+    hours: 168
+  sampling_size: 50400
+  precision: 3

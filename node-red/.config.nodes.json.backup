@@ -1,10 +1,21 @@
 {
     "node-red": {
         "name": "node-red",
-        "version": "2.1.6",
+        "version": "3.0.2",
         "local": false,
         "user": false,
         "nodes": {
+            "junction": {
+                "name": "junction",
+                "types": [
+                    "junction"
+                ],
+                "enabled": true,
+                "local": false,
+                "user": false,
+                "module": "node-red",
+                "file": "/opt/node_modules/@node-red/nodes/core/common/05-junction.js"
+            },
             "inject": {
                 "name": "inject",
                 "types": [
@@ -405,51 +416,9 @@
             }
         }
     },
-    "node-red-contrib-actionflows": {
-        "name": "node-red-contrib-actionflows",
-        "version": "2.0.4",
-        "local": false,
-        "user": false,
-        "nodes": {
-            "actionfilters": {
-                "name": "actionfilters",
-                "types": [
-                    "actionflows",
-                    "actionflows_in",
-                    "actionflows_out"
-                ],
-                "enabled": true,
-                "local": false,
-                "user": false,
-                "module": "node-red-contrib-actionflows",
-                "file": "/opt/node_modules/node-red-contrib-actionflows/actionflows/actionflows.js"
-            }
-        }
-    },
-    "node-red-contrib-alexa-home-skill": {
-        "name": "node-red-contrib-alexa-home-skill",
-        "version": "0.1.19",
-        "local": false,
-        "user": false,
-        "nodes": {
-            "alexa": {
-                "name": "alexa",
-                "types": [
-                    "alexa-home-conf",
-                    "alexa-home",
-                    "alexa-home-resp"
-                ],
-                "enabled": true,
-                "local": false,
-                "user": false,
-                "module": "node-red-contrib-alexa-home-skill",
-                "file": "/opt/node_modules/node-red-contrib-alexa-home-skill/alexa.js"
-            }
-        }
-    },
     "node-red-contrib-bigtimer": {
         "name": "node-red-contrib-bigtimer",
-        "version": "2.8.1",
+        "version": "2.8.3",
         "local": false,
         "user": false,
         "nodes": {
@@ -506,21 +475,22 @@
     },
     "node-red-contrib-home-assistant-websocket": {
         "name": "node-red-contrib-home-assistant-websocket",
-        "version": "0.41.3",
+        "version": "0.44.0",
         "local": false,
         "user": false,
         "nodes": {
             "all": {
                 "name": "all",
                 "types": [
+                    "ha_entity_filter",
                     "ha-api",
                     "ha-button",
                     "api-call-service",
                     "server",
                     "api-current-state",
                     "ha-device",
-                    "ha-entity-config",
                     "ha-entity",
+                    "ha-entity-config",
                     "server-events",
                     "server-state-changed",
                     "ha-fire-event",
@@ -540,25 +510,6 @@
                 "user": false,
                 "module": "node-red-contrib-home-assistant-websocket",
                 "file": "/opt/node_modules/node-red-contrib-home-assistant-websocket/dist/index.js"
-            }
-        }
-    },
-    "node-red-contrib-http-request": {
-        "name": "node-red-contrib-http-request",
-        "version": "0.1.14",
-        "local": false,
-        "user": false,
-        "nodes": {
-            "www-request": {
-                "name": "www-request",
-                "types": [
-                    "www-request"
-                ],
-                "enabled": true,
-                "local": false,
-                "user": false,
-                "module": "node-red-contrib-http-request",
-                "file": "/opt/node_modules/node-red-contrib-http-request/www-request.js"
             }
         }
     },
@@ -586,7 +537,7 @@
     },
     "node-red-contrib-interval-length": {
         "name": "node-red-contrib-interval-length",
-        "version": "0.0.4",
+        "version": "0.0.6",
         "local": false,
         "user": false,
         "nodes": {
@@ -603,28 +554,9 @@
             }
         }
     },
-    "node-red-contrib-looptimer": {
-        "name": "node-red-contrib-looptimer",
-        "version": "0.0.8",
-        "local": false,
-        "user": false,
-        "nodes": {
-            "looptimer": {
-                "name": "looptimer",
-                "types": [
-                    "looptimer"
-                ],
-                "enabled": true,
-                "local": false,
-                "user": false,
-                "module": "node-red-contrib-looptimer",
-                "file": "/opt/node_modules/node-red-contrib-looptimer/looptimer.js"
-            }
-        }
-    },
     "node-red-contrib-modbus": {
         "name": "node-red-contrib-modbus",
-        "version": "5.16.0",
+        "version": "5.23.1",
         "local": false,
         "user": false,
         "nodes": {
@@ -814,25 +746,6 @@
             }
         }
     },
-    "node-red-contrib-statistics": {
-        "name": "node-red-contrib-statistics",
-        "version": "2.2.2",
-        "local": false,
-        "user": false,
-        "nodes": {
-            "statistics": {
-                "name": "statistics",
-                "types": [
-                    "statistics"
-                ],
-                "enabled": true,
-                "local": false,
-                "user": false,
-                "module": "node-red-contrib-statistics",
-                "file": "/opt/node_modules/node-red-contrib-statistics/statistics.js"
-            }
-        }
-    },
     "node-red-contrib-stoptimer": {
         "name": "node-red-contrib-stoptimer",
         "version": "0.0.7",
@@ -873,7 +786,7 @@
     },
     "node-red-contrib-time-range-switch": {
         "name": "node-red-contrib-time-range-switch",
-        "version": "1.1.2",
+        "version": "1.1.3",
         "local": false,
         "user": false,
         "nodes": {
@@ -887,25 +800,6 @@
                 "user": false,
                 "module": "node-red-contrib-time-range-switch",
                 "file": "/opt/node_modules/node-red-contrib-time-range-switch/index.js"
-            }
-        }
-    },
-    "node-red-contrib-timecheck": {
-        "name": "node-red-contrib-timecheck",
-        "version": "1.1.0",
-        "local": false,
-        "user": false,
-        "nodes": {
-            "sample": {
-                "name": "sample",
-                "types": [
-                    "timecheck"
-                ],
-                "enabled": true,
-                "local": false,
-                "user": false,
-                "module": "node-red-contrib-timecheck",
-                "file": "/opt/node_modules/node-red-contrib-timecheck/timecheck/timecheck.js"
             }
         }
     },
@@ -930,7 +824,7 @@
     },
     "node-red-dashboard": {
         "name": "node-red-dashboard",
-        "version": "3.1.4",
+        "version": "3.2.0",
         "local": false,
         "user": false,
         "nodes": {
@@ -1188,7 +1082,7 @@
     },
     "node-red-node-email": {
         "name": "node-red-node-email",
-        "version": "1.14.0",
+        "version": "1.17.0",
         "local": false,
         "user": false,
         "nodes": {
@@ -1209,7 +1103,7 @@
     },
     "node-red-node-feedparser": {
         "name": "node-red-node-feedparser",
-        "version": "0.2.2",
+        "version": "0.3.0",
         "local": false,
         "user": false,
         "nodes": {
@@ -1223,66 +1117,6 @@
                 "user": false,
                 "module": "node-red-node-feedparser",
                 "file": "/opt/node_modules/node-red-node-feedparser/32-feedparse.js"
-            }
-        }
-    },
-    "node-red-node-geofence": {
-        "name": "node-red-node-geofence",
-        "version": "0.3.1",
-        "local": false,
-        "user": false,
-        "nodes": {
-            "geofence": {
-                "name": "geofence",
-                "types": [
-                    "geofence"
-                ],
-                "enabled": true,
-                "local": false,
-                "user": false,
-                "module": "node-red-node-geofence",
-                "file": "/opt/node_modules/node-red-node-geofence/geofence.js"
-            }
-        }
-    },
-    "node-red-node-msgpack": {
-        "name": "node-red-node-msgpack",
-        "version": "1.2.1",
-        "local": false,
-        "user": false,
-        "nodes": {
-            "msgpack": {
-                "name": "msgpack",
-                "types": [
-                    "msgpack"
-                ],
-                "enabled": true,
-                "local": false,
-                "user": false,
-                "module": "node-red-node-msgpack",
-                "file": "/opt/node_modules/node-red-node-msgpack/70-msgpack.js"
-            }
-        }
-    },
-    "node-red-node-pi-gpio": {
-        "name": "node-red-node-pi-gpio",
-        "version": "2.0.1",
-        "local": false,
-        "user": false,
-        "nodes": {
-            "rpi-gpio": {
-                "name": "rpi-gpio",
-                "types": [
-                    "rpi-gpio in",
-                    "rpi-gpio out",
-                    "rpi-mouse",
-                    "rpi-keyboard"
-                ],
-                "enabled": true,
-                "local": false,
-                "user": false,
-                "module": "node-red-node-pi-gpio",
-                "file": "/opt/node_modules/node-red-node-pi-gpio/36-rpi-gpio.js"
             }
         }
     },
@@ -1343,28 +1177,9 @@
             }
         }
     },
-    "node-red-node-sentiment": {
-        "name": "node-red-node-sentiment",
-        "version": "0.1.6",
-        "local": false,
-        "user": false,
-        "nodes": {
-            "sentiment": {
-                "name": "sentiment",
-                "types": [
-                    "sentiment"
-                ],
-                "enabled": true,
-                "local": false,
-                "user": false,
-                "module": "node-red-node-sentiment",
-                "file": "/opt/node_modules/node-red-node-sentiment/72-sentiment.js"
-            }
-        }
-    },
     "node-red-node-serialport": {
         "name": "node-red-node-serialport",
-        "version": "0.15.0",
+        "version": "1.0.1",
         "local": false,
         "user": false,
         "nodes": {
@@ -1443,58 +1258,6 @@
             }
         }
     },
-    "node-red-contrib-join-joaoapps": {
-        "name": "node-red-contrib-join-joaoapps",
-        "version": "1.2.1",
-        "local": false,
-        "user": false,
-        "nodes": {
-            "join-config": {
-                "name": "join-config",
-                "types": [
-                    "join-config"
-                ],
-                "enabled": true,
-                "local": false,
-                "user": false,
-                "module": "node-red-contrib-join-joaoapps",
-                "file": "/opt/node_modules/node-red-contrib-join-joaoapps/join-config.js"
-            },
-            "join-server": {
-                "name": "join-server",
-                "types": [
-                    "join-server"
-                ],
-                "enabled": true,
-                "local": false,
-                "user": false,
-                "module": "node-red-contrib-join-joaoapps",
-                "file": "/opt/node_modules/node-red-contrib-join-joaoapps/join-server.js"
-            },
-            "join-receive-message": {
-                "name": "join-receive-message",
-                "types": [
-                    "join-receive-message"
-                ],
-                "enabled": true,
-                "local": false,
-                "user": false,
-                "module": "node-red-contrib-join-joaoapps",
-                "file": "/opt/node_modules/node-red-contrib-join-joaoapps/join-receive-message.js"
-            },
-            "join-message": {
-                "name": "join-message",
-                "types": [
-                    "join-message"
-                ],
-                "enabled": true,
-                "local": false,
-                "user": false,
-                "module": "node-red-contrib-join-joaoapps",
-                "file": "/opt/node_modules/node-red-contrib-join-joaoapps/join-message.js"
-            }
-        }
-    },
     "node-red-contrib-light-scheduler": {
         "name": "node-red-contrib-light-scheduler",
         "version": "0.0.18",
@@ -1538,7 +1301,7 @@
     },
     "node-red-contrib-schedex": {
         "name": "node-red-contrib-schedex",
-        "version": "1.10.6",
+        "version": "1.10.7",
         "local": false,
         "user": false,
         "nodes": {
@@ -1557,7 +1320,7 @@
     },
     "node-red-node-mysql": {
         "name": "node-red-node-mysql",
-        "version": "1.0.0",
+        "version": "1.0.3",
         "local": false,
         "user": false,
         "nodes": {
@@ -1626,7 +1389,7 @@
     },
     "node-red-contrib-persistent-fsm": {
         "name": "node-red-contrib-persistent-fsm",
-        "version": "1.1.0",
+        "version": "1.2.0",
         "local": false,
         "user": false,
         "nodes": {
