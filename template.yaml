@@ -16,28 +16,28 @@
           and states('proximity.philippe_home') | float < 10 }}
   - name: wasmachine
     unique_id: wasmachine
-    state: "{{ states('sensor.wasmachine') | float(0) >= 3 }}"
+    state: "{{ states('sensor.wasmachine_power') | float(0) >= 3 }}"
     delay_off:
       minutes: 5
     icon: mdi:washing-machine
     device_class: running
   - name: droogkast
     unique_id: droogkast
-    state: "{{ states('sensor.droogkast') | float(0) >= 3 }}"
+    state: "{{ states('sensor.droogkast_power') | float(0) >= 3 }}"
     delay_off:
       minutes: 5
     icon: mdi:tumble-dryer
     device_class: running
   - name: vaatwas
     unique_id: vaatwas
-    state: "{{ states('sensor.vaatwas') | float(0) >= 3 }}"
+    state: "{{ states('sensor.vaatwas_power') | float(0) >= 3 }}"
     delay_off:
       minutes: 5
     icon: mdi:dishwasher
     device_class: running
   - name: waterpomp
     unique_id: waterpomp
-    state: "{{ states('sensor.waterpomp') | float(0) > 1 or states('sensor.water_pump_flow') | float(0) > 0 }}"
+    state: "{{ states('sensor.waterpomp_power') | float(0) > 1 or states('sensor.water_pump_flow') | float(0) > 0 }}"
     icon: mdi:pump
     device_class: running
 - sensor:
@@ -106,7 +106,7 @@
         {% set ignore_ts = (now().timestamp() - ignore_seconds)|as_datetime %}
         {% set entities = states|rejectattr('domain','eq','group')
             |rejectattr('last_changed','ge',ignore_ts)
-            |selectattr('state','in',['unavailable','unknown']) %}
+            |selectattr('state','in',['unavailable','unknown','None']) %}
         {% if ignored != none %}
           {% set entities =  entities|rejectattr('entity_id','in',ignored) %}
         {% endif %}
@@ -125,11 +125,11 @@
         | selectattr('attributes.device_class', 'defined')
         | selectattr('attributes.device_class', 'eq', 'battery')
         | rejectattr('entity_id', 'in', ignore_entities)
-        | rejectattr('state','in',['unavailable','unknown']) %}
+        | rejectattr('state','in',['unavailable','unknown','None']) %}
 
         {% set ns = namespace(low_entities=[]) %}
         {% for x in entities %}
-          {% if x.state|float < 30 %}
+          {% if x.state | float(0) < 30 %}
             {% set ns.low_entities = ns.low_entities + [x.entity_id] %}
           {% endif -%}
         {% endfor %}
@@ -158,22 +158,22 @@
         {% endif %}
       {% endif %}
 
-  - name: "Total of Known Devices"
-    unique_id: "total_of_known_devices"
+  - name: "Total of Known Devices Power"
+    unique_id: "total_of_known_devices_power"
     device_class: "power"
     unit_of_measurement: W
     state: >-
-      {{ states('sensor.koelkast_vriezer_berging') | float (0) +
-        states('sensor.koelkast_keuken') | float (0) +
-        states('sensor.vriezer_garage') | float (0) +
-        states('sensor.koelkast_vriezer_garage') | float (0) +
-        states('sensor.boiler_keuken') | float (0) +
-        states('sensor.wasmachine') | float (0) +
-        states('sensor.droogkast') | float (0) +
-        states('sensor.brander') | float (0) +
-        states('sensor.waterpomp') | float (0) +
-        states('sensor.vaatwas') | float (0) +
-        states('sensor.computer') | float (0) +
+      {{ states('sensor.koelkast_vriezer_berging_power') | float (0) +
+        states('sensor.koelkast_keuken_power') | float (0) +
+        states('sensor.vriezer_garage_power') | float (0) +
+        states('sensor.koelkast_vriezer_garage_power') | float (0) +
+        states('sensor.boiler_keuken_power') | float (0) +
+        states('sensor.wasmachine_power') | float (0) +
+        states('sensor.droogkast_power') | float (0) +
+        states('sensor.brander_power') | float (0) +
+        states('sensor.waterpomp_power') | float (0) +
+        states('sensor.vaatwas_power') | float (0) +
+        states('sensor.computer_power') | float (0) +
         states('sensor.verlichting_gang_eerste_verdiep_power') | float (0) +
         states('sensor.verlichting_garage_gelijkvloers_power') | float (0) +
         states('sensor.verlichting_garage_voorkant_power') | float (0) +
@@ -189,32 +189,29 @@
         states('sensor.led_schouw_power') | float(0) +
         states('sensor.led_speelkamer_power') | float(0)}}
 
-  - name: "Current Consumption"
-    unique_id: "current_consumption"
+  - name: "Current Power"
+    unique_id: "current_power"
     unit_of_measurement: W
     device_class: power
     state: >-
-      {{ states('sensor.stp6_0_3se_40_411_pv_power') | float(0)
-        - states('sensor.stp6_0_3se_40_411_battery_power_charge_total') | float(0)
-        + states('sensor.stp6_0_3se_40_411_battery_power_discharge_total') | float(0)
-        - states('sensor.stp6_0_3se_40_411_metering_power_supplied') | float(0)
-        + states('sensor.stp6_0_3se_40_411_metering_power_absorbed') | float(0) }}
+      {{ states('sensor.stp6_0_3se_40_411_grid_power') | float (0) | abs
+          + states('sensor.stp6_0_3se_40_411_metering_power_absorbed') | float (0)
+          - states('sensor.stp6_0_3se_40_411_metering_power_supplied') | float (0)
+      }}
     availability: >
-      {{ states('sensor.stp6_0_3se_40_411_pv_power')  | float(none) != none and
-          states('sensor.stp6_0_3se_40_411_battery_power_discharge_total') | float(none) != none and
+      {{ states('sensor.stp6_0_3se_40_411_grid_power') | float(none) != none and
           states('sensor.stp6_0_3se_40_411_metering_power_absorbed') | float(none) != none and
-          states('sensor.stp6_0_3se_40_411_metering_power_supplied') | float(none) != none and
-          states('sensor.stp6_0_3se_40_411_battery_power_charge_total') | float(none) != none }}
+          states('sensor.stp6_0_3se_40_411_metering_power_supplied') | float(none) != none }}
 
-  - name: "Unknown Consumption"
-    unique_id: "unknown_consumption"
+  - name: "Unknown Power"
+    unique_id: "unknown_power"
     unit_of_measurement: W
     device_class: power
     state: >-
-      {% set unknown_consumpation = states('sensor.current_consumption') | float (0) -
-        states('sensor.total_of_known_devices') | float (0)
+      {% set unknown_power = states('sensor.current_power') | float (0) -
+        states('sensor.total_of_known_devices_power') | float (0)
       %}
-      {{ unknown_consumpation if unknown_consumpation > 0 else 0 }}
+      {{ unknown_power if unknown_power > 0 else 0 }}
 
   - name: "Solar Battery Recharge Time"
     unique_id: "solar_battery_recharge_time"
@@ -240,7 +237,7 @@
     device_class: "duration"
     icon: mdi:battery-clock
     state: >-
-      {% if states('sensor.current_consumption') | float(0) == 0 %}
+      {% if states('sensor.current_power') | float(0) == 0 %}
         {% set decimal_hours = 0 | float(0) %}
         {% set minutes = 0 | float(0) %}
       {% else %}
@@ -249,27 +246,7 @@
         {% set battery_capacity = battery_capacity * ((states('sensor.stp6_0_3se_40_411_battery_capacity_total') | float(0)) / 100) %}
         {% set reserve = 0.1 %}
         {% set charge = percent * (battery_capacity * (1 - reserve)) %}
-        {% set current_power = states('sensor.current_consumption') | float (0) / 1000 %}
-        {% set decimal_hours = charge / current_power %}
-        {% set minutes = (decimal_hours % 1 * 60) | round(0) %}
-      {% endif %}
-      {{ decimal_hours | int(0) ~ 'u' ~ minutes ~ 'min' }} 
-
-  - name: "Solar Battery Life 1 hr"
-    unique_id: "solar_battery_life_1_hr"
-    device_class: "duration"
-    icon: mdi:battery-clock
-    state: >-
-      {% if states('sensor.current_consumption_avg_over_last_1_hour') | float(0) == 0 %}
-        {% set decimal_hours = 0 | float(0) %}
-        {% set minutes = 0 | float(0) %}
-      {% else %}
-        {% set percent = states('sensor.stp6_0_3se_40_411_battery_soc_total') | float(0) / 100.0 %}
-        {% set battery_capacity = 10.2 %}
-        {% set battery_capacity = battery_capacity * ((states('sensor.stp6_0_3se_40_411_battery_capacity_total') | float(0)) / 100) %}
-        {% set reserve = 0.1 %}
-        {% set charge = percent * (battery_capacity * (1 - reserve)) %}
-        {% set current_power = states('sensor.current_consumption_avg_over_last_1_hour') | float (0) / 1000 %}
+        {% set current_power = states('sensor.current_power') | float (0) / 1000 %}
         {% set decimal_hours = charge / current_power %}
         {% set minutes = (decimal_hours % 1 * 60) | round(0) %}
       {% endif %}
@@ -280,7 +257,7 @@
     device_class: "duration"
     icon: mdi:battery-clock
     state: >-
-      {% if states('sensor.current_consumption_avg_over_last_24_hours') | float(0) == 0 %}
+      {% if states('sensor.current_power_avg_over_last_24_hours') | float(0) == 0 %}
         {% set decimal_hours = 0 | float(0) %}
         {% set minutes = 0 | float(0) %}
       {% else %}
@@ -289,36 +266,20 @@
         {% set battery_capacity = battery_capacity * ((states('sensor.stp6_0_3se_40_411_battery_capacity_total') | float(0)) / 100) %}
         {% set reserve = 0.1 %}
         {% set charge = percent * (battery_capacity * (1 - reserve)) %}
-        {% set current_power = states('sensor.current_consumption_avg_over_last_24_hours') | float (0) / 1000 %}
+        {% set current_power = states('sensor.current_power_avg_over_last_24_hours') | float (0) / 1000 %}
         {% set decimal_hours = charge / current_power %}
         {% set minutes = (decimal_hours % 1 * 60) | round(0) %}
       {% endif %}
       {{ decimal_hours | int(0) ~ 'u' ~ minutes ~ 'min' }} 
 
-  - name: "Solar Battery Life 7 days"
-    unique_id: "solar_battery_life_7_days"
-    device_class: "duration"
-    icon: mdi:battery-clock
-    state: >-
-      {% if states('sensor.current_consumption_avg_over_last_7_days') | float(0) == 0 %}
-        {% set decimal_hours = 0 | float(0) %}
-        {% set minutes = 0 | float(0) %}
-      {% else %}
-        {% set percent = states('sensor.stp6_0_3se_40_411_battery_soc_total') | float(0) / 100.0 %}
-        {% set battery_capacity = 10.2 %}
-        {% set battery_capacity = battery_capacity * ((states('sensor.stp6_0_3se_40_411_battery_capacity_total') | float(0)) / 100) %}
-        {% set reserve = 0.1 %}
-        {% set charge = percent * (battery_capacity * (1 - reserve)) %}
-        {% set current_power = states('sensor.current_consumption_avg_over_last_7_days') | float (0) / 1000 %}
-        {% set decimal_hours = charge / current_power %}
-        {% set minutes = (decimal_hours % 1 * 60) | round(0) %}
-      {% endif %}
-      {{ decimal_hours | int(0) ~ 'u' ~ minutes ~ 'min' }} 
-
+    # PV Benefit is grid power + returning/supplied power back to the net.
+    # Do not take battery charging into account as later when the battery is discharging it's included in the grid power.
   - name: PV benefit
+    unique_id: pv_benefit
     unit_of_measurement: €/h
     state: >
-      {{(states('sensor.stp6_0_3se_40_411_pv_power') | float (0) / 1000) * states('input_number.electricity_consumption_price') | float (0) }}
+      {{(states('sensor.stp6_0_3se_40_411_grid_power') | float (0) / 1000) * states('input_number.electricity_consumption_price') | float (0)
+        + (states('sensor.stp6_0_3se_40_411_metering_power_supplied') | float (0) / 1000) * states('input_number.electricity_injection_price') | float (0) }}
 
   - name: 'Led Slaapkamer Power'
     unique_id: 'led_slaapkamer_power'

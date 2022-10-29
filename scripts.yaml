@@ -40,16 +40,14 @@ turn_off_switches_and_store_states:
       - media_player.keuken
       - media_player.woonkamer
       - media_player.bureau
-  - service: switch.turn_off
-    data: {}
-    entity_id:
-    - switch.boiler_keuken
   - service: media_player.turn_off
     entity_id:
     - media_player.tv
     - media_player.keuken
     - media_player.woonkamer
     - media_player.bureau
+  - service: script.eco_manage_boiler_keuken
+    data: {}
   icon: mdi:light-switch
   mode: single
 arriving:
@@ -100,10 +98,10 @@ turn_on_switches_and_stored_states:
   alias: Turn On Switches and Restore Devices State
   sequence:
   - scene: scene.stored_states
-  - service: switch.turn_on
+  - service: script.eco_manage_boiler_keuken
     data: {}
-    entity_id: switch.boiler_keuken
   icon: mdi:light-switch
+  mode: single
 set_thermostat_away:
   alias: Set Thermostat to Away
   sequence:
@@ -707,3 +705,31 @@ vacuum_empty_bin:
       entity_id: input_number.vacuum_number_of_runs
   mode: single
   icon: mdi:robot-vacuum
+eco_manage_boiler_keuken:
+  alias: 'Eco: Manage Boiler Keuken'
+  sequence:
+  - choose:
+    - conditions:
+      - condition: or
+        conditions:
+        - condition: time
+          after: input_datetime.eco_mode_start
+          alias: After Eco Mode Start
+        - condition: state
+          entity_id: binary_sensor.no_one_home
+          state: 'on'
+      sequence:
+      - service: switch.turn_off
+        data: {}
+        target:
+          entity_id: switch.boiler_keuken
+    - conditions:
+      - condition: time
+        after: input_datetime.eco_mode_end
+        alias: After Eco Mode End
+      sequence:
+      - service: switch.turn_on
+        data: {}
+        target:
+          entity_id: switch.boiler_keuken
+  mode: single

@@ -26,7 +26,7 @@
     - light.febe_slaapkamer
     - light.febe_led_bed
     - light.dressing_spots
-    - light.dressing_led_strip
+    - light.dressing_ledstrip
     - light.gang_eerste_verdiep
     - light.wc_boven
     - light.led_slaapkamer

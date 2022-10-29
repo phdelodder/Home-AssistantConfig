@@ -1,0 +1,147 @@
+homeassistant: true
+mqtt:
+  server: mqtt://core-mosquitto:1883
+  user: mqtt
+  password: JnWnYbC2hCr9PH
+serial:
+  port: >-
+    /dev/serial/by-id/usb-Silicon_Labs_Sonoff_Zigbee_3.0_USB_Dongle_Plus_0001-if00-port0
+frontend:
+  port: 8099
+advanced:
+  homeassistant_legacy_entity_attributes: false
+  legacy_api: false
+  legacy_availability_payload: false
+  log_syslog:
+    app_name: Zigbee2MQTT
+    eol: /n
+    host: localhost
+    localhost: localhost
+    path: /dev/log
+    pid: process.pid
+    port: 123
+    protocol: tcp4
+    type: '5424'
+  transmit_power: 9
+  channel: 25
+  last_seen: ISO_8601_local
+  network_key:
+    - 191
+    - 5
+    - 185
+    - 242
+    - 79
+    - 202
+    - 131
+    - 105
+    - 253
+    - 3
+    - 88
+    - 249
+    - 141
+    - 224
+    - 201
+    - 166
+  pan_id: 55593
+  log_level: warn
+device_options:
+  legacy: false
+availability: true
+devices:
+  '0x000d6ffffee41a9d':
+    friendly_name: Laptop Outlet
+  '0x00158d000358207c':
+    friendly_name: Motion Bureau
+  '0x00158d000272bb18':
+    friendly_name: Motion Gang Zolder
+  '0x00158d0003f47876':
+    friendly_name: Motion Speelkamer
+  '0x00158d0004253f52':
+    friendly_name: Temperature Bureau
+  '0xec1bbdfffe8d6cac':
+    friendly_name: Temperature Gang Eerste
+  '0x588e81fffe5f73de':
+    friendly_name: Motion WC Boven
+  '0x000d6ffffe557c23':
+    friendly_name: Staande Lamp Living
+  '0x680ae2fffee9d570':
+    friendly_name: Lamp Barkast
+  '0x588e81fffeff5e81':
+    friendly_name: Droogkast
+    measurement_poll_interval: 2
+  '0x842e14fffe366881':
+    friendly_name: Wasmachine
+    measurement_poll_interval: 2
+  '0x842e14fffe139511':
+    friendly_name: Koelkast/Vriezer Berging
+    measurement_poll_interval: 2
+  '0x003c84fffe8c9c0e':
+    friendly_name: Brander
+    measurement_poll_interval: 2
+  '0x842e14fffe36688c':
+    friendly_name: Boiler Keuken
+    measurement_poll_interval: 2
+  '0x84ba20fffe7c2569':
+    friendly_name: Vaatwas
+    measurement_poll_interval: 2
+  '0x842e14fffe1265b6':
+    friendly_name: Koelkast Keuken
+    measurement_poll_interval: 2
+  '0x842e14fffef25906':
+    friendly_name: Waterpomp
+    measurement_poll_interval: 1
+  '0x842e14fffe13929f':
+    friendly_name: Vriezer Garage
+    measurement_poll_interval: 2
+  '0x842e14fffe359de1':
+    friendly_name: Koelkast/Vriezer Garage
+    measurement_poll_interval: 2
+  '0x84fd27fffece97d4':
+    friendly_name: Computer
+    power_calibration: 0
+  '0x00158d000173f38e':
+    friendly_name: Dressing Ledstrip
+  '0xccccccfffeaa677b':
+    friendly_name: Dressing Spot 1
+  '0x680ae2fffeea5c13':
+    friendly_name: Dressing Spot 2
+  '0x680ae2fffeef6f0f':
+    friendly_name: Dressing Spot 3
+  '0x680ae2fffeea4e7f':
+    friendly_name: Dressing Spot 4
+  '0x00158d000200e19d':
+    friendly_name: Motion Woonkamer
+  '0x00158d0002090933':
+    friendly_name: Achterdeur
+  '0x00158d000200d19f':
+    friendly_name: Motion Keuken
+  '0x54ef4410004cdf22':
+    friendly_name: Keukendeur
+  '0x00158d00044494b8':
+    friendly_name: 'Temperature Achterdeur Buiten '
+  '0x54ef4410004cd327':
+    friendly_name: Garagedeur
+  '0x001788010bd16fac':
+    friendly_name: Motion Garagepoort
+  '0x001788010bcef3cc':
+    friendly_name: Motion WC Beneden
+  '0x00158d000273b976':
+    friendly_name: Voordeur
+  '0x001788010949d9cb':
+    friendly_name: Motion Voordeur
+  '0x7cb03eaa0a009f3f':
+    friendly_name: Verlichting Buiten Voorkant
+  '0x00158d0003faeed6':
+    friendly_name: Motion Inkom 1
+  '0x00158d0004057149':
+    friendly_name: Motion Inkom 2
+  '0x00178801086c42a8':
+    friendly_name: Slaapkamer Dimmer Switch
+groups:
+  '1':
+    friendly_name: Dressing Spots
+    devices:
+      - 0xccccccfffeaa677b/1
+      - 0x680ae2fffeea5c13/1
+      - 0x680ae2fffeef6f0f/1
+      - 0x680ae2fffeea4e7f/1

@@ -29,3 +29,7 @@ tts/
 .vscode/
 google_calendars.yaml
 .shopping_list.json
+zigbee2mqtt/log/
+zigbee2mqtt/coordinator_backup.json
+zigbee2mqtt/database.db.backup
+zigbee2mqtt/state.json

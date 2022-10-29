@@ -110,7 +110,7 @@ downloader:
   download_dir: www
 
 ramses_cc:
-  serial_port: /dev/ttyUSB0
+  serial_port: /dev/serial/by-id/usb-Texas_Instruments_TUSB3410_Boot_Device_TUSB3410-if00-port0
   restore_cache: true
   scan_interval: 60
   packet_log:

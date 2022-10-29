@@ -1,42 +1,17 @@
 [
   {
-    "name": "Champions ",
-    "id": "3a3143f66aa04ab095114661dc452071",
-    "complete": true
+    "name": "Aardappelen",
+    "id": "3d1e609a7ef24f2e82535b82cb016844",
+    "complete": false
   },
   {
-    "name": "Kaas",
-    "id": "178e8b6d01d340068f0f458ed5b7c50f",
-    "complete": true
+    "name": "Lactuloze vrije koek",
+    "id": "ceff380b3a95435597a4ef0d95a2824e",
+    "complete": false
   },
   {
-    "name": "Hesp",
-    "id": "240aba68f57b496a9657d60f2ce5ebb5",
-    "complete": true
-  },
-  {
-    "name": "Sandwiches 4",
-    "id": "c047df03963f46d1815f0145c7041583",
-    "complete": true
-  },
-  {
-    "name": "Stokbrood 1",
-    "id": "a15e2fb4de06435f9c5eb3c51436e7e0",
-    "complete": true
-  },
-  {
-    "name": "Fruit",
-    "id": "400934780b064dafbdfb2e3aadb1d722",
-    "complete": true
-  },
-  {
-    "name": "Komkommer",
-    "id": "c0e16cbdd8d74004b5b5776839b2d4a0",
-    "complete": true
-  },
-  {
-    "name": "Tomaten ",
-    "id": "6c49939d888b4e33841499264886b90d",
-    "complete": true
+    "name": "Muesli",
+    "id": "dd6bf452283945c2bd05f53653cb8bac",
+    "complete": false
   }
 ]

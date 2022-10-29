@@ -777,28 +777,10 @@
     - sensor.achterdeur_buiten_temperature
 
 - platform: statistics
-  name: "Current Consumption Avg Over Last 1 Hour"
-  entity_id: sensor.current_consumption
-  state_characteristic: mean
-  max_age:
-    hours: 1
-  sampling_size: 300
-  precision: 3
-
-- platform: statistics
-  name: "Current Consumption Avg Over Last 24 Hours"
-  entity_id: sensor.current_consumption
+  name: "Current Power Avg Over Last 24 Hours"
+  entity_id: sensor.current_power
   state_characteristic: mean
   max_age:
     hours: 24
-  sampling_size: 300
-  precision: 3
-
-- platform: statistics
-  name: "Current Consumption Avg Over Last 7 Days"
-  entity_id: sensor.current_consumption
-  state_characteristic: mean
-  max_age:
-    hours: 168
-  sampling_size: 50400
+  sampling_size: 86400
   precision: 3
