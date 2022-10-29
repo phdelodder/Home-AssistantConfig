@@ -34,8 +34,8 @@ Livingroom_part1_controller:
 slaapkamer_controller:
   module: controllerx
   class: HueDimmerController
-  controller: dimmer_switch
-  integration: deconz
+  controller: sensor.slaapkamer_dimmer_switch_action
+  integration: z2m
   light: light.led_slaapkamer
   merge_mapping:
     1002:
@@ -51,7 +51,7 @@ dressing_strips_controller:
     class: LightController
     controller: dressing_dimmer_switch
     integration: deconz
-    light: light.dressing_led_strip
+    light: light.dressing_ledstrip
     mapping:
         3001: hold_brightness_toggle
         3002: toggle

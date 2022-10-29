@@ -5,14 +5,17 @@ from cx_const import (
     MediaPlayer,
     PredefinedActionsMapping,
     Switch,
+    Z2MLight,
 )
 from cx_core import (
     CoverController,
     LightController,
     MediaPlayerController,
     SwitchController,
+    Z2MLightController,
     action,
 )
+from cx_core.integration import EventData
 
 
 class E1810Controller(LightController):
@@ -64,17 +67,37 @@ class E1810Controller(LightController):
             "toggle": Light.TOGGLE,
             "press_2_0_0": Light.SYNC,
             "step_with_on_off_0_43_5": Light.CLICK_BRIGHTNESS_UP,
-            "step_1_43_5": Light.CLICK_BRIGHTNESS_DOWN,
+            "step_1_43_5_0_0": Light.CLICK_BRIGHTNESS_DOWN,
             "press_257_13_0": Light.CLICK_COLOR_DOWN,
             "press_256_13_0": Light.CLICK_COLOR_UP,
             "move_with_on_off_0_83": Light.HOLD_BRIGHTNESS_UP,
             "move_with_on_off_0_84": Light.HOLD_BRIGHTNESS_UP,  # ZigBee 3.0 firmware
-            "move_1_83": Light.HOLD_BRIGHTNESS_DOWN,
-            "move_1_84": Light.HOLD_BRIGHTNESS_DOWN,  # ZigBee 3.0 firmware
+            "move_1_83_0_0": Light.HOLD_BRIGHTNESS_DOWN,
+            "move_1_84_0_0": Light.HOLD_BRIGHTNESS_DOWN,  # ZigBee 3.0 firmware
             "hold_3329_0": Light.HOLD_COLOR_DOWN,
             "hold_3328_0": Light.HOLD_COLOR_UP,
-            "stop": Light.RELEASE,
+            "stop_with_on_off": Light.RELEASE,
             "release": Light.RELEASE,
+        }
+
+
+class E1810Z2MLightController(Z2MLightController):
+    def get_z2m_actions_mapping(self) -> DefaultActionsMapping:
+        return {
+            "toggle": Z2MLight.TOGGLE,
+            "toggle_hold": Z2MLight.ON_FULL_BRIGHTNESS,
+            "brightness_up_click": Z2MLight.CLICK_BRIGHTNESS_UP,
+            "brightness_down_click": Z2MLight.CLICK_BRIGHTNESS_DOWN,
+            "arrow_left_click": Z2MLight.CLICK_COLOR_TEMP_DOWN,
+            "arrow_right_click": Z2MLight.CLICK_COLOR_TEMP_UP,
+            "brightness_up_hold": Z2MLight.HOLD_BRIGHTNESS_UP,
+            "brightness_up_release": Z2MLight.RELEASE,
+            "brightness_down_hold": Z2MLight.HOLD_BRIGHTNESS_DOWN,
+            "brightness_down_release": Z2MLight.RELEASE,
+            "arrow_left_hold": Z2MLight.HOLD_COLOR_TEMP_DOWN,
+            "arrow_left_release": Z2MLight.RELEASE,
+            "arrow_right_hold": Z2MLight.HOLD_COLOR_TEMP_UP,
+            "arrow_right_release": Z2MLight.RELEASE,
         }
 
 
@@ -120,14 +143,14 @@ class E1810MediaPlayerController(MediaPlayerController):
         return {
             "toggle": MediaPlayer.PLAY_PAUSE,
             "step_with_on_off_0_43_5": MediaPlayer.CLICK_VOLUME_UP,
-            "step_1_43_5": MediaPlayer.CLICK_VOLUME_DOWN,
+            "step_1_43_5_0_0": MediaPlayer.CLICK_VOLUME_DOWN,
             "press_257_13_0": MediaPlayer.PREVIOUS_TRACK,
             "press_256_13_0": MediaPlayer.NEXT_TRACK,
             "move_with_on_off_0_83": MediaPlayer.HOLD_VOLUME_UP,
             "move_with_on_off_0_84": MediaPlayer.HOLD_VOLUME_UP,  # ZigBee 3.0 firmware
-            "stop": MediaPlayer.RELEASE,
-            "move_1_83": MediaPlayer.HOLD_VOLUME_DOWN,
-            "move_1_84": MediaPlayer.HOLD_VOLUME_DOWN,  # ZigBee 3.0 firmware
+            "stop_with_on_off": MediaPlayer.RELEASE,
+            "move_1_83_0_0": MediaPlayer.HOLD_VOLUME_DOWN,
+            "move_1_84_0_0": MediaPlayer.HOLD_VOLUME_DOWN,  # ZigBee 3.0 firmware
             "hold_3329_0": MediaPlayer.PREVIOUS_SOURCE,
             "hold_3328_0": MediaPlayer.NEXT_SOURCE,
             "release": MediaPlayer.RELEASE,
@@ -162,8 +185,20 @@ class E1743Controller(LightController):
             "on": Light.ON,
             "off": Light.OFF,
             "move_with_on_off_0_83": Light.HOLD_BRIGHTNESS_UP,
-            "move_1_83": Light.HOLD_BRIGHTNESS_DOWN,
+            "move_1_83_0_0": Light.HOLD_BRIGHTNESS_DOWN,
             "stop": Light.RELEASE,
+            "stop_with_on_off": Light.RELEASE,
+        }
+
+
+class E1743Z2MLightController(Z2MLightController):
+    def get_z2m_actions_mapping(self) -> DefaultActionsMapping:
+        return {
+            "on": Z2MLight.ON,
+            "off": Z2MLight.OFF,
+            "brightness_move_up": Z2MLight.HOLD_BRIGHTNESS_UP,
+            "brightness_move_down": Z2MLight.HOLD_BRIGHTNESS_DOWN,
+            "brightness_stop": Z2MLight.RELEASE,
         }
 
 
@@ -195,8 +230,9 @@ class E1743MediaPlayerController(MediaPlayerController):
             "on": MediaPlayer.PLAY_PAUSE,
             "off": MediaPlayer.NEXT_TRACK,
             "move_with_on_off_0_83": MediaPlayer.HOLD_VOLUME_UP,
-            "move_1_83": MediaPlayer.HOLD_VOLUME_DOWN,
+            "move_1_83_0_0": MediaPlayer.HOLD_VOLUME_DOWN,
             "stop": MediaPlayer.RELEASE,
+            "stop_with_on_off": MediaPlayer.RELEASE,
         }
 
 
@@ -242,8 +278,9 @@ class E1743CoverController(CoverController):
             "on": Cover.TOGGLE_OPEN,
             "off": Cover.TOGGLE_CLOSE,
             "move_with_on_off_0_83": Cover.OPEN,
-            "move_1_83": Cover.CLOSE,
+            "move_1_83_0_0": Cover.CLOSE,
             "stop": Cover.STOP,
+            "stop_with_on_off": Cover.STOP,
         }
 
 
@@ -274,11 +311,10 @@ class ICTCG1Controller(LightController):
 
     def get_z2m_actions_mapping(self) -> DefaultActionsMapping:
         return {
-            "rotate_left": Light.HOLD_BRIGHTNESS_DOWN,
-            "rotate_left_quick": "rotate_left_quick",
-            "rotate_right": Light.HOLD_BRIGHTNESS_UP,
-            "rotate_right_quick": "rotate_right_quick",
-            "rotate_stop": Light.RELEASE,
+            "brightness_move_up": Light.HOLD_BRIGHTNESS_UP,
+            "brightness_move_down": Light.HOLD_BRIGHTNESS_DOWN,
+            "brightness_stop": Light.RELEASE,
+            "brightness_move_to_level": Light.BRIGHTNESS_FROM_CONTROLLER_LEVEL,
         }
 
     def get_deconz_actions_mapping(self) -> DefaultActionsMapping:
@@ -298,6 +334,16 @@ class ICTCG1Controller(LightController):
             "move_with_on_off_0_195": Light.ON,
             "move_to_level_with_on_off_255_1": "rotate_right_quick",
             "stop": Light.RELEASE,
+        }
+
+
+class ICTCG1Z2MLightController(Z2MLightController):
+    def get_z2m_actions_mapping(self) -> DefaultActionsMapping:
+        return {
+            "brightness_move_up": Z2MLight.HOLD_BRIGHTNESS_UP,
+            "brightness_move_down": Z2MLight.HOLD_BRIGHTNESS_DOWN,
+            "brightness_stop": Z2MLight.RELEASE,
+            "brightness_move_to_level": Z2MLight.BRIGHTNESS_FROM_CONTROLLER_LEVEL,
         }
 
 
@@ -328,11 +374,9 @@ class ICTCG1MediaPlayerController(MediaPlayerController):
 
     def get_z2m_actions_mapping(self) -> DefaultActionsMapping:
         return {
-            "rotate_left": MediaPlayer.HOLD_VOLUME_DOWN,
-            "rotate_left_quick": "rotate_left_quick",
-            "rotate_right": MediaPlayer.HOLD_VOLUME_UP,
-            "rotate_right_quick": "rotate_right_quick",
-            "rotate_stop": MediaPlayer.RELEASE,
+            "brightness_move_up": MediaPlayer.HOLD_VOLUME_UP,
+            "brightness_move_down": MediaPlayer.HOLD_VOLUME_DOWN,
+            "brightness_stop": MediaPlayer.RELEASE,
         }
 
     def get_deconz_actions_mapping(self) -> DefaultActionsMapping:
@@ -383,16 +427,28 @@ class E1744LightController(LightController):
 
     def get_zha_actions_mapping(self) -> DefaultActionsMapping:
         return {
-            "move_1_195": Light.HOLD_BRIGHTNESS_DOWN,
-            "move_0_195": Light.HOLD_BRIGHTNESS_UP,
+            "move_1_195_0_0": Light.HOLD_BRIGHTNESS_DOWN,
+            "move_0_195_0_0": Light.HOLD_BRIGHTNESS_UP,
             "stop": Light.RELEASE,
             "toggle": Light.TOGGLE,
-            "step_0_1_0": Light.ON_FULL_BRIGHTNESS,
-            "step_1_1_0": Light.ON_MIN_BRIGHTNESS,
+            "step_0_1_0_0_0": Light.ON_FULL_BRIGHTNESS,
+            "step_1_1_0_0_0": Light.ON_MIN_BRIGHTNESS,
         }
 
     def default_delay(self) -> int:
         return 500
+
+
+class E1744Z2MLightController(Z2MLightController):
+    def get_z2m_actions_mapping(self) -> DefaultActionsMapping:
+        return {
+            "brightness_move_down": Z2MLight.HOLD_BRIGHTNESS_DOWN,
+            "brightness_move_up": Z2MLight.HOLD_BRIGHTNESS_UP,
+            "brightness_stop": Z2MLight.RELEASE,
+            "toggle": Z2MLight.TOGGLE,
+            "brightness_step_up": Z2MLight.ON_FULL_BRIGHTNESS,
+            "brightness_step_down": Z2MLight.ON_MIN_BRIGHTNESS,
+        }
 
 
 class E1744MediaPlayerController(MediaPlayerController):
@@ -423,12 +479,12 @@ class E1744MediaPlayerController(MediaPlayerController):
 
     def get_zha_actions_mapping(self) -> DefaultActionsMapping:
         return {
-            "move_1_195": MediaPlayer.HOLD_VOLUME_DOWN,
-            "move_0_195": MediaPlayer.HOLD_VOLUME_UP,
+            "move_1_195_0_0": MediaPlayer.HOLD_VOLUME_DOWN,
+            "move_0_195_0_0": MediaPlayer.HOLD_VOLUME_UP,
             "stop": MediaPlayer.RELEASE,
             "toggle": MediaPlayer.PLAY_PAUSE,
-            "step_0_1_0": MediaPlayer.NEXT_TRACK,
-            "step_1_1_0": MediaPlayer.PREVIOUS_TRACK,
+            "step_0_1_0_0_0": MediaPlayer.NEXT_TRACK,
+            "step_1_1_0_0_0": MediaPlayer.PREVIOUS_TRACK,
         }
 
     def default_delay(self) -> int:
@@ -451,6 +507,11 @@ class E1766LightController(LightController):
             "up_open": Light.ON,
             "down_close": Light.OFF,
         }
+
+
+class E1766Z2MLightController(Z2MLightController):
+    def get_z2m_actions_mapping(self) -> DefaultActionsMapping:
+        return {"open": Z2MLight.ON, "close": Z2MLight.OFF}
 
 
 class E1766SwitchController(SwitchController):
@@ -496,7 +557,176 @@ class E1812LightController(LightController):
             "brightness_stop": Light.RELEASE,
         }
 
+    def get_deconz_actions_mapping(self) -> DefaultActionsMapping:
+        return {
+            1002: Light.TOGGLE,
+            1001: Light.HOLD_BRIGHTNESS_TOGGLE,
+            1003: Light.RELEASE,
+        }
+
+    def get_zha_actions_mapping(self) -> DefaultActionsMapping:
+        return {
+            "on": Light.TOGGLE,
+            "move_with_on_off": Light.HOLD_BRIGHTNESS_TOGGLE,
+            "stop": Light.RELEASE,
+        }
+
+    def get_zha_action(self, data: EventData) -> str:
+        command: str = data["command"]
+        return command
+
+
+class E1812Z2MLightController(Z2MLightController):
+    def get_z2m_actions_mapping(self) -> DefaultActionsMapping:
+        return {
+            "on": Z2MLight.TOGGLE,
+            "brightness_move_up": Z2MLight.HOLD_BRIGHTNESS_TOGGLE,
+            "brightness_stop": Z2MLight.RELEASE,
+        }
+
 
 class E1812SwitchController(SwitchController):
     def get_z2m_actions_mapping(self) -> DefaultActionsMapping:
         return {"on": Switch.TOGGLE}
+
+    def get_deconz_actions_mapping(self) -> DefaultActionsMapping:
+        return {1002: Switch.TOGGLE}
+
+    def get_zha_actions_mapping(self) -> DefaultActionsMapping:
+        return {"on": Light.TOGGLE}
+
+    def get_zha_action(self, data: EventData) -> str:
+        command: str = data["command"]
+        return command
+
+
+class E2002LightController(LightController):
+    def get_z2m_actions_mapping(self) -> DefaultActionsMapping:
+        return {
+            "on": Light.ON,
+            "off": Light.OFF,
+            "arrow_left_click": Light.CLICK_COLOR_DOWN,
+            "arrow_right_click": Light.CLICK_COLOR_UP,
+            "brightness_move_up": Light.HOLD_BRIGHTNESS_UP,
+            "brightness_stop": Light.RELEASE,
+            "brightness_move_down": Light.HOLD_BRIGHTNESS_DOWN,
+            "arrow_left_hold": Light.HOLD_COLOR_DOWN,
+            "arrow_left_release": Light.RELEASE,
+            "arrow_right_hold": Light.HOLD_COLOR_UP,
+            "arrow_right_release": Light.RELEASE,
+        }
+
+    def get_deconz_actions_mapping(self) -> DefaultActionsMapping:
+        return {
+            1002: Light.ON,
+            2002: Light.OFF,
+            3002: Light.CLICK_COLOR_DOWN,
+            4002: Light.CLICK_COLOR_UP,
+            1001: Light.HOLD_BRIGHTNESS_UP,
+            1003: Light.RELEASE,
+            2001: Light.HOLD_BRIGHTNESS_DOWN,
+            2003: Light.RELEASE,
+            3001: Light.HOLD_COLOR_DOWN,
+            3003: Light.RELEASE,
+            4001: Light.HOLD_COLOR_UP,
+            4003: Light.RELEASE,
+        }
+
+    def get_zha_actions_mapping(self) -> DefaultActionsMapping:
+        return {
+            "on": Light.ON,
+            "off": Light.OFF,
+            "press_257_13_0": Light.CLICK_COLOR_DOWN,
+            "press_256_13_0": Light.CLICK_COLOR_UP,
+            "move_with_on_off_0_83": Light.HOLD_BRIGHTNESS_UP,
+            "move_1_83_0_0": Light.HOLD_BRIGHTNESS_DOWN,
+            "hold_3329_0": Light.HOLD_COLOR_DOWN,
+            "hold_3328_0": Light.HOLD_COLOR_UP,
+            "stop_with_on_off": Light.RELEASE,
+            "release": Light.RELEASE,
+        }
+
+
+class W2049LightController(E2002LightController):
+    async def initialize(self) -> None:
+        await super().initialize()
+        self.log(
+            "⚠️ `W2049LightController` is deprecated and will be removed. Use `E2002LightController` instead.",
+            level="WARNING",
+            ascii_encode=False,
+        )
+
+
+class E2002Z2MLightController(Z2MLightController):
+    def get_z2m_actions_mapping(self) -> DefaultActionsMapping:
+        return {
+            "on": Z2MLight.ON,
+            "off": Z2MLight.OFF,
+            "arrow_left_click": Z2MLight.CLICK_COLOR_TEMP_DOWN,
+            "arrow_right_click": Z2MLight.CLICK_COLOR_TEMP_UP,
+            "brightness_move_up": Z2MLight.HOLD_BRIGHTNESS_UP,
+            "brightness_stop": Z2MLight.RELEASE,
+            "brightness_move_down": Z2MLight.HOLD_BRIGHTNESS_DOWN,
+            "arrow_left_hold": Z2MLight.HOLD_COLOR_TEMP_DOWN,
+            "arrow_left_release": Z2MLight.RELEASE,
+            "arrow_right_hold": Z2MLight.HOLD_COLOR_TEMP_UP,
+            "arrow_right_release": Z2MLight.RELEASE,
+        }
+
+
+class E2002MediaPlayerController(MediaPlayerController):
+    def get_z2m_actions_mapping(self) -> DefaultActionsMapping:
+        return {
+            "on": MediaPlayer.PLAY_PAUSE,
+            "off": MediaPlayer.CLICK_VOLUME_DOWN,
+            "arrow_left_click": MediaPlayer.PREVIOUS_TRACK,
+            "arrow_right_click": MediaPlayer.NEXT_TRACK,
+            "arrow_left_hold": MediaPlayer.PREVIOUS_SOURCE,
+            "arrow_left_release": MediaPlayer.RELEASE,
+            "arrow_right_hold": MediaPlayer.NEXT_SOURCE,
+            "arrow_right_release": MediaPlayer.RELEASE,
+            "brightness_move_up": MediaPlayer.HOLD_VOLUME_UP,
+            "brightness_move_down": MediaPlayer.HOLD_VOLUME_DOWN,
+            "brightness_stop": MediaPlayer.RELEASE,
+        }
+
+    def get_deconz_actions_mapping(self) -> DefaultActionsMapping:
+        return {
+            1002: MediaPlayer.PLAY_PAUSE,
+            2002: MediaPlayer.CLICK_VOLUME_DOWN,
+            3002: MediaPlayer.PREVIOUS_TRACK,
+            4002: MediaPlayer.NEXT_TRACK,
+            1001: MediaPlayer.HOLD_VOLUME_UP,
+            1003: MediaPlayer.RELEASE,
+            2001: MediaPlayer.HOLD_VOLUME_DOWN,
+            2003: MediaPlayer.RELEASE,
+            3001: MediaPlayer.PREVIOUS_SOURCE,
+            3003: MediaPlayer.RELEASE,
+            4001: MediaPlayer.NEXT_SOURCE,
+            4003: MediaPlayer.RELEASE,
+        }
+
+    def get_zha_actions_mapping(self) -> DefaultActionsMapping:
+        return {
+            "on": MediaPlayer.PLAY_PAUSE,
+            "off": MediaPlayer.CLICK_VOLUME_DOWN,
+            "press_257_13_0": MediaPlayer.PREVIOUS_TRACK,
+            "press_256_13_0": MediaPlayer.NEXT_TRACK,
+            "move_with_on_off_0_83": MediaPlayer.HOLD_VOLUME_UP,
+            "move_1_83_0_0": MediaPlayer.HOLD_VOLUME_DOWN,
+            "hold_3329_0": MediaPlayer.PREVIOUS_SOURCE,
+            "hold_3328_0": MediaPlayer.NEXT_SOURCE,
+            "stop_with_on_off": MediaPlayer.RELEASE,
+            "release": MediaPlayer.RELEASE,
+        }
+
+
+class W2049MediaPlayerController(E2002MediaPlayerController):
+    async def initialize(self) -> None:
+        await super().initialize()
+        self.log(
+            "⚠️ `W2049MediaPlayerController` is deprecated and will be removed. "
+            "Use `E2002MediaPlayerController` instead.",
+            level="WARNING",
+            ascii_encode=False,
+        )

@@ -1,10 +1,8 @@
 import abc
-import importlib
-import os
-import pkgutil
-from typing import TYPE_CHECKING, Any, Dict, List, NewType, Optional, Type, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from cx_const import DefaultActionsMapping
+from cx_helper import get_classes
 
 if TYPE_CHECKING:
     from cx_core.controller import Controller
@@ -22,35 +20,17 @@ class Integration(abc.ABC):
         self.controller = controller
         self.kwargs = kwargs
 
-    @abc.abstractmethod
     def get_default_actions_mapping(self) -> Optional[DefaultActionsMapping]:
-        raise NotImplementedError
+        return None
 
     @abc.abstractmethod
-    def listen_changes(self, controller_id: str) -> None:
+    async def listen_changes(self, controller_id: str) -> None:
         raise NotImplementedError
 
 
-def _import_modules(file_dir: str, package: str) -> None:
-    pkg_dir = os.path.dirname(file_dir)
-    for (_, name, _) in pkgutil.iter_modules([pkg_dir]):
-        importlib.import_module("." + name, package)
-
-
-IntegrationSubType = NewType("IntegrationSubType", Integration)
-
-
-def _all_integration_subclasses(
-    cls_: Type[Union[Integration, IntegrationSubType]]
-) -> List[Type[Integration]]:
-    subclasses = set(cls_.__subclasses__()).union(
-        [s for c in cls_.__subclasses__() for s in _all_integration_subclasses(c)]
-    )
-    return list(subclasses)  # type: ignore
-
-
-def get_integrations(controller, kwargs) -> List[Integration]:
-    _import_modules(__file__, __package__)
-    subclasses = _all_integration_subclasses(Integration)
-    integrations = [cls_(controller, kwargs) for cls_ in subclasses]
+def get_integrations(
+    controller: "Controller", kwargs: Dict[str, Any]
+) -> List[Integration]:
+    integration_classes = get_classes(__file__, __package__, Integration)
+    integrations = [cls_(controller, kwargs) for cls_ in integration_classes]
     return integrations

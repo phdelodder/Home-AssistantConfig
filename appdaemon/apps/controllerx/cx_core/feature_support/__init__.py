@@ -1,38 +1,36 @@
 from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
-    from cx_core.type_controller import TypeController
+    from cx_core.type_controller import Entity, TypeController
 
 
 class FeatureSupport:
 
-    entity_id: str
-    controller: "TypeController"
+    controller: "TypeController[Entity]"
     update_supported_features: bool
     _supported_features: Optional[int]
 
     def __init__(
         self,
-        entity_id: str,
-        controller: "TypeController",
-        update_supported_features=False,
+        controller: "TypeController[Entity]",
+        supported_features: Optional[int] = None,
+        update_supported_features: bool = False,
     ) -> None:
-        self.entity_id = entity_id
         self.controller = controller
-        self._supported_features = None
+        self._supported_features = supported_features
         self.update_supported_features = update_supported_features
 
     @property
     async def supported_features(self) -> int:
         if self._supported_features is None or self.update_supported_features:
             bitfield: str = await self.controller.get_entity_state(
-                self.entity_id, attribute="supported_features"
+                attribute="supported_features"
             )
             if bitfield is not None:
                 self._supported_features = int(bitfield)
             else:
                 raise ValueError(
-                    f"`supported_features` could not be read from `{self.entity_id}`. Entity might not be available."
+                    f"`supported_features` could not be read from `{self.controller.entity}`. Entity might not be available."
                 )
         return self._supported_features
 

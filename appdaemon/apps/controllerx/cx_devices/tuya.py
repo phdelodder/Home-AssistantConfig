@@ -1,0 +1,105 @@
+from cx_const import DefaultActionsMapping, Light, MediaPlayer, Z2MLight
+from cx_core import LightController, MediaPlayerController, Z2MLightController
+
+
+class TS0044LightController(LightController):
+    def get_z2m_actions_mapping(self) -> DefaultActionsMapping:
+        return {
+            "1_single": Light.TOGGLE,
+            "1_double": Light.CLICK_BRIGHTNESS_UP,
+            "1_hold": Light.CLICK_BRIGHTNESS_DOWN,
+            "2_single": Light.TOGGLE,
+            "2_double": Light.CLICK_BRIGHTNESS_UP,
+            "2_hold": Light.CLICK_BRIGHTNESS_DOWN,
+            "3_single": Light.TOGGLE,
+            "3_double": Light.CLICK_BRIGHTNESS_UP,
+            "3_hold": Light.CLICK_BRIGHTNESS_DOWN,
+            "4_single": Light.TOGGLE,
+            "4_double": Light.CLICK_BRIGHTNESS_UP,
+            "4_hold": Light.CLICK_BRIGHTNESS_DOWN,
+        }
+
+
+class TS0044FLightController(LightController):
+    def get_z2m_actions_mapping(self) -> DefaultActionsMapping:
+        return {
+            "on": Light.TOGGLE,
+            "off": Light.TOGGLE,
+            "brightness_step_up": Light.CLICK_BRIGHTNESS_UP,
+            "brightness_step_down": Light.CLICK_BRIGHTNESS_DOWN,
+        }
+
+
+class TS0043LightController(LightController):
+    def get_z2m_actions_mapping(self) -> DefaultActionsMapping:
+        return {
+            "1_single": Light.TOGGLE,
+            "1_double": Light.CLICK_BRIGHTNESS_UP,
+            "1_hold": Light.CLICK_BRIGHTNESS_DOWN,
+            "2_single": Light.TOGGLE,
+            "2_double": Light.CLICK_BRIGHTNESS_UP,
+            "2_hold": Light.CLICK_BRIGHTNESS_DOWN,
+            "3_single": Light.TOGGLE,
+            "3_double": Light.CLICK_BRIGHTNESS_UP,
+            "3_hold": Light.CLICK_BRIGHTNESS_DOWN,
+        }
+
+
+class TuYaERS10TZBVKAALightController(LightController):
+    def get_z2m_actions_mapping(self) -> DefaultActionsMapping:
+        return {
+            # Command mode
+            "brightness_step_up": Light.CLICK_BRIGHTNESS_UP,
+            "brightness_step_down": Light.CLICK_BRIGHTNESS_DOWN,
+            "toggle": Light.TOGGLE,
+            "hue_move": Light.HOLD_BRIGHTNESS_TOGGLE,
+            "hue_stop": Light.RELEASE,
+            "color_temperature_step_up": Light.CLICK_COLOR_UP,
+            "color_temperature_step_down": Light.CLICK_COLOR_DOWN,
+            # Event mode
+            "rotate_left": Light.CLICK_BRIGHTNESS_DOWN,
+            "rotate_right": Light.CLICK_BRIGHTNESS_UP,
+            "single": Light.TOGGLE,
+            "double": Light.ON_FULL_BRIGHTNESS,
+            "hold": Light.ON_MIN_BRIGHTNESS,
+        }
+
+
+class TuYaERS10TZBVKAAZ2MLightController(Z2MLightController):
+    def get_z2m_actions_mapping(self) -> DefaultActionsMapping:
+        return {
+            # Command mode
+            "brightness_step_up": Z2MLight.CLICK_BRIGHTNESS_UP,
+            "brightness_step_down": Z2MLight.CLICK_BRIGHTNESS_DOWN,
+            "toggle": Z2MLight.TOGGLE,
+            "hue_move": Z2MLight.HOLD_BRIGHTNESS_TOGGLE,
+            "hue_stop": Z2MLight.RELEASE,
+            "color_temperature_step_up": Z2MLight.CLICK_COLOR_TEMP_UP,
+            "color_temperature_step_down": Z2MLight.CLICK_COLOR_TEMP_DOWN,
+            # Event mode
+            "rotate_left": Z2MLight.CLICK_BRIGHTNESS_DOWN,
+            "rotate_right": Z2MLight.CLICK_BRIGHTNESS_UP,
+            "single": Z2MLight.TOGGLE,
+            "double": Z2MLight.ON_FULL_BRIGHTNESS,
+            "hold": Z2MLight.ON_MIN_BRIGHTNESS,
+        }
+
+
+class TuYaERS10TZBVKAAMediaPlayerLightController(MediaPlayerController):
+    def get_z2m_actions_mapping(self) -> DefaultActionsMapping:
+        return {
+            # Command mode
+            "brightness_step_up": MediaPlayer.CLICK_VOLUME_UP,
+            "brightness_step_down": MediaPlayer.CLICK_VOLUME_DOWN,
+            "toggle": MediaPlayer.PLAY_PAUSE,
+            "hue_move": MediaPlayer.HOLD_VOLUME_UP,
+            "hue_stop": Z2MLight.RELEASE,
+            "color_temperature_step_up": MediaPlayer.NEXT_TRACK,
+            "color_temperature_step_down": MediaPlayer.PREVIOUS_TRACK,
+            # Event mode
+            "rotate_left": MediaPlayer.CLICK_VOLUME_DOWN,
+            "rotate_right": MediaPlayer.CLICK_VOLUME_UP,
+            "single": MediaPlayer.PLAY_PAUSE,
+            "double": MediaPlayer.NEXT_TRACK,
+            "hold": MediaPlayer.PREVIOUS_TRACK,
+        }
