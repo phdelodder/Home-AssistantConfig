@@ -8,18 +8,19 @@ Requires a Honeywell HGI80 (or compatible) gateway.
 from __future__ import annotations
 
 import logging
-from collections.abc import Awaitable, Callable, Coroutine, Generator
+from collections.abc import Awaitable  # , Callable, Coroutine, Generator
 from datetime import datetime as dt
 from datetime import timedelta as td
-from threading import Lock, Semaphore
+from threading import Semaphore
 
 import serial
 import voluptuous as vol
 from homeassistant.const import CONF_SCAN_INTERVAL, Platform
-from homeassistant.core import CALLBACK_TYPE, HassJob, HomeAssistant, callback
+from homeassistant.core import callback  # CALLBACK_TYPE, HassJob, HomeAssistant,
 from homeassistant.helpers.discovery import async_load_platform
 from homeassistant.helpers.dispatcher import async_dispatcher_send
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+
+# om homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from ramses_rf import Gateway
 from ramses_rf.device.hvac import HvacRemoteBase, HvacVentilator
 from ramses_rf.helpers import merge
@@ -73,8 +74,6 @@ async def async_handle_exceptions(awaitable: Awaitable, logger=_LOGGER):
 class RamsesCoordinator:
     """Container for client and data."""
 
-    MAX_SEMAPHORE_LOCKS: int = 3
-
     def __init__(self, hass, hass_config) -> None:
         """Initialize the client and its data structure(s)."""
 
@@ -106,8 +105,7 @@ class RamsesCoordinator:
 
         self.loop_task = None
         self._last_update = dt.min
-        self._lock = Lock()
-        self._sem = Semaphore(value=self.MAX_SEMAPHORE_LOCKS)
+        self._sem = Semaphore(value=1)
 
     async def start(self) -> None:
         """Start the RAMSES co-ordinator."""
@@ -318,25 +316,17 @@ class RamsesCoordinator:
     async def async_update(self, *args, **kwargs) -> None:
         """Retrieve the latest state data from the client library."""
 
-        self._lock.acquire()  # HACK: workaround bug
+        self._last_update = dt.now()
 
-        dt_now = dt.now()
-        if self._last_update < dt_now - td(seconds=5):
-            self._last_update = dt_now
+        new_sensors = self._find_new_sensors()
+        new_heat_entities = self._find_new_heat_entities()
+        new_hvac_entities = self._find_new_hvac_entities()
 
-            new_sensors = self._find_new_sensors()
-            new_heat_entities = self._find_new_heat_entities()
-            new_hvac_entities = self._find_new_hvac_entities()
+        if new_sensors or new_heat_entities or new_hvac_entities:
+            self.hass.helpers.event.async_call_later(5, self.async_save_client_state)
 
-            if new_sensors or new_heat_entities or new_hvac_entities:
-                self.hass.helpers.event.async_call_later(
-                    5, self.async_save_client_state
-                )
+        self.async_dispatcher_send()
 
-        self._lock.release()
-
-        self.hass.helpers.event.async_call_later(5, self._async_update)
-
-    async def _async_update(self, *args, **kwargs) -> None:
+    def async_dispatcher_send(self, *args, **kwargs) -> None:
         # inform the devices that their state data may have changed
-        async_dispatcher_send(self.hass, DOMAIN)
+        async_dispatcher_send(self.hass, DOMAIN, *args, **kwargs)

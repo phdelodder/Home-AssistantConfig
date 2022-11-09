@@ -122,11 +122,12 @@
   alias: Led Febe Aan
   description: ''
   trigger:
-  - device_id: aecf8a3bd0144f6f9fbbedf7e7c503dc
-    domain: deconz
-    platform: device
-    subtype: turn_on
-    type: remote_button_short_press
+  - platform: device
+    domain: mqtt
+    device_id: c2d1c2b9c4ff7a9df90e15406fa69326
+    type: action
+    subtype: single
+    discovery_id: 0x00158d000290783e action_single
   condition:
   - condition: device
     device_id: 9d61839836424735bb9de4c9ad91230a
@@ -141,11 +142,12 @@
   alias: Led Febe Uit
   description: ''
   trigger:
-  - device_id: aecf8a3bd0144f6f9fbbedf7e7c503dc
-    domain: deconz
-    platform: device
-    subtype: turn_on
-    type: remote_button_short_press
+  - platform: device
+    domain: mqtt
+    device_id: c2d1c2b9c4ff7a9df90e15406fa69326
+    type: action
+    subtype: single
+    discovery_id: 0x00158d000290783e action_single
   condition:
   - condition: device
     device_id: 9d61839836424735bb9de4c9ad91230a
@@ -160,11 +162,12 @@
   alias: Switch Febe Shaken
   description: ''
   trigger:
-  - device_id: aecf8a3bd0144f6f9fbbedf7e7c503dc
-    domain: deconz
-    platform: device
-    subtype: ''
-    type: remote_gyro_activated
+  - platform: device
+    domain: mqtt
+    device_id: c2d1c2b9c4ff7a9df90e15406fa69326
+    type: action
+    subtype: shake
+    discovery_id: 0x00158d000290783e action_shake
   condition: []
   action:
   - data_template:
@@ -384,6 +387,7 @@
     state: 'on'
   action:
   - service: script.leaving
+    data: {}
 - id: '1600753998897'
   alias: 'Leaving: start vacuum after 5 mins'
   description: ''
@@ -433,6 +437,7 @@
     state: 'on'
   action:
   - service: script.set_thermostat_away
+    data: {}
   mode: single
 - id: '1600754448159'
   alias: Arriving
@@ -640,7 +645,7 @@
       command: '{{ trigger.event.data[''command''].strip(''/'') }}'
   mode: single
 - id: '1600848151075'
-  alias: 'Telegram: Guest Mode Response'
+  alias: 'Set Mode: Guest - Telegram Response'
   description: ''
   trigger:
   - platform: event
@@ -702,7 +707,7 @@
       sensor: '{{ trigger.entity_id }}'
   mode: single
 - id: '1600870113700'
-  alias: 'Guest Mode: Activate/Deactivate'
+  alias: 'Set Mode: Guest - Activate/Deactivate'
   description: ''
   trigger:
   - platform: state
@@ -723,6 +728,7 @@
         state: 'off'
       sequence:
       - service: script.deactivate_guest_mode
+        data: {}
     default: []
   mode: single
 - id: '1600870370709'
@@ -740,7 +746,7 @@
     data: {}
   mode: single
 - id: '1600927539284'
-  alias: 'Night Mode: Activate'
+  alias: 'Set Mode: Night - Activate'
   description: ''
   trigger:
   - platform: time
@@ -763,7 +769,7 @@
     data: {}
   mode: single
 - id: '1600927587299'
-  alias: 'Night Mode: Deactivate Weekday'
+  alias: 'Set Mode: Night - Deactivate Weekday'
   description: ''
   trigger:
   - platform: time
@@ -835,7 +841,7 @@
   - scene: scene.notify_led_bureau
   mode: single
 - id: '1600928588299'
-  alias: 'Night Mode: Toggle'
+  alias: 'Set Mode: Night - Toggle'
   description: ''
   trigger:
   - platform: state
@@ -846,7 +852,7 @@
   action:
   - service: script.night_mode_turn_{{ trigger.to_state.state }}
 - id: '1601324314469'
-  alias: 'Night Mode: Deactivate Weekend'
+  alias: 'Set Mode: Night - Deactivate Weekend'
   description: ''
   trigger:
   - platform: time
@@ -1107,8 +1113,6 @@
   trigger:
   - platform: homeassistant
     event: start
-  - platform: time
-    at: 07:15
   - platform: state
     entity_id:
     - binary_sensor.motion_detected_bureau_in_last_hour
@@ -1279,7 +1283,7 @@
         entity_id: climate.speelkamer
   mode: single
 - id: '1613471447340'
-  alias: 'Leaving: Activate Vacation Mode'
+  alias: 'Set Mode: Vacation'
   description: ''
   trigger:
   - platform: state
@@ -1432,11 +1436,12 @@
   alias: Led Margot Aan
   description: ''
   trigger:
-  - device_id: ed641ace598140ab84eff39005e4e6d0
-    domain: deconz
-    platform: device
-    type: remote_button_short_press
-    subtype: turn_on
+  - platform: device
+    domain: mqtt
+    device_id: a636e64789ffd182a085e6755fdfb9f6
+    type: action
+    subtype: single
+    discovery_id: 0x00158d000446780b action_single
   condition:
   - condition: device
     device_id: ed641ace598140ab84eff39005e4e6d0
@@ -1453,11 +1458,12 @@
   alias: Led Margot Uit
   description: ''
   trigger:
-  - device_id: ed641ace598140ab84eff39005e4e6d0
-    domain: deconz
-    platform: device
-    type: remote_button_short_press
-    subtype: turn_on
+  - platform: device
+    domain: mqtt
+    device_id: a636e64789ffd182a085e6755fdfb9f6
+    type: action
+    subtype: single
+    discovery_id: 0x00158d000446780b action_single
   condition:
   - condition: device
     device_id: ed641ace598140ab84eff39005e4e6d0
@@ -1474,11 +1480,12 @@
   alias: Switch Margot Shaken
   description: ''
   trigger:
-  - device_id: ed641ace598140ab84eff39005e4e6d0
-    domain: deconz
-    platform: device
-    type: remote_gyro_activated
-    subtype: ''
+  - platform: device
+    domain: mqtt
+    device_id: a636e64789ffd182a085e6755fdfb9f6
+    type: action
+    subtype: shake
+    discovery_id: 0x00158d000446780b action_shake
   condition: []
   action:
   - data_template:
@@ -1496,13 +1503,14 @@
   alias: Garagepoort open/dicht
   description: ''
   trigger:
-  - device_id: 04757106488845c38a60b36c28487bc3
-    domain: deconz
-    platform: device
-    type: remote_button_short_press
-    subtype: turn_on
   - platform: tag
     tag_id: 330a6459-b36f-4037-b948-01a2905886e5
+  - platform: device
+    domain: mqtt
+    device_id: 04c67cc06f3de77db780841d2cb26e25
+    type: action
+    subtype: single
+    discovery_id: 0x00158d0001e83345 action_single
   condition: []
   action:
   - service: cover.toggle
@@ -1542,7 +1550,7 @@
         'last_period') | round (0) }} liter"
   mode: single
 - id: '1629181945984'
-  alias: 'Night Mode: Deactivate Weekday Vacation'
+  alias: 'Set Mode: Night - Deactivate Weekday Vacation'
   description: ''
   trigger:
   - platform: time
@@ -1602,29 +1610,23 @@
   alias: 'Motion Detected: Gang Eerste Verdiep'
   description: ''
   trigger:
-  - type: motion
-    platform: device
-    device_id: 526a9620a08542bf9f03ac3edcd69189
-    entity_id: binary_sensor.motion_gang_eerste_1
-    domain: binary_sensor
-  - type: motion
-    platform: device
-    device_id: 97e44d12724a444aa083bb7b7d8aafbc
-    entity_id: binary_sensor.motion_gang_eerste_2
-    domain: binary_sensor
+  - platform: state
+    entity_id:
+    - binary_sensor.motion_gang_eerste_1
+    - binary_sensor.motion_gang_eerste_2
+    to: 'on'
   condition:
   - condition: state
     entity_id: input_boolean.disable_motion_trigger_light_gang_eerste_verdiep
     state: 'off'
   - condition: or
     conditions:
-    - condition: state
-      entity_id: sensor.gang_eerste_motion_sensor_1
-      attribute: daylight
-      state: false
     - condition: numeric_state
-      entity_id: sensor.gang_eerste_motion_sensor_2
-      below: 10
+      entity_id: sensor.motion_gang_eerste_2_illuminance_lux
+      below: 4
+    - condition: numeric_state
+      entity_id: sensor.motion_gang_eerste_1_illuminance_lux
+      below: 4
   action:
   - choose:
     - conditions:
@@ -1713,10 +1715,9 @@
   - condition: state
     entity_id: binary_sensor.night_mode
     state: 'off'
-  - condition: state
-    entity_id: sensor.gang_eerste_motion_sensor_2
-    attribute: dark
-    state: true
+  - condition: numeric_state
+    entity_id: sensor.motion_gang_eerste_2_illuminance_lux
+    below: 4
   action:
   - service: light.turn_on
     target:
@@ -1772,19 +1773,21 @@
       message: Low Water Pressure Heating
   mode: single
 - id: '1639208368937'
-  alias: Enable Kids Alone Home Mode
+  alias: 'Set Mode: Kids Alone Home'
   description: ''
   trigger:
-  - device_id: a23a7754f95b4a88ad347941e45bfd6b
-    domain: deconz
-    platform: device
-    type: remote_button_short_press
-    subtype: turn_on
+  - platform: device
+    domain: mqtt
+    device_id: a3caf214b66a464d92f094d79804725b
+    type: action
+    subtype: 'on'
+    discovery_id: 0x000d6ffffeaac6a7 action_on
   condition: []
   action:
   - service: input_boolean.turn_on
     target:
       entity_id: input_boolean.kids_home_alone
+    data: {}
   mode: single
 - id: '1639820224754'
   alias: Woonkamer Remote
@@ -1792,24 +1795,29 @@
   use_blueprint:
     path: EPMatt/ikea_e1524_e1810.yaml
     input:
-      controller_device: 7b0a80ba78c1e0968aff34ec1ec2edbd
+      controller_device: 4604f157bce60476bd8923950d2725de
       action_button_center_short:
       - service: scene.turn_on
         target:
           entity_id: scene.woonkamer_off
+        data: {}
       - service: light.turn_off
         target:
           entity_id: light.led_stars_light_led
-      integration: deCONZ
+        data: {}
+      integration: Zigbee2MQTT
       action_button_up_short:
       - service: scene.turn_on
         target:
           entity_id: scene.woonkamer_eve
+        data: {}
       action_button_down_short:
       - service: scene.turn_on
         target:
           entity_id: scene.woonkamer_evening
+        data: {}
       helper_last_controller_event: input_text.woonkamer_remote_helper_last_controller_event
+      controller_entity: sensor.woonkamer_scene_5_button_action
 - id: '1639822020752'
   alias: 'Motion Clear: Gang Eerste Verdiep'
   description: ''
@@ -2440,3 +2448,392 @@
           \"- *state*: \" ~ s.state ~ \"\\n\"\n    ]\n  %}\n{% endfor %} {% set ns.result
           = ns.result | sort %}\n  {{ ns.result | join('\\n') }}"
   mode: restart
+- id: '1667555674167'
+  alias: 'Post: Brievenbus in opened'
+  description: ''
+  trigger:
+  - type: opened
+    platform: device
+    device_id: 929e2970268be0a5d9826785f924b739
+    entity_id: binary_sensor.brievenbus_in_contact
+    domain: binary_sensor
+  condition: []
+  action:
+  - service: input_boolean.turn_on
+    data: {}
+    target:
+      entity_id: input_boolean.post
+  mode: single
+- id: 546462125er
+  alias: 'Capaciteitstarief: Max Peak'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - sensor.max_peak
+  condition:
+  - condition: template
+    value_template: '{{  states("sensor.max_peak") | float(0)> states("input_number.max_peak")
+      | float(0)}}
+
+      '
+  action:
+  - service: input_number.set_value
+    target:
+      entity_id: input_number.max_peak
+    data:
+      value: '{{ states("sensor.max_peak") | float(0)}}
+
+        '
+  mode: parallel
+- id: fevefvdvfzsvf
+  alias: 'Capaciteitstarief: Max Month Peak'
+  description: ''
+  trigger:
+  - platform: template
+    value_template: '{{ (as_timestamp(now()))|timestamp_custom(''%d'', true) | int
+      == 1 }}'
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: '{{ (as_timestamp(now()))|timestamp_custom(''%m'', true)|int
+          == 2 }}'
+      sequence:
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.january_peak
+        data:
+          value: "{% if states(\"sensor.max_peak\") | float(0)> states(\"input_number.january_peak\")
+            | float(0) %}\n  {{ states(\"sensor.max_peak\") }}\n{% else %}\n  2.5\n{%
+            endif %}\n"
+      - delay:
+          seconds: 5
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.max_peak
+        data:
+          value: 0.1
+      - delay:
+          minutes: 1
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.february_peak
+        data:
+          value: 2.5
+    - conditions:
+      - condition: template
+        value_template: '{{ (as_timestamp(now()))|timestamp_custom(''%m'', true)|int
+          == 3 }}'
+      sequence:
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.february_peak
+        data:
+          value: "{% if states(\"sensor.max_peak\") | float(0)> states(\"input_number.february_peak\")
+            | float(0) %}\n  {{ states(\"sensor.max_peak\") }}\n{% else %}\n  2.5\n{%
+            endif %}\n"
+      - delay:
+          seconds: 5
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.max_peak
+        data:
+          value: 0.1
+      - delay:
+          minutes: 1
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.march_peak
+        data:
+          value: 2.5
+    - conditions:
+      - condition: template
+        value_template: '{{ (as_timestamp(now()))|timestamp_custom(''%m'', true)|int
+          == 4 }}'
+      sequence:
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.march_peak
+        data:
+          value: "{% if states(\"sensor.max_peak\") | float(0)> states(\"input_number.march_peak\")
+            | float(0) %}\n  {{ states(\"sensor.max_peak\") }}\n{% else %}\n  2.5\n{%
+            endif %}\n"
+      - delay:
+          seconds: 5
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.max_peak
+        data:
+          value: 0.1
+      - delay:
+          minutes: 1
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.april_peak
+        data:
+          value: 2.5
+    - conditions:
+      - condition: template
+        value_template: '{{ (as_timestamp(now()))|timestamp_custom(''%m'', true)|int
+          == 5 }}'
+      sequence:
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.april_peak
+        data:
+          value: "{% if states(\"sensor.max_peak\") | float(0)> states(\"input_number.april_peak\")
+            | float(0) %}\n  {{ states(\"sensor.max_peak\") }}\n{% else %}\n  2.5\n{%
+            endif %}\n"
+      - delay:
+          seconds: 5
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.max_peak
+        data:
+          value: 0.1
+      - delay:
+          minutes: 1
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.may_peak
+        data:
+          value: 2.5
+    - conditions:
+      - condition: template
+        value_template: '{{ (as_timestamp(now()))|timestamp_custom(''%m'', true)|int
+          == 6 }}'
+      sequence:
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.may_peak
+        data:
+          value: "{% if states(\"sensor.max_peak\") | float(0)> states(\"input_number.may_peak\")
+            | float(0) %}\n  {{ states(\"sensor.max_peak\") }}\n{% else %}\n  2.5\n{%
+            endif %}\n"
+      - delay:
+          seconds: 5
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.max_peak
+        data:
+          value: 0.1
+      - delay:
+          minutes: 1
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.june_peak
+        data:
+          value: 2.5
+    - conditions:
+      - condition: template
+        value_template: '{{ (as_timestamp(now()))|timestamp_custom(''%m'', true)|int
+          == 7 }}'
+      sequence:
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.june_peak
+        data:
+          value: "{% if states(\"sensor.max_peak\") | float(0)> states(\"input_number.june_peak\")
+            | float(0) %}\n  {{ states(\"sensor.max_peak\") }}\n{% else %}\n  2.5\n{%
+            endif %}\n"
+      - delay:
+          seconds: 5
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.max_peak
+        data:
+          value: 0.1
+      - delay:
+          minutes: 1
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.july_peak
+        data:
+          value: 2.5
+    - conditions:
+      - condition: template
+        value_template: '{{ (as_timestamp(now()))|timestamp_custom(''%m'', true)|int
+          == 8 }}'
+      sequence:
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.july_peak
+        data:
+          value: "{% if states(\"sensor.max_peak\") | float(0)> states(\"input_number.july_peak\")
+            | float(0) %}\n  {{ states(\"sensor.max_peak\") }}\n{% else %}\n  2.5\n{%
+            endif %}\n"
+      - delay:
+          seconds: 5
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.max_peak
+        data:
+          value: 0.1
+      - delay:
+          minutes: 1
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.august_peak
+        data:
+          value: 2.5
+    - conditions:
+      - condition: template
+        value_template: '{{ (as_timestamp(now()))|timestamp_custom(''%m'', true)|int
+          == 9 }}'
+      sequence:
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.august_peak
+        data:
+          value: "{% if states(\"sensor.max_peak\") | float(0)> states(\"input_number.august_peak\")
+            | float(0) %}\n  {{ states(\"sensor.max_peak\") }}\n{% else %}\n  2.5\n{%
+            endif %}\n"
+      - delay:
+          seconds: 5
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.max_peak
+        data:
+          value: 0.1
+      - delay:
+          minutes: 1
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.september_peak
+        data:
+          value: 2.5
+    - conditions:
+      - condition: template
+        value_template: '{{ (as_timestamp(now()))|timestamp_custom(''%m'', true)|int
+          == 10 }}'
+      sequence:
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.september_peak
+        data:
+          value: "{% if states(\"sensor.max_peak\") | float(0)> states(\"input_number.september_peak\")
+            | float(0) %}\n  {{ states(\"sensor.max_peak\") }}\n{% else %}\n  2.5\n{%
+            endif %}\n"
+      - delay:
+          seconds: 5
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.max_peak
+        data:
+          value: 0.1
+      - delay:
+          minutes: 1
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.october_peak
+        data:
+          value: 2.5
+    - conditions:
+      - condition: template
+        value_template: '{{ (as_timestamp(now()))|timestamp_custom(''%m'', true)|int
+          == 11 }}'
+      sequence:
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.october_peak
+        data:
+          value: "{% if states(\"sensor.max_peak\") | float(0)> states(\"input_number.october_peak\")
+            | float(0) %}\n  {{ states(\"sensor.max_peak\") }}\n{% else %}\n  2.5\n{%
+            endif %}\n"
+      - delay:
+          seconds: 5
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.max_peak
+        data:
+          value: 0.1
+      - delay:
+          minutes: 1
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.november_peak
+        data:
+          value: 2.5
+    - conditions:
+      - condition: template
+        value_template: '{{ (as_timestamp(now()))|timestamp_custom(''%m'', true)|int
+          == 12 }}'
+      sequence:
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.november_peak
+        data:
+          value: "{% if states(\"sensor.max_peak\") | float(0)> states(\"input_number.november_peak\")
+            | float(0) %}\n  {{ states(\"sensor.max_peak\") }}\n{% else %}\n  2.5\n{%
+            endif %}\n"
+      - delay:
+          seconds: 5
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.max_peak
+        data:
+          value: 0.1
+      - delay:
+          minutes: 1
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.december_peak
+        data:
+          value: 2.5
+    default:
+    - service: input_number.set_value
+      target:
+        entity_id: input_number.december_peak
+      data:
+        value: "{% if states(\"sensor.max_peak\") | float(0)> states(\"input_number.december_peak\")
+          | float(0) %}\n  {{ states(\"sensor.max_peak\") }}\n{% else %}\n  2.5\n{%
+          endif %}\n"
+    - delay:
+        seconds: 5
+    - service: input_number.set_value
+      target:
+        entity_id: input_number.max_peak
+      data:
+        value: 0.1
+    - delay:
+        minutes: 1
+    - service: input_number.set_value
+      target:
+        entity_id: input_number.january_peak
+      data:
+        value: 2.5
+  mode: single
+- id: '1667977999747'
+  alias: 'Set Mode: Philippe Vacation - On'
+  description: ''
+  trigger:
+  - platform: calendar
+    event: start
+    offset: 0:0:0
+    entity_id: calendar.delodderp_gmail_com
+  condition:
+  - condition: template
+    value_template: '{{ ''verlof'' in trigger.calendar_event.summary | lower }}'
+  action:
+  - service: input_boolean.turn_on
+    data: {}
+    target:
+      entity_id: input_boolean.philippe_vacation
+  mode: single
+- id: '1667978119665'
+  alias: 'Set Mode: Philippe Vacation - Off'
+  description: ''
+  trigger:
+  - platform: calendar
+    event: end
+    offset: 0:0:0
+    entity_id: calendar.delodderp_gmail_com
+  condition:
+  - condition: template
+    value_template: '{{ ''verlof'' in trigger.calendar_event.summary | lower }}'
+  action:
+  - service: input_boolean.turn_off
+    data: {}
+  mode: single

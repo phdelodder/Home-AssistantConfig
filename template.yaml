@@ -7,12 +7,14 @@
     state: >-
       {{ states('sensor.recycleapp_tomorrow') != 'None' or states('sensor.recycleapp_today') != 'None' }}
   - name: Vacuum Empty Bin
+    unique_id: vacuum_empty_bin
     state: >- 
       {{ states('input_number.vacuum_number_of_runs') |float (0) >= states('input_number.vacuum_empty_bin_after_days') |float (0) }}
   - name: WFH
+    unique_id: WFH
     state: >-
       {{ is_state('binary_sensor.workday_sensor', 'on') 
-          and state_attr('calendar.delodderp_gmail_com', 'message') | lower != 'verlof' 
+          and is_state('input_boolean.philippe_vacation', 'off') 
           and states('proximity.philippe_home') | float < 10 }}
   - name: wasmachine
     unique_id: wasmachine
@@ -322,6 +324,55 @@
     device_class: power
     state: >-
       {{ states('sensor.wled_speelkamer_estimated_current')|float(0) * 5/1000 }}
+
+  - name: "Max Peak"
+    unique_id: max_peak
+    unit_of_measurement: "kW"
+    device_class: power
+    state: >-
+      {% set peak = ((states("sensor.quarter_hourly_absorbed") | float(0)) * 4) %}
+      {% set max_peak = (states("input_number.max_peak") | float(0)) %}
+      {% macro max(X, Y) -%} {{X|float if X|float > Y|float else Y|float }} {%- endmacro %}
+      {{ max(max_peak, peak) }}
+    state_class: "measurement"
+    icon: mdi:summit
+
+  - name: "Average Year Peak"
+    unique_id: year_peak
+    unit_of_measurement: "kW"
+    device_class: power
+    state: >
+      {{ (( states('input_number.january_peak') | float(0) +
+            states('input_number.february_peak') | float(0) +
+            states('input_number.march_peak') | float(0) +
+            states('input_number.april_peak') | float(0) +
+            states('input_number.may_peak') | float(0) +
+            states('input_number.june_peak') | float(0) +
+            states('input_number.july_peak') | float(0) +
+            states('input_number.august_peak') | float(0) +
+            states('input_number.september_peak') | float(0) +
+            states('input_number.october_peak') | float(0) +
+            states('input_number.november_peak') | float(0) +
+            states('input_number.december_peak') | float(0) ) / 12) | round(2)
+      }}
+    state_class: "measurement"
+
+- trigger:
+  - platform: state
+    entity_id:
+      - sensor.quarter_hourly_absorbed
+    attribute: last_reset
+  sensor:
+    - name: "Quarter Peak"
+      unique_id: quarter_peak
+      unit_of_measurement: "kW"
+      device_class: power
+      state: >-
+        {{ state_attr("sensor.quarter_hourly_absorbed", "last_period") | float(0) * 4 }}
+      state_class: "measurement"
+      attributes:
+        last_reset: >-
+          {{ state_attr("sensor.quarter_hourly_absorbed", "last_reset") }}
 
 - trigger:
   - platform: state

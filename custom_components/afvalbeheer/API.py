@@ -6,7 +6,7 @@ import json
 import requests
 import re
 import uuid
-from rsa import key, common, pkcs1
+from rsa import pkcs1
 from Crypto.PublicKey import RSA
 from base64 import b64decode, b64encode
 
@@ -122,7 +122,8 @@ class WasteData(object):
             persistent_notification.create(
                 self.hass,
                 'Waste collector "{}" not found!'.format(self.waste_collector),
-                'Afvalwijzer' + " " + self.waste_collector, NOTIFICATION_ID + "_" + self.waste_collector)
+                'Afvalwijzer' + " " + self.waste_collector, 
+                NOTIFICATION_ID + "_collectornotfound_" + self.waste_collector)
 
     async def schedule_update(self, interval):
         nxt = dt_util.utcnow() + interval
@@ -138,7 +139,8 @@ class WasteData(object):
             persistent_notification.create(
                 self.hass,
                 'Available waste types: ' + ', '.join(self.collector.collections.get_available_waste_types()),
-                'Afvalwijzer' + " " + self.waste_collector, NOTIFICATION_ID + "_" + self.waste_collector)
+                'Afvalwijzer' + " " + self.waste_collector, 
+                NOTIFICATION_ID + "_availablewastetypes_" + self.waste_collector)
             self.print_waste_type = False
 
     @property
@@ -255,7 +257,7 @@ class AfvalwijzerCollector(WasteCollector):
             self.waste_collector_url = self.waste_collector
 
     def __get_data(self):
-        get_url = 'https://api.{}.nl/webservices/appsinput/?apikey={}&method=postcodecheck&postcode={}&street=&huisnummer={}&toevoeging={}&app_name=afvalwijzer&platform=phone&afvaldata={}&langs=nl'.format(
+        get_url = 'https://api.{}.nl/webservices/appsinput/?apikey={}&method=postcodecheck&postcode={}&street=&huisnummer={}&toevoeging={}&app_name=afvalwijzer&platform=web&afvaldata={}&langs=nl'.format(
                 self.waste_collector_url, self.apikey, self.postcode, self.street_number, self.suffix, datetime.today().strftime('%Y-%m-%d'))
         return requests.get(get_url)
 
@@ -793,6 +795,7 @@ class RecycleApp(WasteCollector):
         'snoeihout': WASTE_TYPE_BRANCHES,
         'zachte plastics': WASTE_TYPE_SOFT_PLASTIC,
         'roze zak': WASTE_TYPE_SOFT_PLASTIC,
+        'déchets résiduels': WASTE_TYPE_GREY,
         'déchets organiques': WASTE_TYPE_GREEN,
         'omb': WASTE_TYPE_GREY,
     }
@@ -801,7 +804,7 @@ class RecycleApp(WasteCollector):
         super(RecycleApp, self).__init__(hass, waste_collector, postcode, street_number, suffix)
         self.street_name = street_name
         self.main_url = 'https://api.recycleapp.be/api/app/v1/'
-        self.xsecret = 'Crgja3EGWe8jdapyr4EEoMBgZACYYjRRcRpaMQrLDW9HJBvmgkfGQyYqLgeXPavAGvnJqkV87PBB2b8zx43q46sUgzqio4yRZbABhtKeagkVKypTEDjKfPgGycjLyJTtLHYpzwJgp4YmmCuJZN9ZmJY8CGEoFs8MKfdJpU9RjkEVfngmmk2LYD4QzFegLNKUbcCeAdEW'
+        self.xsecret = '8eTFgy3AQH0mzAcj3xMwaKnNyNnijEFIEegjgNpBHifqtQ4IEyWqmJGFz3ggKQ7B4vwUYS8xz8KwACZihCmboGb6brtVB3rpne2Ww5uUM2n3i4SKNUg6Vp7lhAS8INDUNH8Ll7WPhWRsQOXBCjVz5H8fr0q6fqZCosXdndbNeiNy73FqJBn794qKuUAPTFj8CuAbwI6Wom98g72Px1MPRYHwyrlHUbCijmDmA2zoWikn34LNTUZPd7kS0uuFkibkLxCc1PeOVYVHeh1xVxxwGBsMINWJEUiIBqZt9VybcHpUJTYzureqfund1aeJvmsUjwyOMhLSxj9MLQ07iTbvzQa6vbJdC0hTsqTlndccBRm9lkxzNpzJBPw8VpYSyS3AhaR2U1n4COZaJyFfUQ3LUBzdj5gV8QGVGCHMlvGJM0ThnRKENSWZLVZoHHeCBOkfgzp0xl0qnDtR8eJF0vLkFiKwjX7DImGoA8IjqOYygV3W9i9rIOfK'
         self.xconsumer = 'recycleapp.be'
         self.accessToken = ''
         self.postcode_id = ''
@@ -1038,7 +1041,7 @@ def Get_WasteData_From_Config(hass, config):
                 DEPRECATED_AND_NEW_WASTECOLLECTORS[waste_collector], waste_collector
             ),
             "Afvalbeheer" + " " + waste_collector,
-            "update_config" + "_" + waste_collector,
+            NOTIFICATION_ID + "_update_config_" + waste_collector,
         )
         waste_collector = DEPRECATED_AND_NEW_WASTECOLLECTORS[waste_collector]
 
@@ -1047,7 +1050,7 @@ def Get_WasteData_From_Config(hass, config):
             hass,
             "Config invalid! Cityname is required for {}".format(waste_collector),
             "Afvalbeheer" + " " + waste_collector,
-            "invalid_config" + "_" + waste_collector,
+            NOTIFICATION_ID + "_invalid_config_" + waste_collector,
         )
         return
 
@@ -1056,7 +1059,7 @@ def Get_WasteData_From_Config(hass, config):
             hass,
             "Config invalid! Streetname is required for {}".format(waste_collector),
             "Afvalbeheer" + " " + waste_collector,
-            "invalid_config" + "_" + waste_collector,
+            NOTIFICATION_ID + "_invalid_config_" + waste_collector,
         )
         return
 

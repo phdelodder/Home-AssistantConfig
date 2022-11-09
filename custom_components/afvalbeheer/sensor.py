@@ -3,7 +3,8 @@ from datetime import datetime
 from datetime import timedelta
 
 from homeassistant.const import CONF_RESOURCES, DEVICE_CLASS_TIMESTAMP
-from homeassistant.helpers.entity import Entity
+from homeassistant.components.sensor import SensorEntity
+from homeassistant.helpers.restore_state import RestoreEntity
 
 from .const import *
 from .API import Get_WasteData_From_Config
@@ -13,15 +14,6 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
-    # Without breaking existing config to load using sensor as component you get a direct call with the config to here.
-    # sensor:
-    #   platform: afvalbeheer
-    #   ....
-    # This function could be simplified and non async function when depricating this way of accessing.
-    # New way of the config should be:
-    # Afvalbeheer:
-    #   ....
-
     _LOGGER.debug("Setup of sensor platform Afvalbeheer")
 
     schedule_update = False
@@ -40,6 +32,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     name = config.get(CONF_NAME)
     name_prefix = config.get(CONF_NAME_PREFIX)
     built_in_icons = config.get(CONF_BUILT_IN_ICONS)
+    built_in_icons_new = config.get(CONF_BUILT_IN_ICONS_NEW)
     disable_icons = config.get(CONF_DISABLE_ICONS)
     dutch_days = config.get(CONF_TRANSLATE_DAYS)
     day_of_week = config.get(CONF_DAY_OF_WEEK)
@@ -66,6 +59,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
                 name,
                 name_prefix,
                 built_in_icons,
+                built_in_icons_new,
                 disable_icons,
                 dutch_days,
                 day_of_week,
@@ -104,11 +98,11 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
         await data.schedule_update(timedelta())
 
 
-class WasteTypeSensor(Entity):
+class WasteTypeSensor(RestoreEntity, SensorEntity):
 
     def __init__(self, data, waste_type, waste_collector, date_format, date_only, date_object,
-                name, name_prefix, built_in_icons, disable_icons, dutch_days, day_of_week,
-                day_of_week_only, always_show_day):
+                name, name_prefix, built_in_icons, built_in_icons_new,disable_icons, dutch_days, 
+                day_of_week, day_of_week_only, always_show_day):
         self.data = data
         self.waste_type = waste_type
         self.waste_collector = waste_collector
@@ -118,6 +112,7 @@ class WasteTypeSensor(Entity):
         self._name = _format_sensor(name, name_prefix, waste_collector, self.waste_type)
         self._attr_unique_id = _format_sensor(name, name_prefix, waste_collector, self.waste_type)
         self.built_in_icons = built_in_icons
+        self.built_in_icons_new = built_in_icons_new
         self.disable_icons = disable_icons
         self.dutch_days = dutch_days
         self.day_of_week = day_of_week
@@ -130,11 +125,11 @@ class WasteTypeSensor(Entity):
             self._today = "Today"
             self._tomorrow = "Tomorrow"
         self._days_until = None
-        self._unit = ''
         self._sort_date = 0
         self._hidden = False
         self._entity_picture = None
         self._state = None
+        self._attrs = {}
 
     @property
     def name(self):
@@ -142,6 +137,11 @@ class WasteTypeSensor(Entity):
 
     @property
     def entity_picture(self):
+        if self.built_in_icons and not self.disable_icons:
+            if self.built_in_icons_new and self.waste_type in FRACTION_ICONS_NEW:
+                self._entity_picture = FRACTION_ICONS_NEW[self.waste_type]
+            elif self.waste_type in FRACTION_ICONS:
+                self._entity_picture = FRACTION_ICONS[self.waste_type]
         return self._entity_picture
 
     @property
@@ -150,21 +150,36 @@ class WasteTypeSensor(Entity):
 
     @property
     def extra_state_attributes(self):
-        return {
+        self._attrs = {
             ATTR_WASTE_COLLECTOR: self.waste_collector,
             ATTR_HIDDEN: self._hidden,
             ATTR_SORT_DATE: self._sort_date,
             ATTR_DAYS_UNTIL: self._days_until
         }
+        return self._attrs
 
     @property
     def device_class(self):
         if self.date_object == True:
             return DEVICE_CLASS_TIMESTAMP
 
-    @property
-    def unit_of_measurement(self):
-        return self._unit
+    async def async_added_to_hass(self):
+        """Call when entity is about to be added to Home Assistant."""
+        if (state := await self.async_get_last_state()) is None:
+            self._state = None
+            return
+
+        self._state = state.state
+
+        if ATTR_WASTE_COLLECTOR in state.attributes:
+            if not self.disable_icons and 'entity_picture' in state.attributes.keys():
+                self._entity_picture = state.attributes['entity_picture']
+            self._attrs = {
+            ATTR_WASTE_COLLECTOR: state.attributes[ATTR_WASTE_COLLECTOR],
+            ATTR_HIDDEN: state.attributes[ATTR_HIDDEN],
+            ATTR_SORT_DATE: state.attributes[ATTR_SORT_DATE],
+            ATTR_DAYS_UNTIL: state.attributes[ATTR_DAYS_UNTIL]
+        }
 
     def update(self):
         collection = self.data.collections.get_first_upcoming_by_type(self.waste_type)
@@ -227,16 +242,11 @@ class WasteTypeSensor(Entity):
         self._sort_date = int(collection.date.strftime('%Y%m%d'))
 
     def __set_picture(self, collection):
-        if self.disable_icons:
-            return
-
-        if self.built_in_icons and self.waste_type in FRACTION_ICONS:
-            self._entity_picture = FRACTION_ICONS[self.waste_type]
-        elif collection.icon_data:
+        if collection.icon_data and not self.disable_icons:
             self._entity_picture = collection.icon_data
 
 
-class WasteDateSensor(Entity):
+class WasteDateSensor(RestoreEntity, SensorEntity):
 
     def __init__(self, data, waste_types, waste_collector, date_delta, dutch_days, name, name_prefix):
         self.data = data
@@ -252,9 +262,9 @@ class WasteDateSensor(Entity):
             day = ''
         self._name = _format_sensor(name, name_prefix, waste_collector, day)
         self._attr_unique_id = _format_sensor(name, name_prefix, waste_collector, day)
-        self._unit = ''
         self._hidden = False
         self._state = None
+        self._attrs = {}
 
     @property
     def name(self):
@@ -266,13 +276,23 @@ class WasteDateSensor(Entity):
 
     @property
     def extra_state_attributes(self):
-        return {
+        self._attrs = {
             ATTR_HIDDEN: self._hidden
         }
+        return self._attrs
 
-    @property
-    def unit_of_measurement(self):
-        return self._unit
+    async def async_added_to_hass(self):
+        """Call when entity is about to be added to Home Assistant."""
+        if (state := await self.async_get_last_state()) is None:
+            self._state = None
+            return
+
+        self._state = state.state
+
+        if ATTR_HIDDEN in state.attributes:
+            self._attrs = {
+            ATTR_HIDDEN: state.attributes[ATTR_HIDDEN]
+        }
 
     def update(self):
         date = datetime.now() + self.date_delta

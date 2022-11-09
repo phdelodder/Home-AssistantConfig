@@ -733,3 +733,98 @@ eco_manage_boiler_keuken:
         target:
           entity_id: switch.boiler_keuken
   mode: single
+'1667226203927':
+  alias: Reset Ikea Light Bulbs using Shelly
+  sequence:
+  - service: switch.turn_off
+    data: {}
+    target:
+      entity_id: switch.verlichting_slaapkamer_margot
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 1
+      milliseconds: 0
+  - service: switch.turn_on
+    data: {}
+    target:
+      entity_id: switch.verlichting_slaapkamer_margot
+  - service: switch.turn_off
+    data: {}
+    target:
+      entity_id: switch.verlichting_slaapkamer_margot
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 1
+      milliseconds: 0
+  - service: switch.turn_on
+    data: {}
+    target:
+      entity_id: switch.verlichting_slaapkamer_margot
+  - service: switch.turn_off
+    data: {}
+    target:
+      entity_id: switch.verlichting_slaapkamer_margot
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 1
+      milliseconds: 0
+  - service: switch.turn_on
+    data: {}
+    target:
+      entity_id: switch.verlichting_slaapkamer_margot
+  - service: switch.turn_off
+    data: {}
+    target:
+      entity_id: switch.verlichting_slaapkamer_margot
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 1
+      milliseconds: 0
+  - service: switch.turn_on
+    data: {}
+    target:
+      entity_id: switch.verlichting_slaapkamer_margot
+  - service: switch.turn_off
+    data: {}
+    target:
+      entity_id: switch.verlichting_slaapkamer_margot
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 1
+      milliseconds: 0
+  - service: switch.turn_on
+    data: {}
+    target:
+      entity_id: switch.verlichting_slaapkamer_margot
+  - service: switch.turn_off
+    data: {}
+    target:
+      entity_id: switch.verlichting_slaapkamer_margot
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 1
+      milliseconds: 0
+  - service: switch.turn_on
+    data: {}
+    target:
+      entity_id: switch.verlichting_slaapkamer_margot
+  - service: switch.turn_off
+    data: {}
+    target:
+      entity_id: switch.verlichting_slaapkamer_margot
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 1
+      milliseconds: 0
+  - service: switch.turn_on
+    data: {}
+    target:
+      entity_id: switch.verlichting_slaapkamer_margot
+  mode: single

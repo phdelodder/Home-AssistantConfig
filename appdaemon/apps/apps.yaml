@@ -6,30 +6,9 @@ hello_world:
 staande_lamp_controller:
   module: controllerx
   class: E1810Controller
-  controller: remote_staande_lamp_living
-  integration: deconz
+  controller: sensor.staande_lamp_5_button_action
+  integration: z2m
   light: light.staande_lamp_living
-
-Livingroom_part1_controller:
-  module: controllerx
-  class: Controller
-  controller: schouw
-  integration: deconz
-  mapping:
-    1001:
-      service: light.turn_off
-      data:
-        entity_id: 
-          - light.schouw
-          - light.staande_lamp_living
-    1002:
-      service: scene.turn_on
-      data:
-        entity_id: scene.sfeer_woonkamer 
-    1004:
-      service: scene.turn_on
-      data:
-        entity_id: scene.testing  
 
 slaapkamer_controller:
   module: controllerx
@@ -47,203 +26,178 @@ slaapkamer_controller:
 # and the bottom one for the color (changing directions everytime you hold). 
 # If you want to check the events that it fires, you can check here: https://xaviml.github.io/controllerx/controllers/Niko91004 and if you want to check which predefined actions you want to use, you can do it in here: https://xaviml.github.io/controllerx/others/custom-controllers#custom-light-controller
 dressing_strips_controller:
-    module: controllerx
-    class: LightController
-    controller: dressing_dimmer_switch
-    integration: deconz
-    light: light.dressing_ledstrip
-    mapping:
-        3001: hold_brightness_toggle
-        3002: toggle
-        3003: release
-        4001: hold_color_toggle
-        4003: release
+  module: controllerx
+  class: LightController
+  controller: sensor.dressing_switch_action
+  integration: z2m
+  light: light.dressing_ledstrip
+  mapping:
+    press_3: toggle
+    press_4: hold_brightness_toggle
 
 dressing_spots_controller_day:
   module: controllerx
   class: LightController
-  controller: dressing_dimmer_switch
-  integration: deconz
+  controller: sensor.dressing_switch_action
+  integration: z2m
   light: light.dressing_spots
   constrain_input_boolean: input_boolean.night_mode,off
   mapping:
-    1001: hold_brightness_toggle
-    1002:
+    press_1: 
       service: light.toggle
       data:
         entity_id: light.dressing_spots
-        brightness_pct: 75 
-    1003: release
-    2001: hold_color_toggle
-    2003: release
+        brightness_pct: 80 
+    press_2: hold_brightness_toggle
 
 dressing_spots_controller_night:
   module: controllerx
   class: LightController
-  controller: dressing_dimmer_switch
-  integration: deconz
+  controller: sensor.dressing_switch_action
+  integration: z2m
   light: light.dressing_spots
   constrain_input_boolean: input_boolean.night_mode
   mapping:
-    1001: hold_brightness_toggle
-    1002:
+    press_1:
       service: light.toggle
       data:
         entity_id: light.dressing_spots
         brightness_pct: 20 
-    1003: release
-    2001: hold_color_toggle
-    2003: release
+    press_2: hold_brightness_toggle
 
 febe_slaapkamer_controller_button:
   module: controllerx
   class: Controller
-  controller: slaapkamer_febe
-  integration: deconz
-  light: light.febe_slaapkamer
+  controller: sensor.slaapkamer_febe_button_spots_action
+  integration: z2m
+  light: light.slaapkamer_febe_spots
   mapping:
-    1002:
+    single:
       service: light.toggle
       data:
-        entity_id: light.febe_slaapkamer
+        entity_id: light.slaapkamer_febe_spots
         brightness_pct: 20 
 
 febe_slaapkamer_controller_b1:
   module: controllerx
   class: LightController
-  controller: slaapkamer_febe_dimmer_switch
-  integration: deconz
-  light: light.febe_slaapkamer
+  controller: sensor.slaapkamer_febe_switch_action
+  integration: z2m
+  light: light.slaapkamer_febe_spots
   mapping:
-    1001: hold_brightness_toggle
-    1002: 
+    press_1: 
       service: light.toggle
       data:
-        entity_id: light.febe_slaapkamer
+        entity_id: light.slaapkamer_febe_spots
         brightness_pct: 100
-    1003: release
 
 febe_slaapkamer_controller_b2:
   module: controllerx
   class: LightController
-  controller: slaapkamer_febe_dimmer_switch
-  integration: deconz
-  light: light.slaapkamer_febe_bureau
+  controller: sensor.slaapkamer_febe_switch_action
+  integration: z2m
+  light: light.slaapkamer_febe_spots_bureau
   mapping:
-    2001: hold_brightness_toggle
-    2002:
+    press_2:
       service: light.toggle
       data:
-        entity_id: light.slaapkamer_febe_bureau
+        entity_id: light.slaapkamer_febe_spots_bureau
         brightness_pct: 100
-    2003: release
 
 febe_slaapkamer_controller_b3:
   module: controllerx
   class: LightController
-  controller: slaapkamer_febe_dimmer_switch
-  integration: deconz
+  controller: sensor.slaapkamer_febe_switch_action
+  integration: z2m
   light: light.febe_led_bed
   mapping:
-    3001: hold_brightness_toggle
-    3002:
+    press_3:
       service: light.toggle
       data:
         entity_id: light.febe_led_bed
         brightness_pct: 100
         effect: solid
-    3003: release
 
 febe_slaapkamer_controller_b4:
   module: controllerx
   class: LightController
-  controller: slaapkamer_febe_dimmer_switch
-  integration: deconz
-  light: light.slaapkamer_febe_kleerkast
+  controller: sensor.slaapkamer_febe_switch_action
+  integration: z2m
+  light: light.slaapkamer_febe_spots_kleerkast
   mapping:
-    4001: hold_brightness_toggle
-    4002:
+    press_4:
       service: light.toggle
       data:
-        entity_id: light.slaapkamer_febe_kleerkast
+        entity_id: light.slaapkamer_febe_spots_kleerkast
         brightness_pct: 100
-    4003: release
 
 
 margot_slaapkamer_controller_b1:
   module: controllerx
   class: LightController
-  controller: slaapkamer_margot_dimmer_switch
-  integration: deconz
-  light: light.margot_slaapkamer
+  controller: sensor.slaapkamer_margot_switch_action
+  integration: z2m
+  light: light.slaapkamer_margot_spots
   mapping:
-    1001: hold_brightness_toggle
-    1002: 
+    press_1: 
       service: light.toggle
       data:
-        entity_id: light.margot_slaapkamer
+        entity_id: light.slaapkamer_margot_spots
         brightness_pct: 100
-    1003: release
 
 margot_slaapkamer_controller_b2:
   module: controllerx
   class: LightController
-  controller: slaapkamer_margot_dimmer_switch
-  integration: deconz
-  light: light.slaapkamer_margot_bureau
+  controller: sensor.slaapkamer_margot_switch_action
+  integration: z2m
+  light: light.slaapkamer_margot_spots_bureau
   mapping:
-    2001: hold_brightness_toggle
-    2002:
+    press_2:
       service: light.toggle
       data:
-        entity_id: light.slaapkamer_margot_bureau
+        entity_id: light.slaapkamer_margot_spots_bureau
         brightness_pct: 100
-    2003: release
 
 margot_slaapkamer_controller_b3:
   module: controllerx
   class: LightController
-  controller: slaapkamer_margot_dimmer_switch
-  integration: deconz
+  controller: sensor.slaapkamer_margot_switch_action
+  integration: z2m
   light: light.margot_led_bed
   mapping:
-    3001: hold_brightness_toggle
-    3002:
+    press_3:
       service: light.toggle
       data:
         entity_id: light.margot_led_bed
         brightness_pct: 100
         effect: solid
-    3003: release
 
 margot_slaapkamer_controller_b4:
   module: controllerx
   class: LightController
-  controller: slaapkamer_margot_dimmer_switch
-  integration: deconz
-  light: light.slaapkamer_margot_kleerkast
+  controller: sensor.slaapkamer_margot_switch_action
+  integration: z2m
+  light: light.slaapkamer_margot_spots_kleerkast
   mapping:
-    4001: hold_brightness_toggle
-    4002:
+    press_4:
       service: light.toggle
       data:
-        entity_id: light.slaapkamer_margot_kleerkast
+        entity_id: light.slaapkamer_margot_spots_kleerkast
         brightness_pct: 100
-    4003: release
 
 margot_slaapkamer_controller_button:
   module: controllerx
   class: Controller
-  controller: slaapkamer_margot
-  integration: deconz
-  light: light.margot_slaapkamer
+  controller: sensor.slaapkamer_margot_toggle_spots_action
+  integration: z2m
+  light: light.slaapkamer_margot_spots
   mapping:
-    1002:
+    "on":
       service: light.turn_on
       data:
-        entity_id: light.margot_slaapkamer
+        entity_id: light.slaapkamer_margot_spots
         brightness_pct: 20 
-    2002:
+    "off":
       service: light.turn_off
       data:
-        entity_id: light.margot_slaapkamer
+        entity_id: light.slaapkamer_margot_spots

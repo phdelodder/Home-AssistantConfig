@@ -21,9 +21,9 @@
 - platform: group
   name: Eerste Verdiep
   entities:
-    - light.margot_slaapkamer
+    - light.slaapkamer_margot_spots
     - light.margot_led_bed
-    - light.febe_slaapkamer
+    - light.slaapkamer_febe_spots
     - light.febe_led_bed
     - light.dressing_spots
     - light.dressing_ledstrip
@@ -36,7 +36,6 @@
   entities: 
     - light.voordeur
     - light.achterdeur
-    - light.garage_buiten
     - light.voortuin
     - light.rozenboom
     - light.verlichting_garage_voorkant
