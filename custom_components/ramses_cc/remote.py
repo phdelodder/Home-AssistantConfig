@@ -17,7 +17,10 @@ from homeassistant.components.remote import DOMAIN as PLATFORM
 from homeassistant.components.remote import RemoteEntity, RemoteEntityFeature
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import Event, HomeAssistant, callback
-from homeassistant.helpers.entity_platform import AddEntitiesCallback, current_platform
+from homeassistant.helpers.entity_platform import (
+    AddEntitiesCallback,
+    async_get_current_platform,
+)
 from homeassistant.helpers.typing import DiscoveryInfoType
 from ramses_rf.protocol import Command, Priority
 
@@ -36,30 +39,22 @@ async def async_setup_platform(
     async_add_entities: AddEntitiesCallback,
     discovery_info: DiscoveryInfoType = None,
 ) -> None:
-    """Set up the remote entities.
+    """Create remotes for HVAC."""
 
-    discovery_info keys:
-      gateway: is the ramses_rf protocol stack (gateway/protocol/transport/serial)
-      devices: heat (e.g. CTL, OTB, BDR, TRV) or hvac (e.g. FAN, CO2, REM)
-      domains: TCS, DHW and Zones
-    """
-
-    if discovery_info is None:
+    if discovery_info is None:  # or not discovery_info.get("remotes")  # not needed
         return
 
     broker = hass.data[DOMAIN][BROKER]
 
-    new_remotes = [
-        RamsesRemote(broker, device) for device in discovery_info["remotes"]
-    ]  # and (not device._is_faked or device["fakable"])
-
-    async_add_entities(new_remotes)
-
-    if not broker._services.get(PLATFORM) and new_remotes:
-        broker._services[PLATFORM] = True
-
-    register_svc = current_platform.get().async_register_entity_service
+    register_svc = async_get_current_platform().async_register_entity_service
     [register_svc(k, v, f"svc_{k}") for k, v in SVCS_REMOTE.items()]
+
+    async_add_entities(
+        [RamsesRemote(broker, device) for device in discovery_info["remotes"]]
+    )
+
+    if not broker._services.get(PLATFORM):
+        broker._services[PLATFORM] = True
 
 
 class RamsesRemote(RamsesEntity, RemoteEntity):
@@ -134,9 +129,11 @@ class RamsesRemote(RamsesEntity, RemoteEntity):
         @callback
         def listener(event: Event) -> None:
             """Save the command to storage."""
+            # if event.data["packet"] in self._commands.values():  # TODO
+            #     raise DuplicateError
             self._commands[command[0]] = event.data["packet"]
 
-        if len(command) != 1:
+        if len(command) != 1:  # TODO: Bug was here
             raise TypeError("must be exactly one command to learn")
         if not isinstance(timeout, (float, int)) or not 5 <= timeout <= 300:
             raise TypeError("timeout must be 5 to 300 (default 60)")
@@ -145,8 +142,9 @@ class RamsesRemote(RamsesEntity, RemoteEntity):
             await self.async_delete_command(command)
 
         with self._broker._sem:
+            self._broker.learn_device_id = self._device.id
             remove_listener = self.hass.bus.async_listen(
-                f"{DOMAIN}_message", listener, event_filter
+                f"{DOMAIN}_learn", listener, event_filter
             )
 
             dt_expires = dt.now() + td(seconds=timeout)
@@ -155,6 +153,7 @@ class RamsesRemote(RamsesEntity, RemoteEntity):
                 if self._commands.get(command[0]):
                     break
 
+            self._broker.learn_device_id = None
             remove_listener()
 
     async def async_send_command(
@@ -211,6 +210,7 @@ class RamsesRemote(RamsesEntity, RemoteEntity):
 
         This is a RAMSES-specific convenience wrapper for async_learn_command().
         """
+        kwargs["command"] = [kwargs.pop("command")]
         await self.async_learn_command(*args, **kwargs)
 
     async def svc_send_command(self, *args, **kwargs) -> None:

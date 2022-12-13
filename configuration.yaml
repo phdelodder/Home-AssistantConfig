@@ -1,4 +1,5 @@
 homeassistant:
+  country: BE
   media_dirs:
     media: /media
     snapshots: /config/www/snapshots

@@ -645,7 +645,7 @@
       command: '{{ trigger.event.data[''command''].strip(''/'') }}'
   mode: single
 - id: '1600848151075'
-  alias: 'Set Mode: Guest - Telegram Response'
+  alias: 'Set Mode: Telegram Response'
   description: ''
   trigger:
   - platform: event
@@ -656,6 +656,10 @@
     event_type: telegram_callback
     event_data:
       command: /noguest
+  - platform: event
+    event_type: telegram_callback
+    event_data:
+      command: /yeskidshomealone
   condition: []
   action:
   - service: script.guest_mode_feedback
@@ -1068,7 +1072,10 @@
   action:
   - service: switch.turn_on
     data: {}
-    entity_id: switch.verlichting_buiten_voorkant
+    target:
+      entity_id:
+      - switch.verlichting_buiten_voorkant
+      - switch.haag_straat
   - choose:
     - conditions:
       - condition: template
@@ -1077,6 +1084,7 @@
       - service: light.turn_on
         target:
           entity_id: light.rozenboom
+        data: {}
     default: []
   mode: single
 - id: '1607349875705'
@@ -1092,10 +1100,14 @@
   action:
   - service: switch.turn_off
     data: {}
-    entity_id: switch.verlichting_buiten_voorkant
+    target:
+      entity_id:
+      - switch.verlichting_buiten_voorkant
+      - switch.haag_straat
   - service: light.turn_off
     target:
       entity_id: light.rozenboom
+    data: {}
   mode: single
 - id: '1607930433185'
   alias: 'Motion: WC Beneden'
@@ -1214,7 +1226,7 @@
             state: 'off'
           - condition: template
             value_template: '{% set time = states(''sensor.time'') %}{{ ''08:00''
-              < time < ''17:00'' }}'
+              < time < ''16:00'' }}'
         - condition: and
           conditions:
           - condition: state
@@ -1277,9 +1289,8 @@
           temperature: 18
           entity_id: climate.speelkamer
     default:
-    - service: climate.set_preset_mode
+    - service: ramses_cc.reset_zone_mode
       data:
-        preset_mode: None
         entity_id: climate.speelkamer
   mode: single
 - id: '1613471447340'
@@ -1300,8 +1311,8 @@
   description: ''
   trigger:
   - platform: template
-    value_template: '{% set time = states(''sensor.time'') %} {{ (''15:30'' == time
-      and (now().weekday() == 0 )) or (''16:10'' == time and (now().weekday() == 1
+    value_template: '{% set time = states(''sensor.time'') %} {{ (''15:20'' == time
+      and (now().weekday() == 0 )) or (''16:00'' == time and (now().weekday() == 1
       or now().weekday() == 3 )) }}'
   - platform: homeassistant
     event: start
@@ -1321,8 +1332,8 @@
     entity_id: binary_sensor.school_vacation
     state: 'off'
   - condition: template
-    value_template: '{{ is_state(''sensor.house_mode'', ''home'') or is_state(''sensor.house_mode'',
-      ''guest'')  }}'
+    value_template: '{{ states(''sensor.house_mode'') in [''kids home alone'', ''guest'',
+      ''home''] }}'
   - condition: state
     entity_id: climate.febe
     state: heat
@@ -1330,16 +1341,19 @@
     entity_id: climate.febe
     attribute: current_temperature
     below: 16
+  - condition: state
+    entity_id: binary_sensor.workday_sensor
+    state: 'on'
   action:
   - choose:
     - conditions:
       - condition: or
         conditions:
         - condition: template
-          value_template: '{% set time = states(''sensor.time'') %} {{ ''15:30'' <=
+          value_template: '{% set time = states(''sensor.time'') %} {{ ''15:10'' <=
             time < ''17:30'' and (now().weekday() == 0 ) }}'
         - condition: template
-          value_template: '{% set time = states(''sensor.time'') %} {{ ''16:10'' <=
+          value_template: '{% set time = states(''sensor.time'') %} {{ ''15:50'' <=
             time < ''17:30'' and (now().weekday() == 1 or now().weekday() == 3 ) }}'
       sequence:
       - service: ramses_cc.set_zone_mode
@@ -1348,7 +1362,7 @@
           mode: temporary_override
           setpoint: 18
           duration:
-            minutes: 60
+            minutes: 45
     default:
     - service: ramses_cc.reset_zone_mode
       data:
@@ -1359,15 +1373,23 @@
   description: ''
   trigger:
   - platform: state
-    entity_id: group.hourse_doors
+    entity_id:
+    - group.house_doors
     from: 'on'
     to: 'off'
-    for: 00:05:00
+    for:
+      hours: 0
+      minutes: 5
+      seconds: 0
   - platform: state
-    entity_id: group.hourse_doors
+    entity_id:
+    - group.house_doors
     from: 'off'
     to: 'on'
-    for: 00:10:00
+    for:
+      hours: 0
+      minutes: 10
+      seconds: 0
   - platform: homeassistant
     event: start
   condition:
@@ -1381,7 +1403,7 @@
   - choose:
     - conditions:
       - condition: state
-        entity_id: group.hourse_doors
+        entity_id: group.house_doors
         state: 'on'
       sequence:
       - service: climate.set_preset_mode
@@ -1615,6 +1637,10 @@
     - binary_sensor.motion_gang_eerste_1
     - binary_sensor.motion_gang_eerste_2
     to: 'on'
+  - platform: state
+    entity_id:
+    - sensor.motion_gang_eerste_2_illuminance_lux
+    - sensor.motion_gang_eerste_1_illuminance_lux
   condition:
   - condition: state
     entity_id: input_boolean.disable_motion_trigger_light_gang_eerste_verdiep
@@ -1627,6 +1653,14 @@
     - condition: numeric_state
       entity_id: sensor.motion_gang_eerste_1_illuminance_lux
       below: 4
+  - condition: or
+    conditions:
+    - condition: state
+      entity_id: binary_sensor.motion_gang_eerste_1
+      state: 'on'
+    - condition: state
+      entity_id: binary_sensor.motion_gang_eerste_2
+      state: 'on'
   action:
   - choose:
     - conditions:
@@ -2199,8 +2233,8 @@
   description: ''
   trigger:
   - platform: template
-    value_template: '{% set time = states(''sensor.time'') %} {{ (''15:30'' == time
-      and (now().weekday() == 0 )) or (''16:10'' == time and (now().weekday() == 1
+    value_template: '{% set time = states(''sensor.time'') %} {{ (''15:20'' == time
+      and (now().weekday() == 0 )) or (''16:00'' == time and (now().weekday() == 1
       or now().weekday() == 3 )) }}'
   - platform: homeassistant
     event: start
@@ -2220,8 +2254,8 @@
     entity_id: binary_sensor.school_vacation
     state: 'off'
   - condition: template
-    value_template: '{{ is_state(''sensor.house_mode'', ''home'') or is_state(''sensor.house_mode'',
-      ''guest'')  }}'
+    value_template: '{{ states(''sensor.house_mode'') in [''kids home alone'', ''guest'',
+      ''home''] }}'
   - condition: state
     entity_id: climate.margot
     state: heat
@@ -2229,16 +2263,19 @@
     entity_id: climate.margot
     attribute: current_temperature
     below: 16
+  - condition: state
+    entity_id: binary_sensor.workday_sensor
+    state: 'on'
   action:
   - choose:
     - conditions:
       - condition: or
         conditions:
         - condition: template
-          value_template: '{% set time = states(''sensor.time'') %} {{ ''15:30'' <=
+          value_template: '{% set time = states(''sensor.time'') %} {{ ''15:10'' <=
             time < ''17:30'' and (now().weekday() == 0 ) }}'
         - condition: template
-          value_template: '{% set time = states(''sensor.time'') %} {{ ''16:10'' <=
+          value_template: '{% set time = states(''sensor.time'') %} {{ ''15:50'' <=
             time < ''17:30'' and (now().weekday() == 1 or now().weekday() == 3 ) }}'
       sequence:
       - service: ramses_cc.set_zone_mode
@@ -2247,7 +2284,7 @@
           mode: temporary_override
           setpoint: 18
           duration:
-            minutes: 60
+            minutes: 45
     default:
     - service: ramses_cc.reset_zone_mode
       data:
@@ -2322,7 +2359,7 @@
           uri: /overzicht-v2/bbq
   mode: single
 - id: '1663698242510'
-  alias: 'Calendar: School Vakantie ON'
+  alias: 'Set Mode: Calendar - School Vacation ON'
   description: ''
   trigger:
   - platform: calendar
@@ -2331,7 +2368,7 @@
     entity_id: calendar.belgie_feestdagen_schoolvakanties_www_feestdagen_belgie_be
   condition:
   - condition: template
-    value_template: '{{ ''vakantie'' in trigger.calender_event.summary }}'
+    value_template: '{{ ''vakantie'' in trigger.calendar_event.summary }}'
   action:
   - service: input_boolean.turn_on
     data: {}
@@ -2339,7 +2376,7 @@
       entity_id: input_boolean.school_vacation
   mode: single
 - id: '1663698518517'
-  alias: 'Calendar: School Vakantie OFF'
+  alias: 'Set Mode: Calendar - School Vacation OFF'
   description: ''
   trigger:
   - platform: calendar
@@ -2348,7 +2385,7 @@
     entity_id: calendar.belgie_feestdagen_schoolvakanties_www_feestdagen_belgie_be
   condition:
   - condition: template
-    value_template: '{{ ''vakantie'' in trigger.calender_event.summary }}'
+    value_template: '{{ ''vakantie'' in trigger.calendar_event.summary }}'
   action:
   - service: input_boolean.turn_off
     data: {}
@@ -2806,7 +2843,7 @@
         value: 2.5
   mode: single
 - id: '1667977999747'
-  alias: 'Set Mode: Philippe Vacation - On'
+  alias: 'Set Mode: Calendar - Philippe Vacation ON'
   description: ''
   trigger:
   - platform: calendar
@@ -2823,7 +2860,7 @@
       entity_id: input_boolean.philippe_vacation
   mode: single
 - id: '1667978119665'
-  alias: 'Set Mode: Philippe Vacation - Off'
+  alias: 'Set Mode: Calendar - Philippe Vacation OFF'
   description: ''
   trigger:
   - platform: calendar
@@ -2836,4 +2873,6 @@
   action:
   - service: input_boolean.turn_off
     data: {}
+    target:
+      entity_id: input_boolean.philippe_vacation
   mode: single

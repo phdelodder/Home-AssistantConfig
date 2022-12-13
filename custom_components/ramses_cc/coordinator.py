@@ -41,7 +41,9 @@ _LOGGER = logging.getLogger(__name__)
 SAVE_STATE_INTERVAL = td(seconds=300)  # TODO: 5 minutes
 
 
-async def async_handle_exceptions(awaitable: Awaitable, logger=_LOGGER):
+async def async_handle_exceptions(
+    awaitable: Awaitable, logger: logging.Logger = _LOGGER
+) -> None:
     """Wrap the serial port interface to catch/report exceptions."""
     try:
         return await awaitable
@@ -50,28 +52,7 @@ async def async_handle_exceptions(awaitable: Awaitable, logger=_LOGGER):
         raise exc
 
 
-# class RamsesCoordinator(DataUpdateCoordinator):
-#     """Class to manage fetching data from single endpoint."""
-
-#     def __init__(
-#         self,
-#         hass: HomeAssistant,
-#         update_interval: td | None = None,
-#     ) -> None:
-
-#         super().__init(
-#             hass,
-#             logger=_LOGGER,
-#             name=DOMAIN,
-#             update_interval=update_interval,
-#             update_method=self.async_update,
-#         )
-
-#     async def async_update():
-#         pass
-
-
-class RamsesCoordinator:
+class RamsesBroker:
     """Container for client and data."""
 
     def __init__(self, hass, hass_config) -> None:
@@ -91,21 +72,20 @@ class RamsesCoordinator:
         self._entities = {}  # domain entities
         self._known_commands = self.config["remotes"]
 
-        # Discovered client entities...
-        self._hgi = None  # HGI, is distinct from devices (has no intrinsic sensors)
-        self._tcs = None
-        self._dhw = None
-        self._zones = []
-        self._objects: dict[str, list] = {
-            "devices": [],
-            "domains": [],
-            "fans": [],
-            "remotes": [],
-        }
+        # Discovered client objects...
+        self._hgi = None  # HGI, is distinct from devices
+        self._ctls = []
+        self._dhws = []
+        self._devs = []
+        self._fans = []
+        self._rems = []
+        self._zons = []
 
         self.loop_task = None
         self._last_update = dt.min
         self._sem = Semaphore(value=1)
+
+        self.learn_device_id = None
 
     async def start(self) -> None:
         """Start the RAMSES co-ordinator."""
@@ -116,7 +96,10 @@ class RamsesCoordinator:
             await self._async_load_client_state()
             _LOGGER.info("Restored the cached state.")
         else:
-            _LOGGER.info("Not restoring any cached state (disabled).")
+            _LOGGER.info(
+                "Not restoring any cached state (disabled), "
+                "consider using 'restore_cache: restore_state: true"
+            )
 
         _LOGGER.debug("Starting the RF monitor...")
         self.loop_task = self.hass.async_create_task(
@@ -171,10 +154,20 @@ class RamsesCoordinator:
     async def _async_load_client_state(self) -> None:
         """Restore the client state from the application store."""
 
-        _LOGGER.info("Restoring the client state cache (packets only)...")
+        _LOGGER.info("Restoring the client state cache (packets)...")
         app_storage = await self._async_load_storage()
         if client_state := app_storage.get("client_state"):
-            await self.client._set_state(packets=client_state["packets"])
+            packets = {
+                k: m
+                for k, m in client_state["packets"].items()
+                if dt.fromisoformat(k) > dt.now() - td(days=1)
+                and (
+                    m[41:45] in ("10E0")
+                    or self.config[SZ_RESTORE_CACHE][SZ_RESTORE_SCHEMA]
+                    or m[41:45] not in ("0004", "0005", "000C")
+                )  # force-load new schema (dont use cached schema pkts)
+            }
+            await self.client._set_state(packets=packets)
 
     async def async_save_client_state(self, *args, **kwargs) -> None:
         """Save the client state to the application store."""
@@ -195,61 +188,71 @@ class RamsesCoordinator:
 
     @callback
     def _find_new_heat_entities(self) -> bool:
-        """Discover & instantiate Climate & WaterHeater entities (Heat)."""
+        """Create Heat entities: Climate, WaterHeater, BinarySensor & Sensor"""
 
-        if self.client.tcs is None:  # assumes the primary TCS is the only TCS
+        if self.client.tcs is None:  # may only be HVAC
             return False
 
-        discovery_info = {}
+        if new_ctls := [s for s in self.client.systems if s not in self._ctls]:
+            self._ctls.extend(new_ctls)
+        if new_zons := [z for s in self._ctls for z in s.zones if z not in self._zons]:
+            self._zons.extend(new_zons)
+        if new_dhws := [s.dhw for s in self._ctls if s.dhw and s.dhw not in self._dhws]:
+            self._dhws.extend(new_dhws)
 
-        if not self._tcs:
-            self._tcs = discovery_info["tcs"] = self.client.tcs
-
-        if new_zones := [z for z in self.client.tcs.zones if z not in self._zones]:
-            self._zones.extend(new_zones)
-            discovery_info["zones"] = new_zones
-
-        if discovery_info:
+        if new_ctls or new_zons:
             self.hass.async_create_task(
                 async_load_platform(
                     self.hass,
                     Platform.CLIMATE,
                     DOMAIN,
-                    discovery_info,
+                    {"ctls": new_ctls, "zons": new_zons},  # discovery_info,
                     self.hass_config,
                 )
             )
-
-        if self.client.tcs.dhw and self._dhw is None:
-            self._dhw = discovery_info["dhw"] = self.client.tcs.dhw
+        if new_dhws:
             self.hass.async_create_task(
                 async_load_platform(
                     self.hass,
                     Platform.WATER_HEATER,
                     DOMAIN,
-                    {"dhw": self._dhw},
+                    {"dhw": new_dhws},  # discovery_info,
                     self.hass_config,
                 )
             )
+        if new_doms := new_ctls + new_zons + new_dhws:
+            # for domain in ("F9", "FA", "FC"):
+            #     if f"{self.client.tcs}_{domain}" not in...
+            for platform in (Platform.BINARY_SENSOR, Platform.SENSOR):
+                self.hass.async_create_task(
+                    async_load_platform(
+                        self.hass,
+                        platform,
+                        DOMAIN,
+                        {"domains": new_doms},  # discovery_info,
+                        self.hass_config,
+                    )
+                )
 
-        return bool(discovery_info)
+        return bool(new_ctls + new_zons + new_dhws)
 
     @callback
     def _find_new_hvac_entities(self) -> bool:
-        """Discover & instantiate HVAC entities (Climate, Remote)."""
+        """Create HVAC entities: Climate, Remote"""
 
         if new_fans := [
             f
             for f in self.client.devices
-            if isinstance(f, HvacVentilator) and f not in self._objects["fans"]
+            if isinstance(f, HvacVentilator) and f not in self._fans
         ]:
-            self._objects["fans"].extend(new_fans)
+            self._fans.extend(new_fans)
+
             self.hass.async_create_task(
                 async_load_platform(
                     self.hass,
                     Platform.CLIMATE,
                     DOMAIN,
-                    {"fans": new_fans},
+                    {"fans": new_fans},  # discovery_info,
                     self.hass_config,
                 )
             )
@@ -257,15 +260,16 @@ class RamsesCoordinator:
         if new_remotes := [
             f
             for f in self.client.devices
-            if isinstance(f, HvacRemoteBase) and f not in self._objects["remotes"]
+            if isinstance(f, HvacRemoteBase) and f not in self._rems
         ]:
-            self._objects["remotes"].extend(new_remotes)
+            self._rems.extend(new_remotes)
+
             self.hass.async_create_task(
                 async_load_platform(
                     self.hass,
                     Platform.REMOTE,
                     DOMAIN,
-                    {"remotes": new_remotes},
+                    {"remotes": new_remotes},  # discovery_info,
                     self.hass_config,
                 )
             )
@@ -274,34 +278,16 @@ class RamsesCoordinator:
 
     @callback
     def _find_new_sensors(self) -> bool:
-        """Discover & instantiate Sensor and BinarySensor entities."""
+        """Create HVAC entities: BinarySensor & Sensor"""
 
         discovery_info = {}
 
         if not self._hgi and self.client.hgi:  # TODO: check HGI is added as a device
             self._hgi = discovery_info["gateway"] = self.client.hgi
 
-        if new_devices := [
-            d for d in self.client.devices if d not in self._objects["devices"]
-        ]:
-            self._objects["devices"].extend(new_devices)
+        if new_devices := [d for d in self.client.devices if d not in self._devs]:
+            self._devs.extend(new_devices)
             discovery_info["devices"] = new_devices
-
-        new_domains = []
-        if self.client.tcs:  # assumes the primary TCS is the only TCS
-            new_domains = [
-                d for d in self.client.tcs.zones if d not in self._objects["domains"]
-            ]
-            if self.client.tcs not in self._objects["domains"]:
-                new_domains.append(self.client.tcs)
-            if (dhw := self.client.tcs.dhw) and dhw not in self._objects["domains"]:
-                new_domains.append(dhw)
-            # for domain in ("F9", "FA", "FC"):
-            #     if f"{self.client.tcs}_{domain}" not in
-
-        if new_domains:
-            self._objects["domains"].extend(new_domains)
-            discovery_info["domains"] = new_domains
 
         if discovery_info:
             for platform in (Platform.BINARY_SENSOR, Platform.SENSOR):

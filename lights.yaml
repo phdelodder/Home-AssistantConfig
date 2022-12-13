@@ -6,6 +6,10 @@
   name: Voortuin
   entity_id: switch.verlichting_buiten_voorkant
 
+- platform: switch
+  name: Haag Straat
+  entity_id: switch.haag_straat
+
 - platform: group
   name: Gelijkvloers
   entities:
@@ -41,6 +45,7 @@
     - light.verlichting_garage_voorkant
     - light.verlichting_garage_zijkant
     - light.garage_terras_verlichting_relay1
+    - light.haag_straat
 
 - platform: group
   name: Zolder

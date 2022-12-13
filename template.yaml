@@ -14,7 +14,7 @@
     unique_id: WFH
     state: >-
       {{ is_state('binary_sensor.workday_sensor', 'on') 
-          and is_state('input_boolean.philippe_vacation', 'off') 
+          and is_state('input_boolean.philippe_vacation', 'off')
           and states('proximity.philippe_home') | float < 10 }}
   - name: wasmachine
     unique_id: wasmachine
@@ -131,7 +131,7 @@
 
         {% set ns = namespace(low_entities=[]) %}
         {% for x in entities %}
-          {% if x.state | float(0) < 30 %}
+          {% if x.state | float(0) < 25 %}
             {% set ns.low_entities = ns.low_entities + [x.entity_id] %}
           {% endif -%}
         {% endfor %}
@@ -356,6 +356,7 @@
             states('input_number.december_peak') | float(0) ) / 12) | round(2)
       }}
     state_class: "measurement"
+    icon: mdi:summit
 
 - trigger:
   - platform: state
@@ -373,6 +374,7 @@
       attributes:
         last_reset: >-
           {{ state_attr("sensor.quarter_hourly_absorbed", "last_reset") }}
+      icon: mdi:summit
 
 - trigger:
   - platform: state

@@ -111,6 +111,11 @@ set_thermostat_away:
     service: climate.set_preset_mode
   - wait_template: '{{ is_state_attr(''climate.controller'', ''preset_mode'', ''away'')
       }}'
+  - delay:
+      hours: 0
+      minutes: 1
+      seconds: 0
+      milliseconds: 0
   - service: climate.set_temperature
     data:
       entity_id:
@@ -153,29 +158,18 @@ set_thermostat_home:
 start_up_home_assistant:
   alias: Start Up Home Assistant
   sequence: []
-ask_to_active_guest_mode:
-  alias: Ask to active guest mode
-  sequence:
-  - service: telegram_bot.send_message
-    data_template:
-      target:
-      - 689595780
-      - 696299625
-      title: Guest Mode Activation
-      message: Wil je Guest Mode activeren?
-      inline_keyboard:
-      - Ja graag.:/yesguest
-      - Nee dank u.:/noguest
 activate_guest_mode:
-  alias: Active Guest Mode
+  alias: Activate Guest Mode
   sequence:
   - service: input_boolean.turn_on
     data:
       entity_id: input_boolean.guest_mode
   - service: script.set_thermostat_home
+    data: {}
   - service: notify.hazilverberkenstraatbot
     data_template:
       message: Guest mode activated
+  mode: single
 deactivate_guest_mode:
   alias: Deactivate Guest Mode
   sequence:
@@ -203,7 +197,7 @@ deactivate_kids_home_alone:
     data_template:
       message: Kids Home Alone deactivated
 activate_vacation_mode:
-  alias: Active Vacation Mode
+  alias: Activate Vacation Mode
   sequence:
   - service: input_boolean.turn_on
     data:
@@ -211,6 +205,7 @@ activate_vacation_mode:
   - service: notify.hazilverberkenstraatbot
     data_template:
       message: Vacation mode activated
+  mode: single
 deactivate_vacation_mode:
   alias: Deactivate Vacation Mode
   sequence:
@@ -273,7 +268,7 @@ motion_detected:
   - service: notify.hazilverberkenstraatbot
     data:
       message: Beweging gedetecteerd, {{ friendly_name }}
-  - service: script.ask_to_active_guest_mode
+  - service: script.telegram_what_mode_needs_to_be_activated
     data: {}
   max: 10
 vacuum_notify:
@@ -482,7 +477,7 @@ vacuum_bin_feedback:
       show_alert: true
   mode: single
 guest_mode_feedback:
-  alias: Guest Mode feedback
+  alias: mode feedback
   fields:
     command:
       description: the response command from telegram
@@ -497,11 +492,19 @@ guest_mode_feedback:
         value_template: '{{ command == ''yesguest'' }}'
       sequence:
       - service: script.activate_guest_mode
+        data: {}
     - conditions:
       - condition: template
         value_template: '{{ command == ''noguest'' }}'
       sequence:
       - service: script.set_thermostat_away
+        data: {}
+    - conditions:
+      - condition: template
+        value_template: '{{ command == ''yeskidshomealone'' }}'
+      sequence:
+      - service: script.activate_kids_home_alone_mode
+        data: {}
   - service: telegram_bot.answer_callback_query
     data_template:
       callback_query_id: '{{ callback_id }}'
@@ -514,7 +517,8 @@ guest_mode_feedback:
       - 689595780
       - 696299625
       message: '{% if (command == ''yesguest'') %} Guest Mode is active {% elif (command
-        == ''noguest'') %} Guest Mode is not active {% endif %}'
+        == ''yeskidshomealone'') %} Kids Home Alone is active {% elif (command ==
+        ''noguest'') %} Guest Mode is not active {% endif %}'
   mode: single
 wakeup_light_sunrise:
   alias: Wakeup Light Sunrise
@@ -594,7 +598,7 @@ sunrise_wled:
   icon: mdi:weather-sunset-up
   max: 20
 activate_night_mode:
-  alias: Active Night Mode
+  alias: Activate Night Mode
   sequence:
   - service: input_boolean.turn_on
     data:
@@ -827,4 +831,33 @@ eco_manage_boiler_keuken:
     data: {}
     target:
       entity_id: switch.verlichting_slaapkamer_margot
+  mode: single
+telegram_what_mode_needs_to_be_activated:
+  alias: 'Telegram: What mode needs to be activated'
+  sequence:
+  - service: telegram_bot.send_message
+    data_template:
+      target:
+      - 689595780
+      - 696299625
+      title: Mode Activation
+      message: Welke Mode activeren?
+      inline_keyboard:
+      - Guest:/yesguest
+      - Kids Home Alone:/yeskidshomealone
+      - Nee dank u.:/nomode
+  mode: single
+activate_kids_home_alone_mode:
+  alias: Activate Kids Home Alone Mode
+  sequence:
+  - service: input_boolean.turn_on
+    data: {}
+    target:
+      entity_id:
+      - input_boolean.kids_home_alone
+  - service: script.set_thermostat_home
+    data: {}
+  - service: notify.hazilverberkenstraatbot
+    data_template:
+      message: Kids Home Alone mode activated
   mode: single

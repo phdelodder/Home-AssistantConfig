@@ -193,6 +193,10 @@ devices:
     friendly_name: Brievenbus In
   '0x00124b0029119349':
     friendly_name: Temperature Buitenkast
+  '0xa4c1381c24a3ce9c':
+    friendly_name: Kerstboom
+  '0xa4c13876a95a3462':
+    friendly_name: Haag Straat
 groups:
   '1':
     friendly_name: Dressing Spots

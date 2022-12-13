@@ -499,9 +499,6 @@
       - Wipe Random
       supported_color_modes:
       - rgb
-      icon: mdi:led-strip-variant
-      friendly_name: Schouw
-      supported_features: 36
       color_mode: rgb
       brightness: 84
       hs_color:
@@ -515,18 +512,27 @@
       - 0.515
       - 0.455
       effect: Solid
+      icon: mdi:led-strip-variant
+      friendly_name: Schouw
+      supported_features: 36
       state: 'on'
     light.staande_lamp_living:
-      min_mireds: 140
-      max_mireds: 650
+      min_color_temp_kelvin: 2202
+      max_color_temp_kelvin: 4000
+      min_mireds: 250
+      max_mireds: 454
+      effect_list:
+      - blink
+      - breathe
+      - okay
+      - channel_change
+      - finish_effect
+      - stop_effect
       supported_color_modes:
       - color_temp
-      is_deconz_group: false
-      icon: mdi:floor-lamp
-      friendly_name: Staande Lamp Living
-      supported_features: 40
       color_mode: color_temp
-      brightness: 184
+      brightness: 182
+      color_temp_kelvin: 2352
       color_temp: 425
       hs_color:
       - 29.294
@@ -538,27 +544,36 @@
       xy_color:
       - 0.564
       - 0.389
+      friendly_name: Staande Lamp Living
+      supported_features: 44
       state: 'on'
     light.kerstboom:
       supported_color_modes:
       - onoff
+      color_mode: onoff
       icon: mdi:pine-tree
       friendly_name: Kerstboom
       supported_features: 0
-      color_mode: onoff
       state: 'on'
     light.lamp_barkast:
+      effect_list:
+      - blink
+      - breathe
+      - okay
+      - channel_change
+      - finish_effect
+      - stop_effect
       supported_color_modes:
       - brightness
-      is_deconz_group: false
-      friendly_name: Lamp Barkast
-      supported_features: 40
       color_mode: brightness
-      brightness: 120
+      brightness: 251
+      friendly_name: Lamp Barkast
+      supported_features: 44
       state: 'on'
     input_boolean.woonkamer_scene:
       editable: true
-      friendly_name: Woonkamer Scene On
+      icon: mdi:dome-light
+      friendly_name: Woonkamer Scene
       state: 'on'
   metadata:
     input_boolean.woonkamer_scene:
