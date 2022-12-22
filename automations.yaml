@@ -1224,9 +1224,9 @@
           - condition: state
             entity_id: binary_sensor.motion_keuken
             state: 'off'
-          - condition: template
-            value_template: '{% set time = states(''sensor.time'') %}{{ ''08:00''
-              < time < ''16:00'' }}'
+          - condition: time
+            after: 08:00:00
+            before: '16:00:00'
         - condition: and
           conditions:
           - condition: state
@@ -1238,7 +1238,8 @@
               entity_id: person.isabel
               state: home
           - condition: time
-            after: 00:08:00
+            after: 08:00:00
+            before: '16:00:00'
       sequence:
       - service: climate.set_temperature
         data:
@@ -2037,7 +2038,8 @@
       - service: ramses_cc.set_zone_mode
         data:
           entity_id: climate.inkom
-          setpoint: 17
+          setpoint: 18
+          mode: follow_schedule
     default:
     - service: ramses_cc.reset_zone_mode
       data:
