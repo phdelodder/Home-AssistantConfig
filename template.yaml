@@ -196,14 +196,18 @@
     unit_of_measurement: W
     device_class: power
     state: >-
-      {{ states('sensor.stp6_0_3se_40_411_grid_power') | float (0) | abs
-          + states('sensor.stp6_0_3se_40_411_metering_power_absorbed') | float (0)
-          - states('sensor.stp6_0_3se_40_411_metering_power_supplied') | float (0)
-      }}
+      {% if states('sensor.stp6_0_3se_40_411_grid_power') | float(0) > 0 %}
+        {{ states('sensor.stp6_0_3se_40_411_grid_power') | float (0)
+            + (states('sensor.power_consumed') | float(0) * 1000)
+            - (states('sensor.power_produced') | float(0) * 1000) }}
+      {% else %}
+        {{ (states('sensor.power_consumed') | float(0) * 1000
+            - states('sensor.power_produced') | float(0) * 1000) }}
+      {% endif %}
     availability: >
       {{ states('sensor.stp6_0_3se_40_411_grid_power') | float(none) != none and
-          states('sensor.stp6_0_3se_40_411_metering_power_absorbed') | float(none) != none and
-          states('sensor.stp6_0_3se_40_411_metering_power_supplied') | float(none) != none }}
+          states('sensor.power_consumed') | float(none) != none and
+          states('sensor.power_produced') | float(none) != none }}
 
   - name: "Unknown Power"
     unique_id: "unknown_power"
@@ -325,12 +329,35 @@
     state: >-
       {{ states('sensor.wled_speelkamer_estimated_current')|float(0) * 5/1000 }}
 
+  - name: "Energy Consumed"
+    unique_id: "energy_consumed"
+    unit_of_measurement: "kWh"
+    device_class: energy
+    state: >-
+      {{ states('sensor.energy_consumed_tariff_1') | float (0) +
+        states('sensor.energy_consumed_tariff_2') | float (0)
+      }}
+    availability: >
+      {{ states('sensor.energy_consumed_tariff_1') | float(none) != none
+          and states('sensor.energy_consumed_tariff_2') | float(none) != none }}
+
+  - name: "Gas Consumed Belgium kWh"
+    unique_id: "gas_consumed_belgium_kwh"
+    unit_of_measurement: "kWh"
+    device_class: energy
+    state_class: total_increasing
+    state: >-
+      {{ states('sensor.gas_consumed_belgium') | float (0) * 11.4226 }}
+    availability: >
+      {{ states('sensor.gas_consumed_belgium') | float(none) != none
+          and states('sensor.gas_consumed_belgium') | float(0) > 0 }}
+
   - name: "Max Peak"
     unique_id: max_peak
     unit_of_measurement: "kW"
     device_class: power
     state: >-
-      {% set peak = ((states("sensor.quarter_hourly_absorbed") | float(0)) * 4) %}
+      {% set peak = ((states("sensor.quarter_hourly_grid_consumed") | float(0)) * 4) %}
       {% set max_peak = (states("input_number.max_peak") | float(0)) %}
       {% macro max(X, Y) -%} {{X|float if X|float > Y|float else Y|float }} {%- endmacro %}
       {{ max(max_peak, peak) }}
@@ -361,7 +388,7 @@
 - trigger:
   - platform: state
     entity_id:
-      - sensor.quarter_hourly_absorbed
+      - sensor.quarter_hourly_grid_consumed
     attribute: last_reset
   sensor:
     - name: "Quarter Peak"
@@ -369,11 +396,11 @@
       unit_of_measurement: "kW"
       device_class: power
       state: >-
-        {{ state_attr("sensor.quarter_hourly_absorbed", "last_period") | float(0) * 4 }}
+        {{ state_attr("sensor.quarter_hourly_grid_consumed", "last_period") | float(0) * 4 }}
       state_class: "measurement"
       attributes:
         last_reset: >-
-          {{ state_attr("sensor.quarter_hourly_absorbed", "last_reset") }}
+          {{ state_attr("sensor.quarter_hourly_grid_consumed", "last_reset") }}
       icon: mdi:summit
 
 - trigger:

@@ -2039,7 +2039,11 @@
         data:
           entity_id: climate.inkom
           setpoint: 18
-          mode: follow_schedule
+          mode: temporary_override
+          duration:
+            hours: 0
+            minutes: 45
+            seconds: 0
     default:
     - service: ramses_cc.reset_zone_mode
       data:
@@ -2877,4 +2881,18 @@
     data: {}
     target:
       entity_id: input_boolean.philippe_vacation
+  mode: single
+- id: '1672382881184'
+  alias: 'Notify: Gas Consumed Belgium changes to 0'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - sensor.gas_consumed_belgium
+    to: '0'
+  condition: []
+  action:
+  - service: notify.mobile_app_pixel_5
+    data:
+      message: Gas Consumed Belgium changes to 0
   mode: single

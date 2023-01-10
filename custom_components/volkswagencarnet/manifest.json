@@ -11,7 +11,7 @@
     "name": "Volkswagen WeConnect",
     "requirements": [
         "pytz",
-        "volkswagencarnet==4.4.53"
+        "volkswagencarnet==4.4.59"
     ],
-    "version": "v4.4.58"
+    "version": "v4.4.59"
 }

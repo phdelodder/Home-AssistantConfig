@@ -80,10 +80,11 @@ devices:
     measurement_poll_interval: 2
   '0x842e14fffe36688c':
     friendly_name: Boiler Keuken
-    measurement_poll_interval: 2
+    measurement_poll_interval: 1
   '0x84ba20fffe7c2569':
     friendly_name: Vaatwas
     measurement_poll_interval: 2
+    voltage_calibration: -1
   '0x842e14fffe1265b6':
     friendly_name: Koelkast Keuken
     measurement_poll_interval: 2
@@ -97,7 +98,7 @@ devices:
     friendly_name: Koelkast/Vriezer Garage
     measurement_poll_interval: 2
   '0x84fd27fffece97d4':
-    friendly_name: Computer
+    friendly_name: Server
     power_calibration: 0
   '0x00158d000173f38e':
     friendly_name: Dressing Ledstrip
