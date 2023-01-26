@@ -94,6 +94,7 @@
       {% else %}
         mdi:smoke-detector
       {% endif %}
+
   - name: "Unavailable Entities"
     unique_id: unavailable_entities
     icon: "{{ iif(states(this.entity_id)|float(0) > 0,'mdi:alert-circle','mdi:check-circle') }}"
@@ -113,6 +114,7 @@
           {% set entities =  entities|rejectattr('entity_id','in',ignored) %}
         {% endif %}
         {{ entities|map(attribute='entity_id')|list }}
+
   - name: "Entities with Low Battery"
     unique_id: entities_with_low_battery
     unit_of_measurement: entities
@@ -191,23 +193,55 @@
         states('sensor.led_schouw_power') | float(0) +
         states('sensor.led_speelkamer_power') | float(0)}}
 
+  - name: "Current Power From To Grid"
+    unique_id: "current_power_from_to_grid"
+    unit_of_measurement: W
+    device_class: power
+    state: >-
+      {% if states('sensor.power_produced') | float(0) * 1000 > 0 %}
+        {{ (states('sensor.power_produced') | float(0) * 1000) | int }}
+      {% else %}
+        {{ (states('sensor.power_consumed') | float(0) * 1000) | int }}
+      {% endif %}
+    icon: >-
+      {% if (states('sensor.power_produced') | float(0) * 1000) | int > 0 %}
+        mdi:transmission-tower-export
+      {% else %}
+        mdi:transmission-tower-import
+      {% endif %}
+    availability: >
+      {{ states('sensor.power_consumed') | float(none) != none and
+          states('sensor.power_produced') | float(none) != none }}
+
   - name: "Current Power"
     unique_id: "current_power"
     unit_of_measurement: W
     device_class: power
     state: >-
-      {% if states('sensor.stp6_0_3se_40_411_grid_power') | float(0) > 0 %}
-        {{ states('sensor.stp6_0_3se_40_411_grid_power') | float (0)
-            + (states('sensor.power_consumed') | float(0) * 1000)
-            - (states('sensor.power_produced') | float(0) * 1000) }}
+      {% set grid_power = states('sensor.stp6_0_3se_40_411_grid_power') | float (0) %}
+      {% if grid_power > 0 %}
+        {% set consumed = states('sensor.stp6_0_3se_40_411_metering_power_absorbed') | float(0) %}
+        {% set produced = states('sensor.stp6_0_3se_40_411_metering_power_supplied') | float(0) %}
       {% else %}
-        {{ (states('sensor.power_consumed') | float(0) * 1000
-            - states('sensor.power_produced') | float(0) * 1000) }}
+        {% set consumed = states('sensor.power_consumed') | float(0) * 1000 %}
+        {% set produced = states('sensor.power_produced') | float(0) * 1000 %}
+      {% endif %}
+
+      {% if grid_power > 0 %}
+        {% if consumed > 0 %}
+          {{ grid_power + consumed }}
+        {% else %}
+          {{ grid_power - produced }}
+        {% endif %}
+      {% else %}
+        {{ consumed }}
       {% endif %}
     availability: >
-      {{ states('sensor.stp6_0_3se_40_411_grid_power') | float(none) != none and
-          states('sensor.power_consumed') | float(none) != none and
-          states('sensor.power_produced') | float(none) != none }}
+      {{ (states('sensor.stp6_0_3se_40_411_grid_power') | float(none) != none and
+          states('sensor.stp6_0_3se_40_411_metering_power_absorbed') | float(none) != none and
+          states('sensor.stp6_0_3se_40_411_metering_power_supplied') | float(none) != none) or
+          (states('sensor.power_consumed') | float(none) != none and
+          states('sensor.power_produced') | float(none) != none) }}
 
   - name: "Unknown Power"
     unique_id: "unknown_power"

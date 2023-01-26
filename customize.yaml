@@ -187,3 +187,10 @@ binary_sensor.motion_achterdeur_mqtt:
   device_class: motion
 switch.oprit_motion_detection:
   icon: mdi:eye
+sensor.current_power_from_to_grid:
+  icon_color: >-
+    {% if (states('sensor.power_produced') | float(0) * 1000) | int > 0 %}
+      green
+    {% else %}
+      red
+    {% endif %}

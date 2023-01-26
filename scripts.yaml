@@ -54,11 +54,11 @@ arriving:
   alias: Arriving at our house
   sequence:
   - service: script.turn_on_switches_and_stored_states
-  - service: script.deactivate_kids_home_alone
-  - service: script.deactivate_guest_mode
-  - service: script.deactivate_vacation_mode
+    data: {}
   - service: script.set_thermostat_home
+    data: {}
   - service: script.turn_off_motion_detection_camera
+    data: {}
   mode: single
   icon: mdi:home-import-outline
 turn_off_motion_detection_camera:
@@ -113,7 +113,7 @@ set_thermostat_away:
       }}'
   - delay:
       hours: 0
-      minutes: 1
+      minutes: 2
       seconds: 0
       milliseconds: 0
   - service: climate.set_temperature
@@ -164,8 +164,6 @@ activate_guest_mode:
   - service: input_boolean.turn_on
     data:
       entity_id: input_boolean.guest_mode
-  - service: script.set_thermostat_home
-    data: {}
   - service: notify.hazilverberkenstraatbot
     data_template:
       message: Guest mode activated
@@ -855,8 +853,6 @@ activate_kids_home_alone_mode:
     target:
       entity_id:
       - input_boolean.kids_home_alone
-  - service: script.set_thermostat_home
-    data: {}
   - service: notify.hazilverberkenstraatbot
     data_template:
       message: Kids Home Alone mode activated

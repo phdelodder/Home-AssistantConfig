@@ -22,7 +22,7 @@ advanced:
     port: 123
     protocol: tcp4
     type: '5424'
-  transmit_power: 9
+  transmit_power: 12
   channel: 25
   last_seen: ISO_8601_local
   network_key:
@@ -65,7 +65,7 @@ devices:
   '0x000d6ffffe557c23':
     friendly_name: Staande Lamp Living
   '0x680ae2fffee9d570':
-    friendly_name: Lamp Barkast
+    friendly_name: EGLO Newtown Tafellamp
   '0x588e81fffeff5e81':
     friendly_name: Droogkast
     measurement_poll_interval: 2
@@ -198,6 +198,10 @@ devices:
     friendly_name: Kerstboom
   '0xa4c13876a95a3462':
     friendly_name: Haag Straat
+  '0xbc33acfffeedec29':
+    friendly_name: Pipe Table
+  '0xa4c138ec68c50362':
+    friendly_name: Bubble Table 1
 groups:
   '1':
     friendly_name: Dressing Spots

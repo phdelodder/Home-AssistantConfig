@@ -19,8 +19,10 @@
     - light.staande_lamp_living
     - light.led_mini_kerstboom_led
     - light.kerstboom
-    - light.lamp_barkast
+    - light.eglo_newtown_tafellamp
     - light.led_stars_light_led
+    - light.pipe_table
+    - light.bubble_table_1
 
 - platform: group
   name: Eerste Verdiep

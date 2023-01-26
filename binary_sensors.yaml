@@ -4,7 +4,10 @@
       friendly_name: No one is home
       value_template: >
         {{ not is_state("person.philippe", "home")
-            and not is_state("person.isabel", "home") }}
+            and not is_state("person.isabel", "home")
+            and is_state("binary_sensor.kids_home_alone", "off")
+            and is_state("binary_sensor.guest_mode", "off")
+        }}
       icon_template: >-
         {% if is_state('binary_sensor.no_one_home', 'off') %}
           mdi:home

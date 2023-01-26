@@ -67,13 +67,21 @@
     target:
       entity_id: light.led_slaapkamer
     data:
-      brightness: 1
       effect: solid
+      color_name: darkred
+      brightness_pct: 1
+    enabled: true
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 5
+      milliseconds: 0
   - service: select.select_option
     target:
       entity_id: select.led_slaapkamer_preset
     data:
       option: Sunrise
+    enabled: true
   mode: single
 - id: Sync Tasmota states
   alias: Sync Tasmota states
@@ -360,7 +368,7 @@
     default: []
   mode: single
 - id: '1600753998896'
-  alias: 'Leaving: automatically turn off'
+  alias: 'Away: automatically turn off'
   description: ''
   trigger:
   - platform: state
@@ -369,7 +377,9 @@
     for:
       minutes: 1
   - platform: state
-    entity_id: binary_sensor.guest_mode
+    entity_id:
+    - binary_sensor.guest_mode
+    - binary_sensor.kids_home_alone
     to: 'off'
     for:
       hours: 0
@@ -389,8 +399,8 @@
   - service: script.leaving
     data: {}
 - id: '1600753998897'
-  alias: 'Leaving: start vacuum after 5 mins'
-  description: ''
+  alias: 'Away: start vacuum after 5 mins'
+  description: If away and guest and kids are off, enable the vacuum
   trigger:
   - platform: state
     entity_id: binary_sensor.no_one_home
@@ -406,41 +416,10 @@
     state: 'off'
   action:
   - service: script.vacuum_automated
-  mode: single
-- id: '1600754548159'
-  alias: 'Leaving: set thermostat to Away'
-  description: Set thermostat to Away
-  trigger:
-  - platform: state
-    entity_id: binary_sensor.no_one_home
-    to: 'on'
-    for: 0:01:00
-  - platform: template
-    value_template: '{{ is_state(''person.isabel'', ''Az-Sint Jan'') and is_state(''person.philippe'',
-      ''Connective'') }}'
-  - platform: state
-    entity_id: binary_sensor.guest_mode
-    to: 'off'
-    for:
-      hours: 0
-      minutes: 0
-      seconds: 30
-  condition:
-  - condition: state
-    entity_id: binary_sensor.guest_mode
-    state: 'off'
-  - condition: state
-    entity_id: binary_sensor.kids_home_alone
-    state: 'off'
-  - condition: state
-    entity_id: binary_sensor.no_one_home
-    state: 'on'
-  action:
-  - service: script.set_thermostat_away
     data: {}
   mode: single
 - id: '1600754448159'
-  alias: Arriving
+  alias: Home
   description: ''
   trigger:
   - platform: state
@@ -473,8 +452,9 @@
   action:
   - service: scene.turn_on
     data:
+      transition: 120
+    target:
       entity_id: scene.woonkamer_morning
-      transition: 60
   mode: single
 - id: '1600757546616'
   alias: Woonkamer Lights Morning Off
@@ -485,7 +465,7 @@
       25 and (states(''sensor.time'') >= ''06:00:00'' and states(''sensor.time'')
       <= ''09:29:55'') }}'
   - platform: time
-    at: 09:29
+    at: 09:29:00
   - platform: state
     entity_id:
     - media_player.woonkamer
@@ -500,7 +480,11 @@
     after: 06:00
     before: 09:30
   action:
-  - scene: scene.woonkamer_off
+  - service: scene.turn_on
+    data:
+      transition: 120
+    target:
+      entity_id: scene.woonkamer_off
   mode: single
 - id: '1600758658063'
   alias: Woonkamer Lights Eve On
@@ -527,8 +511,9 @@
   action:
   - service: scene.turn_on
     data:
+      transition: 120
+    target:
       entity_id: scene.woonkamer_eve
-      transition: 60
   mode: single
 - id: '1600759062566'
   alias: Woonkamer Lights Evening On
@@ -555,8 +540,9 @@
   action:
   - service: scene.turn_on
     data:
+      transition: 120
+    target:
       entity_id: scene.woonkamer_evening
-      transition: 60
   mode: single
 - id: '1600759267237'
   alias: Woonkamer Lights Night
@@ -611,8 +597,9 @@
     default: []
   - service: scene.turn_on
     data:
+      transition: 120
+    target:
       entity_id: scene.woonkamer_off
-      transition: 60
   mode: restart
 - id: '1600846307260'
   alias: Reset Daily Inputs
@@ -932,6 +919,9 @@
   trigger:
   - platform: state
     entity_id: sensor.temperature_bureau
+  - platform: state
+    entity_id:
+    - button.copperhead_shutdown
   condition: []
   action:
   - choose:
@@ -945,7 +935,20 @@
           entity_id:
           - fan.cabinet_fan_1
           - fan.cabinet_fan_2
+    - conditions:
+      - condition: state
+        entity_id: button.copperhead_shutdown
+        state: unavailable
+      sequence:
+      - service: fan.turn_off
+        data:
+          entity_id:
+          - fan.cabinet_fan_1
+          - fan.cabinet_fan_2
     default:
+    - condition: state
+      entity_id: device_tracker.copperhead
+      state: not_home
     - service: fan.turn_on
       data_template:
         entity_id:
@@ -1289,6 +1292,15 @@
         data:
           temperature: 18
           entity_id: climate.speelkamer
+      - service: ramses_cc.set_zone_mode
+        data:
+          entity_id: climate.speelkamer
+          setpoint: 19
+          mode: temporary_override
+          duration:
+            hours: 1
+            minutes: 0
+            seconds: 0
     default:
     - service: ramses_cc.reset_zone_mode
       data:
@@ -1808,7 +1820,7 @@
       message: Low Water Pressure Heating
   mode: single
 - id: '1639208368937'
-  alias: 'Set Mode: Kids Alone Home'
+  alias: 'Set Mode: Kids Alone Home - Activate'
   description: ''
   trigger:
   - platform: device
@@ -1823,6 +1835,8 @@
     target:
       entity_id: input_boolean.kids_home_alone
     data: {}
+  - service: script.activate_kids_home_alone_mode
+    data: {}
   mode: single
 - id: '1639820224754'
   alias: Woonkamer Remote
@@ -1835,7 +1849,8 @@
       - service: scene.turn_on
         target:
           entity_id: scene.woonkamer_off
-        data: {}
+        data:
+          transition: 120
       - service: light.turn_off
         target:
           entity_id: light.led_stars_light_led
@@ -1845,12 +1860,14 @@
       - service: scene.turn_on
         target:
           entity_id: scene.woonkamer_eve
-        data: {}
+        data:
+          transition: 120
       action_button_down_short:
       - service: scene.turn_on
         target:
           entity_id: scene.woonkamer_evening
-        data: {}
+        data:
+          transition: 120
       helper_last_controller_event: input_text.woonkamer_remote_helper_last_controller_event
       controller_entity: sensor.woonkamer_scene_5_button_action
 - id: '1639822020752'
@@ -2895,4 +2912,67 @@
   - service: notify.mobile_app_pixel_5
     data:
       message: Gas Consumed Belgium changes to 0
+  mode: single
+- id: '1673989271901'
+  alias: 'Set Mode: Kids Alone Home - Deactivate'
+  description: ''
+  trigger:
+  - platform: device
+    domain: mqtt
+    device_id: a3caf214b66a464d92f094d79804725b
+    type: action
+    subtype: 'off'
+    discovery_id: 0x000d6ffffeaac6a7 action_off
+  condition: []
+  action:
+  - service: input_boolean.turn_off
+    data: {}
+    target:
+      entity_id: input_boolean.kids_home_alone
+  - service: script.deactivate_kids_home_alone
+    data: {}
+  mode: single
+- id: '1674567851889'
+  alias: 'Home: Isabel or Philippe'
+  description: With guest, kids or vacation mode enabled, we only want to deactivate
+    it when a know person (device) arrives.
+  trigger:
+  - platform: state
+    entity_id:
+    - person.philippe
+    - person.isabel
+    to: home
+    from: not_home
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 15
+  condition: []
+  action:
+  - service: script.deactivate_kids_home_alone
+    data: {}
+  - service: script.deactivate_guest_mode
+    data: {}
+  - service: script.deactivate_vacation_mode
+    data: {}
+  mode: single
+- id: '1674568429211'
+  alias: Away
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.no_one_home
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 30
+    to: 'on'
+    from: 'off'
+  condition: []
+  action:
+  - service: script.set_thermostat_away
+    data: {}
+  - service: script.leaving
+    data: {}
   mode: single

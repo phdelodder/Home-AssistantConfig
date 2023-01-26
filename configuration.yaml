@@ -50,6 +50,8 @@ recorder:
       - sensor.time_utc
       - sensor.date
       - sensor.date_time
+      - sensor.solar_battery_life
+      - sensor.solar_battery_recharge_time
 
 discovery:
 
@@ -152,3 +154,9 @@ influxdb:
   password: !secret influxdb-password
   max_retries: 3
   default_measurement: state
+  exclude:
+    entities:
+      - sensor.time
+      - sensor.time_utc
+      - sensor.date
+      - sensor.date_time
