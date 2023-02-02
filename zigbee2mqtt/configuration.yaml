@@ -200,8 +200,6 @@ devices:
     friendly_name: Haag Straat
   '0xbc33acfffeedec29':
     friendly_name: Pipe Table
-  '0xa4c138ec68c50362':
-    friendly_name: Bubble Table 1
 groups:
   '1':
     friendly_name: Dressing Spots

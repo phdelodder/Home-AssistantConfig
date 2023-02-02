@@ -541,14 +541,14 @@
           kids home alone
         {% elif is_state('binary_sensor.guest_mode', 'on') %}
           guest
-        {% elif is_state('binary_sensor.night_mode', 'on') %}
-          night
-        {% elif is_state('binary_sensor.no_one_home', 'off') %}
-          home
+        {% elif is_state('binary_sensor.no_one_home', 'on') %}
+          away
         {% elif is_state('input_boolean.vacation_mode', 'on') %}
           vacation
+        {% elif is_state('binary_sensor.night_mode', 'on') %}
+          night
         {% else %}
-          away
+          home
         {% endif %}
       icon_template: >-
         {% if is_state('input_boolean.kids_home_alone', 'on') %}
@@ -557,12 +557,12 @@
           mdi:alpha-g
         {% elif is_state('binary_sensor.night_mode', 'on') %}
           mdi:weather-night
-        {% elif is_state('binary_sensor.no_one_home', 'off') %}
-          mdi:home
+        {% elif is_state('binary_sensor.no_one_home', 'on') %}
+          mdi:home-outline
         {% elif is_state('input_boolean.vacation_mode', 'on') %}
           mdi:beach
         {% else %}
-          mdi:home-outline
+          mdi:home
         {% endif %}
     oprit_last_motion:
       friendly_name: Oprit Last Motion

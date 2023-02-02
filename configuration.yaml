@@ -50,7 +50,7 @@ recorder:
       - sensor.time_utc
       - sensor.date
       - sensor.date_time
-      - sensor.solar_battery_life
+      - sensor.solar_battery_life*
       - sensor.solar_battery_recharge_time
 
 discovery:

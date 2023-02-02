@@ -423,8 +423,14 @@
   description: ''
   trigger:
   - platform: state
-    entity_id: binary_sensor.no_one_home
+    entity_id:
+    - binary_sensor.no_one_home
     to: 'off'
+    from: 'on'
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 5
   condition: []
   action:
   - service: script.arriving
@@ -677,7 +683,6 @@
     - binary_sensor.motion_gang_eerste_1
     - binary_sensor.motion_inkom_1
     - binary_sensor.motion_inkom_2
-    - binary_sensor.motion_keuken
     to: 'on'
   condition:
   - condition: state
@@ -2975,4 +2980,30 @@
     data: {}
   - service: script.leaving
     data: {}
+  mode: queued
+  max: 10
+- id: '1675258190220'
+  alias: Fan Inverter Buitenkast
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - sensor.temperature_buitenkast
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: numeric_state
+        entity_id: sensor.temperature_buitenkast
+        above: 25
+      sequence:
+      - service: switch.turn_on
+        data: {}
+        target:
+          entity_id: switch.usb_relay
+    default:
+    - service: switch.turn_off
+      data: {}
+      target:
+        entity_id: switch.usb_relay
   mode: single

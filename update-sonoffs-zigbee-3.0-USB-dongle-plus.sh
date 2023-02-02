@@ -24,21 +24,22 @@ wget https://github.com/JelmerT/cc2538-bsl/raw/master/cc2538-bsl.py
 mkdir master
 cd master
 # Master branch coordinator as of 5/11/22
-wget https://github.com/Koenkk/Z-Stack-firmware/raw/master/coordinator/Z-Stack_3.x.0/bin/CC1352P2_CC2652P_launchpad_coordinator_20220219.zip
+#wget https://github.com/Koenkk/Z-Stack-firmware/raw/master/coordinator/Z-Stack_3.x.0/bin/CC1352P2_CC2652P_launchpad_coordinator_20220219.zip
+wget https://github.com/Koenkk/Z-Stack-firmware/raw/master/coordinator/Z-Stack_3.x.0/bin/CC1352P2_CC2652P_launchpad_coordinator_20221226.zip
 wget https://github.com/Koenkk/Z-Stack-firmware/raw/master/router/Z-Stack_3.x.0/bin/CC1352P2_CC2652P_launchpad_router_20220125.zip
 for f in *.zip; do unzip $f; done 
 
-cd ..
-mkdir dev
-cd dev
-# Dev branch coordinator as of 5/11/22
-wget https://github.com/Koenkk/Z-Stack-firmware/raw/develop/coordinator/Z-Stack_3.x.0/bin/CC1352P2_CC2652P_launchpad_coordinator_20220507.zip
-wget https://github.com/Koenkk/Z-Stack-firmware/raw/develop/router/Z-Stack_3.x.0/bin/CC1352P2_CC2652P_launchpad_router_20220125.zip
-for f in *.zip; do unzip $f; done
+#cd ..
+#mkdir dev
+#cd dev
+## Dev branch coordinator as of 5/11/22
+#wget https://github.com/Koenkk/Z-Stack-firmware/raw/develop/coordinator/Z-Stack_3.x.0/bin/CC1352P2_CC2652P_launchpad_coordinator_20220507.zip
+#wget https://github.com/Koenkk/Z-Stack-firmware/raw/develop/router/Z-Stack_3.x.0/bin/CC1352P2_CC2652P_launchpad_router_20220125.zip
+#for f in *.zip; do unzip $f; done
 
 cd ..
 python $basepath/cc2538-bsl.py -evw -p /dev/ttyUSB$3 \
   --bootloader-sonoff-usb  $basepath/$1/*$2*.hex
 
 cd /config
-rm -rf $basepath
+#rm -rf $basepath
